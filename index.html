@@ -69,6 +69,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">인삼</div>
       <div class="crop-desc">전수조사</div>
     </div>
+    <div class="crop-card done" onclick="go('potato')">
+      <span class="badge badge-done">개발중</span>
+      <div class="crop-icon">🥔</div>
+      <div class="crop-name">감자</div>
+      <div class="crop-desc">수확량조사</div>
+    </div>
   </div>
 </div>
 
@@ -103,6 +109,8 @@ function switchTab(i){
 }
 function go(page){
   if(page==='ginseng') location.href='./ginseng.html';
+  if(page==='bean')    location.href='./bean.html';
+  if(page==='potato')  location.href='./potato.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
