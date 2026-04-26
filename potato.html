@@ -168,7 +168,7 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
     <div class="g3">
       <div class="field"><label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="deadArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
-      <div class="field"><label>타작물·미보상면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+      <div class="field"><label>타작물미보상 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="uninsArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
       <div class="field"><label>기수확면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="preArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
@@ -190,68 +190,68 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
       <span style="font-size:10px;color:var(--hint);font-weight:400">중량 단위: g</span>
     </div>
 
-    <!-- 무게조사 (정상, 50%피해) -->
+    <!-- 표본 1 - 무게조사 -->
     <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px;padding:4px 6px;background:#f0f5eb;border-radius:6px">
-      📦 무게조사 · 정상 / 50%피해
+      표본조사 1 - 무게조사
     </div>
-    <div class="scroll-hint">← 좌우 스크롤</div>
     <div class="tbl-wrap">
-      <table id="weight-table" style="min-width:380px">
+      <table id="weight-table" style="min-width:340px;table-layout:fixed">
         <colgroup>
-          <col style="width:36px"><col style="width:54px"><col style="width:54px">
-          <col style="width:80px"><col style="width:80px">
-          <col style="width:80px">
+          <col style="width:38px">
+          <col style="width:64px">
+          <col style="width:64px">
+          <col style="width:90px">
+          <col style="width:90px">
         </colgroup>
         <thead>
           <tr>
-            <th rowspan="2">No.</th>
-            <th rowspan="2">길이\n(m)</th>
-            <th rowspan="2">이랑폭\n(m)</th>
-            <th class="col-normal" style="border-left:2px solid #b5dca0">정상\n중량(g)</th>
-            <th class="col-dmg50" style="border-left:1px solid #e0d0a0">50%피해\n중량(g)</th>
-            <th class="col-dmg50">50%피해\n자동환산</th>
+            <th>표본구간</th>
+            <th>이랑길이<br>(m)</th>
+            <th>이랑폭<br>(m)</th>
+            <th style="border-left:2px solid #b5dca0;background:#f0fff4">무게조사(g)<br>정상</th>
+            <th style="background:#fffbf0">무게조사(g)<br>50%</th>
           </tr>
         </thead>
         <tbody id="weight-body"></tbody>
         <tfoot>
           <tr>
             <td>합계</td>
-            <td id="t-len">-</td><td id="t-wid">-</td>
+            <td id="t-len">-</td>
+            <td id="t-wid">-</td>
             <td id="t-normal">-</td>
             <td id="t-dmg50">-</td>
-            <td id="t-dmg50-eff" style="color:var(--green)">-</td>
           </tr>
         </tfoot>
       </table>
     </div>
 
-    <!-- 병충해 피해 -->
+    <!-- 표본 1 - 병충해 피해 중량 -->
     <div style="font-size:11px;font-weight:600;color:#d97706;margin:10px 0 6px;padding:4px 6px;background:#fffbeb;border-radius:6px;border-left:3px solid #f59e0b">
-      🐛 병충해 피해 중량 (있는 경우만 입력)
+      🐛 표본조사 1 - 병충해 피해 중량 (해당 없으면 빈칸)
     </div>
     <div class="scroll-hint">← 좌우 스크롤</div>
     <div class="tbl-wrap">
-      <table id="bug-table" style="min-width:500px">
+      <table id="bug-table" style="min-width:480px;table-layout:fixed">
         <colgroup>
-          <col style="width:36px">
-          <col style="width:70px"><col style="width:70px"><col style="width:70px">
-          <col style="width:70px"><col style="width:70px"><col style="width:70px">
-          <col style="width:80px">
+          <col style="width:38px">
+          <col style="width:68px"><col style="width:68px"><col style="width:68px">
+          <col style="width:68px"><col style="width:68px"><col style="width:68px">
+          <col style="width:76px">
         </colgroup>
         <thead>
           <tr>
-            <th rowspan="2">No.</th>
-            <th colspan="3" class="col-bug1" style="border-left:2px solid #f0c080;border-bottom:0.5px solid #e0c060">병충해-1</th>
-            <th colspan="3" class="col-bug2" style="border-left:2px solid #90c0e0;border-bottom:0.5px solid #70a0c0">병충해-2</th>
-            <th rowspan="2" style="background:#f5f5f5;font-size:10px">병충해\n감수량(g)</th>
+            <th rowspan="2">표본구간</th>
+            <th colspan="3" class="col-bug1" style="border-left:2px solid #f0c080">병충해 피해 중량-1</th>
+            <th colspan="3" class="col-bug2" style="border-left:2px solid #90c0e0">병충해 피해 중량-2</th>
+            <th rowspan="2" style="background:#f5f5f5;font-size:10px">병충해<br>감수량(g)</th>
           </tr>
           <tr>
-            <th class="col-bug1" style="border-left:2px solid #f0c080">종류\n(급수)</th>
+            <th class="col-bug1" style="border-left:2px solid #f0c080">종류(급수)</th>
             <th class="col-bug1">중량(g)</th>
-            <th class="col-bug1">손해정도\n비율(%)</th>
-            <th class="col-bug2" style="border-left:2px solid #90c0e0">종류\n(급수)</th>
+            <th class="col-bug1">손해정도<br>비율(%)</th>
+            <th class="col-bug2" style="border-left:2px solid #90c0e0">종류(급수)</th>
             <th class="col-bug2">중량(g)</th>
-            <th class="col-bug2">손해정도\n비율(%)</th>
+            <th class="col-bug2">손해정도<br>비율(%)</th>
           </tr>
         </thead>
         <tbody id="bug-body"></tbody>
@@ -467,14 +467,11 @@ function renderSamples(){
         class="${s.normal?'filled':''}"
         oninput="samples[${i}].normal=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
         onblur="calc()"></td>
-      <td class="col-dmg50" style="border-left:1px solid #e0d0a0">
+      <td class="col-dmg50">
         <input type="number" value="${s.dmg50||''}" inputmode="decimal"
         class="${s.dmg50?'filled':''}"
         oninput="samples[${i}].dmg50=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
         onblur="calc()"></td>
-      <td class="col-dmg50" style="background:#f8f3e0">
-        <input type="text" value="${s.dmg50 ? (parseFloat(s.dmg50)*0.5).toFixed(1)+' g' : ''}" readonly
-        style="background:#f8f3e0;border-color:#e0c880;color:#8a6d00;font-weight:600;font-size:11px"></td>
     </tr>`).join('');
 
   // 병충해 테이블
@@ -561,13 +558,12 @@ function calcTotals(){
   document.getElementById('t-wid').textContent = tWid>0?tWid.toFixed(1)+' m':'-';
   document.getElementById('t-normal').textContent = tNormal>0?tNormal.toLocaleString()+' g':'-';
   document.getElementById('t-dmg50').textContent  = tDmg50>0?tDmg50.toLocaleString()+' g':'-';
-  document.getElementById('t-dmg50-eff').textContent = tDmg50>0?(tDmg50*0.5).toFixed(1)+' g':'-';
   document.getElementById('t-bug1w').textContent = tBug1w>0?tBug1w.toLocaleString()+' g':'-';
   document.getElementById('t-bug2w').textContent = tBug2w>0?tBug2w.toLocaleString()+' g':'-';
   document.getElementById('t-bugLoss').textContent = tBugLoss>0?tBugLoss.toFixed(1)+' g':'-';
   document.getElementById('s-bug').textContent = tBugLoss>0?Math.round(tBugLoss/1000*100)/100+' kg':'-';
 
-  // 병충해 행별 자동환산 업데이트 (마지막 열)
+  // 병충해 행별 자동환산 업데이트
   const bugRows = document.querySelectorAll('#bug-body tr');
   bugRows.forEach((tr,i)=>{
     const lastInput = tr.querySelectorAll('input[readonly]')[0];
@@ -575,15 +571,7 @@ function calcTotals(){
       lastInput.value = calcBugLossRow(samples[i]);
     }
   });
-  // 무게조사 테이블 50%피해 자동환산 업데이트
-  const wRows = document.querySelectorAll('#weight-body tr');
-  wRows.forEach((tr,i)=>{
     const lastInput = tr.querySelectorAll('input[readonly]')[0];
-    if(lastInput && samples[i]){
-      const d = parseFloat(samples[i].dmg50)||0;
-      lastInput.value = d > 0 ? (d*0.5).toFixed(1)+' g' : '';
-    }
-  });
 }
 
 // ── 메인 계산 ─────────────────────────────────────
