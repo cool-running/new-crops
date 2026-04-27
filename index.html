@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>손해평가 피해율계산기</title>
+<title>손해평가 피해율계산기 (개발)</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <style>
@@ -18,57 +18,28 @@
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
-
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;-webkit-user-select:none;user-select:none;padding-bottom:env(safe-area-inset-bottom,50px)}
 .header{background:var(--blue);color:white;padding:16px 16px 14px;display:flex;align-items:center;gap:10px}
 .header-icon{width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
 .header h1{font-size:17px;font-weight:700;flex:1}
 .header-sub{font-size:11px;opacity:0.7;margin-top:2px}
-.help-btn{height:30px;padding:0 10px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:8px;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;white-space:nowrap}
-
+.dev-badge{height:24px;padding:0 10px;background:rgba(255,200,0,0.25);border:1px solid rgba(255,200,0,0.5);border-radius:8px;color:#FFE082;font-size:11px;font-weight:700;display:flex;align-items:center;flex-shrink:0}
 .tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .tab{flex:1;padding:12px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer}
 .tab.on{color:var(--blue);border-bottom-color:var(--blue)}
-
 .tab-content{display:none;padding:16px 14px}
 .tab-content.on{display:block}
-
 .crop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.crop-card{background:var(--card);border-radius:var(--r);padding:20px 14px;text-align:center;border:0.5px solid var(--border);cursor:pointer;position:relative;transition:transform 0.1s}
+.crop-card{background:var(--card);border-radius:var(--r);padding:20px 14px;text-align:center;border:0.5px solid var(--border);cursor:pointer;position:relative;transition:transform 0.1s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .crop-card:active{transform:scale(0.97)}
 .crop-card.done{border-color:var(--green)}
-.crop-card.ready{border-color:var(--blue)}
-.crop-card.soon{opacity:0.55;cursor:default}
-.crop-icon{font-size:22px;margin-bottom:10px;line-height:1.4;white-space:nowrap;letter-spacing:2px}
+.crop-icon{font-size:22px;margin-bottom:10px;line-height:1.4}
 .crop-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:-0.02em}
 .crop-desc{font-size:12px;color:var(--sub);font-weight:500}
 .badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
 .badge-done{background:#e8faf3;color:var(--green)}
-.badge-new{background:#EBF4FF;color:var(--blue)}
-.badge-soon{background:#f0f0f0;color:#bbb}
-.badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
-.badge-done{background:#e8faf3;color:var(--green)}
-.badge-new{background:#EBF4FF;color:var(--blue)}
-.badge-soon{background:#f0f0f0;color:#bbb}
-
 .coming-soon{text-align:center;padding:50px 20px;color:var(--hint);font-size:13px;line-height:1.8}
 .coming-soon .cs-icon{font-size:44px;margin-bottom:14px}
-</style>
-<!-- build:1776393866 -->
-
-<style>
-  /* 터치 및 번역 방지 스타일 */
-  .notranslate { translate: no !important; }
-  body {
-    -webkit-user-select: none;
-    user-select: none;
-    padding-bottom: env(safe-area-inset-bottom, 50px) !important;
-  }
-  /* 카드 클릭 시 하이라이트 제거 및 터치 반응 개선 */
-  .crop-card {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
 </style>
 </head>
 <body>
@@ -76,12 +47,10 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 <div class="header">
   <div class="header-icon">🌿</div>
   <div style="flex:1">
-    <h1>손해평가 피해율계산기</h1>
-    <div class="header-sub">농업재해보험 손해평가사 전용</div>
+    <h1>피해율계산기 개발버전</h1>
+    <div class="header-sub">새 작물 테스트 전용</div>
   </div>
-  <button class="help-btn" onclick="location.href='./help.html'" title="도움말">
-    <span style="font-size:13px;font-weight:600">도움말</span>
-  </button>
+  <div class="dev-badge">DEV</div>
 </div>
 
 <div class="tab-bar">
@@ -91,69 +60,45 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   <div class="tab" onclick="switchTab(3)">논작물</div>
 </div>
 
-<!-- 밭작물 v2 -->
+<!-- 밭작물 -->
 <div class="tab-content on" id="tab-0">
   <div class="crop-grid">
-    <div class="crop-card done" onclick="go('garlic')">
+    <div class="crop-card done" onclick="go('ginseng')">
       <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🧄</div>
-      <div class="crop-name">마늘</div>
-      <div class="crop-desc">수확량 조사</div>
+      <div class="crop-icon">🌿</div>
+      <div class="crop-name">인삼</div>
+      <div class="crop-desc">전수조사</div>
     </div>
-    <div class="crop-card done" onclick="go('onion')">
-      <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🧅</div>
-      <div class="crop-name">양파</div>
-      <div class="crop-desc">수확량 조사</div>
-    </div>
-    <div class="crop-card done" onclick="go('bean')">
-      <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🫘</div>
-      <div class="crop-name">콩</div>
-      <div class="crop-desc">수확량 조사</div>
-    </div>
-    <div class="crop-card done" onclick="go('sweetpotato')">
-      <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🍠</div>
-      <div class="crop-name">고구마</div>
-      <div class="crop-desc">수확량 조사</div>
+    <div class="crop-card done" onclick="go('potato')">
+      <span class="badge badge-done">개발중</span>
+      <div class="crop-icon">🥔</div>
+      <div class="crop-name">감자</div>
+      <div class="crop-desc">수확량조사</div>
     </div>
   </div>
 </div>
 
 <!-- 과수 4종 -->
 <div class="tab-content" id="tab-1">
-  <div class="crop-grid">
-    <div class="crop-card done" onclick="go('apple')">
-      <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🍎🍐🟠🟤</div>
-      <div class="crop-name">적과후착과수 조사</div>
-      <div class="crop-desc">사과·배·단감·떫은감</div>
-    </div>
+  <div class="coming-soon">
+    <div class="cs-icon">🍎</div>
+    <div>개발 예정</div>
   </div>
 </div>
 
 <!-- 종합과수 -->
 <div class="tab-content" id="tab-2">
-  <div class="crop-grid">
-    <div class="crop-card done" onclick="go('fruit')">
-      <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🍇🍑🫐</div>
-      <div class="crop-name">착과수 조사</div>
-      <div class="crop-desc">포도·복숭아·자두</div>
-    </div>
+  <div class="coming-soon">
+    <div class="cs-icon">🍇</div>
+    <div>개발 예정</div>
   </div>
 </div>
 
 <!-- 논작물 -->
 <div class="tab-content" id="tab-3">
-  <div class="crop-grid">
-    <div class="crop-card done" onclick="go('rice')">
-      <span class="badge badge-done">완성</span>
-      <div class="crop-icon">🌾</div>
-      <div class="crop-name">벼</div>
-      <div class="crop-desc">수확량 조사</div>
-    </div>
+  <div class="coming-soon">
+    <div class="cs-icon">🌾</div>
+    <div>개발 예정</div>
   </div>
 </div>
 
@@ -163,14 +108,10 @@ function switchTab(i){
   document.querySelectorAll('.tab-content').forEach((c,j)=>c.classList.toggle('on',i===j));
 }
 function go(page){
-  if(page==='garlic') location.href='./garlic.html';
-  if(page==='onion') location.href='./onion.html';
-  if(page==='bean') location.href='./bean.html';
+  if(page==='ginseng') location.href='./ginseng.html';
+  if(page==='bean')    location.href='./bean.html';
+  if(page==='potato')  location.href='./potato.html';
   if(page==='sweetpotato') location.href='./sweetpotato.html';
-  if(page==='apple') location.href='./apple.html';
-  if(page==='apple_multi') location.href='./apple_multi.html';
-  if(page==='fruit') location.href='./fruit.html';
-  if(page==='rice') location.href='./rice.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
