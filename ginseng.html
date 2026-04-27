@@ -32,6 +32,10 @@ function bindMobileFocusHandlers(){
       if(e.cancelable) e.preventDefault();
       el.focus();
       el.classList.add('mobile-focus');
+      try{ el.select(); }catch(_){
+        const len=el.value.length;
+        try{ el.setSelectionRange(0,len); }catch(_){}
+      }
     }, {passive:false});
   });
 }
@@ -85,15 +89,15 @@ input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 
 input.inp.mobile-focus,select.inp.mobile-focus,
-input.inp:focus,input.inp:focus-visible,input.inp:active,
-select.inp:focus,select.inp:focus-visible,select.inp:active{
+input.inp:focus,input.inp:focus-visible,
+select.inp:focus,select.inp:focus-visible{
   outline:none !important;border-color:#185FA5 !important;
   box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
   background:#DCEEFF !important;color:#185FA5 !important;
 }
 input.inp.filled.mobile-focus,select.inp.filled.mobile-focus,
-input.inp.filled:focus,input.inp.filled:focus-visible,input.inp.filled:active,
-select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active{
+input.inp.filled:focus,input.inp.filled:focus-visible,
+select.inp.filled:focus,select.inp.filled:focus-visible{
   outline:none !important;border-color:#185FA5 !important;
   box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
   background:#DCEEFF !important;color:#185FA5 !important;
