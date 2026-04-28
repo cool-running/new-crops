@@ -211,12 +211,14 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="text" id="rowLen" class="inp filled" inputmode="decimal" value="0.5"
-            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.5';markFilled(this);calc()" autocomplete="off">
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.5';markFilled(this);calc()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('rowWid')?.focus();}" autocomplete="off">
         </div>
         <div class="field">
           <label>이랑폭 (m)</label>
           <input type="text" id="rowWid" class="inp filled" inputmode="decimal" value="0.5"
-            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.5';markFilled(this);calc()" autocomplete="off">
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.5';markFilled(this);calc()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();setTimeout(()=>{const el=document.getElementById('sp0');if(el&&!el.disabled)el.focus();},100);}" autocomplete="off">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -925,15 +927,16 @@ function fillCaptureTemplate(){
     document.getElementById('cap-moisture').textContent  = document.getElementById('moisture')?.value ? document.getElementById('moisture').value+'%':'-';
     document.getElementById('cap-uninsRate').textContent = document.getElementById('uninsRate')?.value ? document.getElementById('uninsRate').value+'%':'-';
     const proper=parseInt(document.getElementById('properSampleDisp').value)||0;
+    const capActive = actualProper > 0 ? actualProper : proper;
     const td=(i)=>{
-      const el=document.getElementById('sp'+i); const v=el?(el.value||''):''; const active=i<proper;
+      const el=document.getElementById('sp'+i); const v=el?(el.value||''):''; const active=i<capActive;
       const bg=v?'#e8faf3':'#fff'; const color=v?'#0d5c35':'#bbb';
       return `<td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:700;font-size:10px;color:${color}">${active?(v||''):''}</td>`;
     };
     const row=document.getElementById('cap-row18');
     if(row){
       let tot=0;
-      for(let i=0;i<proper;i++){const el=document.getElementById('sp'+i);if(el&&el.value)tot+=parseFloat(el.value)||0;}
+      for(let i=0;i<capActive;i++){const el=document.getElementById('sp'+i);if(el&&el.value)tot+=parseFloat(el.value)||0;}
       row.innerHTML=td(0)+td(1)+td(2)+td(3)+td(4)+td(5)+td(6)+td(7)+
         `<td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;color:#0d5c35;font-weight:700;font-size:10px">${tot?tot.toLocaleString():'-'}</td>`;
     }
