@@ -232,7 +232,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div class="section">
       <div class="sec-head">
         <div class="sec-title">④ 표본구간별 수확량 <span style="font-size:11px;color:var(--hint)">(g)</span></div>
-        <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
+          <button id="btn-sample-minus" onclick="sampleMinus()"
+            style="width:28px;height:28px;border:1.5px solid var(--border);border-radius:6px;background:transparent;font-size:16px;color:var(--hint);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">－</button>
+          <button id="btn-sample-plus" onclick="samplePlus()"
+            style="width:28px;height:28px;border:1.5px solid var(--binp);border-radius:6px;background:transparent;font-size:16px;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">＋</button>
+        </div>
       </div>
       <div id="sample-inputs"></div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px">
