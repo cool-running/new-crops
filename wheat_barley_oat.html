@@ -940,7 +940,7 @@ function loadState(){
     if(s.mode){ mode=s.mode; }
     if(s.actualProper) actualProper=s.actualProper; // 일단 복원, calc에서 proper와 비교
     Object.keys(s).forEach(id=>{
-      if(['crop','mode','spVals','surveyDate','isLocked','actualProper'].includes(id)) return;
+      if(['crop','mode','spVals','isLocked','actualProper'].includes(id)) return;
       const el=document.getElementById(id);
       if(el&&s[id]!==''){ el.value=s[id]; el.classList.toggle('filled',true); }
     });
