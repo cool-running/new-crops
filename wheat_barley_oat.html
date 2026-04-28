@@ -620,7 +620,7 @@ function normalizeDim(val){
   const n=parseFloat(v);
   return isNaN(n)?'':n.toString();
 }
-function debouncedCalc(){ clearTimeout(_calcTimer); _calcTimer=setTimeout(calc,300); }
+function debouncedCalc(){ clearTimeout(_calcTimer); saveState(); _calcTimer=setTimeout(calc,300); }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 
 // ── 품목 전환 ──────────────────────────────────
