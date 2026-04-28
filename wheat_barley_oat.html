@@ -775,7 +775,7 @@ function calc(){
     if(proper===0){ document.getElementById('sample-inputs').innerHTML=''; lastProper=-1; actualProper=0; minProper=0; }
     else if(proper!==lastProper){
       lastProper=proper;
-      actualProper=proper; // 항상 proper로 초기화 (추가버튼으로만 늘어남)
+      if(actualProper < proper){ actualProper=proper; } // 복원된 actualProper가 proper보다 크면 유지
       minProper=proper;
       renderSampleInputs(proper, actualProper);
     } else {
@@ -894,7 +894,7 @@ function saveState(){
   if(_isRestoring) return;
   const ids=['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
              'uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','fullUninsRate','surveyDate','farm_no'];
-  const state={crop,mode,isLocked:_isLocked};
+  const state={crop,mode,isLocked:_isLocked,actualProper};
   ids.forEach(id=>{ const el=document.getElementById(id); if(el) state[id]=el.value; });
   if(document.getElementById('sp0')){
     const spVals=[];
@@ -912,21 +912,22 @@ function loadState(){
     const s=JSON.parse(raw);
     if(s.crop){ crop=s.crop; setCrop(crop); }
     if(s.mode){ mode=s.mode; }
+    if(s.actualProper) actualProper=s.actualProper; // actualProper 복원
     Object.keys(s).forEach(id=>{
-      if(['crop','mode','spVals','surveyDate','isLocked'].includes(id)) return;
+      if(['crop','mode','spVals','surveyDate','isLocked','actualProper'].includes(id)) return;
       const el=document.getElementById(id);
       if(el&&s[id]!==''){ el.value=s[id]; el.classList.toggle('filled',true); }
     });
     // 이랑폭 기본값
     const rw=document.getElementById('rowWid'); if(rw&&!rw.value){ rw.value='0.5'; rw.classList.add('filled'); }
     const rl=document.getElementById('rowLen'); if(rl&&!rl.value){ rl.value='0.5'; rl.classList.add('filled'); }
-    // 표본값 복원 - proper 기준으로만 복원 (초과 구간값 무시)
+    // 표본값 복원 - actualProper 기준으로 복원
     if(s.spVals&&s.spVals.length>0){
       setTimeout(()=>{
-        const proper = parseInt(document.getElementById('properSampleDisp')?.value)||0;
-        if(proper > 0){
+        const restoreCount = s.actualProper || parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        if(restoreCount > 0){
           s.spVals.forEach((v,i)=>{
-            if(i >= proper) return; // 적정 초과 구간값 무시
+            if(i >= restoreCount) return;
             const el=document.getElementById('sp'+i);
             if(el&&v){ el.value=v; el.style.background='#e8faf3'; el.style.borderColor='#1D9E75'; el.style.color='#0d5c35'; }
           });
