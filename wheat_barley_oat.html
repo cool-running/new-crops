@@ -775,7 +775,8 @@ function calc(){
     if(proper===0){ document.getElementById('sample-inputs').innerHTML=''; lastProper=-1; actualProper=0; minProper=0; }
     else if(proper!==lastProper){
       lastProper=proper;
-      if(actualProper < proper){ actualProper=proper; } // 복원된 actualProper가 proper보다 크면 유지
+      if(actualProper > proper){ actualProper=proper; } // proper 초과 불가 - 리셋
+      if(actualProper < proper){ actualProper=proper; }
       minProper=proper;
       renderSampleInputs(proper, actualProper);
     } else {
@@ -912,7 +913,7 @@ function loadState(){
     const s=JSON.parse(raw);
     if(s.crop){ crop=s.crop; setCrop(crop); }
     if(s.mode){ mode=s.mode; }
-    if(s.actualProper) actualProper=s.actualProper; // actualProper 복원
+    if(s.actualProper) actualProper=s.actualProper; // 일단 복원, calc에서 proper와 비교
     Object.keys(s).forEach(id=>{
       if(['crop','mode','spVals','surveyDate','isLocked','actualProper'].includes(id)) return;
       const el=document.getElementById(id);
@@ -924,7 +925,8 @@ function loadState(){
     // 표본값 복원 - actualProper 기준으로 복원
     if(s.spVals&&s.spVals.length>0){
       setTimeout(()=>{
-        const restoreCount = s.actualProper || parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        const proper = parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        const restoreCount = Math.min(s.actualProper||proper, proper); // proper 초과 불가
         if(restoreCount > 0){
           s.spVals.forEach((v,i)=>{
             if(i >= restoreCount) return;
