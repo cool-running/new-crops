@@ -666,10 +666,9 @@ function calc(){
     if(totalSampleArea>0&&sampleTotal>0){
       effWeight = Math.floor(((sampleTotal/1000)*0.93*(1-moisture)/(1-STD_MOISTURE))/totalSampleArea*100)/100;
     }
-    const unitAvg     = realArea>0 ? avgYield/realArea : 0;
-    const surveyYield = Math.floor(effWeight*surveyArea);
-    const addYield    = unitAvg*(uninsArea+preArea);
-    const totalYield  = Math.floor(surveyYield+addYield);
+    const unitAvg    = realArea>0 ? avgYield/realArea : 0;
+    const addYield   = unitAvg*(uninsArea+preArea);
+    const totalYield = Math.floor(effWeight*surveyArea + addYield);
     const uninsLoss   = Math.round(Math.max(0,effAvg-totalYield)*uninsRate*10000)/10000;
     let pihaeyul = Math.floor((effAvg-totalYield-uninsLoss)/effAvg*10000)/10000;
     pihaeyul = Math.max(0,pihaeyul);
