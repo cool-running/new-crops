@@ -546,6 +546,15 @@ function setCrop(c){
   document.getElementById('header-icon').textContent = info.icon;
   document.getElementById('header-title').textContent = info.title;
   document.getElementById('header-sub').textContent = info.sub;
+  // 귀리: 이랑길이 기본값 제거 / 밀·보리: 0.5 복원 (비어있을 때만)
+  const rl = document.getElementById('rowLen');
+  if(rl){
+    if(c === 'oat'){
+      if(rl.value === '0.5'){ rl.value=''; rl.classList.remove('filled'); }
+    } else {
+      if(!rl.value){ rl.value='0.5'; rl.classList.add('filled'); }
+    }
+  }
   saveState();
 }
 
