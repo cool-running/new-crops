@@ -752,9 +752,11 @@ function calc(){
     if(proper===0){ document.getElementById('sample-inputs').innerHTML=''; lastProper=-1; actualProper=0; minProper=0; }
     else if(proper!==lastProper){
       lastProper=proper;
-      if(actualProper < proper) actualProper=proper;
-      minProper = actualProper; // 처음 렌더링된 구간수 고정
+      actualProper=proper; // 항상 proper로 초기화 (추가버튼으로만 늘어남)
+      minProper=proper;
       renderSampleInputs(proper, actualProper);
+    } else {
+      if(actualProper < proper){ actualProper=proper; minProper=proper; renderSampleInputs(proper, actualProper); }
     }
     updateSampleBtns(proper);
 
@@ -895,13 +897,17 @@ function loadState(){
     // 이랑폭 기본값
     const rw=document.getElementById('rowWid'); if(rw&&!rw.value){ rw.value='0.5'; rw.classList.add('filled'); }
     const rl=document.getElementById('rowLen'); if(rl&&!rl.value){ rl.value='0.5'; rl.classList.add('filled'); }
-    // 표본값 복원
+    // 표본값 복원 - proper 기준으로만 복원 (초과 구간값 무시)
     if(s.spVals&&s.spVals.length>0){
       setTimeout(()=>{
-        s.spVals.forEach((v,i)=>{
-          const el=document.getElementById('sp'+i);
-          if(el&&v){ el.value=v; el.style.background='#e8faf3'; el.style.borderColor='#1D9E75'; el.style.color='#0d5c35'; }
-        });
+        const proper = parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        if(proper > 0){
+          s.spVals.forEach((v,i)=>{
+            if(i >= proper) return; // 적정 초과 구간값 무시
+            const el=document.getElementById('sp'+i);
+            if(el&&v){ el.value=v; el.style.background='#e8faf3'; el.style.borderColor='#1D9E75'; el.style.color='#0d5c35'; }
+          });
+        }
         calc();
       },200);
     }
@@ -1049,7 +1055,9 @@ document.addEventListener('DOMContentLoaded',function(){
         const raw=localStorage.getItem(STORAGE_KEY); if(!raw){_isRestoring=false;document.body.style.visibility='visible';return;}
         const s=JSON.parse(raw);
         if(s.spVals&&s.spVals.some(v=>v)){
+          const proper2=parseInt(document.getElementById('properSampleDisp')?.value)||0;
           s.spVals.forEach((v,i)=>{
+            if(proper2>0&&i>=proper2) return; // 적정 초과 구간값 무시
             const el=document.getElementById('sp'+i);
             if(el&&v){el.value=v;el.style.background='#e8faf3';el.style.borderColor='#1D9E75';el.style.color='#0d5c35';}
           });
