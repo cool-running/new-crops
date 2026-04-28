@@ -559,7 +559,8 @@ const CROP_INFO = {
   barley: { icon:'🌿', title:'보리 피해율 계산기', sub:'밭작물 · 보리 수확량조사', label:'보리', color:'#2E7D32' },
   oat:    { icon:'🥣', title:'귀리 피해율 계산기', sub:'밭작물 · 귀리 수확량조사', label:'귀리', color:'#6A3FA0' }
 };
-const STORAGE_KEY = 'wbo_state';
+const STORAGE_KEYS = { wheat:'wheat_state', barley:'barley_state', oat:'oat_state' };
+function getStorageKey(){ return STORAGE_KEYS[crop] || 'wheat_state'; }
 
 // ── 상태 ──────────────────────────────────────
 let crop = 'wheat';
@@ -648,6 +649,7 @@ function openResetModal(){ document.getElementById('reset-overlay').style.displa
 
 // ── 품목 전환 ──────────────────────────────────
 function setCrop(c){
+  if(crop !== c) saveState(); // 현재 품목 저장 후 전환
   crop = c;
   const info = CROP_INFO[c];
   ['wheat','barley','oat'].forEach(k=>{
@@ -666,7 +668,30 @@ function setCrop(c){
       if(!rl.value){ rl.value='0.5'; rl.classList.add('filled'); }
     }
   }
-  saveState();
+  // 해당 품목 데이터 복원
+  clearInputs();
+  lastProper = -1; actualProper = 0; minProper = 0;
+  loadState();
+  // 기본값 설정
+  const rw=document.getElementById('rowWid'); if(rw&&!rw.value){rw.value='0.5';rw.classList.add('filled');}
+  const rl2=document.getElementById('rowLen'); if(rl2&&!rl2.value&&c!=='oat'){rl2.value='0.5';rl2.classList.add('filled');}
+  setTimeout(()=>calc(), 0);
+}
+
+function clearInputs(){
+  ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
+   'rowLen','rowWid','moisture','fullYield','fullMoisture','fullUninsRate','farm_no','surveyDate'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
+  });
+  document.getElementById('sample-inputs').innerHTML='';
+  const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
+  const ps=document.getElementById('properSample'); if(ps) ps.value='';
+  const sa=document.getElementById('surveyArea'); if(sa) sa.value='';
+  const ka=document.getElementById('sampleArea'); if(ka) ka.value='';
+  const cn=document.getElementById('contractYn'); if(cn){cn.value='';cn.style.color='';}
+  document.getElementById('result-section').className='result-box pending';
+  document.getElementById('result-pct').textContent='- -';
+  document.getElementById('result-pct').style.color='white';
 }
 
 // ── 조사방법 전환 ──────────────────────────────
@@ -902,16 +927,16 @@ function saveState(){
     for(let i=0;i<8;i++){ const el=document.getElementById('sp'+i); spVals.push(el?el.value:''); }
     state.spVals=spVals;
   } else {
-    try{ const prev=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); if(prev.spVals) state.spVals=prev.spVals; }catch(e){}
+    try{ const prev=JSON.parse(localStorage.getItem(getStorageKey())||'{}'); if(prev.spVals) state.spVals=prev.spVals; }catch(e){}
   }
-  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){}
+  try{ localStorage.setItem(getStorageKey(),JSON.stringify(state)); }catch(e){}
 }
 
 function loadState(){
   try{
-    const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return;
+    const raw=localStorage.getItem(getStorageKey()); if(!raw) return;
     const s=JSON.parse(raw);
-    if(s.crop){ crop=s.crop; setCrop(crop); }
+    if(s.crop && s.crop === crop){ /* 이미 맞는 품목 */ }
     if(s.mode){ mode=s.mode; }
     if(s.actualProper) actualProper=s.actualProper; // 일단 복원, calc에서 proper와 비교
     Object.keys(s).forEach(id=>{
@@ -942,8 +967,7 @@ function loadState(){
 
 // ── 초기화 ────────────────────────────────────
 function resetAll(){
-  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-  ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
+  try{ localStorage.removeItem(getStorageKey()); }catch(e){}  ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
    'rowLen','rowWid','moisture','fullYield','fullMoisture','fullUninsRate','farm_no'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
@@ -1078,7 +1102,7 @@ document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){
       try{
         _isRestoring=true;
-        const raw=localStorage.getItem(STORAGE_KEY); if(!raw){_isRestoring=false;document.body.style.visibility='visible';return;}
+        const raw=localStorage.getItem(getStorageKey()); if(!raw){_isRestoring=false;document.body.style.visibility='visible';return;}
         const s=JSON.parse(raw);
         if(s.spVals&&s.spVals.some(v=>v)){
           const proper2=parseInt(document.getElementById('properSampleDisp')?.value)||0;
