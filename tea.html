@@ -426,8 +426,7 @@ tfoot td.v{color:var(--text)}
             <th style="padding:6px 3px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">A금차</th>
             <th style="padding:6px 3px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">B기수확</th>
             <th style="padding:6px 3px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">B금차</th>
-            <th style="padding:6px 3px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">종량(g)</th>
-            <th style="padding:6px 3px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">구간수확량</th>
+            <th style="padding:6px 3px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">종량(g)</th>
           </tr></thead>
           <tbody id="cap-sample-table"></tbody>
         </table>
@@ -899,12 +898,11 @@ function fillTeaCaptureTemplate(){
         <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${s.aC||'-'}</td>
         <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${s.bP||'-'}</td>
         <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${s.bC||'-'}</td>
-        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${s.weight?Number(s.weight).toLocaleString():'-'}</td>
-        <td style="padding:5px 3px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${s._rowYield!=null?s._rowYield.toFixed(2)+' g':'-'}</td>
+        <td style="padding:5px 3px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${s.weight?Number(s.weight).toLocaleString():'-'}</td>
       </tr>`;
     }
   });
-  tbody.innerHTML=html||'<tr><td colspan="7" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
+  tbody.innerHTML=html||'<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
 }
 async function saveImage(){
   try{
