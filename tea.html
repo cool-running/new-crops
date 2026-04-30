@@ -312,7 +312,7 @@ tfoot td.v{color:var(--text)}
           <col style="width:9%">
           <col style="width:13%"><col style="width:13%">
           <col style="width:13%"><col style="width:13%">
-          <col style="width:20%"><col style="width:19%">
+          <col style="width:20%">
         </colgroup>
         <thead>
           <tr>
@@ -320,7 +320,6 @@ tfoot td.v{color:var(--text)}
             <th colspan="2">A테</th>
             <th colspan="2">B테</th>
             <th rowspan="2">종량(g)</th>
-            <th rowspan="2">구간수확량(g)</th>
           </tr>
           <tr>
             <th>기수확</th><th>금차</th>
@@ -336,7 +335,6 @@ tfoot td.v{color:var(--text)}
             <td class="v" id="t-bp">-</td>
             <td class="v" id="t-bc">-</td>
             <td class="v" id="t-weight">-</td>
-            <td class="v" id="t-yield">-</td>
           </tr>
         </tfoot>
       </table>
@@ -570,7 +568,7 @@ function renderSamples(){
         class="${s.weight!==''&&s.weight!==undefined&&s.weight!==null?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].weight=this.value.replace(/,/g,'');calcRow(${i})"
         onblur="calcRow(${i});saveState()" autocomplete="off"></td>
-      <td style="background:#F3F1EA;font-size:11px;color:var(--sub);font-weight:${s._rowYield!=null?'700':'400'};color:${s._rowYield!=null?'var(--text)':'var(--hint)'}">${s._rowYield!=null?s._rowYield.toFixed(2):'-'}</td>
+
     </tr>`).join('');
   setTimeout(()=>{ bindMobileFocusHandlers(); bindSampleNextNavigation(); },0);
 }
@@ -601,17 +599,7 @@ function calcRow(i){
   s._idx=totalShoots>0||weight>0?idx:null;
   s._rowYield=weight>0?rowYield:null;
 
-  // 해당 행 마지막 셀만 업데이트
-  const rows=document.querySelectorAll('#sample-body tr');
-  if(rows[i]){
-    const lastCell=rows[i].querySelectorAll('td');
-    const cell=lastCell[lastCell.length-1];
-    if(cell){
-      cell.textContent=rowYield!=null?rowYield.toFixed(2):'-';
-      cell.style.fontWeight=rowYield!=null?'700':'400';
-      cell.style.color=rowYield!=null?'var(--text)':'var(--hint)';
-    }
-  }
+
   updateTotals();
 }
 
@@ -629,7 +617,7 @@ function updateTotals(){
   document.getElementById('t-bp').textContent=tBP>0?tBP:'-';
   document.getElementById('t-bc').textContent=tBC>0?tBC:'-';
   document.getElementById('t-weight').textContent=tW>0?tW.toLocaleString()+'g':'-';
-  document.getElementById('t-yield').textContent=tY>0?tY.toFixed(2)+'g':'-';
+
 
   calcResult();
 }
@@ -771,8 +759,13 @@ function setCalcMode(){
   if(samples.length>0){
     const empty=[];
     samples.forEach((s,i)=>{
-      const hasWeight=s.weight!==''&&s.weight!==undefined&&s.weight!==null;
-      if(!hasWeight) empty.push(`  ${i+1}구간: 종량 미입력 (0이면 0 입력)`);
+      const fields=[];
+      if(s.aP===''||s.aP===undefined||s.aP===null) fields.push('A기수확');
+      if(s.aC===''||s.aC===undefined||s.aC===null) fields.push('A금차');
+      if(s.bP===''||s.bP===undefined||s.bP===null) fields.push('B기수확');
+      if(s.bC===''||s.bC===undefined||s.bC===null) fields.push('B금차');
+      if(s.weight===''||s.weight===undefined||s.weight===null) fields.push('종량');
+      if(fields.length>0) empty.push('  '+(i+1)+'구간: '+fields.join('·')+' 미입력 (0이면 0 입력)');
     });
     if(empty.length>0){ missing.push('• 표본구간'); empty.forEach(r=>missing.push(r)); }
   }
