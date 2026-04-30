@@ -365,7 +365,7 @@ tfoot td.v{color:var(--text)}
 
 <!-- 계산 결과 hidden -->
 <div id="tea-hidden-results" style="display:none">
-  <span id="r-avg">-</span><span id="r-survey">-</span><span id="r-unins">-</span><span id="r-loss">-</span>
+  <span id="r-survey">-</span><span id="r-unins">-</span><span id="r-loss">-</span>
 </div>
 
 <!-- 갤러리 저장용 캡처 템플릿 -->
@@ -438,13 +438,11 @@ tfoot td.v{color:var(--text)}
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">피해율</th>
-            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">변경평년수확량</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">조사수확량</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상감수량</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-pct">-</td>
-            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-avg">-</td>
             <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-survey">-</td>
             <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-unins">-</td>
           </tr></tbody>
@@ -687,7 +685,6 @@ function calcResult(){
   if(!avgYield||!actArea||surveyArea<=0||tYield<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white';
-    document.getElementById('r-avg').textContent='-';
     document.getElementById('r-survey').textContent='-';
     document.getElementById('r-unins').textContent='-';
     document.getElementById('r-loss').textContent='-';
@@ -700,7 +697,6 @@ function calcResult(){
   const pct=effAvg>0?Math.round(netLoss/effAvg*10000)/100:0;
   const rawPct=effAvg>0?Math.round((effAvg-surveyYield)/effAvg*10000)/100:0;
 
-  document.getElementById('r-avg').textContent=effAvg.toLocaleString()+' kg';
   document.getElementById('r-survey').textContent=surveyYield.toLocaleString()+' kg';
   document.getElementById('r-unins').textContent=uninsLoss.toLocaleString()+' kg';
   document.getElementById('r-loss').textContent=netLoss.toLocaleString()+' kg';
@@ -889,7 +885,6 @@ function fillTeaCaptureTemplate(){
   document.getElementById('cap-other-area').textContent=document.getElementById('other_area').value?document.getElementById('other_area').value+' ㎡':'0 ㎡';
   document.getElementById('cap-harv-area').textContent=document.getElementById('harv_area').value?document.getElementById('harv_area').value+' ㎡':'0 ㎡';
   document.getElementById('cap-pct').textContent=document.getElementById('result-pct').textContent||'-';
-  document.getElementById('cap-avg').textContent=document.getElementById('r-avg').textContent||'-';
   document.getElementById('cap-survey').textContent=document.getElementById('r-survey').textContent||'-';
   document.getElementById('cap-unins').textContent=document.getElementById('r-unins').textContent||'-';
   // 표본 테이블
