@@ -667,11 +667,11 @@ function calcResult(){
   const tYield=samples.reduce((a,s)=>a+(s._rowYield||0),0);
   // ㎡당 표본중량(kg/㎡) = 유효중량합 × 수확면적률 / 표본면적 / 1000
   const m2Weight=sampleArea>0&&tYield>0&&harvestAreaRate>0
-    ? (tYield*harvestAreaRate)/sampleArea/1000
+    ? Math.round((tYield*harvestAreaRate)/sampleArea/1000*1000)/1000
     : 0;
   // 조사수확량 = FLOOR(㎡당표본중량 × 조사대상면적 + m2Avg × (타작물+기수확))
   const surveyYield=surveyArea>0&&m2Weight>0
-    ? Math.floor(m2Weight*surveyArea+m2Avg*(otherArea+harvArea))
+    ? Math.round(m2Weight*surveyArea+m2Avg*(otherArea+harvArea))
     : 0;
 
   // 요약
@@ -692,7 +692,7 @@ function calcResult(){
   }
 
   const loss=Math.max(0,effAvg-surveyYield);
-  const uninsLoss=Math.round(loss*uninsRate*100)/100;
+  const uninsLoss=Math.floor(loss*uninsRate);
   const netLoss=Math.max(0,loss-uninsLoss);
   const pct=effAvg>0?Math.round(netLoss/effAvg*10000)/100:0;
   const rawPct=effAvg>0?Math.round((effAvg-surveyYield)/effAvg*10000)/100:0;
