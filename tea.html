@@ -440,11 +440,13 @@ tfoot td.v{color:var(--text)}
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">피해율</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">조사수확량</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상감수량</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-pct">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-unins-rate">-</td>
             <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-survey">-</td>
             <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-unins">-</td>
           </tr></tbody>
@@ -883,6 +885,7 @@ function fillTeaCaptureTemplate(){
   document.getElementById('cap-dead-area').textContent=document.getElementById('dead_area').value?document.getElementById('dead_area').value+' ㎡':'0 ㎡';
   document.getElementById('cap-other-area').textContent=document.getElementById('other_area').value?document.getElementById('other_area').value+' ㎡':'0 ㎡';
   document.getElementById('cap-harv-area').textContent=document.getElementById('harv_area').value?document.getElementById('harv_area').value+' ㎡':'0 ㎡';
+  document.getElementById('cap-unins-rate').textContent=(document.getElementById('unins_rate').value||'0')+'%';
   document.getElementById('cap-pct').textContent=document.getElementById('result-pct').textContent||'-';
   document.getElementById('cap-survey').textContent=document.getElementById('r-survey').textContent||'-';
   document.getElementById('cap-unins').textContent=document.getElementById('r-unins').textContent||'-';
