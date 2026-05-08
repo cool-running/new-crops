@@ -75,10 +75,10 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">감자</div>
       <div class="crop-desc">수확량조사</div>
     </div>
-    <div class="crop-card done" onclick="go('tea')">
+    <div class="crop-card done" onclick="go('minipumpkin')">
       <span class="badge badge-done">개발중</span>
-      <div class="crop-icon">🍵</div>
-      <div class="crop-name">차(茶)</div>
+      <div class="crop-icon">🎃</div>
+      <div class="crop-name">단호박</div>
       <div class="crop-desc">수확량조사</div>
     </div>
   </div>
@@ -119,6 +119,7 @@ function go(page){
   if(page==='potato')  location.href='./potato.html';
   if(page==='sweetpotato') location.href='./sweetpotato.html';
   if(page==='tea')         location.href='./tea.html';
+  if(page==='minipumpkin') location.href='./minipumpkin.html';
   if(page==='wheat_barley_oat') location.href='./wheat_barley_oat.html';
 }
 if('serviceWorker' in navigator){
