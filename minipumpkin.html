@@ -482,21 +482,21 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
         </table>
       </div>
 
-      <!-- 3. 조사일정 -->
-      <div id="cap-sched-block" style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05);display:none">
+      <!-- 3. 조사일정 (항상 표시, 미입력 시 -) -->
+      <div id="cap-sched-block" style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 조사일정</div>
-        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
-            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">정식일</th>
-            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">수확개시일</th>
-            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">수확예정일</th>
-            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">수확종료일</th>
+            <th style="padding:7px 6px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">정식일</th>
+            <th style="padding:7px 6px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">수확개시일</th>
+            <th style="padding:7px 6px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">수확예정일</th>
+            <th style="padding:7px 6px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">수확종료일</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-planting">-</td>
-            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-start">-</td>
-            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-plan">-</td>
-            <td style="padding:7px 12px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-end">-</td>
+            <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-weight:700;font-size:12px;white-space:nowrap" id="cap-planting">-</td>
+            <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-start">-</td>
+            <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-plan">-</td>
+            <td style="padding:7px 6px;text-align:center;background:#f8fafc;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-end">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -504,14 +504,22 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       <!-- 4. 표본구간 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:6px" id="cap-sample-title">4. 표본구간</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
+          <colgroup>
+            <col style="width:8%">
+            <col style="width:16%">
+            <col style="width:16%">
+            <col style="width:16%">
+            <col style="width:16%">
+            <col style="width:28%">
+          </colgroup>
           <thead><tr>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">길이(m)</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">폭(m)</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">전체갯수</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">수확수량</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">중량(g)</th>
+            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">No</th>
+            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">길이(m)</th>
+            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">폭(m)</th>
+            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">전체갯수</th>
+            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">수확수량</th>
+            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">중량(g)</th>
           </tr></thead>
           <tbody id="cap-sample-tbody"></tbody>
         </table>
@@ -920,27 +928,18 @@ function fillCaptureTemplate(){
   document.getElementById('cap-other-area').textContent = otherArea+' ㎡';
   document.getElementById('cap-harv-area').textContent  = harvArea+' ㎡';
 
-  // 3. 조사일정 (입력된 값 있을 때만 표시)
+  // 3. 조사일정 — 항상 표시, 미입력 시 '-'
   const plantingDate = document.getElementById('planting_date').value||'';
   const harvStart    = document.getElementById('harv_start').value||'';
   const harvPlan     = document.getElementById('harv_plan').value||'';
   const harvEnd      = document.getElementById('harv_end').value||'';
-  const hasSchedule  = plantingDate||harvStart||harvPlan||harvEnd;
-  const schedBlock   = document.getElementById('cap-sched-block');
-  if(hasSchedule){
-    schedBlock.style.display='block';
-    document.getElementById('cap-planting').textContent   = plantingDate||'-';
-    document.getElementById('cap-harv-start').textContent = harvStart||'-';
-    document.getElementById('cap-harv-plan').textContent  = harvPlan||'-';
-    document.getElementById('cap-harv-end').textContent   = harvEnd||'-';
-    // 섹션 번호 조정
-    document.getElementById('cap-sample-title').textContent = '4. 표본구간';
-    document.getElementById('cap-result-title').textContent = '5. 결과';
-  } else {
-    schedBlock.style.display='none';
-    document.getElementById('cap-sample-title').textContent = '3. 표본구간';
-    document.getElementById('cap-result-title').textContent = '4. 결과';
-  }
+  document.getElementById('cap-sched-block').style.display='block';
+  document.getElementById('cap-planting').textContent   = plantingDate||'-';
+  document.getElementById('cap-harv-start').textContent = harvStart||'-';
+  document.getElementById('cap-harv-plan').textContent  = harvPlan||'-';
+  document.getElementById('cap-harv-end').textContent   = harvEnd||'-';
+  document.getElementById('cap-sample-title').textContent = '4. 표본구간';
+  document.getElementById('cap-result-title').textContent = '5. 결과';
 
   // 4. 표본구간 - 금차(이번 차수)에 입력된 중량만 표시
   // 어느 차수가 금차인지: 가장 마지막으로 입력된 차수
