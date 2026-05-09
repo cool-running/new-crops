@@ -589,13 +589,14 @@ function toggleCollapse(id){
   const arrow = document.getElementById('arrow-'+id);
   const isOpen = arrow.classList.contains('open');
   if(isOpen){
+    body.style.overflow='hidden';
     body.style.maxHeight = body.scrollHeight+'px';
     requestAnimationFrame(()=>{ body.style.maxHeight='0'; body.classList.add('closed'); });
     arrow.classList.remove('open');
   } else {
     body.classList.remove('closed');
     body.style.maxHeight = body.scrollHeight+'px';
-    setTimeout(()=>{ body.style.maxHeight=''; }, 260);
+    setTimeout(()=>{ body.style.maxHeight=''; body.style.overflow='visible'; }, 260);
     arrow.classList.add('open');
     setTimeout(bindMobileFocusHandlers, 300);
   }
@@ -608,6 +609,7 @@ function restoreCollapse(id){
       const arrow=document.getElementById('arrow-'+id);
       body.classList.remove('closed');
       body.style.maxHeight='';
+      body.style.overflow='visible';
       arrow.classList.add('open');
     }
   }catch(e){}
