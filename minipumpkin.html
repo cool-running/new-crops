@@ -505,10 +505,16 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:6px" id="cap-sample-title">4. 표본구간</div>
         <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
-          <thead><tr id="cap-sample-thead"></tr></thead>
+          <thead><tr>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">길이(m)</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">폭(m)</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">전체갯수</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">수확수량</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">중량(g)</th>
+          </tr></thead>
           <tbody id="cap-sample-tbody"></tbody>
         </table>
-        <div id="cap-sample-info" style="margin-top:8px;font-size:11px;color:#888"></div>
       </div>
 
       <!-- 5. 결과 -->
@@ -946,47 +952,34 @@ function fillCaptureTemplate(){
     tW2 += parseFloat(s.w2)||0;
     tW3 += parseFloat(s.w3)||0;
   });
-  // 금차 판별: 3차>0이면 3차, 2차>0이면 2차, else 1차
-  const curRound = tW3>0?3:(tW2>0?2:1);
-  const curKey   = ['w1','w2','w3'][curRound-1];
-  const curLabel = curRound+'차';
-
-  const thStyle = 'padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
-  const thLast  = 'padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
-  const tdStyle = 'padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap';
-  const tdLast  = 'padding:7px 4px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap';
-
-  document.getElementById('cap-sample-thead').innerHTML =
-    `<th style="${thStyle}">No</th>` +
-    `<th style="${thStyle}">길이(m)</th>` +
-    `<th style="${thStyle}">폭(m)</th>` +
-    `<th style="${thStyle}">면적(㎡)</th>` +
-    `<th style="${thLast}">${curLabel} 중량(g)</th>`;
+  // 표본구간: 길이/폭/전체갯수/수확수량/중량
+  const thS  = 'padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
+  const tdS  = 'padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap';
+  const tdG  = 'padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap';
+  const tdGL = 'padding:7px 4px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap';
 
   let rows='';
   samples.forEach((s,idx)=>{
-    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
-    const area=l>0&&w>0?(Math.round(l*w*100)/100).toFixed(2):'-';
-    const wt=parseFloat(s[curKey])||0;
+    const totalQty = (s.totalQty!==undefined&&s.totalQty!=='') ? Number(s.totalQty).toLocaleString() : '-';
+    const harvQty  = (()=>{ const q=(parseInt(s.q1)||0)+(parseInt(s.q2)||0)+(parseInt(s.q3)||0); return q>0?q.toLocaleString():'-'; })();
+    const weight   = (()=>{ const w=(parseFloat(s.w1)||0)+(parseFloat(s.w2)||0)+(parseFloat(s.w3)||0); return w>0?w.toLocaleString():'-'; })();
     rows+=`<tr>
-      <td style="${tdStyle}">${idx+1}</td>
-      <td style="${tdStyle}">${s.len||'-'}</td>
-      <td style="${tdStyle}">${s.wid||'-'}</td>
-      <td style="${tdStyle}">${area}</td>
-      <td style="${tdLast}">${wt>0?wt.toLocaleString():'-'}</td>
+      <td style="${tdS}">${idx+1}</td>
+      <td style="${tdS}">${s.len||'-'}</td>
+      <td style="${tdS}">${s.wid||'-'}</td>
+      <td style="${tdG}">${totalQty}</td>
+      <td style="${tdG}">${harvQty}</td>
+      <td style="${tdGL}">${weight}</td>
     </tr>`;
   });
-  document.getElementById('cap-sample-tbody').innerHTML = rows;
-
-  const tWcur = curRound===1?tW1:(curRound===2?tW2:tW3);
-  const capU  = tA>0&&tWcur>0?Math.round(tWcur/tA/1000*10000)/10000:0;
-  const tWall = tW1+tW2+tW3;
-  const capUall = tA>0&&tWall>0?Math.round(tWall/tA/1000*10000)/10000:0;
-  document.getElementById('cap-sample-info').textContent =
-    `표본면적 ${tA.toFixed(2)} ㎡ | ${curLabel} 단위면적당 ${capU.toFixed(4)} kg/㎡ | 누적 단위면적당 ${capUall.toFixed(4)} kg/㎡`;
+  document.getElementById('cap-sample-tbody').innerHTML = rows || '<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
 
   // 5. 결과 - 누적 중량(1+2+3차) 기준
-  const capSv   = tA>0&&tWall>0?Math.floor(capUall*surveyArea+m2Avg*(otherArea+harvArea)):0;
+  let _tA2=0, _tW1=0, _tW2=0, _tW3=0;
+  samples.forEach(s=>{ const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0; _tA2+=Math.round(l*w*100)/100; _tW1+=parseFloat(s.w1)||0; _tW2+=parseFloat(s.w2)||0; _tW3+=parseFloat(s.w3)||0; });
+  const _tWall = _tW1+_tW2+_tW3;
+  const _capUall = _tA2>0&&_tWall>0?Math.round(_tWall/_tA2/1000*10000)/10000:0;
+  const capSv   = _tA2>0&&_tWall>0?Math.floor(_capUall*surveyArea+m2Avg*(otherArea+harvArea)):0;
   const capLoss = Math.max(0,effAvg-capSv);
   const capULoss= Math.round(capLoss*uninsRate);
   const capNet  = Math.max(0,capLoss-capULoss);
