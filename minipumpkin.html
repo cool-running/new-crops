@@ -110,7 +110,7 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 
 /* ── 통합 표본 테이블 ── */
 .tbl-outer{overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch}
-.stbl{border-collapse:collapse;font-size:11px;min-width:420px;width:100%}
+.stbl{border-collapse:collapse;font-size:11px;min-width:340px;width:100%}
 
 .stbl thead tr.grp th{padding:5px 2px;text-align:center;font-weight:700;font-size:10px;border-bottom:1px solid var(--border);line-height:1.3}
 .stbl thead tr.sub th{padding:4px 2px;text-align:center;font-weight:600;font-size:9px;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.3}
@@ -124,8 +124,6 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 
 .stbl tbody td{padding:2px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
 .stbl tbody td.no{font-size:10px;font-weight:700;color:var(--sub);background:#fafafa;border-right:1px solid #eee;width:24px}
-.stbl tbody td.auto-area{background:#f8f5ee;border-right:2px solid var(--border)}
-.stbl tbody td.auto-area span{font-size:11px;color:var(--sub);font-weight:600;padding:0 2px}
 
 .stbl tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:12px;background:#fff;-webkit-appearance:none;color:var(--text);transition:background .15s,border-color .15s}
 .stbl tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
@@ -287,23 +285,21 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       <div class="tbl-outer">
         <table class="stbl">
           <colgroup>
-            <col style="width:24px">
-            <col style="width:14%"><col style="width:14%">
-            <col style="width:11%">
-            <col style="width:18%"><col style="width:18%"><col style="width:18%">
+            <col style="width:28px">
+            <col style="width:20%"><col style="width:20%">
+            <col style="width:20%"><col style="width:20%"><col style="width:20%">
           </colgroup>
           <thead>
             <tr class="grp">
               <th rowspan="2" class="th-fix">No.</th>
-              <th colspan="3" class="th-fix sep">구간 정보</th>
+              <th colspan="2" class="th-fix sep">구간 정보</th>
               <th class="th-w1">1차 중량</th>
               <th class="th-w2">2차 중량</th>
               <th class="th-w3">3차 중량</th>
             </tr>
             <tr class="sub">
               <th class="th-fix">길이(m)</th>
-              <th class="th-fix">폭(m)</th>
-              <th class="th-fix sep">면적(㎡)</th>
+              <th class="th-fix sep">폭(m)</th>
               <th class="th-w1">(g)</th>
               <th class="th-w2">(g)</th>
               <th class="th-w3">(g)</th>
@@ -314,8 +310,7 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
             <tr>
               <td>합계</td>
               <td class="v" id="tf-len">-</td>
-              <td class="v" id="tf-wid">-</td>
-              <td class="v sep" id="tf-area">-</td>
+              <td class="v sep" id="tf-wid">-</td>
               <td class="v" id="tf-w1">-</td>
               <td class="v" id="tf-w2">-</td>
               <td class="v" id="tf-w3">-</td>
@@ -486,8 +481,6 @@ function renderSamples(){
   badge.textContent=`(${samples.length}구간)`;
 
   document.getElementById('sample-body').innerHTML=samples.map((s,i)=>{
-    const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
-    const area=l>0&&w>0?(Math.round(l*w*100)/100).toFixed(2):'-';
     return `<tr>
       <td class="no">${i+1}</td>
       <td><input type="text" value="${s.len||''}" inputmode="decimal"
@@ -498,7 +491,6 @@ function renderSamples(){
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
         onblur="this.value=normDim(this.value);samples[${i}].wid=this.value;calcTotals();saveState()" autocomplete="off"></td>
-      <td class="auto-area"><span id="ra-${i}">${area}</span></td>
       <td class="cw1"><input type="text" value="${s.w1?Number(s.w1).toLocaleString():''}" inputmode="decimal"
         class="${s.w1?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].w1=this.value.replace(/,/g,'')"
@@ -538,13 +530,10 @@ function calcTotals(){
     tW1+=parseFloat(s.w1)||0;
     tW2+=parseFloat(s.w2)||0;
     tW3+=parseFloat(s.w3)||0;
-    const el=document.getElementById('ra-'+i);
-    if(el) el.textContent=l>0&&w>0?a.toFixed(2):'-';
   });
   document.getElementById('tf-len').textContent=tLen>0?tLen.toFixed(2)+'m':'-';
   document.getElementById('tf-wid').textContent=tWid>0?tWid.toFixed(2)+'m':'-';
-  document.getElementById('tf-area').textContent=tA>0?tA.toFixed(2)+'㎡':'-';
-  document.getElementById('tf-w1').textContent=tW1>0?tW1.toLocaleString()+'g':'-';
+    document.getElementById('tf-w1').textContent=tW1>0?tW1.toLocaleString()+'g':'-';
   document.getElementById('tf-w2').textContent=tW2>0?tW2.toLocaleString()+'g':'-';
   document.getElementById('tf-w3').textContent=tW3>0?tW3.toLocaleString()+'g':'-';
 
