@@ -162,6 +162,20 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--or);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 .guide{text-align:center;padding:20px 0;font-size:13px;color:var(--hint)}
+
+/* 접이식 섹션 */
+.collapsible-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.collapsible-header .sec-title{margin-bottom:0}
+.collapse-arrow{font-size:14px;color:var(--sub);transition:transform .2s;flex-shrink:0}
+.collapse-arrow.open{transform:rotate(180deg)}
+.collapsible-body{overflow:hidden;transition:max-height .25s ease}
+.collapsible-body.closed{max-height:0!important}
+
+/* 수량 잔여 표시 */
+.qty-remain{font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px}
+.qty-ok{background:#e8faf3;color:var(--green)}
+.qty-over{background:#fff0f0;color:var(--red)}
+.qty-left{background:#f3efe8;color:var(--sub)}
 </style>
 </head>
 <body>
@@ -183,7 +197,7 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 
 <div class="content">
 
-  <!-- 기본정보 -->
+  <!-- ① 기본정보 -->
   <div class="section">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
       <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
@@ -243,15 +257,45 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
     </div>
   </div>
 
-  <!-- 표본구간 조사 -->
+  <!-- ② 조사일정 (선택·접이식) -->
+  <div class="section" style="padding-bottom:0">
+    <div class="collapsible-header" onclick="toggleCollapse('sched')">
+      <div class="sec-title" style="margin-bottom:0">조사일정 <span style="font-size:11px;font-weight:400;color:var(--hint)">(선택)</span></div>
+      <span class="collapse-arrow" id="arrow-sched">▼</span>
+    </div>
+    <div class="collapsible-body closed" id="body-sched" style="max-height:0">
+      <div style="padding-top:12px;padding-bottom:14px">
+        <div class="g2">
+          <div class="field">
+            <label>정식일</label>
+            <input type="date" id="planting_date" class="inp" onchange="markFilled(this)" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>수확개시일</label>
+            <input type="date" id="harv_start" class="inp" onchange="markFilled(this)" autocomplete="off">
+          </div>
+        </div>
+        <div class="g2">
+          <div class="field">
+            <label>수확예정일</label>
+            <input type="date" id="harv_plan" class="inp" onchange="markFilled(this)" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>수확종료일</label>
+            <input type="date" id="harv_end" class="inp" onchange="markFilled(this)" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 표본구간 조사 -->
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--or)"></span></div>
       <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 1·2·3차 중량(g)</span>
     </div>
-
     <div id="sample-guide" class="guide">실경작면적 입력 후 자동으로 구간이 생성됩니다</div>
-
     <div id="sample-wrap" style="display:none">
       <div class="tbl-outer">
         <table class="stbl">
@@ -275,7 +319,7 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
             <tr>
               <td>합계</td>
               <td class="v" id="tf-len">-</td>
-              <td class="v sep" id="tf-wid">-</td>
+              <td class="v" id="tf-wid">-</td>
               <td class="v" id="tf-w1">-</td>
               <td class="v" id="tf-w2">-</td>
               <td class="v" id="tf-w3">-</td>
@@ -283,12 +327,43 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
           </tfoot>
         </table>
       </div>
-
       <div class="btn-row">
         <button class="btn-add" onclick="addSample()">＋ 구간 추가</button>
         <button class="btn-del" onclick="removeSample()">－ 구간 삭제</button>
       </div>
+    </div>
+  </div>
 
+  <!-- ④ 수량 입력 (선택·접이식) -->
+  <div class="section" id="qty-section" style="display:none;padding-bottom:0">
+    <div class="collapsible-header" onclick="toggleCollapse('qty')">
+      <div class="sec-title" style="margin-bottom:0">수량 입력 <span style="font-size:11px;font-weight:400;color:var(--hint)">(선택)</span></div>
+      <span class="collapse-arrow" id="arrow-qty">▼</span>
+    </div>
+    <div class="collapsible-body closed" id="body-qty" style="max-height:0">
+      <div style="padding-top:10px;padding-bottom:14px">
+        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">
+          전체수량 = 구간 내 총 개수 / 수확수량 = 차수별 수확 개수<br>
+          <span style="color:var(--hint);font-size:10px">1·2·3차 수확 합계가 전체수량에 도달하면 조사 완료</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
+          <colgroup>
+            <col style="width:10%"><col style="width:22%">
+            <col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">No.</th>
+              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">전체(개)</th>
+              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">1차</th>
+              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">2차</th>
+              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">3차</th>
+              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">잔여</th>
+            </tr>
+          </thead>
+          <tbody id="qty-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -310,11 +385,8 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       </div>
       <div style="width:1px;height:40px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
-        <button class="save-btn" onclick="saveImage()">📷 저장</button>
+        <button class="save-btn" onclick="saveImage()">📷 갤러리 저장</button>
       </div>
-    </div>
-    </div>
-  </div>
     </div>
   </div>
 
@@ -362,17 +434,105 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 </div>
 
 <!-- 캡처 템플릿 -->
-<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;background:#F5F4F0;padding:0;z-index:-1">
-  <div style="background:linear-gradient(180deg,#B05C1A 0%,#E8923A 12%,#F5F4F0 12%,#F5F4F0 100%);padding:0 16px 24px;box-sizing:border-box">
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="min-height:932px;background:linear-gradient(180deg,#7A3010 0%,#E8923A 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
       <div style="font-size:15px;font-weight:700">🎃 단호박 피해율 계산결과</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-        <span id="cap-date" style="font-size:13px;font-weight:800"></span>
-        <span id="cap-farmno" style="font-size:12px;font-weight:700;opacity:.9"></span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date" style="font-size:15px;font-weight:800;color:#fff"></span>
+        <span id="cap-farmno" style="font-size:15px;font-weight:800;color:#fff"></span>
       </div>
     </div>
-    <div id="cap-body" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- 1. 기본정보 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
+        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">평년수확량</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">가입면적</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">원장변경유무</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-avg-yield">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-ins-area">-</td>
+            <td style="padding:7px 12px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-contract">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
+      <!-- 2. 면적조사 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">실제경작</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">고사면적</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">타작물·미보상</th>
+            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">기수확면적</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-act-area">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-dead-area">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-other-area">-</td>
+            <td style="padding:7px 4px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-area">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
+      <!-- 3. 조사일정 -->
+      <div id="cap-sched-block" style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05);display:none">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 조사일정</div>
+        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">정식일</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">수확개시일</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">수확예정일</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">수확종료일</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-planting">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-start">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-plan">-</td>
+            <td style="padding:7px 12px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-harv-end">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
+      <!-- 4. 표본구간 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:6px" id="cap-sample-title">4. 표본구간</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr id="cap-sample-thead"></tr></thead>
+          <tbody id="cap-sample-tbody"></tbody>
+        </table>
+        <div id="cap-sample-info" style="margin-top:8px;font-size:11px;color:#888"></div>
+      </div>
+
+      <!-- 5. 결과 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px" id="cap-result-title">5. 결과</div>
+        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">피해율</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">조사수확량</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">감수량</th>
+            <th style="padding:7px 12px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상감수량</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-pct">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-unins-rate">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-surv">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-loss">-</td>
+            <td style="padding:7px 12px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-unins">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -381,13 +541,13 @@ let samples=[];
 let _isLocked=false;
 const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
+// ── 유틸 ──────────────────────────────────────────────────────
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
 function onCommaInput(el){
   const raw=el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
   const p=raw.split('.');
   p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
-  el.value=p.join('.');
-  el.classList.toggle('filled',el.value!=='');
+  el.value=p.join('.'); el.classList.toggle('filled',el.value!=='');
 }
 function markFilled(el){ el.classList.toggle('filled',el.value!==''); }
 function normDim(val){
@@ -405,16 +565,52 @@ function getProper(area){
   return 7;
 }
 
+// ── 접이식 토글 ───────────────────────────────────────────────
+function toggleCollapse(id){
+  const body  = document.getElementById('body-'+id);
+  const arrow = document.getElementById('arrow-'+id);
+  const isOpen = arrow.classList.contains('open');
+  if(isOpen){
+    body.style.maxHeight = body.scrollHeight+'px';
+    requestAnimationFrame(()=>{ body.style.maxHeight='0'; body.classList.add('closed'); });
+    arrow.classList.remove('open');
+  } else {
+    body.classList.remove('closed');
+    body.style.maxHeight = body.scrollHeight+'px';
+    setTimeout(()=>{ body.style.maxHeight=''; }, 260);
+    arrow.classList.add('open');
+    setTimeout(bindMobileFocusHandlers, 300);
+  }
+  try{ localStorage.setItem('pumpkin_collapse_'+id, isOpen?'0':'1'); }catch(e){}
+}
+function restoreCollapse(id){
+  try{
+    if(localStorage.getItem('pumpkin_collapse_'+id)==='1'){
+      const body=document.getElementById('body-'+id);
+      const arrow=document.getElementById('arrow-'+id);
+      body.classList.remove('closed');
+      body.style.maxHeight='';
+      arrow.classList.add('open');
+    }
+  }catch(e){}
+}
+
+// ── 표본 렌더링 ───────────────────────────────────────────────
 function renderSamples(){
-  const guide=document.getElementById('sample-guide');
-  const wrap=document.getElementById('sample-wrap');
-  const badge=document.getElementById('sample-count-badge');
-  if(samples.length===0){ guide.style.display='block'; wrap.style.display='none'; badge.textContent=''; return; }
+  const guide = document.getElementById('sample-guide');
+  const wrap  = document.getElementById('sample-wrap');
+  const badge = document.getElementById('sample-count-badge');
+  const qtySec= document.getElementById('qty-section');
+  if(samples.length===0){
+    guide.style.display='block'; wrap.style.display='none';
+    badge.textContent=''; qtySec.style.display='none'; return;
+  }
   guide.style.display='none'; wrap.style.display='block';
+  qtySec.style.display='block';
   badge.textContent=`(${samples.length}구간)`;
 
-  document.getElementById('sample-body').innerHTML=samples.map((s,i)=>{
-    return `<tr>
+  document.getElementById('sample-body').innerHTML=samples.map((s,i)=>`
+    <tr>
       <td class="no">${i+1}</td>
       <td><input type="text" value="${s.len||''}" inputmode="decimal"
         class="${s.len?'filled':''}"
@@ -436,69 +632,106 @@ function renderSamples(){
         class="${s.w3?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].w3=this.value.replace(/,/g,'')"
         onblur="samples[${i}].w3=this.value.replace(/,/g,'');calcTotals();saveState()" autocomplete="off"></td>
-    </tr>`;
-  }).join('');
-  setTimeout(()=>{ bindMobileFocusHandlers(); bindNextNav(); },0);
+    </tr>`).join('');
+  setTimeout(()=>{ bindMobileFocusHandlers(); bindNextNav(); renderQty(); },0);
 }
 
-function addSample(){ samples.push({len:'',wid:'',w1:'',w2:'',w3:''}); renderSamples(); saveState(); }
+// ── 수량 테이블 렌더링 ────────────────────────────────────────
+function renderQty(){
+  const tbody=document.getElementById('qty-body');
+  if(!tbody) return;
+  tbody.innerHTML=samples.map((s,i)=>{
+    const total = parseInt(s.totalQty)||0;
+    const q1    = parseInt(s.q1)||0;
+    const q2    = parseInt(s.q2)||0;
+    const q3    = parseInt(s.q3)||0;
+    const done  = q1+q2+q3;
+    const remain= total>0 ? total-done : null;
+    let remBadge='';
+    if(total>0){
+      if(remain===0)       remBadge=`<span class="qty-remain qty-ok">완료</span>`;
+      else if(remain<0)    remBadge=`<span class="qty-remain qty-over">${remain}</span>`;
+      else                 remBadge=`<span class="qty-remain qty-left">${remain}개</span>`;
+    }
+    const inp=(key,val)=>`<input type="number" value="${val||''}" inputmode="numeric"
+      style="width:100%;height:30px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:11px;background:#fff;-webkit-appearance:none;color:var(--text)"
+      class="${val?'filled':''}"
+      oninput="this.classList.toggle('filled',this.value!='');samples[${i}].${key}=this.value;renderQty();saveState()"
+      autocomplete="off">`;
+    return `<tr style="border-bottom:0.5px solid #eee">
+      <td style="text-align:center;font-size:10px;color:var(--sub);padding:2px 1px">${i+1}</td>
+      <td style="padding:2px">${inp('totalQty',s.totalQty)}</td>
+      <td style="padding:2px">${inp('q1',s.q1)}</td>
+      <td style="padding:2px">${inp('q2',s.q2)}</td>
+      <td style="padding:2px">${inp('q3',s.q3)}</td>
+      <td style="text-align:center;padding:2px;font-size:11px">${remBadge||'-'}</td>
+    </tr>`;
+  }).join('');
+  // qty-body 높이 변경 시 collapsible 높이 재조정
+  const bodyEl=document.getElementById('body-qty');
+  const arrow=document.getElementById('arrow-qty');
+  if(bodyEl&&arrow&&arrow.classList.contains('open')) bodyEl.style.maxHeight='';
+  setTimeout(bindMobileFocusHandlers, 0);
+}
+
+// ── 추가/삭제 ────────────────────────────────────────────────
+function addSample(){
+  samples.push({len:'',wid:'',w1:'',w2:'',w3:'',totalQty:'',q1:'',q2:'',q3:''});
+  renderSamples(); saveState();
+}
 function removeSample(){
   const needed=getProper(toNum(document.getElementById('act_area')));
   if(samples.length<=needed){ document.getElementById('delete-limit-overlay').classList.add('show'); return; }
   samples.pop(); renderSamples(); calcTotals(); saveState();
 }
 
+// ── 면적 변경 ─────────────────────────────────────────────────
 function onActAreaChange(){
   const needed=getProper(toNum(document.getElementById('act_area')));
-  while(samples.length<needed) samples.push({len:'',wid:'',w1:'',w2:'',w3:''});
+  while(samples.length<needed) samples.push({len:'',wid:'',w1:'',w2:'',w3:'',totalQty:'',q1:'',q2:'',q3:''});
   renderSamples(); calcAll(); saveState();
 }
 
+// ── 합계 계산 ─────────────────────────────────────────────────
 function calcTotals(){
   let tLen=0,tWid=0,tA=0,tW1=0,tW2=0,tW3=0;
-  samples.forEach((s,i)=>{
-    const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
-    const a=Math.round(l*w*100)/100;
-    tLen+=l; tWid+=w; tA+=a;
+  samples.forEach(s=>{
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
+    tLen+=l; tWid+=w;
+    tA+=Math.round(l*w*100)/100;
     tW1+=parseFloat(s.w1)||0;
     tW2+=parseFloat(s.w2)||0;
     tW3+=parseFloat(s.w3)||0;
   });
   document.getElementById('tf-len').textContent=tLen>0?tLen.toFixed(2)+'m':'-';
   document.getElementById('tf-wid').textContent=tWid>0?tWid.toFixed(2)+'m':'-';
-    document.getElementById('tf-w1').textContent=tW1>0?tW1.toLocaleString()+'g':'-';
+  document.getElementById('tf-w1').textContent=tW1>0?tW1.toLocaleString()+'g':'-';
   document.getElementById('tf-w2').textContent=tW2>0?tW2.toLocaleString()+'g':'-';
   document.getElementById('tf-w3').textContent=tW3>0?tW3.toLocaleString()+'g':'-';
-
-  const u1=tA>0&&tW1>0?Math.round(tW1/tA/1000*10000)/10000:0;
-  const u2=tA>0&&tW2>0?Math.round(tW2/tA/1000*10000)/10000:0;
-  const u3=tA>0&&tW3>0?Math.round(tW3/tA/1000*10000)/10000:0;
-
-
   calcAll();
 }
 
+// ── 메인 계산 ─────────────────────────────────────────────────
 function calcAll(){
-  const avgYield=toNum(document.getElementById('avg_yield'));
-  const insArea=toNum(document.getElementById('ins_area'));
-  const actArea=toNum(document.getElementById('act_area'));
-  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
-  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
-  const harvArea=toNum(document.getElementById('harv_area'));
-  const uninsRate=(parseFloat(document.getElementById('unins_rate').value)||0)/100;
-  const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
-  const areaErr=insArea>0?(actArea-insArea)/insArea:0;
-  const isChanged=insArea>0&&actArea>0&&Math.abs(areaErr)>0.1;
-  const m2Avg=insArea>0?Math.round(avgYield/insArea*10000)/10000:0;
-  const effAvg=isChanged?Math.round(m2Avg*actArea):avgYield;
+  const avgYield  = toNum(document.getElementById('avg_yield'));
+  const insArea   = toNum(document.getElementById('ins_area'));
+  const actArea   = toNum(document.getElementById('act_area'));
+  const deadArea  = parseFloat(document.getElementById('dead_area').value)||0;
+  const otherArea = parseFloat(document.getElementById('other_area').value)||0;
+  const harvArea  = toNum(document.getElementById('harv_area'));
+  const uninsRate = (parseFloat(document.getElementById('unins_rate').value)||0)/100;
+  const surveyArea= Math.max(0,actArea-deadArea-otherArea-harvArea);
+  const areaErr   = insArea>0?(actArea-insArea)/insArea:0;
+  const isChanged = insArea>0&&actArea>0&&Math.abs(areaErr)>0.1;
+  const m2Avg     = insArea>0?Math.round(avgYield/insArea*10000)/10000:0;
+  const effAvg    = isChanged?Math.round(m2Avg*actArea):avgYield;
 
   document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
   const m2El=document.getElementById('m2avg_disp'); if(m2El) m2El.value=m2Avg>0?m2Avg.toFixed(4)+' kg/㎡':'';
   const cEl=document.getElementById('contract_disp');
   if(insArea>0&&actArea>0){
     cEl.value=isChanged?'원장변경 대상':'이상무';
-    cEl.style.color=isChanged?'#e24b4a':'#1D9E75';
-    cEl.style.fontWeight='700';
+    cEl.style.color=isChanged?'#e24b4a':'#1D9E75'; cEl.style.fontWeight='700';
   } else { cEl.value=''; cEl.style.color=''; }
 
   let tA=0,tW1=0,tW2=0,tW3=0;
@@ -510,35 +743,32 @@ function calcAll(){
     tW3+=parseFloat(s.w3)||0;
   });
 
-  // 1·2·3차 중량 합산 → 단일 피해율
-  const tWall = tW1+tW2+tW3;
+  const tWall=tW1+tW2+tW3;
   const resultBox=document.getElementById('result-section');
   const pctEl=document.getElementById('result-pct');
-
   if(!tWall||!tA||!avgYield||!actArea||surveyArea<=0){
     resultBox.className='result-box pending';
-    pctEl.textContent='- -'; pctEl.style.color='white';
-    return;
+    pctEl.textContent='- -'; pctEl.style.color='white'; return;
   }
-  const u=Math.round(tWall/tA/1000*10000)/10000;
-  const sv=Math.floor(u*surveyArea+m2Avg*(otherArea+harvArea));
-  const loss=Math.max(0,effAvg-sv);
+  const u   = Math.round(tWall/tA/1000*10000)/10000;
+  const sv  = Math.floor(u*surveyArea+m2Avg*(otherArea+harvArea));
+  const loss= Math.max(0,effAvg-sv);
   const uLoss=Math.round(loss*uninsRate);
-  const net=Math.max(0,loss-uLoss);
-  const pct=effAvg>0?Math.round(net/effAvg*10000)/100:0;
-
+  const net = Math.max(0,loss-uLoss);
+  const pct = effAvg>0?Math.round(net/effAvg*10000)/100:0;
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
   pctEl.style.color=pct>20?'#FFD0D0':'#FFEAA8';
   saveState();
 }
 
+// ── 계산하기/수정하기 ─────────────────────────────────────────
 function setCalcMode(){
   const missing=[];
   if(!toNum(document.getElementById('avg_yield'))) missing.push('• 평년수확량');
   if(!toNum(document.getElementById('ins_area')))  missing.push('• 가입면적');
   if(!toNum(document.getElementById('act_area')))  missing.push('• 실제경작면적');
-  if(!samples.some(s=>parseFloat(s.w1)>0)) missing.push('• 1차 수확중량 (최소 1구간)');
+  if(!samples.some(s=>parseFloat(s.w1)>0))         missing.push('• 1차 수확중량 (최소 1구간)');
   if(missing.length>0){
     document.getElementById('validation-list').innerHTML=missing.join('<br>');
     document.getElementById('validation-overlay').classList.add('show'); return;
@@ -560,25 +790,29 @@ function setEditMode(){
   saveState();
 }
 
+// ── 초기화 ───────────────────────────────────────────────────
 function openResetModal(){ document.getElementById('reset-overlay').classList.add('show'); }
 function resetAll(){
   try{ localStorage.removeItem('pumpkin_state'); }catch(e){}
-  ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','farm_no'].forEach(id=>{
-    const el=document.getElementById(id); if(el){ el.value=''; el.classList.remove('filled'); }
+  ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate',
+   'farm_no','survey_date','planting_date','harv_start','harv_plan','harv_end'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.value=''; el.classList.remove('filled'); }
   });
   document.getElementById('survey_date').value=fmt(new Date());
   document.getElementById('survey_date').classList.add('filled');
-  ['contract_disp','survey_area_disp','m2avg_disp'].forEach(id=>{
-    const el=document.getElementById(id); if(el){ el.value=''; el.style.color=''; el.style.fontWeight=''; }
+  ['contract_disp','survey_area_disp'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.value=''; el.style.color=''; el.style.fontWeight=''; }
   });
   _isLocked=false; setEditMode();
   samples=[];
   renderSamples();
-
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(()=>{ const f=document.getElementById('farm_no'); if(f) f.focus(); },300);
 }
 
+// ── 크게보기 ─────────────────────────────────────────────────
 function toggleBigText(){
   const on=document.body.classList.toggle('big-text');
   document.getElementById('bigtext-btn').classList.toggle('on',on);
@@ -586,6 +820,7 @@ function toggleBigText(){
   try{ localStorage.setItem('pumpkin_bigtext',on?'1':'0'); }catch(e){}
 }
 
+// ── 저장/불러오기 ────────────────────────────────────────────
 function saveState(){
   try{
     localStorage.setItem('pumpkin_state',JSON.stringify({
@@ -598,7 +833,11 @@ function saveState(){
       other_area:document.getElementById('other_area').value,
       harv_area:document.getElementById('harv_area').value,
       unins_rate:document.getElementById('unins_rate').value,
-      samples,isLocked:_isLocked
+      planting_date:document.getElementById('planting_date').value,
+      harv_start:document.getElementById('harv_start').value,
+      harv_plan:document.getElementById('harv_plan').value,
+      harv_end:document.getElementById('harv_end').value,
+      samples, isLocked:_isLocked
     }));
   }catch(e){}
 }
@@ -607,7 +846,8 @@ function loadState(){
     const raw=localStorage.getItem('pumpkin_state');
     if(!raw) return false;
     const s=JSON.parse(raw);
-    ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','survey_date'].forEach(id=>{
+    ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate',
+     'survey_date','planting_date','harv_start','harv_plan','harv_end'].forEach(id=>{
       if(s[id]!==undefined&&s[id]!==''){
         const el=document.getElementById(id); if(el){ el.value=s[id]; el.classList.add('filled'); }
       }
@@ -624,82 +864,143 @@ function loadState(){
   }catch(e){ return false; }
 }
 
+// ── 갤러리 저장 ──────────────────────────────────────────────
+function fillCaptureTemplate(){
+  const avgYield  = toNum(document.getElementById('avg_yield'));
+  const insArea   = toNum(document.getElementById('ins_area'));
+  const actArea   = toNum(document.getElementById('act_area'));
+  const deadArea  = parseFloat(document.getElementById('dead_area').value)||0;
+  const otherArea = parseFloat(document.getElementById('other_area').value)||0;
+  const harvArea  = toNum(document.getElementById('harv_area'));
+  const uninsRate = (parseFloat(document.getElementById('unins_rate').value)||0)/100;
+  const uninsRatePct = document.getElementById('unins_rate').value||'0';
+  const surveyArea= Math.max(0,actArea-deadArea-otherArea-harvArea);
+  const isChanged = insArea>0&&actArea>0&&Math.abs((actArea-insArea)/insArea)>0.1;
+  const m2Avg     = insArea>0?Math.round(avgYield/insArea*10000)/10000:0;
+  const effAvg    = isChanged?Math.round(m2Avg*actArea):avgYield;
+
+  // 헤더
+  document.getElementById('cap-date').textContent   = document.getElementById('survey_date').value||'';
+  const fn = document.getElementById('farm_no').value||'';
+  document.getElementById('cap-farmno').textContent = fn?`농지번호: ${fn}`:'';
+
+  // 1. 기본정보
+  document.getElementById('cap-avg-yield').textContent = avgYield.toLocaleString()+' kg';
+  document.getElementById('cap-ins-area').textContent  = insArea.toLocaleString()+' ㎡';
+  const capCon = document.getElementById('cap-contract');
+  capCon.textContent  = isChanged?'원장변경 대상':'이상무';
+  capCon.style.color  = isChanged?'#e24b4a':'#1D9E75';
+
+  // 2. 면적조사
+  document.getElementById('cap-act-area').textContent   = actArea.toLocaleString()+' ㎡';
+  document.getElementById('cap-dead-area').textContent  = deadArea+' ㎡';
+  document.getElementById('cap-other-area').textContent = otherArea+' ㎡';
+  document.getElementById('cap-harv-area').textContent  = harvArea+' ㎡';
+
+  // 3. 조사일정 (입력된 값 있을 때만 표시)
+  const plantingDate = document.getElementById('planting_date').value||'';
+  const harvStart    = document.getElementById('harv_start').value||'';
+  const harvPlan     = document.getElementById('harv_plan').value||'';
+  const harvEnd      = document.getElementById('harv_end').value||'';
+  const hasSchedule  = plantingDate||harvStart||harvPlan||harvEnd;
+  const schedBlock   = document.getElementById('cap-sched-block');
+  if(hasSchedule){
+    schedBlock.style.display='block';
+    document.getElementById('cap-planting').textContent   = plantingDate||'-';
+    document.getElementById('cap-harv-start').textContent = harvStart||'-';
+    document.getElementById('cap-harv-plan').textContent  = harvPlan||'-';
+    document.getElementById('cap-harv-end').textContent   = harvEnd||'-';
+    // 섹션 번호 조정
+    document.getElementById('cap-sample-title').textContent = '4. 표본구간';
+    document.getElementById('cap-result-title').textContent = '5. 결과';
+  } else {
+    schedBlock.style.display='none';
+    document.getElementById('cap-sample-title').textContent = '3. 표본구간';
+    document.getElementById('cap-result-title').textContent = '4. 결과';
+  }
+
+  // 4. 표본구간 - 금차(이번 차수)에 입력된 중량만 표시
+  // 어느 차수가 금차인지: 가장 마지막으로 입력된 차수
+  let tA=0, tW1=0, tW2=0, tW3=0;
+  samples.forEach(s=>{
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
+    tA += Math.round(l*w*100)/100;
+    tW1 += parseFloat(s.w1)||0;
+    tW2 += parseFloat(s.w2)||0;
+    tW3 += parseFloat(s.w3)||0;
+  });
+  // 금차 판별: 3차>0이면 3차, 2차>0이면 2차, else 1차
+  const curRound = tW3>0?3:(tW2>0?2:1);
+  const curKey   = ['w1','w2','w3'][curRound-1];
+  const curLabel = curRound+'차';
+
+  const thStyle = 'padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
+  const thLast  = 'padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
+  const tdStyle = 'padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap';
+  const tdLast  = 'padding:7px 4px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap';
+
+  document.getElementById('cap-sample-thead').innerHTML =
+    `<th style="${thStyle}">No</th>` +
+    `<th style="${thStyle}">길이(m)</th>` +
+    `<th style="${thStyle}">폭(m)</th>` +
+    `<th style="${thStyle}">면적(㎡)</th>` +
+    `<th style="${thLast}">${curLabel} 중량(g)</th>`;
+
+  let rows='';
+  samples.forEach((s,idx)=>{
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
+    const area=l>0&&w>0?(Math.round(l*w*100)/100).toFixed(2):'-';
+    const wt=parseFloat(s[curKey])||0;
+    rows+=`<tr>
+      <td style="${tdStyle}">${idx+1}</td>
+      <td style="${tdStyle}">${s.len||'-'}</td>
+      <td style="${tdStyle}">${s.wid||'-'}</td>
+      <td style="${tdStyle}">${area}</td>
+      <td style="${tdLast}">${wt>0?wt.toLocaleString():'-'}</td>
+    </tr>`;
+  });
+  document.getElementById('cap-sample-tbody').innerHTML = rows;
+
+  const tWcur = curRound===1?tW1:(curRound===2?tW2:tW3);
+  const capU  = tA>0&&tWcur>0?Math.round(tWcur/tA/1000*10000)/10000:0;
+  const tWall = tW1+tW2+tW3;
+  const capUall = tA>0&&tWall>0?Math.round(tWall/tA/1000*10000)/10000:0;
+  document.getElementById('cap-sample-info').textContent =
+    `표본면적 ${tA.toFixed(2)} ㎡ | ${curLabel} 단위면적당 ${capU.toFixed(4)} kg/㎡ | 누적 단위면적당 ${capUall.toFixed(4)} kg/㎡`;
+
+  // 5. 결과 - 누적 중량(1+2+3차) 기준
+  const capSv   = tA>0&&tWall>0?Math.floor(capUall*surveyArea+m2Avg*(otherArea+harvArea)):0;
+  const capLoss = Math.max(0,effAvg-capSv);
+  const capULoss= Math.round(capLoss*uninsRate);
+  const capNet  = Math.max(0,capLoss-capULoss);
+  const capPct  = effAvg>0?Math.round(capNet/effAvg*10000)/100:0;
+
+  document.getElementById('cap-pct').textContent       = capPct.toFixed(2)+'%';
+  document.getElementById('cap-unins-rate').textContent= uninsRatePct+'%';
+  document.getElementById('cap-surv').textContent      = capSv.toLocaleString()+' kg';
+  document.getElementById('cap-loss').textContent      = capNet.toLocaleString()+' kg';
+  document.getElementById('cap-unins').textContent     = capULoss.toLocaleString()+' kg';
+}
+
 async function saveImage(){
   if(document.getElementById('result-section').classList.contains('pending')){
     alert('계산 결과가 없어요. 계산하기를 먼저 눌러주세요.'); return;
   }
   try{
-    document.getElementById('cap-date').textContent=document.getElementById('survey_date').value||'';
-    const fn=document.getElementById('farm_no').value||'';
-    document.getElementById('cap-farmno').textContent=fn?`농지번호: ${fn}`:'';
-
-    const avgYield=toNum(document.getElementById('avg_yield'));
-    const insArea=toNum(document.getElementById('ins_area'));
-    const actArea=toNum(document.getElementById('act_area'));
-    const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
-    const otherArea=parseFloat(document.getElementById('other_area').value)||0;
-    const harvArea=toNum(document.getElementById('harv_area'));
-    const uninsRate=(parseFloat(document.getElementById('unins_rate').value)||0)/100;
-    const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
-    const m2Avg=insArea>0?Math.round(avgYield/insArea*10000)/10000:0;
-    const isChanged=insArea>0&&actArea>0&&Math.abs((actArea-insArea)/insArea)>0.1;
-    const effAvg=isChanged?Math.round(m2Avg*actArea):avgYield;
-
-    let tA=0,tW1=0,tW2=0,tW3=0;
-    samples.forEach(s=>{
-      const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
-      tA+=Math.round(l*w*100)/100;
-      tW1+=parseFloat(s.w1)||0;
-      tW2+=parseFloat(s.w2)||0;
-      tW3+=parseFloat(s.w3)||0;
-    });
-
-    function makeRow(tW,lbl,bg,bc,tc){
-      if(!tW||tA<=0) return '';
-      const u=Math.round(tW/tA/1000*10000)/10000;
-      const sv=Math.floor(u*surveyArea+m2Avg*(otherArea+harvArea));
-      const loss=Math.max(0,effAvg-sv);
-      const uLoss=Math.round(loss*uninsRate);
-      const net=Math.max(0,loss-uLoss);
-      const pct=effAvg>0?Math.round(net/effAvg*10000)/100:0;
-      return `<div style="padding:10px 12px;background:${bg};border-radius:10px;border:1px solid ${bc}">
-        <div style="font-weight:800;font-size:13px;color:${tc};margin-bottom:5px">${lbl} &nbsp; 피해율 <span style="font-size:16px">${pct.toFixed(2)}%</span></div>
-        <div style="font-size:11px;color:#555;line-height:1.8">
-          단위면적당: ${u.toFixed(4)} kg/㎡<br>
-          조사수확량: ${sv.toLocaleString()} kg &nbsp;|&nbsp; 미보상감수량: ${uLoss.toLocaleString()} kg &nbsp;|&nbsp; 감수량: ${net.toLocaleString()} kg
-        </div>
-      </div>`;
-    }
-
-    document.getElementById('cap-body').innerHTML=`
-      <div style="background:#fff;border-radius:12px;padding:12px;font-size:11px;color:#333">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-          <div><span style="color:#888">평년수확량</span><br><b>${avgYield.toLocaleString()} kg</b></div>
-          <div><span style="color:#888">가입면적</span><br><b>${insArea.toLocaleString()} ㎡</b></div>
-          <div><span style="color:#888">실경작면적</span><br><b style="color:${isChanged?'#e24b4a':'#111'}">${actArea.toLocaleString()} ㎡</b></div>
-          <div><span style="color:#888">조사대상면적</span><br><b>${surveyArea.toLocaleString()} ㎡</b></div>
-        </div>
-        <div style="font-size:10px;color:#888">표본면적 ${tA.toFixed(2)} ㎡ &nbsp;|&nbsp; ㎡당평년 ${m2Avg.toFixed(4)} kg/㎡ &nbsp;|&nbsp; ${isChanged?'원장변경 대상':'이상무'}</div>
-      </div>
-      ${makeRow(tW1,'1차 조사','#F5EFE6','#A8896A','#4A3520')}
-      ${makeRow(tW2,'2차 조사','#EEF0EB','#7A8F68','#303D25')}
-      ${makeRow(tW3,'3차 조사','#EBF0F0','#5A8080','#1E3535')}
-      <div style="background:linear-gradient(135deg,#E8923A,#F0A855);border-radius:12px;padding:14px;text-align:center;color:#fff">
-        <div style="font-size:11px;opacity:.8;margin-bottom:4px">최종 피해율</div>
-        <div style="font-size:32px;font-weight:900">${document.getElementById('result-pct').textContent}</div>
-      </div>`;
-
-    const canvas=await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
+    fillCaptureTemplate();
+    const canvas=await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#f3f4f6',scale:2,useCORS:true,windowWidth:430});
     const now=new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
     const link=document.createElement('a');
     link.download=`단호박피해율_${stamp}.png`;
-    link.href=canvas.toDataURL('image/png');
-    link.click();
-
+    link.href=canvas.toDataURL('image/png'); link.click();
     try{
       const _farmNo=(document.getElementById('farm_no')?.value||'').trim();
-      const _rec={id:Date.now(),crop:'단호박',cropDetail:'단호박',category:'밭작물',farmNo:_farmNo,surveyDate:document.getElementById('survey_date')?.value||'',pct:document.getElementById('result-pct')?.textContent||'-',filename:`단호박피해율_${stamp}.png`,savedAt:(()=>{const d=new Date();return fmt(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');})()};
+      const _rec={id:Date.now(),crop:'단호박',cropDetail:'단호박',category:'밭작물',farmNo:_farmNo,
+        surveyDate:document.getElementById('survey_date')?.value||'',
+        pct:document.getElementById('result-pct')?.textContent||'-',
+        filename:`단호박피해율_${stamp}.png`,
+        savedAt:(()=>{const d=new Date();return fmt(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');})()};
       const _hist=JSON.parse(localStorage.getItem('save_history')||'[]');
       const _ei=_rec.farmNo?_hist.findIndex(r=>r.crop===_rec.crop&&r.farmNo===_rec.farmNo):-1;
       if(_ei>-1) _hist.splice(_ei,1);
@@ -710,6 +1011,9 @@ async function saveImage(){
   }catch(e){ alert('저장 중 오류가 발생했어요.'); }
 }
 
+
+
+// ── 초기 실행 ────────────────────────────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
@@ -723,6 +1027,8 @@ try{
     document.getElementById('bigtext-label').textContent='원래대로';
   }
 }catch(e){}
+restoreCollapse('sched');
+restoreCollapse('qty');
 document.getElementById('survey_date').value=fmt(new Date());
 document.getElementById('survey_date').classList.add('filled');
 setTimeout(()=>{
