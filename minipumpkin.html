@@ -13,21 +13,20 @@
 <script>
 function bindMobileFocusHandlers(){
   document.querySelectorAll('input.inp, tbody td input').forEach(el=>{
+    if(el.type==='date') return;
     if(el.dataset.mobileFocusBound==='1') return;
     el.dataset.mobileFocusBound='1';
     el.addEventListener('focus',()=>el.classList.add('mobile-focus'),{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
-    if(el.type!=='date'){
-      let tx=0,ty=0,sc=false;
-      el.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;sc=false;},{passive:true});
-      el.addEventListener('touchmove',e=>{if(Math.abs(e.touches[0].clientX-tx)>6||Math.abs(e.touches[0].clientY-ty)>6)sc=true;},{passive:true});
-      el.addEventListener('touchend',e=>{
-        if(sc)return;
-        if(e.cancelable)e.preventDefault();
-        el.focus();el.classList.add('mobile-focus');
-        setTimeout(()=>{try{el.select();}catch(_){try{el.setSelectionRange(0,el.value.length);}catch(_){}}},50);
-      },{passive:false});
-    }
+    let tx=0,ty=0,sc=false;
+    el.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;sc=false;},{passive:true});
+    el.addEventListener('touchmove',e=>{if(Math.abs(e.touches[0].clientX-tx)>6||Math.abs(e.touches[0].clientY-ty)>6)sc=true;},{passive:true});
+    el.addEventListener('touchend',e=>{
+      if(sc)return;
+      if(e.cancelable)e.preventDefault();
+      el.focus();el.classList.add('mobile-focus');
+      setTimeout(()=>{try{el.select();}catch(_){try{el.setSelectionRange(0,el.value.length);}catch(_){}}},50);
+    },{passive:false});
   });
 }
 function bindNextNav(){
@@ -450,17 +449,16 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       <!-- 1. 기본정보 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
-          <colgroup><col style="width:33.33%"><col style="width:33.33%"><col style="width:33.34%"></colgroup>
+        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:auto">
           <thead><tr>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">평년수확량</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">가입면적</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">원장변경유무</th>
+            <th style="padding:7px 14px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">평년수확량</th>
+            <th style="padding:7px 14px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">가입면적</th>
+            <th style="padding:7px 14px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">원장변경유무</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg-yield">-</td>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-ins-area">-</td>
-            <td style="padding:7px 4px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-contract">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-avg-yield">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-ins-area">-</td>
+            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-contract">-</td>
           </tr></tbody>
         </table>
       </div>
