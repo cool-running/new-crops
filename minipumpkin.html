@@ -137,17 +137,8 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 .btn-add{border:1.5px dashed var(--or2);background:#FAF5EE;color:var(--or)}
 
 /* 차수별 단위면적당 요약 칩 */
-.unit-chips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.unit-chip{flex:1;min-width:90px;border-radius:10px;padding:7px 8px;text-align:center}
-.unit-chip .lbl{font-size:9px;color:var(--sub);margin-bottom:2px;white-space:nowrap}
-.unit-chip .val{font-size:11px;font-weight:800;color:var(--text)}
-.uc1,.uc2,.uc3{background:var(--auto);border:1px solid var(--border)}
 
 /* 피해율 칩 */
-.pct-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.pct-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
-.pc1,.pc2,.pc3{background:var(--auto);color:var(--sub);border:1px solid var(--border)}
-.pc-final{background:linear-gradient(135deg,#E8923A,#F0A855);color:#fff;border:none;box-shadow:0 2px 8px rgba(232,146,58,0.25)}
 
 /* 결과 */
 .result-box{background:linear-gradient(135deg,#E8923A 0%,#F0A855 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:#fff;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(232,146,58,0.32),inset 0 1px 0 rgba(255,255,255,0.2)}
@@ -298,24 +289,6 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
         <button class="btn-del" onclick="removeSample()">－ 구간 삭제</button>
       </div>
 
-      <!-- 단위면적당 요약 -->
-      <div class="unit-chips">
-        <div class="unit-chip uc1">
-          <div class="lbl">1차 단위면적당</div>
-          <div class="val" id="s-u1">-</div>
-        </div>
-        <div class="unit-chip uc2">
-          <div class="lbl">2차 단위면적당</div>
-          <div class="val" id="s-u2">-</div>
-        </div>
-        <div class="unit-chip uc3">
-          <div class="lbl">3차 단위면적당</div>
-          <div class="val" id="s-u3">-</div>
-        </div>
-      </div>
-
-      <!-- 차수별 피해율 칩 -->
-      <div class="pct-chips" id="pct-chips"></div>
     </div>
   </div>
 
@@ -330,7 +303,6 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
         <div style="font-size:12px;color:rgba(255,255,255,0.75);font-weight:500">최종 피해율</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px" id="r-basis">-</div>
       </div>
       <div style="width:1px;height:40px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
@@ -341,21 +313,8 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
         <button class="save-btn" onclick="saveImage()">📷 저장</button>
       </div>
     </div>
-    <div id="result-detail" style="padding-bottom:14px;display:none">
-      <div style="display:flex;gap:6px">
-        <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 6px;text-align:center">
-          <div style="font-size:10px;opacity:.75;margin-bottom:3px">조사수확량</div>
-          <div style="font-size:12px;font-weight:700" id="r-survey">-</div>
-        </div>
-        <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 6px;text-align:center">
-          <div style="font-size:10px;opacity:.75;margin-bottom:3px">미보상감수량</div>
-          <div style="font-size:12px;font-weight:700" id="r-unins">-</div>
-        </div>
-        <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 6px;text-align:center">
-          <div style="font-size:10px;opacity:.75;margin-bottom:3px">감수량</div>
-          <div style="font-size:12px;font-weight:700" id="r-loss">-</div>
-        </div>
-      </div>
+    </div>
+  </div>
     </div>
   </div>
 
@@ -514,9 +473,7 @@ function calcTotals(){
   const u1=tA>0&&tW1>0?Math.round(tW1/tA/1000*10000)/10000:0;
   const u2=tA>0&&tW2>0?Math.round(tW2/tA/1000*10000)/10000:0;
   const u3=tA>0&&tW3>0?Math.round(tW3/tA/1000*10000)/10000:0;
-  document.getElementById('s-u1').textContent=u1>0?u1.toFixed(4)+' kg/㎡':'-';
-  document.getElementById('s-u2').textContent=u2>0?u2.toFixed(4)+' kg/㎡':'-';
-  document.getElementById('s-u3').textContent=u3>0?u3.toFixed(4)+' kg/㎡':'-';
+
 
   calcAll();
 }
@@ -553,57 +510,26 @@ function calcAll(){
     tW3+=parseFloat(s.w3)||0;
   });
 
-  function calcPct(tW){
-    if(!tW||!avgYield||!actArea||surveyArea<=0) return null;
-    const u=Math.round(tW/tA/1000*10000)/10000;
-    const sv=Math.floor(u*surveyArea+m2Avg*(otherArea+harvArea));
-    const loss=Math.max(0,effAvg-sv);
-    const uLoss=Math.round(loss*uninsRate);
-    const net=Math.max(0,loss-uLoss);
-    const pct=effAvg>0?Math.floor(net/effAvg*10000)/100:0;
-    return {u,sv,uLoss,net,pct};
-  }
-  const r1=tA>0?calcPct(tW1):null;
-  const r2=tA>0?calcPct(tW2):null;
-  const r3=tA>0?calcPct(tW3):null;
-
-  // 피해율 칩
-  const chipsEl=document.getElementById('pct-chips');
-  chipsEl.innerHTML='';
-  const valid=[
-    {r:r1,cls:'pc1',lbl:'1차'},
-    {r:r2,cls:'pc2',lbl:'2차'},
-    {r:r3,cls:'pc3',lbl:'3차'}
-  ].filter(x=>x.r!==null);
-
-  valid.forEach((x,idx)=>{
-    const chip=document.createElement('span');
-    const isFinal=idx===valid.length-1;
-    chip.className='pct-chip '+(isFinal?'pc-final':x.cls);
-    chip.textContent=`${x.lbl}: ${x.r.pct.toFixed(2)}%`;
-    chipsEl.appendChild(chip);
-  });
-
+  // 1·2·3차 중량 합산 → 단일 피해율
+  const tWall = tW1+tW2+tW3;
   const resultBox=document.getElementById('result-section');
   const pctEl=document.getElementById('result-pct');
-  const detailEl=document.getElementById('result-detail');
-  const last=valid[valid.length-1];
 
-  if(!last){
+  if(!tWall||!tA||!avgYield||!actArea||surveyArea<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white';
-    detailEl.style.display='none';
-    document.getElementById('r-basis').textContent='-';
     return;
   }
+  const u=Math.round(tWall/tA/1000*10000)/10000;
+  const sv=Math.floor(u*surveyArea+m2Avg*(otherArea+harvArea));
+  const loss=Math.max(0,effAvg-sv);
+  const uLoss=Math.round(loss*uninsRate);
+  const net=Math.max(0,loss-uLoss);
+  const pct=effAvg>0?Math.floor(net/effAvg*10000)/100:0;
+
   resultBox.className='result-box';
-  pctEl.textContent=last.r.pct.toFixed(2)+'%';
-  pctEl.style.color=last.r.pct>20?'#FFD0D0':'#FFEAA8';
-  document.getElementById('r-basis').textContent=`${last.lbl} 조사 기준`;
-  document.getElementById('r-survey').textContent=last.r.sv.toLocaleString()+' kg';
-  document.getElementById('r-unins').textContent=last.r.uLoss.toLocaleString()+' kg';
-  document.getElementById('r-loss').textContent=last.r.net.toLocaleString()+' kg';
-  detailEl.style.display='block';
+  pctEl.textContent=pct.toFixed(2)+'%';
+  pctEl.style.color=pct>20?'#FFD0D0':'#FFEAA8';
   saveState();
 }
 
@@ -631,8 +557,6 @@ function setEditMode(){
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='- -';
   document.getElementById('result-pct').style.color='white';
-  document.getElementById('result-detail').style.display='none';
-  document.getElementById('r-basis').textContent='-';
   saveState();
 }
 
@@ -650,8 +574,7 @@ function resetAll(){
   _isLocked=false; setEditMode();
   samples=[];
   renderSamples();
-  document.getElementById('pct-chips').innerHTML='';
-  ['s-u1','s-u2','s-u3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='-'; });
+
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(()=>{ const f=document.getElementById('farm_no'); if(f) f.focus(); },300);
 }
@@ -764,7 +687,6 @@ async function saveImage(){
       <div style="background:linear-gradient(135deg,#E8923A,#F0A855);border-radius:12px;padding:14px;text-align:center;color:#fff">
         <div style="font-size:11px;opacity:.8;margin-bottom:4px">최종 피해율</div>
         <div style="font-size:32px;font-weight:900">${document.getElementById('result-pct').textContent}</div>
-        <div style="font-size:10px;opacity:.7;margin-top:3px">${document.getElementById('r-basis').textContent}</div>
       </div>`;
 
     const canvas=await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
