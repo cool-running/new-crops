@@ -111,17 +111,17 @@ body.big-text .field{gap:5px!important}
 body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03em}
 
 /* ── 통합 표본 테이블 ── */
-.tbl-outer{overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch}
-.stbl{border-collapse:collapse;font-size:11px;min-width:340px;width:100%}
+.tbl-outer{width:100%}
+.stbl{border-collapse:collapse;font-size:11px;width:100%;table-layout:fixed}
 
-.stbl thead th{padding:6px 3px;text-align:center;font-weight:600;font-size:10px;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.4;white-space:pre-line}
+.stbl thead th{padding:5px 2px;text-align:center;font-weight:600;font-size:10px;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.3}
 
 .sep{border-right:2px solid var(--border)!important}
 
 .stbl tbody td{padding:2px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
-.stbl tbody td.no{font-size:10px;font-weight:700;color:var(--sub);background:#fafafa;border-right:1px solid #eee;width:24px}
+.stbl tbody td.no{font-size:10px;font-weight:700;color:var(--sub);background:#fafafa;border-right:1px solid #eee}
 
-.stbl tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:12px;background:#fff;-webkit-appearance:none;color:var(--text);transition:background .15s,border-color .15s}
+.stbl tbody td input{width:100%;height:32px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:11px;background:#fff;-webkit-appearance:none;color:var(--text);transition:background .15s,border-color .15s}
 .stbl tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 
 /* 중량 칸 색상 - 연한 구분 */
@@ -265,9 +265,9 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       <div class="tbl-outer">
         <table class="stbl">
           <colgroup>
-            <col style="width:28px">
-            <col style="width:20%"><col style="width:20%">
-            <col style="width:20%"><col style="width:20%"><col style="width:20%">
+            <col style="width:10%">
+            <col style="width:18%"><col style="width:18%">
+            <col style="width:18%"><col style="width:18%"><col style="width:18%">
           </colgroup>
           <thead>
             <tr>
