@@ -525,7 +525,7 @@ function calcAll(){
   const loss=Math.max(0,effAvg-sv);
   const uLoss=Math.round(loss*uninsRate);
   const net=Math.max(0,loss-uLoss);
-  const pct=effAvg>0?Math.floor(net/effAvg*10000)/100:0;
+  const pct=effAvg>0?Math.round(net/effAvg*10000)/100:0;
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
@@ -661,7 +661,7 @@ async function saveImage(){
       const loss=Math.max(0,effAvg-sv);
       const uLoss=Math.round(loss*uninsRate);
       const net=Math.max(0,loss-uLoss);
-      const pct=effAvg>0?Math.floor(net/effAvg*10000)/100:0;
+      const pct=effAvg>0?Math.round(net/effAvg*10000)/100:0;
       return `<div style="padding:10px 12px;background:${bg};border-radius:10px;border:1px solid ${bc}">
         <div style="font-weight:800;font-size:13px;color:${tc};margin-bottom:5px">${lbl} &nbsp; 피해율 <span style="font-size:16px">${pct.toFixed(2)}%</span></div>
         <div style="font-size:11px;color:#555;line-height:1.8">
