@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-user-select:none;user-select:none;padding-bottom:env(safe-area-inset-bottom,50px);visibility:hidden}
 input,textarea{-webkit-user-select:text;user-select:text}
-input[type=date]{-webkit-touch-callout:default;pointer-events:auto;cursor:pointer}
+input[type=date]{-webkit-touch-callout:default;pointer-events:auto;cursor:pointer;-webkit-appearance:auto!important;appearance:auto!important}
 
 .header{background:var(--or);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
@@ -449,16 +449,16 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       <!-- 1. 기본정보 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:auto">
+        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
-            <th style="padding:7px 14px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">평년수확량</th>
-            <th style="padding:7px 14px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">가입면적</th>
-            <th style="padding:7px 14px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">원장변경유무</th>
+            <th style="padding:7px 16px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">평년수확량</th>
+            <th style="padding:7px 16px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">가입면적</th>
+            <th style="padding:7px 16px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">원장변경유무</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-avg-yield">-</td>
-            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-ins-area">-</td>
-            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-contract">-</td>
+            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-avg-yield">-</td>
+            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-ins-area">-</td>
+            <td style="padding:7px 16px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-contract">-</td>
           </tr></tbody>
         </table>
       </div>
