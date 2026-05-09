@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+input[type=date]{-webkit-touch-callout:default !important;touch-action:manipulation}
 body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-user-select:none;user-select:none;padding-bottom:env(safe-area-inset-bottom,50px);visibility:hidden}
 input,textarea{-webkit-user-select:text;user-select:text}
 
@@ -91,7 +92,7 @@ input[type=date].inp{height:40px;border:1.5px solid var(--binp);border-radius:va
 input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
-input.inp.mobile-focus,input.inp:focus,
+input.inp:not([type=date]).mobile-focus,input.inp:not([type=date]):focus,
 tbody td input.mobile-focus,tbody td input:focus{
   outline:none!important;border-color:#E8923A!important;
   box-shadow:0 0 0 3px rgba(232,146,58,0.18)!important;
