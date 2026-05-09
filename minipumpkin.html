@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-user-select:none;user-select:none;padding-bottom:env(safe-area-inset-bottom,50px);visibility:hidden}
 input,textarea{-webkit-user-select:text;user-select:text}
-input[type=date]{-webkit-touch-callout:default;pointer-events:auto;cursor:pointer;-webkit-appearance:auto!important;appearance:auto!important}
 
 .header{background:var(--or);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
@@ -87,7 +86,8 @@ input[type=date]{-webkit-touch-callout:default;pointer-events:auto;cursor:pointe
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 .unit-badge{position:absolute;right:6px;top:0;font-size:10px;font-weight:600;color:var(--sub);background:var(--bg);border-radius:4px;padding:1px 4px;line-height:1.4;pointer-events:none;z-index:1}
 
-input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:#fff;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
+input.inp:not([type=date]){height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:#fff;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
+input[type=date].inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:#fff;color:var(--text);width:100%;text-align:center;transition:background .15s,border-color .15s;-webkit-appearance:revert;appearance:revert}
 input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
@@ -101,14 +101,14 @@ tbody td input.mobile-focus,tbody td input:focus{
 .bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--or2);border-radius:var(--rs);color:var(--or2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;-webkit-appearance:none}
 .bigtext-btn.on{background:var(--or2);color:#fff;box-shadow:0 2px 8px rgba(232,146,58,0.25)}
 
-body.big-text input.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
+body.big-text input.inp:not([type=date]){height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
+body.big-text input[type=date].inp{height:52px!important;font-size:15px!important;font-weight:700!important;border-width:2px!important;letter-spacing:-0.03em}
 body.big-text input.auto{height:52px!important;font-size:18px!important;font-weight:600!important}
 body.big-text .field label{font-size:13px!important}
 body.big-text tbody td input{height:44px!important;font-size:14px!important;font-weight:700!important}
 body.big-text thead th{font-size:11px!important;padding:8px 2px!important}
 body.big-text tfoot td{font-size:11px!important;padding:8px 1px!important}
 body.big-text .field{gap:5px!important}
-body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03em}
 
 /* ── 통합 표본 테이블 ── */
 .tbl-outer{width:100%}
