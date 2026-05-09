@@ -79,6 +79,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .content{padding:12px 12px 40px}
 .section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04)}
 .sec-title{font-size:13px;font-weight:700;color:#555;margin-bottom:12px;letter-spacing:0.04em}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-head .sec-title{margin-bottom:0}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px;position:relative}
@@ -112,14 +114,8 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 .tbl-outer{overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch}
 .stbl{border-collapse:collapse;font-size:11px;min-width:340px;width:100%}
 
-.stbl thead tr.grp th{padding:5px 2px;text-align:center;font-weight:700;font-size:10px;border-bottom:1px solid var(--border);line-height:1.3}
-.stbl thead tr.sub th{padding:4px 2px;text-align:center;font-weight:600;font-size:9px;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.3}
+.stbl thead th{padding:6px 3px;text-align:center;font-weight:600;font-size:10px;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.4;white-space:pre-line}
 
-/* 헤더 색상 - 연한 베이지 계열 */
-.th-fix{background:#f3efe8!important;color:#5C4033!important}
-.th-w1{background:#F5EFE6!important;color:#7C5C3A!important}
-.th-w2{background:#EEF0EB!important;color:#4A5240!important}
-.th-w3{background:#EBF0F0!important;color:#3A5052!important}
 .sep{border-right:2px solid var(--border)!important}
 
 .stbl tbody td{padding:2px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
@@ -129,12 +125,8 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 .stbl tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 
 /* 중량 칸 색상 - 연한 구분 */
-.stbl tbody td.cw1 input{border-color:#D4C5B0;background:#FAF7F3}
-.stbl tbody td.cw1 input.filled{background:#F0E8D8;border-color:#A8896A;color:#4A3520;font-weight:700}
-.stbl tbody td.cw2 input{border-color:#C4CDB8;background:#F5F7F2}
-.stbl tbody td.cw2 input.filled{background:#E6EBD8;border-color:#7A8F68;color:#303D25;font-weight:700}
-.stbl tbody td.cw3 input{border-color:#B8C8C9;background:#F3F7F7}
-.stbl tbody td.cw3 input.filled{background:#D8E6E6;border-color:#5A8080;color:#1E3535;font-weight:700}
+.stbl tbody td.cw1 input,.stbl tbody td.cw2 input,.stbl tbody td.cw3 input{border-color:var(--binp);background:#fff}
+.stbl tbody td.cw1 input.filled,.stbl tbody td.cw2 input.filled,.stbl tbody td.cw3 input.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 
 .stbl tfoot td{padding:6px 2px;background:#f3efe8;font-weight:700;font-size:10px;text-align:center;border-top:1.5px solid var(--border)}
 .stbl tfoot td.v{color:var(--text);font-size:11px}
@@ -149,16 +141,12 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 .unit-chip{flex:1;min-width:90px;border-radius:10px;padding:7px 8px;text-align:center}
 .unit-chip .lbl{font-size:9px;color:var(--sub);margin-bottom:2px;white-space:nowrap}
 .unit-chip .val{font-size:11px;font-weight:800;color:var(--text)}
-.uc1{background:#F5EFE6;border:1px solid #D4C5B0}
-.uc2{background:#EEF0EB;border:1px solid #C4CDB8}
-.uc3{background:#EBF0F0;border:1px solid #B8C8C9}
+.uc1,.uc2,.uc3{background:var(--auto);border:1px solid var(--border)}
 
 /* 피해율 칩 */
 .pct-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .pct-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
-.pc1{background:#F0E8D8;color:#4A3520;border:1px solid #A8896A}
-.pc2{background:#E6EBD8;color:#303D25;border:1px solid #7A8F68}
-.pc3{background:#D8E6E6;color:#1E3535;border:1px solid #5A8080}
+.pc1,.pc2,.pc3{background:var(--auto);color:var(--sub);border:1px solid var(--border)}
 .pc-final{background:linear-gradient(135deg,#E8923A,#F0A855);color:#fff;border:none;box-shadow:0 2px 8px rgba(232,146,58,0.25)}
 
 /* 결과 */
@@ -266,17 +254,9 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
 
   <!-- 표본구간 조사 -->
   <div class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;color:#555">
-        표본구간 조사
-        <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--or)"></span>
-      </div>
-      <!-- 범례 -->
-      <div style="display:flex;gap:5px;align-items:center;font-size:10px;color:var(--sub)">
-        <span style="width:8px;height:8px;border-radius:2px;background:#F0E8D8;border:1px solid #A8896A;display:inline-block"></span>1차
-        <span style="width:8px;height:8px;border-radius:2px;background:#E6EBD8;border:1px solid #7A8F68;display:inline-block;margin-left:4px"></span>2차
-        <span style="width:8px;height:8px;border-radius:2px;background:#D8E6E6;border:1px solid #5A8080;display:inline-block;margin-left:4px"></span>3차
-      </div>
+    <div class="sec-head">
+      <div class="sec-title">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--or)"></span></div>
+      <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 1·2·3차 중량(g)</span>
     </div>
 
     <div id="sample-guide" class="guide">실경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -290,19 +270,13 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
             <col style="width:20%"><col style="width:20%"><col style="width:20%">
           </colgroup>
           <thead>
-            <tr class="grp">
-              <th rowspan="2" class="th-fix">No.</th>
-              <th colspan="2" class="th-fix sep">구간 정보</th>
-              <th class="th-w1">1차 중량</th>
-              <th class="th-w2">2차 중량</th>
-              <th class="th-w3">3차 중량</th>
-            </tr>
-            <tr class="sub">
-              <th class="th-fix">길이(m)</th>
-              <th class="th-fix sep">폭(m)</th>
-              <th class="th-w1">(g)</th>
-              <th class="th-w2">(g)</th>
-              <th class="th-w3">(g)</th>
+            <tr>
+              <th>No.</th>
+              <th>길이</th>
+              <th>폭</th>
+              <th>1차</th>
+              <th>2차</th>
+              <th>3차</th>
             </tr>
           </thead>
           <tbody id="sample-body"></tbody>
@@ -320,8 +294,8 @@ body.big-text input[type=date].inp{font-size:15px!important;letter-spacing:-0.03
       </div>
 
       <div class="btn-row">
-        <button class="btn-del" onclick="removeSample()">－ 구간 삭제</button>
         <button class="btn-add" onclick="addSample()">＋ 구간 추가</button>
+        <button class="btn-del" onclick="removeSample()">－ 구간 삭제</button>
       </div>
 
       <!-- 단위면적당 요약 -->
