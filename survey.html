@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#185FA5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>조사건 관리</title>
+<style>
+:root{
+  --blue:#185FA5;--blue2:#378ADD;
+  --border:#D8D6CE;--text:#1a1a1a;--sub:#666;--hint:#bbb;
+  --bg:#F5F4F0;--card:#fff;--green:#1D9E75;--red:#E53935;--orange:#F57C00;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;-webkit-user-select:none;user-select:none;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+
+/* ── 헤더 ── */
+.hdr{background:var(--blue);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200}
+.hdr-icon{width:34px;height:34px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.hdr-text{flex:1;min-width:0}
+.hdr-title{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-sub{font-size:11px;opacity:.7;margin-top:1px}
+.hdr-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;border-radius:8px;background:rgba(255,255,255,.12);font-size:13px;font-weight:600;flex-shrink:0}
+
+/* ── 화면 전환 ── */
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── 프로젝트 목록 화면 ── */
+.proj-top{padding:14px}
+.proj-top .new-btn{width:100%;padding:14px;background:var(--blue);color:#fff;border-radius:var(--r);font-size:15px;font-weight:700;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.proj-list{padding:0 14px 14px}
+.proj-card{background:var(--card);border-radius:var(--r);border:0.5px solid var(--border);margin-bottom:10px;overflow:hidden;cursor:pointer;transition:transform .1s}
+.proj-card:active{transform:scale(.98)}
+.proj-card-top{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:10px}
+.proj-emoji{font-size:28px;flex-shrink:0;line-height:1}
+.proj-info{flex:1;min-width:0}
+.proj-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proj-meta{font-size:12px;color:var(--sub);margin-top:3px}
+.proj-card-bar{padding:8px 16px 12px;display:flex;gap:16px;border-top:1px solid #f0eeea}
+.pbar-item{text-align:center}
+.pbar-val{font-size:16px;font-weight:800}
+.pbar-val.g{color:var(--green)}
+.pbar-val.r{color:var(--red)}
+.pbar-val.b{color:var(--blue)}
+.pbar-lbl{font-size:10px;color:var(--sub);font-weight:600}
+.prog-bar{height:3px;background:#eee;border-radius:2px;margin:0 16px 0}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.empty-proj{text-align:center;padding:60px 20px;color:var(--hint)}
+.empty-proj .ei{font-size:44px;margin-bottom:12px}
+
+/* ── 프로젝트 상세 화면 ── */
+.sumbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 14px 8px}
+.scrd{background:var(--card);border-radius:var(--rs);padding:10px 6px;text-align:center;border:0.5px solid var(--border)}
+.sval{font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.sval.g{color:var(--green)}.sval.r{color:var(--red)}.sval.b{color:var(--blue)}
+.slbl{font-size:10px;color:var(--sub);margin-top:3px;font-weight:600}
+
+.search-wrap{padding:0 14px 8px}
+.search-box{width:100%;padding:9px 14px;border:1px solid var(--border);border-radius:20px;font-size:14px;background:var(--card);outline:none;-webkit-user-select:text;user-select:text}
+
+.grp-hdr{padding:6px 14px 4px;font-size:11px;font-weight:700;color:var(--sub);background:var(--bg);display:flex;justify-content:space-between;align-items:center;letter-spacing:.04em}
+.grp-badge{font-size:10px;background:var(--blue);color:#fff;padding:2px 7px;border-radius:8px;font-weight:700}
+
+.row{display:flex;align-items:center;padding:11px 14px;background:var(--card);border-bottom:1px solid #f0eeea;gap:10px;cursor:pointer;transition:background .1s}
+.row:active{background:#f5f5f5}
+.row.done{background:#f0faf6}
+.row.fail{background:#fff5f5}
+.status-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:1.5px solid var(--border);flex-shrink:0}
+.status-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.status-dot.fail{background:#ffebee;border-color:#ffcdd2;color:var(--red)}
+.row-main{flex:1;min-width:0}
+.row-name{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.row-memo{font-size:11px;color:var(--hint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-cnt{font-size:12px;color:var(--sub);min-width:28px;text-align:right;flex-shrink:0}
+.row-date{font-size:12px;color:var(--sub);min-width:50px;text-align:right;flex-shrink:0}
+
+.empty{text-align:center;padding:60px 20px;color:var(--hint);font-size:13px;line-height:2}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:18px;width:52px;height:52px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;box-shadow:0 4px 16px rgba(24,95,165,.4);cursor:pointer;z-index:150;transition:transform .15s}
+.fab:active{transform:scale(.92)}
+
+/* ── 바텀시트 ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:flex-end}
+.overlay.on{display:flex}
+.sheet{background:var(--card);border-radius:18px 18px 0 0;padding:20px 18px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-height:88vh;overflow-y:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
+.sh-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--rs);font-size:15px;background:var(--card);outline:none;-webkit-user-select:text;user-select:text;-webkit-appearance:none;appearance:none;font-family:inherit}
+.field textarea{resize:none;height:72px;line-height:1.5}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+.st-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}
+.st-btn{padding:11px 4px;border-radius:var(--rs);border:1.5px solid var(--border);text-align:center;font-size:13px;font-weight:700;cursor:pointer}
+.st-btn.sp{border-color:#999;background:#f5f5f5;color:#444}
+.st-btn.sd{border-color:var(--green);background:#e8faf3;color:var(--green)}
+.st-btn.sf{border-color:var(--red);background:#fff5f5;color:var(--red)}
+.btn-row{display:flex;gap:8px;margin-top:6px}
+.btn{flex:1;padding:13px;border-radius:var(--rs);font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
+.btn-p{background:var(--blue);color:#fff}
+.btn-d{background:#fff0f0;color:var(--red);border:1px solid #ffcdd2}
+.btn-c{background:#f0f0f0;color:#555}
+
+/* ── 공유/가져오기 시트 ── */
+.share-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:16px}
+.share-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;color:var(--sub)}
+.share-tab.on{background:var(--blue);color:#fff}
+.code-box{background:#f5f5f5;border-radius:var(--rs);padding:12px;font-size:11px;font-family:monospace;word-break:break-all;max-height:120px;overflow-y:auto;color:#444;border:1px solid var(--border);-webkit-user-select:text;user-select:text}
+.qr-wrap{text-align:center;padding:10px 0}
+.copy-btn{width:100%;padding:12px;background:var(--blue);color:#fff;border-radius:var(--rs);font-size:14px;font-weight:700;border:none;cursor:pointer;margin-top:10px;font-family:inherit}
+.import-area{width:100%;height:100px;padding:10px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:monospace;resize:none;outline:none;-webkit-user-select:text;user-select:text}
+
+/* ── 프로젝트 생성 시트 ── */
+.crop-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.chip{padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;color:var(--sub)}
+.chip.on{border-color:var(--blue);background:#e8f0fb;color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- ══ 화면1: 프로젝트 목록 ══ -->
+<div class="screen on" id="scr-list">
+  <div class="hdr">
+    <div class="hdr-icon">📋</div>
+    <div class="hdr-text">
+      <div class="hdr-title">조사건 관리</div>
+      <div class="hdr-sub">손해평가 현장조사 관리</div>
+    </div>
+    <div class="hdr-btn" onclick="openShareMain()" title="공유">⇅</div>
+  </div>
+  <div class="proj-top">
+    <div class="new-btn" onclick="openNewProj()">＋ 새 조사 프로젝트 만들기</div>
+  </div>
+  <div class="proj-list" id="proj-list"></div>
+</div>
+
+<!-- ══ 화면2: 프로젝트 상세 ══ -->
+<div class="screen" id="scr-detail">
+  <div class="hdr">
+    <div class="hdr-btn" onclick="goList()" style="font-size:20px;background:none">‹</div>
+    <div class="hdr-text" style="margin-left:2px">
+      <div class="hdr-title" id="det-title">-</div>
+      <div class="hdr-sub" id="det-sub">-</div>
+    </div>
+    <div class="hdr-btn" onclick="openProjShare()" title="공유">⇅</div>
+    <div class="hdr-btn" onclick="openProjEdit()" title="편집" style="margin-left:4px">⋯</div>
+  </div>
+  <div class="sumbar">
+    <div class="scrd"><div class="sval b" id="d-total">0</div><div class="slbl">조사건</div></div>
+    <div class="scrd"><div class="sval g" id="d-done">0</div><div class="slbl">완료</div></div>
+    <div class="scrd"><div class="sval r" id="d-remain">0</div><div class="slbl">잔여</div></div>
+    <div class="scrd"><div class="sval b" id="d-pct">0%</div><div class="slbl">진행률</div></div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-box" type="search" id="det-search" placeholder="🔍  이름 검색" oninput="renderDetail()" autocomplete="off">
+  </div>
+  <div id="det-list"></div>
+  <div class="fab" onclick="openItem(null)">＋</div>
+</div>
+
+<!-- ══ 바텀시트: 새 프로젝트 ══ -->
+<div class="overlay" id="ov-proj" onclick="bgClose('ov-proj')">
+<div class="sheet" onclick="e=>e.stopPropagation()">
+  <div class="sh-handle"></div>
+  <div class="sh-title" id="proj-sh-title">새 조사 프로젝트</div>
+  <div class="field">
+    <label>품목</label>
+    <div class="crop-chips" id="crop-chips">
+      <div class="chip" onclick="selChip(this,'마늘')">🧄 마늘</div>
+      <div class="chip" onclick="selChip(this,'감자')">🥔 감자</div>
+      <div class="chip" onclick="selChip(this,'인삼')">🌿 인삼</div>
+      <div class="chip" onclick="selChip(this,'단호박')">🎃 단호박</div>
+      <div class="chip" onclick="selChip(this,'콩')">🫘 콩</div>
+      <div class="chip" onclick="selChip(this,'고구마')">🍠 고구마</div>
+    </div>
+    <input type="text" id="p-crop" placeholder="직접 입력 (위 버튼 또는 타이핑)" autocomplete="off" style="margin-top:8px">
+  </div>
+  <div class="field">
+    <label>농협명</label>
+    <input type="text" id="p-coop" placeholder="예) 김녕농협" autocomplete="off">
+  </div>
+  <div class="field">
+    <label>지점명 (선택)</label>
+    <input type="text" id="p-branch" placeholder="예) 우도지점" autocomplete="off">
+  </div>
+  <div class="field">
+    <label>조사자</label>
+    <input type="text" id="p-inspector" placeholder="이름 입력" autocomplete="off">
+  </div>
+  <div class="btn-row">
+    <div class="btn btn-c" onclick="closeSheet('ov-proj')">취소</div>
+    <div class="btn btn-d" id="proj-del-btn" style="display:none" onclick="deleteProj()">삭제</div>
+    <div class="btn btn-p" onclick="saveProj()">저장</div>
+  </div>
+</div></div>
+
+<!-- ══ 바텀시트: 계약자 ══ -->
+<div class="overlay" id="ov-item" onclick="bgClose('ov-item')">
+<div class="sheet" onclick="e=>e.stopPropagation()">
+  <div class="sh-handle"></div>
+  <div class="sh-title" id="item-sh-title">계약자 추가</div>
+  <div class="field">
+    <label>계약자 이름</label>
+    <input type="text" id="i-name" placeholder="이름" autocomplete="off">
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="field">
+      <label>수확일</label>
+      <select id="i-date">
+        <option value="">선택</option>
+        <option>14일</option><option>15일</option><option>16일</option>
+        <option>18일</option><option>19일</option><option>20일</option>
+        <option>20일 이후</option><option>21일</option><option>22일</option>
+        <option>23일</option><option>24일</option><option>25일</option>
+        <option>26일</option><option>27일</option><option>28일</option>
+        <option>29일</option><option>30일</option><option>5월말</option>
+        <option>미정</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>조사건수</label>
+      <input type="number" id="i-cnt" placeholder="건수" min="0" inputmode="numeric">
+    </div>
+  </div>
+  <div class="field">
+    <label>메모</label>
+    <input type="text" id="i-memo" placeholder="전화요망, 연락처 등" autocomplete="off">
+  </div>
+  <div class="field"><label>조사 상태</label></div>
+  <div class="st-row">
+    <div class="st-btn" id="sb0" onclick="selSt('pending')">진행중</div>
+    <div class="st-btn" id="sb1" onclick="selSt('done')">○ 완료</div>
+    <div class="st-btn" id="sb2" onclick="selSt('fail')">× 전화불가</div>
+  </div>
+  <div class="btn-row">
+    <div class="btn btn-c" onclick="closeSheet('ov-item')">취소</div>
+    <div class="btn btn-d" id="item-del-btn" style="display:none" onclick="deleteItem()">삭제</div>
+    <div class="btn btn-p" onclick="saveItem()">저장</div>
+  </div>
+</div></div>
+
+<!-- ══ 바텀시트: 공유 ══ -->
+<div class="overlay" id="ov-share" onclick="bgClose('ov-share')">
+<div class="sheet" onclick="e=>e.stopPropagation()">
+  <div class="sh-handle"></div>
+  <div class="sh-title" id="share-title">데이터 공유</div>
+  <div class="share-tabs">
+    <div class="share-tab on" id="stab0" onclick="switchShareTab(0)">내보내기</div>
+    <div class="share-tab" id="stab1" onclick="switchShareTab(1)">QR코드</div>
+    <div class="share-tab" id="stab2" onclick="switchShareTab(2)">가져오기</div>
+  </div>
+  <!-- 내보내기 -->
+  <div id="share-export">
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px">아래 텍스트를 복사해서 카톡 등으로 전송하세요</div>
+    <div class="code-box" id="export-text"></div>
+    <button class="copy-btn" onclick="copyExport()">📋 복사하기</button>
+  </div>
+  <!-- QR -->
+  <div id="share-qr" style="display:none">
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center">QR코드를 스캔하면 데이터를 가져올 수 있습니다</div>
+    <div class="qr-wrap" id="qr-wrap"></div>
+    <div style="font-size:11px;color:var(--hint);text-align:center;margin-top:8px">* 데이터가 많으면 QR이 복잡해질 수 있습니다</div>
+  </div>
+  <!-- 가져오기 -->
+  <div id="share-import" style="display:none">
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px">받은 텍스트를 아래에 붙여넣기 하세요</div>
+    <textarea class="import-area" id="import-text" placeholder="여기에 붙여넣기..."></textarea>
+    <button class="copy-btn" style="background:var(--green);margin-top:10px" onclick="doImport()">✓ 가져오기</button>
+  </div>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ══════════════════════════════════════════════
+//  데이터 구조
+//  projects: [{id, crop, coop, branch, inspector, created, items:[{n,d,c,s,m}]}]
+// ══════════════════════════════════════════════
+const STORE = 'survey_v1';
+let db = {projects:[]};
+let curProjId = null;
+let editItemIdx = null;
+let curSt = 'pending';
+let shareMode = 'all'; // 'all' or 'proj'
+let shareTabIdx = 0;
+
+function load(){
+  try{ db=JSON.parse(localStorage.getItem(STORE))||{projects:[]}; }
+  catch(e){ db={projects:[]}; }
+}
+function save(){ localStorage.setItem(STORE,JSON.stringify(db)); }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// ══ 날짜 정렬 ══
+const DORD=['14일','15일','16일','18일','19일','20일','20일 이후','21일','22일','23일','24일','25일','26일','27일','28일','29일','30일','5월말','미정'];
+function dkey(d){const i=DORD.indexOf(d);return i<0?99:i;}
+
+// ══════════════════════════════════════════════
+//  화면1: 프로젝트 목록
+// ══════════════════════════════════════════════
+function goList(){
+  show('scr-list'); renderProjects();
+}
+function renderProjects(){
+  load();
+  const el=document.getElementById('proj-list');
+  if(!db.projects.length){
+    el.innerHTML=`<div class="empty-proj"><div class="ei">📋</div>아직 조사 프로젝트가 없습니다<br><span style="font-size:12px">위 버튼으로 새 프로젝트를 만드세요</span></div>`;
+    return;
+  }
+  el.innerHTML=db.projects.map(p=>{
+    const total=p.items.reduce((a,x)=>a+(+x.c||0),0);
+    const done=p.items.filter(x=>x.s==='done').reduce((a,x)=>a+(+x.c||0),0);
+    const pct=total?Math.round(done/total*100):0;
+    const name=p.branch?`${p.coop} ${p.branch}`:`${p.coop}`;
+    const crop=p.crop||'작물';
+    return `<div class="proj-card" onclick="openProj('${p.id}')">
+      <div class="proj-card-top">
+        <div class="proj-emoji">${cropEmoji(p.crop)}</div>
+        <div class="proj-info">
+          <div class="proj-name">${crop} — ${name}</div>
+          <div class="proj-meta">${p.inspector?p.inspector+' · ':''} ${p.items.length}명 · ${new Date(p.created).toLocaleDateString('ko')}</div>
+        </div>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="proj-card-bar">
+        <div class="pbar-item"><div class="pbar-val b">${total}</div><div class="pbar-lbl">조사건</div></div>
+        <div class="pbar-item"><div class="pbar-val g">${done}</div><div class="pbar-lbl">완료</div></div>
+        <div class="pbar-item"><div class="pbar-val r">${total-done}</div><div class="pbar-lbl">잔여</div></div>
+        <div class="pbar-item"><div class="pbar-val">${pct}%</div><div class="pbar-lbl">진행률</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function cropEmoji(crop){
+  const m={'마늘':'🧄','감자':'🥔','인삼':'🌿','단호박':'🎃','콩':'🫘','고구마':'🍠','고추':'🌶️','양파':'🧅','무':'🫚','배추':'🥬'};
+  return m[crop]||'🌾';
+}
+
+// ══════════════════════════════════════════════
+//  화면2: 프로젝트 상세
+// ══════════════════════════════════════════════
+function openProj(id){
+  load();
+  curProjId=id;
+  const p=db.projects.find(x=>x.id===id);
+  if(!p)return;
+  const name=p.branch?`${p.coop} ${p.branch}`:p.coop;
+  document.getElementById('det-title').textContent=`${cropEmoji(p.crop)} ${p.crop} — ${name}`;
+  document.getElementById('det-sub').textContent=p.inspector?`조사자: ${p.inspector}`:'';
+  document.getElementById('det-search').value='';
+  show('scr-detail');
+  renderDetail();
+}
+
+function renderDetail(){
+  load();
+  const p=db.projects.find(x=>x.id===curProjId);
+  if(!p)return;
+  const q=(document.getElementById('det-search').value||'').trim();
+  const items=p.items;
+
+  const total=items.reduce((a,x)=>a+(+x.c||0),0);
+  const done=items.filter(x=>x.s==='done').reduce((a,x)=>a+(+x.c||0),0);
+  const remain=total-done;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('d-total').textContent=total;
+  document.getElementById('d-done').textContent=done;
+  document.getElementById('d-remain').textContent=remain;
+  document.getElementById('d-pct').textContent=pct+'%';
+
+  const filtered=q
+    ?items.map((x,i)=>({...x,_i:i})).filter(x=>x.n.includes(q))
+    :items.map((x,i)=>({...x,_i:i}));
+
+  // 그룹
+  const grps={};
+  filtered.forEach(x=>{if(!grps[x.d])grps[x.d]=[];grps[x.d].push(x);});
+  const dates=Object.keys(grps).sort((a,b)=>dkey(a)-dkey(b));
+
+  let html='';
+  if(!filtered.length){
+    html='<div class="empty">결과 없음</div>';
+  } else {
+    dates.forEach(date=>{
+      const g=grps[date];
+      const gt=g.reduce((a,x)=>a+(+x.c||0),0);
+      const gd=g.filter(x=>x.s==='done').length;
+      html+=`<div class="grp-hdr"><span>${date} · ${g.length}명 / ${gt}건</span><span class="grp-badge">완료 ${gd}</span></div>`;
+      g.forEach(x=>{
+        const sc=x.s==='done'?'done':x.s==='fail'?'fail':'';
+        const si=x.s==='done'?'✓':x.s==='fail'?'✕':'';
+        html+=`<div class="row ${sc}" onclick="openItem(${x._i})">
+          <div class="status-dot ${sc}">${si}</div>
+          <div class="row-main">
+            <div class="row-name">${x.n}</div>
+            ${x.m?`<div class="row-memo">${x.m}</div>`:''}
+          </div>
+          <div class="row-cnt">${x.c}건</div>
+          <div class="row-date">${x.d||'미정'}</div>
+        </div>`;
+      });
+    });
+  }
+  document.getElementById('det-list').innerHTML=html;
+}
+
+// ══════════════════════════════════════════════
+//  계약자 추가/수정
+// ══════════════════════════════════════════════
+function openItem(idx){
+  editItemIdx=idx;
+  load();
+  const p=db.projects.find(x=>x.id===curProjId);
+  if(!p)return;
+  if(idx===null){
+    document.getElementById('item-sh-title').textContent='계약자 추가';
+    document.getElementById('i-name').value='';
+    document.getElementById('i-date').value='';
+    document.getElementById('i-cnt').value='';
+    document.getElementById('i-memo').value='';
+    document.getElementById('item-del-btn').style.display='none';
+    selSt('pending');
+  } else {
+    const x=p.items[idx];
+    document.getElementById('item-sh-title').textContent='정보 수정';
+    document.getElementById('i-name').value=x.n;
+    document.getElementById('i-date').value=x.d;
+    document.getElementById('i-cnt').value=x.c;
+    document.getElementById('i-memo').value=x.m;
+    document.getElementById('item-del-btn').style.display='flex';
+    selSt(x.s);
+  }
+  openSheet('ov-item');
+  setTimeout(()=>document.getElementById('i-name').focus(),300);
+}
+function selSt(s){
+  curSt=s;
+  document.getElementById('sb0').className='st-btn'+(s==='pending'?' sp':'');
+  document.getElementById('sb1').className='st-btn'+(s==='done'?   ' sd':'');
+  document.getElementById('sb2').className='st-btn'+(s==='fail'?   ' sf':'');
+}
+function saveItem(){
+  const name=(document.getElementById('i-name').value||'').trim();
+  if(!name){alert('이름을 입력하세요');return;}
+  const date=document.getElementById('i-date').value||'미정';
+  const cnt=parseInt(document.getElementById('i-cnt').value)||0;
+  const memo=(document.getElementById('i-memo').value||'').trim();
+  load();
+  const p=db.projects.find(x=>x.id===curProjId);
+  if(!p)return;
+  const item={n:name,d:date,c:cnt,s:curSt,m:memo};
+  if(editItemIdx===null) p.items.push(item);
+  else p.items[editItemIdx]=item;
+  save(); closeSheet('ov-item'); renderDetail();
+}
+function deleteItem(){
+  if(!confirm('삭제하시겠습니까?'))return;
+  load();
+  const p=db.projects.find(x=>x.id===curProjId);
+  if(!p)return;
+  p.items.splice(editItemIdx,1);
+  save(); closeSheet('ov-item'); renderDetail();
+}
+
+// ══════════════════════════════════════════════
+//  프로젝트 생성/수정
+// ══════════════════════════════════════════════
+let editProjId=null;
+function openNewProj(){
+  editProjId=null;
+  document.getElementById('proj-sh-title').textContent='새 조사 프로젝트';
+  document.getElementById('p-crop').value='';
+  document.getElementById('p-coop').value='';
+  document.getElementById('p-branch').value='';
+  document.getElementById('p-inspector').value='';
+  document.getElementById('proj-del-btn').style.display='none';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  openSheet('ov-proj');
+  setTimeout(()=>document.getElementById('p-coop').focus(),300);
+}
+function openProjEdit(){
+  load();
+  const p=db.projects.find(x=>x.id===curProjId);
+  if(!p)return;
+  editProjId=curProjId;
+  document.getElementById('proj-sh-title').textContent='프로젝트 편집';
+  document.getElementById('p-crop').value=p.crop;
+  document.getElementById('p-coop').value=p.coop;
+  document.getElementById('p-branch').value=p.branch||'';
+  document.getElementById('p-inspector').value=p.inspector||'';
+  document.getElementById('proj-del-btn').style.display='flex';
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.classList.toggle('on', c.textContent.trim().includes(p.crop));
+  });
+  openSheet('ov-proj');
+}
+function selChip(el,val){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('p-crop').value=val;
+}
+function saveProj(){
+  const crop=(document.getElementById('p-crop').value||'').trim();
+  const coop=(document.getElementById('p-coop').value||'').trim();
+  if(!crop||!coop){alert('품목과 농협명을 입력하세요');return;}
+  const branch=(document.getElementById('p-branch').value||'').trim();
+  const inspector=(document.getElementById('p-inspector').value||'').trim();
+  load();
+  if(editProjId){
+    const p=db.projects.find(x=>x.id===editProjId);
+    if(p){p.crop=crop;p.coop=coop;p.branch=branch;p.inspector=inspector;}
+  } else {
+    db.projects.unshift({id:genId(),crop,coop,branch,inspector,created:Date.now(),items:[]});
+  }
+  save(); closeSheet('ov-proj');
+  if(editProjId) renderDetail(); else renderProjects();
+}
+function deleteProj(){
+  if(!confirm('프로젝트를 삭제하시겠습니까?\n모든 데이터가 삭제됩니다.'))return;
+  load();
+  db.projects=db.projects.filter(x=>x.id!==curProjId);
+  save(); closeSheet('ov-proj'); goList();
+}
+
+// ══════════════════════════════════════════════
+//  공유 기능
+// ══════════════════════════════════════════════
+function openShareMain(){shareMode='all';openShareSheet();}
+function openProjShare(){shareMode='proj';openShareSheet();}
+
+function openShareSheet(){
+  load();
+  switchShareTab(0);
+  document.getElementById('share-title').textContent=shareMode==='all'?'전체 데이터 공유':'이 프로젝트 공유';
+  document.getElementById('import-text').value='';
+  openSheet('ov-share');
+  buildExport();
+}
+
+function getExportData(){
+  if(shareMode==='all') return db;
+  const p=db.projects.find(x=>x.id===curProjId);
+  return p?{projects:[p]}:{projects:[]};
+}
+
+function buildExport(){
+  const data=getExportData();
+  const json=JSON.stringify(data);
+  document.getElementById('export-text').textContent=json;
+}
+
+function copyExport(){
+  const t=document.getElementById('export-text').textContent;
+  navigator.clipboard.writeText(t).then(()=>{
+    const btn=document.querySelector('.copy-btn');
+    btn.textContent='✓ 복사됨!'; setTimeout(()=>btn.textContent='📋 복사하기',2000);
+  }).catch(()=>{
+    // fallback
+    const ta=document.createElement('textarea');
+    ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    alert('복사됐습니다!');
+  });
+}
+
+function switchShareTab(i){
+  shareTabIdx=i;
+  ['stab0','stab1','stab2'].forEach((id,j)=>document.getElementById(id).classList.toggle('on',i===j));
+  document.getElementById('share-export').style.display=i===0?'':'none';
+  document.getElementById('share-qr').style.display=i===1?'':'none';
+  document.getElementById('share-import').style.display=i===2?'':'none';
+  if(i===1) buildQR();
+}
+
+function buildQR(){
+  const wrap=document.getElementById('qr-wrap');
+  wrap.innerHTML='<div style="color:var(--sub);font-size:12px;padding:20px">QR 생성 중...</div>';
+  const data=getExportData();
+  const json=JSON.stringify(data);
+  if(json.length>2000){
+    wrap.innerHTML='<div style="color:var(--sub);font-size:12px;padding:20px;line-height:1.8">데이터가 너무 많아<br>QR생성이 어렵습니다.<br>텍스트 복사를 이용하세요.</div>';
+    return;
+  }
+  setTimeout(()=>{
+    wrap.innerHTML='';
+    try{
+      new QRCode(wrap,{text:json,width:200,height:200,colorDark:'#185FA5',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+    } catch(e){
+      wrap.innerHTML='<div style="color:var(--sub);font-size:12px">QR 생성 실패</div>';
+    }
+  },100);
+}
+
+function doImport(){
+  const raw=(document.getElementById('import-text').value||'').trim();
+  if(!raw){alert('데이터를 붙여넣으세요');return;}
+  let imported;
+  try{ imported=JSON.parse(raw); }
+  catch(e){ alert('잘못된 형식입니다'); return; }
+  if(!imported.projects||!Array.isArray(imported.projects)){alert('올바른 데이터가 아닙니다');return;}
+  load();
+  // 기존 id와 겹치지 않는 것만 추가
+  const existIds=new Set(db.projects.map(x=>x.id));
+  let added=0;
+  imported.projects.forEach(p=>{
+    if(!existIds.has(p.id)){db.projects.unshift(p);added++;}
+    else{
+      // 기존 것 업데이트
+      const idx=db.projects.findIndex(x=>x.id===p.id);
+      if(idx>=0) db.projects[idx]=p;
+    }
+  });
+  save();
+  closeSheet('ov-share');
+  alert(`가져오기 완료! (${added}개 추가, ${imported.projects.length-added}개 업데이트)`);
+  if(document.getElementById('scr-list').classList.contains('on')) renderProjects();
+  else renderDetail();
+}
+
+// ══════════════════════════════════════════════
+//  유틸
+// ══════════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+}
+function openSheet(id){document.getElementById(id).classList.add('on');}
+function closeSheet(id){document.getElementById(id).classList.remove('on');}
+function bgClose(id){closeSheet(id);}
+
+// 초기 렌더
+load(); renderProjects();
+</script>
+</body>
+</html>
