@@ -472,87 +472,98 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
+
+      <!-- 1. 기본정보 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">기본정보</div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 기본정보</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <thead><tr>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">평년수확량</th>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">조사일자</th>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;text-align:center">계약변경</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">농지번호</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">평년수확량</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">조사일자</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">계약변경</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-avg-yield">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-ins-area">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-survey-date">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-contract">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-farmno">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-avg-yield">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-ins-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-survey-date">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-contract">-</td>
           </tr></tbody>
         </table>
       </div>
+
+      <!-- 2. 면적조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">면적조사</div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">2. 면적조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <thead><tr>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작</th>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">고사</th>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">미보상</th>
-            <th style="padding:6px;background:#5B7E3F;color:#fff;text-align:center">기수확</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작(㎡)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">고사(㎡)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">미보상(㎡)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">기수확(㎡)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">조사대상(㎡)</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-act-area">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-dead-area">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-other-area">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-harv-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-act-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-dead-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-other-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-harv-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-survey-area">-</td>
           </tr></tbody>
         </table>
       </div>
+
+      <!-- 3. 표본조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">표본조사 2-1 무게조사</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">3. 표본조사</div>
+
+        <!-- 3-1 중량조사 -->
+        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:5px">3-1. 중량조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden;margin-bottom:10px">
           <thead><tr>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">No</th>
-            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">길이</th>
-            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">폭</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">길이(m)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">폭(m)</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정상(g)</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">50%형(g)</th>
           </tr></thead>
           <tbody id="cap-sample-tbody"></tbody>
         </table>
-      </div>
-      <!-- 병충해 (있을 때만 표시) -->
-      <div id="cap-bug-section" style="display:none;background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">🐛 표본조사 2-2 병충해 피해</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #f0c080;border-radius:8px;overflow:hidden">
-          <thead><tr>
-            <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">구간</th>
-            <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">병충해명</th>
-            <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">손해정도</th>
-            <th style="padding:5px;background:#d97706;color:#fff;text-align:center">중량(g)</th>
-          </tr></thead>
-          <tbody id="cap-bug-tbody"></tbody>
-        </table>
-      </div>
-      <div style="background:linear-gradient(135deg,#5B7E3F,#7FAD52);border-radius:14px;padding:14px;color:white">
-        <div style="font-size:13px;font-weight:900;margin-bottom:10px">계산 결과</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">조사수확량</div>
-            <div style="font-size:14px;font-weight:700" id="cap-surv">-</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">병충해감수량</div>
-            <div style="font-size:14px;font-weight:700" id="cap-bug">-</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">미보상감수량</div>
-            <div style="font-size:14px;font-weight:700" id="cap-unins">-</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.25);border-radius:8px;padding:8px;text-align:center;border:1.5px solid rgba(255,255,255,0.4)">
-            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">피해율</div>
-            <div style="font-size:22px;font-weight:800;color:#d4f7b0" id="cap-pct">-</div>
-          </div>
+
+        <!-- 3-2 병충해 (있을 때만) -->
+        <div id="cap-bug-section" style="display:none">
+          <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:5px" id="cap-bug-title">3-2. 병충해 중량</div>
+          <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #f0c080;overflow:hidden">
+            <thead id="cap-bug-thead"><tr></tr></thead>
+            <tbody id="cap-bug-tbody"></tbody>
+          </table>
         </div>
       </div>
+
+      <!-- 4. 결과 -->
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">4. 결과</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
+          <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+          <thead><tr>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">피해율</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">미보상비율</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">조사수확량</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">병충해감수량</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">미보상감수량</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-pct">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-surv">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-bug">-</td>
+            <td style="padding:7px 2px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins-loss">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 </div>
@@ -779,32 +790,38 @@ function renderBugTable(){
   if(bugYn!=='yes'){ document.getElementById('bug-body').innerHTML=''; updateBugTotals(); return; }
   document.getElementById('bug-body').innerHTML=bugRows.map((r,i)=>{
     const nv=r.name&&r.grade?`${r.name}|${r.grade}`:'';
+    const filledSel='background:#e8faf3;border-color:var(--green);color:#000;font-weight:700';
+    const normSel='background:#fffbeb;border-color:#d1a060;color:var(--text)';
+    const filledBug='background:#e8faf3;border-color:var(--green);color:#000;font-weight:700';
+    const normBug='background:#fff9f0;border-color:#f0c080;color:var(--text)';
+    const filledRate='background:#e8faf3;border-color:var(--green);color:#000;font-weight:700';
+    const normRate='background:#fff9f0;border-color:#f0c080;color:var(--text)';
     return `<tr>
       <td style="padding:2px">
-        <select style="width:100%;height:32px;border:1.5px solid #d1a060;border-radius:6px;font-size:11px;background:#fffbeb;-webkit-appearance:none;text-align:center"
-          onchange="bugRows[${i}].sampleNo=parseInt(this.value);saveState()">
+        <select style="width:100%;height:32px;border:1.5px solid;border-radius:6px;font-size:11px;-webkit-appearance:none;text-align:center;${r.sampleNo?filledSel:normSel}"
+          onchange="bugRows[${i}].sampleNo=parseInt(this.value);renderBugTable();saveState()">
           ${sampleNoOpts(r.sampleNo)}
         </select>
       </td>
-      <td style="background:#fff9f0;padding:2px">
-        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:10px;background:#fff9f0;-webkit-appearance:none"
-          onchange="(function(v){if(!v){bugRows[${i}].name='';bugRows[${i}].grade='';}else{const p=v.split('|');bugRows[${i}].name=p[0];bugRows[${i}].grade=p[1];}updateBugTotals();calc();saveState();})(this.value)">
+      <td style="padding:2px">
+        <select style="width:100%;height:32px;border:1.5px solid;border-radius:6px;font-size:10px;-webkit-appearance:none;${r.name?filledBug:normBug}"
+          onchange="(function(v){if(!v){bugRows[${i}].name='';bugRows[${i}].grade='';}else{const p=v.split('|');bugRows[${i}].name=p[0];bugRows[${i}].grade=p[1];}renderBugTable();updateBugTotals();calc();saveState();})(this.value)">
           ${BUG_OPTS.replace(`value="${nv}"`,`value="${nv}" selected`)}
         </select>
       </td>
-      <td style="background:#fff9f0;padding:2px">
-        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:12px;background:#fff9f0;-webkit-appearance:none;text-align:center"
-          onchange="bugRows[${i}].rate=parseInt(this.value)||0;updateBugTotals();calc();saveState()">
+      <td style="padding:2px">
+        <select style="width:100%;height:32px;border:1.5px solid;border-radius:6px;font-size:12px;-webkit-appearance:none;text-align:center;${r.rate?filledRate:normRate}"
+          onchange="bugRows[${i}].rate=parseInt(this.value)||0;renderBugTable();updateBugTotals();calc();saveState()">
           <option value="">-%</option>
           ${RATE_OPTS.replace(`value="${r.rate||''}"`,`value="${r.rate||''}" selected`)}
         </select>
       </td>
-      <td style="background:#fffbf0;padding:2px">
+      <td style="padding:2px">
         <input type="text" value="${r.weight?Number(r.weight).toLocaleString():''}" inputmode="decimal"
           class="${r.weight?'filled':''}"
-          style="height:32px;background:#fffbf0;border-color:#f0c080"
+          style="height:32px;${r.weight?'background:#e8faf3;border-color:var(--green)':'background:#fffbf0;border-color:#f0c080'}"
           oninput="onCommaInput(this);bugRows[${i}].weight=this.value.replace(/,/g,'');updateBugTotals()"
-          onblur="bugRows[${i}].weight=this.value.replace(/,/g,'');updateBugTotals();calc();saveState()">
+          onblur="bugRows[${i}].weight=this.value.replace(/,/g,'');renderBugTable();updateBugTotals();calc();saveState()">
       </td>
     </tr>`;
   }).join('');
@@ -1082,15 +1099,22 @@ async function saveImage(){
     const survDate=document.getElementById('survey_date')?.value||'';
     document.getElementById('cap-date-disp').textContent=survDate;
     document.getElementById('cap-farmno-disp').textContent=farmNo?'농지번호: '+farmNo:'';
+
+    // 1. 기본정보
+    document.getElementById('cap-farmno').textContent=farmNo||'-';
     document.getElementById('cap-avg-yield').textContent=document.getElementById('avg_yield').value?document.getElementById('avg_yield').value+' kg':'-';
     document.getElementById('cap-ins-area').textContent=document.getElementById('ins_area').value?document.getElementById('ins_area').value+' ㎡':'-';
     document.getElementById('cap-survey-date').textContent=survDate||'-';
     document.getElementById('cap-contract').textContent=document.getElementById('contract_yn_disp').value||'-';
-    document.getElementById('cap-act-area').textContent=document.getElementById('act_area').value?document.getElementById('act_area').value+' ㎡':'-';
-    document.getElementById('cap-dead-area').textContent=(document.getElementById('dead_area').value||'0')+' ㎡';
-    document.getElementById('cap-other-area').textContent=(document.getElementById('other_area').value||'0')+' ㎡';
-    document.getElementById('cap-harv-area').textContent=(document.getElementById('harv_area').value||'0')+' ㎡';
-    // 표본 테이블
+
+    // 2. 면적조사
+    document.getElementById('cap-act-area').textContent=document.getElementById('act_area').value?document.getElementById('act_area').value:'-';
+    document.getElementById('cap-dead-area').textContent=document.getElementById('dead_area').value||'0';
+    document.getElementById('cap-other-area').textContent=document.getElementById('other_area').value||'0';
+    document.getElementById('cap-harv-area').textContent=document.getElementById('harv_area').value||'0';
+    document.getElementById('cap-survey-area').textContent=document.getElementById('survey_area_disp').value||'-';
+
+    // 3-1 중량조사 테이블
     const tbody=document.getElementById('cap-sample-tbody');
     tbody.innerHTML=samples.map((s,i)=>`<tr>
       <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px">${i+1}</td>
@@ -1100,29 +1124,42 @@ async function saveImage(){
       <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
     </tr>`).join('');
 
-    // 병충해 테이블 (있을 때만)
+    // 3-2 병충해 - 무게조사와 같은 구조로, 헤더에 병충해명 표시
     const bugSection=document.getElementById('cap-bug-section');
     const bugTbody=document.getElementById('cap-bug-tbody');
-    const activeBugs=bugRows.filter(r=>r.name&&r.weight);
+    const bugThead=document.getElementById('cap-bug-thead');
+    const activeBugs=bugRows.filter(r=>r.weight);
     if(bugYn==='yes'&&activeBugs.length>0){
       bugSection.style.display='block';
-      bugTbody.innerHTML=activeBugs.map(r=>`<tr>
-        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fffbeb;font-weight:700">${r.sampleNo}구간</td>
-        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fff9f0;font-weight:700">${r.name||'-'}<br><span style="font-size:9px;color:#888">${r.grade?r.grade+'급('+Math.round(GRADE_RATE[r.grade]*100)+'%)':''}</span></td>
-        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fff9f0;font-weight:700">${r.rate?r.rate+'%':'-'}</td>
-        <td style="padding:4px;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fffbf0;font-weight:700">${r.weight?Number(r.weight).toLocaleString()+' g':'-'}</td>
+      // 사용된 병충해명 목록으로 헤더 구성
+      const bugNames=[...new Set(activeBugs.map(r=>r.name||'미선택'))];
+      bugThead.innerHTML=`<tr>
+        <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">구간</th>
+        ${bugNames.map(n=>`<th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center;font-size:10px">${n}</th>`).join('')}
+      </tr>`;
+      // 구간별로 묶어서 행 생성
+      const grouped={};
+      activeBugs.forEach(r=>{
+        const k=r.sampleNo||1;
+        if(!grouped[k]) grouped[k]={};
+        grouped[k][r.name||'미선택']=(grouped[k][r.name||'미선택']||0)+parseFloat(r.weight||0);
+      });
+      const sortedKeys=Object.keys(grouped).sort((a,b)=>a-b);
+      bugTbody.innerHTML=sortedKeys.map(sNo=>`<tr>
+        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fffbeb;font-weight:700">${sNo}구간</td>
+        ${bugNames.map(n=>`<td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${grouped[sNo][n]?grouped[sNo][n].toLocaleString()+' g':'-'}</td>`).join('')}
       </tr>`).join('');
     } else {
       bugSection.style.display='none';
     }
 
-    // 결과 - calc 재실행해서 정확한 값 가져오기
-    const pctText=document.getElementById('result-pct').textContent||'-';
+    // 4. 결과
     const bugLossKg=bugRows.reduce((s,r)=>s+calcBugLoss(r),0)/1000;
+    document.getElementById('cap-pct').textContent=document.getElementById('result-pct').textContent||'-';
+    document.getElementById('cap-unins').textContent=(document.getElementById('unins_rate').value||'0')+'%';
     document.getElementById('cap-surv').textContent=document.getElementById('survey_area_disp').value||'-';
     document.getElementById('cap-bug').textContent=bugYn==='yes'&&bugLossKg>0?bugLossKg.toFixed(3)+' kg':'-';
-    document.getElementById('cap-unins').textContent=(document.getElementById('unins_rate').value||'0')+'%';
-    document.getElementById('cap-pct').textContent=pctText;
+    document.getElementById('cap-unins-loss').textContent='-';
 
     const canvas=await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
     const now=new Date();
