@@ -785,13 +785,20 @@ function calcTotals(){
   let tL=0,tW=0,tN=0,tD=0,tA=0,tEff=0;
   const ceil2=v=>Math.ceil(v*100)/100;
   const round3=v=>Math.round(v*1000)/1000;
-  for(const s of samples){
+  // 구간별 병충해 중량
+  const bugByNo={};
+  if(bugYn==='yes') bugRows.forEach(r=>{
+    const no=r.sampleNo||1, w=parseFloat(r.weight)||0;
+    bugByNo[no]=(bugByNo[no]||0)+w;
+  });
+  samples.forEach((s,i)=>{
     const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
     const n=parseFloat(s.norm)||0, d=parseFloat(s.d50)||0;
+    const bugW=bugByNo[i+1]||0;
     tL+=l; tW+=w; tN+=n; tD+=d;
     tA+=ceil2(l*w);
-    tEff+=n+d*0.5;
-  }
+    tEff+=n+d*0.5+bugW;
+  });
   document.getElementById('t-len').textContent=tL>0?tL.toFixed(2)+'m':'-';
   document.getElementById('t-wid').textContent=tW>0?tW.toFixed(2)+'m':'-';
   document.getElementById('t-norm').textContent=tN>0?tN.toLocaleString():'−';
@@ -973,31 +980,41 @@ function calc(){
   }
 
   // 표본 면적·수확량 (전산 공식)
-  // ① 구간면적 = CEIL(길이×폭, 2) - 소수2자리 올림
-  // ② 단위면적당 = ROUND(유효중량합/1000 / 면적합, 3)
-  // ③ 조사수확량 = ROUND(단위면적당 × 조사대상면적)
+  // ① 구간면적 = CEIL(길이×폭, 2)
+  // ② 유효중량 = 정상 + 50%피해×0.5 + 병충해중량(있을 경우 구간별 합산)
+  // ③ 단위면적당 = ROUND(유효중량합/1000 / 면적합, 3)
+  // ④ 조사수확량 = ROUND(단위면적당×조사대상) + ROUND(단위평년R3×(타작물+기수확))
   const ceil2=v=>Math.ceil(v*100)/100;
   const round3=v=>Math.round(v*1000)/1000;
+
+  // 구간별 병충해 중량 합산
+  const bugByNo={};
+  if(bugYn==='yes') bugRows.forEach(r=>{
+    const no=r.sampleNo||1, w=parseFloat(r.weight)||0;
+    bugByNo[no]=(bugByNo[no]||0)+w;
+  });
+
   let tA=0, tEff=0;
-  for(const s of samples){
+  samples.forEach((s,i)=>{
     const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
     const n=parseFloat(s.norm)||0, d=parseFloat(s.d50)||0;
+    const bugW=bugByNo[i+1]||0;
     tA += ceil2(l*w);
-    tEff += n + d*0.5;
-  }
-  const effAvg=isChanged?Math.round(Math.round(avgYield/insArea*10000)/10000*actArea):avgYield;
+    tEff += n + d*0.5 + bugW;
+  });
+  const effAvg=isChanged?Math.round(round3(avgYield/insArea)*actArea):avgYield;
 
   if(tA<=0||tEff<=0){
     resultBox.className='result-box pending'; pctEl.textContent='- -';
     return;
   }
 
-  // ③ 단위면적당 수확량 (소수3자리 반올림)
+  // ③ 단위면적당 수확량
   const unitYield=round3(tEff/1000/tA);
 
-  // ④ 조사수확량
-  const unitAvg=insArea>0?Math.round(avgYield/insArea*10000)/10000:0;
-  const survYield=Math.round(unitYield*surveyArea)+Math.round(unitAvg*(otherArea+harvArea));
+  // ④ 조사수확량 = ROUND(단위면적당×조사대상) + ROUND(단위평년R3×(타작물+기수확))
+  const unitAvgR3=round3(avgYield/insArea);
+  const survYield=Math.round(unitYield*surveyArea)+Math.round(unitAvgR3*(otherArea+harvArea));
 
   // 병충해 감수량
   const bugLoss=bugRows.reduce((s,r)=>s+calcBugLoss(r),0)/1000;
