@@ -257,8 +257,8 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:10%"><col style="width:20%"><col style="width:18%">
-          <col style="width:26%"><col style="width:26%">
+          <col style="width:10%"><col style="width:22%"><col style="width:22%">
+          <col style="width:23%"><col style="width:23%">
         </colgroup>
         <thead>
           <tr>
@@ -376,6 +376,21 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
   </div>
 </div>
 
+<!-- 병충해 마지막 행 삭제(없음 전환) 확인 모달 -->
+<div id="bug-last-del-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:24px;margin-bottom:10px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:8px">마지막 행 삭제</div>
+    <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.6">입력값이 있는 마지막 행입니다.<br>삭제 시 병충해가 <b>'없음'</b>으로<br>자동 변경됩니다.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('bug-last-del-overlay').style.display='none'"
+        style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="confirmBugLastDel()"
+        style="flex:1;height:46px;border-radius:12px;border:none;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer">삭제</button>
+    </div>
+  </div>
+</div>
+
 <!-- 병충해 없음 선택 확인 모달 -->
 <div id="bug-yn-no-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
@@ -383,9 +398,9 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
     <div style="font-size:17px;font-weight:800;margin-bottom:8px">병충해 입력값 삭제</div>
     <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.6">입력된 병충해 값이 있습니다.<br>'없음'으로 변경하면 모든 입력값이<br>삭제됩니다. 계속할까요?</div>
     <div style="display:flex;gap:10px">
-      <button onclick="document.getElementById('bug-yn-no-overlay').classList.remove('show')"
+      <button onclick="document.getElementById('bug-yn-no-overlay').style.display='none'"
         style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
-      <button onclick="document.getElementById('bug-yn-no-overlay').classList.remove('show');bugRows=[];_applyBugYn('no')"
+      <button onclick="document.getElementById('bug-yn-no-overlay').style.display='none';bugRows=[];_applyBugYn('no')"
         style="flex:1;height:46px;border-radius:12px;border:none;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer">삭제 후 변경</button>
     </div>
   </div>
@@ -398,7 +413,7 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
     <div style="font-size:17px;font-weight:800;margin-bottom:8px">병충해 행 삭제</div>
     <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.6">입력된 값이 있습니다.<br>마지막 행을 삭제할까요?</div>
     <div style="display:flex;gap:10px">
-      <button onclick="document.getElementById('bug-del-overlay').classList.remove('show')"
+      <button onclick="document.getElementById('bug-del-overlay').style.display='none'"
         style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
       <button onclick="confirmBugDel()"
         style="flex:1;height:46px;border-radius:12px;border:none;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer">삭제</button>
@@ -794,7 +809,7 @@ function setBugYn(yn){
     // 입력값 있으면 팝업
     const hasAny=bugRows.some(r=>r.name||String(r.weight||'').trim()||String(r.rate||'').trim());
     if(hasAny){
-      document.getElementById('bug-yn-no-overlay').classList.add('show');
+      document.getElementById('bug-yn-no-overlay').style.display='flex';
       return;
     }
   }
@@ -884,17 +899,39 @@ function addBugRow(){
 }
 function removeBugRow(){
   if(bugRows.length===0) return;
+  // 마지막 1개일 때 → 없음으로 전환 (팝업)
+  if(bugRows.length===1){
+    const last=bugRows[0];
+    const hasData=!!(last.name||String(last.weight||'').trim()||String(last.rate||'').trim());
+    if(hasData){
+      // 입력값 있으면 팝업 (삭제하면 없음으로)
+      document.getElementById('bug-last-del-overlay').style.display='flex';
+    } else {
+      // 빈 행이면 바로 없음으로
+      bugRows=[];
+      _applyBugYn('no');
+    }
+    return;
+  }
   const last=bugRows[bugRows.length-1];
   const hasData=!!(last.name||String(last.weight||'').trim()||String(last.rate||'').trim());
   if(hasData){
-    document.getElementById('bug-del-overlay').classList.add('show');
+    document.getElementById('bug-del-overlay').style.display='flex';
   } else {
     bugRows.pop(); renderBugTable(); updateBugTotals(); calc(); saveState();
   }
 }
 function confirmBugDel(){
-  document.getElementById('bug-del-overlay').classList.remove('show');
-  bugRows.pop(); renderBugTable(); updateBugTotals(); calc(); saveState();
+  document.getElementById('bug-del-overlay').style.display='none';
+  bugRows.pop();
+  // 삭제 후 0개 되면 없음으로
+  if(bugRows.length===0){ _applyBugYn('no'); return; }
+  renderBugTable(); updateBugTotals(); calc(); saveState();
+}
+function confirmBugLastDel(){
+  document.getElementById('bug-last-del-overlay').style.display='none';
+  bugRows=[];
+  _applyBugYn('no');
 }
 
 function openGradeModal(){ document.getElementById('grade-overlay').style.display='flex'; }
