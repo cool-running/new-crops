@@ -780,12 +780,13 @@ function syncBatchLenFromSample(val){
 // ── 표본 합계 ─────────────────────────────────────
 function calcTotals(){
   let tL=0,tW=0,tN=0,tD=0,tA=0,tEff=0;
-  const round2=v=>Math.round(v*100)/100;
+  const ceil2=v=>Math.ceil(v*100)/100;
+  const round3=v=>Math.round(v*1000)/1000;
   for(const s of samples){
     const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
     const n=parseFloat(s.norm)||0, d=parseFloat(s.d50)||0;
     tL+=l; tW+=w; tN+=n; tD+=d;
-    tA+=round2(l*w);
+    tA+=ceil2(l*w);
     tEff+=n+d*0.5;
   }
   document.getElementById('t-len').textContent=tL>0?tL.toFixed(2)+'m':'-';
@@ -793,7 +794,7 @@ function calcTotals(){
   document.getElementById('t-norm').textContent=tN>0?tN.toLocaleString():'−';
   document.getElementById('t-d50').textContent=tD>0?tD.toLocaleString():'−';
   document.getElementById('s-area').textContent=tA>0?tA.toFixed(2)+' ㎡':'-';
-  document.getElementById('s-unit').textContent=tA>0?((tEff/1000)/tA).toFixed(4)+' kg/㎡':'-';
+  document.getElementById('s-unit').textContent=tA>0?round3((tEff/1000)/tA).toFixed(3)+' kg/㎡':'-';
   // 병충해 합계도 갱신
   updateBugTotals();
   calc();
@@ -968,42 +969,46 @@ function calc(){
     return;
   }
 
-  // 표본 면적·수확량
-  const round2=v=>Math.round(v*100)/100;
+  // 표본 면적·수확량 (전산 공식)
+  // ① 구간면적 = CEIL(길이×폭, 2) - 소수2자리 올림
+  // ② 단위면적당 = ROUND(유효중량합/1000 / 면적합, 3)
+  // ③ 조사수확량 = ROUND(단위면적당 × 조사대상면적)
+  const ceil2=v=>Math.ceil(v*100)/100;
   const round3=v=>Math.round(v*1000)/1000;
-  let tA=0,tEff=0;
+  let tA=0, tEff=0;
   for(const s of samples){
-    const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
-    const n=parseFloat(s.norm)||0,d=parseFloat(s.d50)||0;
-    tA+=round2(l*w);
-    tEff+=n+d*0.5;
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
+    const n=parseFloat(s.norm)||0, d=parseFloat(s.d50)||0;
+    tA += ceil2(l*w);
+    tEff += n + d*0.5;
   }
-  const effAvg=isChanged?Math.round(avgYield/insArea*actArea):avgYield;
+  const effAvg=isChanged?Math.round(Math.round(avgYield/insArea*10000)/10000*actArea):avgYield;
 
   if(tA<=0||tEff<=0){
     resultBox.className='result-box pending'; pctEl.textContent='- -';
     return;
   }
 
-  // ③ 단위면적당 수확량
+  // ③ 단위면적당 수확량 (소수3자리 반올림)
   const unitYield=round3(tEff/1000/tA);
-  // ④ 조사수확량 = 단위면적당 × 조사대상 + 단위평년 × (타작물+기수확)
-  const unitAvg=insArea>0?effAvg/insArea:0;
-  const survYield=Math.round(unitYield*surveyArea+unitAvg*(otherArea+harvArea));
+
+  // ④ 조사수확량
+  const unitAvg=insArea>0?Math.round(avgYield/insArea*10000)/10000:0;
+  const survYield=Math.round(unitYield*surveyArea)+Math.round(unitAvg*(otherArea+harvArea));
 
   // 병충해 감수량
   const bugLoss=bugRows.reduce((s,r)=>s+calcBugLoss(r),0)/1000;
 
-  // 미보상감수량
+  // 미보상감수량 = ROUND((평년-조사수확량) × 미보상비율)
   const rawLoss=Math.max(0,effAvg-survYield);
   const uninsLoss=Math.round(rawLoss*uninsRate);
 
-  // 피해율
-  const pihaeyul=Math.max(0,Math.round((effAvg-survYield-uninsLoss+bugLoss)/effAvg*10000)/100);
+  // 피해율 = ROUND((평년 - 조사수확량 - 미보상 + 병충해) / 평년, 4)
+  const pihaeyul=Math.max(0,Math.round((effAvg-survYield-uninsLoss+bugLoss)/effAvg*10000)/10000);
 
   resultBox.className='result-box';
-  pctEl.textContent=pihaeyul.toFixed(2)+'%';
-  pctEl.style.color=pihaeyul>=20?'#FFD0D0':'#d4f7b0';
+  pctEl.textContent=(pihaeyul*100).toFixed(2)+'%';
+  pctEl.style.color=(pihaeyul*100)>=20?'#FFD0D0':'#d4f7b0';
   saveState();
 }
 
