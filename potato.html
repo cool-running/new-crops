@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#5B7E3F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -225,11 +228,11 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
     <div class="g3">
       <div class="field">
         <label>고사면적</label><span class="unit-badge">㎡</span>
-        <input type="number" id="dead_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
+        <input type="text" id="dead_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
         <label>타작물미보상</label><span class="unit-badge">㎡</span>
-        <input type="number" id="other_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
+        <input type="text" id="other_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
         <label>기수확면적</label><span class="unit-badge">㎡</span>
@@ -680,8 +683,8 @@ function getSampleCount(area){
 // ── 면적 변경 → 표본 자동생성 ────────────────────
 function updateSamplesAndCalc(){
   const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
-  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
-  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const deadArea=parseFloat((document.getElementById('dead_area').value||'').replace(/,/g,''))||0;
+  const otherArea=parseFloat((document.getElementById('other_area').value||'').replace(/,/g,''))||0;
   const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
   const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
   const needed=getSampleCount(surveyArea);
@@ -744,8 +747,8 @@ function addSample(){
 }
 function removeSample(){
   const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
-  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
-  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const deadArea=parseFloat((document.getElementById('dead_area').value||'').replace(/,/g,''))||0;
+  const otherArea=parseFloat((document.getElementById('other_area').value||'').replace(/,/g,''))||0;
   const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
   const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
   const needed=getSampleCount(surveyArea);
@@ -940,8 +943,8 @@ function calc(){
   const avgYield=toNum(document.getElementById('avg_yield'));
   const insArea=toNum(document.getElementById('ins_area'));
   const actArea=toNum(document.getElementById('act_area'))||insArea;
-  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
-  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const deadArea=parseFloat((document.getElementById('dead_area').value||'').replace(/,/g,''))||0;
+  const otherArea=parseFloat((document.getElementById('other_area').value||'').replace(/,/g,''))||0;
   const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
   const uninsRate=(parseFloat(document.getElementById('unins_rate').value)||0)/100;
 
@@ -1265,8 +1268,8 @@ async function saveImage(){
     const _avgY=toNum(document.getElementById('avg_yield'));
     const _insA=toNum(document.getElementById('ins_area'));
     const _actA=toNum(document.getElementById('act_area'))||_insA;
-    const _dead=parseFloat(document.getElementById('dead_area').value)||0;
-    const _other=parseFloat(document.getElementById('other_area').value)||0;
+    const _dead=parseFloat((document.getElementById('dead_area').value||'').replace(/,/g,''))||0;
+    const _other=parseFloat((document.getElementById('other_area').value||'').replace(/,/g,''))||0;
     const _harv=parseFloat(document.getElementById('harv_area').value)||0;
     const _uninsR=(parseFloat(document.getElementById('unins_rate').value)||0)/100;
     const _errNum=_insA>0?(_actA-_insA)/_insA:0;
@@ -1274,9 +1277,9 @@ async function saveImage(){
     const _effAvg=_isChg?Math.round(_avgY/_insA*_actA):_avgY;
     const _effArea=(!_isChg&&_insA>0)?_insA:_actA;
     const _survA=Math.max(0,_effArea-_dead-_other-_harv);
-    const round2=v=>Math.round(v*100)/100, round3=v=>Math.round(v*1000)/1000;
+    const ceil2=v=>Math.ceil(v*100)/100, round3=v=>Math.round(v*1000)/1000;
     let _tA=0,_tEff=0;
-    samples.forEach(s=>{const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0,n=parseFloat(s.norm)||0,d=parseFloat(s.d50)||0;_tA+=round2(l*w);_tEff+=n+d*0.5;});
+    samples.forEach(s=>{const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0,n=parseFloat(s.norm)||0,d=parseFloat(s.d50)||0;_tA+=ceil2(l*w);_tEff+=n+d*0.5;});
     const _unitY=round3(_tEff/1000/(_tA||1));
     const _unitAvg=_insA>0?_effAvg/_insA:0;
     const _survY=Math.round(_unitY*_survA+_unitAvg*(_other+_harv));
