@@ -38,8 +38,6 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center}
 input.inp:focus{outline:none!important;border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(91,126,63,0.2)!important;background:#dceeff!important;color:var(--green)!important}
-input.inp:focus-visible{outline:none!important;border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(91,126,63,0.2)!important;background:#dceeff!important;color:var(--green)!important}
-input.inp.mobile-focus{outline:none!important;border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(91,126,63,0.2)!important;background:#dceeff!important;color:var(--green)!important}
 input.inp.filled{background:#eaf3e0;border-color:var(--green);color:#2d5016}
 input.inp.filled:focus{background:#dceeff!important;color:var(--green)!important;border-color:var(--green)!important}
 select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:13px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;cursor:pointer}
@@ -133,8 +131,12 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
 .grade-2{background:#fef3e2;color:#e67e22}
 .grade-3{background:#e8f4fd;color:#2980b9}
 
-/* 스크롤 힌트 */
-.scroll-hint{font-size:10px;color:var(--hint);text-align:right;margin-bottom:4px}
+/* 두 표본 테이블 구간열 너비 동기화 */
+#weight-table th:first-child, #weight-table td:first-child,
+#bug-table th:first-child,    #bug-table td:first-child {
+  width:34px !important; min-width:34px !important; max-width:34px !important;
+  text-align:center;
+}
 
 /* 손해정도 버튼 */
 .rate-btn{height:32px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;background:#f5f5f5;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;transition:all .1s}
@@ -210,8 +212,8 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
           <col style="width:34px">
           <col style="width:70px">
           <col style="width:70px">
-          <col style="width:72px">
-          <col style="width:72px">
+          <col>
+          <col>
         </colgroup>
         <thead>
           <tr>
@@ -260,133 +262,35 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
     </div>
 
     <!-- 병충해 설정 (있음 선택 시 표시) -->
-    <div id="bug-config" style="display:none">
-
-      <!-- 병충해-1 카드 -->
-      <div style="background:#fff9f0;border-radius:8px;padding:10px;margin-bottom:8px;border:1px solid #f0c080">
-        <div style="font-size:11px;font-weight:700;color:#b45309;margin-bottom:8px">병충해-1</div>
-
-        <!-- ① 급수 선택 -->
-        <div class="field" style="margin-bottom:8px">
-          <label>① 급수 선택</label>
-          <div style="display:flex;gap:6px;margin-top:3px">
-            <button onclick="setBugGrade(1,'1')" class="grade-sel-btn" id="b1g1" data-bug="1" data-g="1"
-              style="flex:1;height:36px;border-radius:8px;border:1.5px solid var(--border);background:#f5f5f5;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer">
-              1급<br><span style="font-size:10px;font-weight:400">90%</span>
-            </button>
-            <button onclick="setBugGrade(1,'2')" class="grade-sel-btn" id="b1g2" data-bug="1" data-g="2"
-              style="flex:1;height:36px;border-radius:8px;border:1.5px solid var(--border);background:#f5f5f5;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer">
-              2급<br><span style="font-size:10px;font-weight:400">70%</span>
-            </button>
-            <button onclick="setBugGrade(1,'3')" class="grade-sel-btn" id="b1g3" data-bug="1" data-g="3"
-              style="flex:1;height:36px;border-radius:8px;border:1.5px solid var(--border);background:#f5f5f5;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer">
-              3급<br><span style="font-size:10px;font-weight:400">50%</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- ② 병충해명 드롭다운 -->
-        <div class="field" style="margin-bottom:8px">
-          <label>② 병충해 종류</label>
-          <select id="bug1-name" class="inp" onchange="onBug1NameChange()" style="-webkit-appearance:none;font-size:13px;margin-top:3px" disabled>
-            <option value="">← 급수 먼저 선택</option>
-          </select>
-        </div>
-
-        <!-- ③ 손해정도비율 -->
-        <div class="field">
-          <label>③ 손해정도비율</label>
-          <div style="display:flex;gap:5px;margin-top:3px">
-            <button onclick="setBugRate(1,20)"  class="rate-btn" data-bug="1" data-val="20">20%</button>
-            <button onclick="setBugRate(1,40)"  class="rate-btn" data-bug="1" data-val="40">40%</button>
-            <button onclick="setBugRate(1,60)"  class="rate-btn" data-bug="1" data-val="60">60%</button>
-            <button onclick="setBugRate(1,80)"  class="rate-btn" data-bug="1" data-val="80">80%</button>
-            <button onclick="setBugRate(1,100)" class="rate-btn" data-bug="1" data-val="100">100%</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 병충해-2 추가 -->
-      <div id="bug2-add-row" style="margin-bottom:8px">
-        <button onclick="showBug2()" style="width:100%;height:36px;border:2px dashed #90c0e0;background:#f0f9ff;border-radius:8px;font-size:13px;font-weight:700;color:#2980b9;cursor:pointer">
-          + 병충해-2 추가
-        </button>
-      </div>
-
-      <!-- 병충해-2 카드 (숨김) -->
-      <div id="bug2-config" style="display:none;background:#f0f9ff;border-radius:8px;padding:10px;margin-bottom:8px;border:1px solid #90c0e0">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-size:11px;font-weight:700;color:#1a6896">병충해-2</div>
-          <button onclick="hideBug2()" style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;padding:0;line-height:1">✕</button>
-        </div>
-
-        <div class="field" style="margin-bottom:8px">
-          <label>① 급수 선택</label>
-          <div style="display:flex;gap:6px;margin-top:3px">
-            <button onclick="setBugGrade(2,'1')" class="grade-sel-btn" id="b2g1" data-bug="2" data-g="1"
-              style="flex:1;height:36px;border-radius:8px;border:1.5px solid var(--border);background:#f5f5f5;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer">
-              1급<br><span style="font-size:10px;font-weight:400">90%</span>
-            </button>
-            <button onclick="setBugGrade(2,'2')" class="grade-sel-btn" id="b2g2" data-bug="2" data-g="2"
-              style="flex:1;height:36px;border-radius:8px;border:1.5px solid var(--border);background:#f5f5f5;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer">
-              2급<br><span style="font-size:10px;font-weight:400">70%</span>
-            </button>
-            <button onclick="setBugGrade(2,'3')" class="grade-sel-btn" id="b2g3" data-bug="2" data-g="3"
-              style="flex:1;height:36px;border-radius:8px;border:1.5px solid var(--border);background:#f5f5f5;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer">
-              3급<br><span style="font-size:10px;font-weight:400">50%</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="field" style="margin-bottom:8px">
-          <label>② 병충해 종류</label>
-          <select id="bug2-name" class="inp" onchange="onBug2NameChange()" style="-webkit-appearance:none;font-size:13px;margin-top:3px" disabled>
-            <option value="">← 급수 먼저 선택</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>③ 손해정도비율</label>
-          <div style="display:flex;gap:5px;margin-top:3px">
-            <button onclick="setBugRate(2,20)"  class="rate-btn" data-bug="2" data-val="20">20%</button>
-            <button onclick="setBugRate(2,40)"  class="rate-btn" data-bug="2" data-val="40">40%</button>
-            <button onclick="setBugRate(2,60)"  class="rate-btn" data-bug="2" data-val="60">60%</button>
-            <button onclick="setBugRate(2,80)"  class="rate-btn" data-bug="2" data-val="80">80%</button>
-            <button onclick="setBugRate(2,100)" class="rate-btn" data-bug="2" data-val="100">100%</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 구간별 병충해 중량 테이블 -->
-      <div id="bug-weight-section" style="margin-top:6px">
-        <div style="font-size:11px;color:var(--sub);margin-bottom:4px">구간별 병충해 피해 중량 (g)</div>
-        <div class="tbl-wrap">
-          <table id="bug-table" style="width:100%;table-layout:fixed">
-            <colgroup>
-              <col style="width:34px">
-              <col id="bug1w-col">
-              <col id="bug2w-col">
-              <col style="width:60px">
-            </colgroup>
-            <thead>
-              <tr>
-                <th>구간</th>
-                <th id="bug1w-th" style="background:#fff9f0">-<br>(g)</th>
-                <th id="bug2w-th" style="background:#f0f9ff;display:none">-<br>(g)</th>
-                <th style="background:#fffde0;font-size:10px">감수량<br>(g)</th>
-              </tr>
-            </thead>
-            <tbody id="bug-body"></tbody>
-            <tfoot>
-              <tr>
-                <td>합계</td>
-                <td id="t-bug1w">-</td>
-                <td id="t-bug2w" style="display:none">-</td>
-                <td id="t-bugLoss" style="color:#d97706;font-weight:700">-</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+    <div id="bug-config" style="display:none;margin-top:8px">
+      <div class="scroll-hint">← 좌우 스크롤</div>
+      <div class="tbl-wrap">
+        <table id="bug-table" style="width:100%;table-layout:fixed;min-width:360px">
+          <colgroup>
+            <col style="width:34px">
+            <col style="width:110px">
+            <col style="width:72px">
+            <col style="width:72px">
+            <col style="width:60px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>구간</th>
+              <th style="background:#fff9f0">병충해명</th>
+              <th style="background:#fff9f0">손해정도<br>비율</th>
+              <th style="background:#fffbf0">중량<br>(g)</th>
+              <th style="background:#fffde0;font-size:10px">감수량<br>(g)</th>
+            </tr>
+          </thead>
+          <tbody id="bug-body"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">합계</td>
+              <td id="t-bug1w">-</td>
+              <td id="t-bugLoss" style="color:#d97706;font-weight:700">-</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
 
@@ -466,17 +370,6 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
 </div>
 
 <!-- 리셋 모달 -->
-<!-- 입력 미완료 팝업 -->
-<div id="validation-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
-    <div style="font-size:22px;text-align:center;margin-bottom:8px">⚠️</div>
-    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">입력이 완료되지 않았습니다</div>
-    <div style="font-size:13px;line-height:1.7;color:#666;text-align:center;margin-bottom:6px">아래 항목을 확인해 주세요.</div>
-    <div id="validation-list" style="background:#FFF5F5;border:1px solid #ffd0d0;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#c0392b;line-height:2"></div>
-    <button onclick="document.getElementById('validation-overlay').style.display='none'" style="width:100%;height:46px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
-  </div>
-</div>
-
 <div id="reset-overlay">
   <div class="reset-modal">
     <div class="title">전체 초기화</div>
@@ -561,133 +454,86 @@ function setBugYn(yn){
   renderBugTable(); calcTotals(); calc(); saveState();
 }
 
-// ── 급수 선택 → 병충해명 드롭다운 갱신 ──────────
+// ── 병충해명 데이터 ───────────────────────────────
 const BUG_NAMES = {
   '1': ['역병','갈쭉병','모자이크병','무름병','둘레썩음병','가루더뎅이병','잎말림병','감자뿔나방'],
   '2': ['홍색부패병','시들음병','마른썩음병','풋마름병','줄기검은병','더뎅이병','균핵병','검은무늬썩음병','줄기기부썩음병','진딧물류','아메리카잎굴파리','방아벌레류'],
   '3': ['반쪽시들음병','흰비단병','잿빛곰팡이병','탄저병','겹둥근무늬병','오이총채벌레','뿌리혹선충','파밤나방','큰28점박이무당벌레','기타'],
 };
-const GRADE_COLOR = {'1':'#c0392b','2':'#e67e22','3':'#2980b9'};
-const GRADE_BG    = {'1':'#fce8e8','2':'#fef3e2','3':'#e8f4fd'};
+// 병충해명 전체 → 급수 매핑
+const BUG_ALL_OPTS = [
+  '<option value="">- 선택 -</option>',
+  '<optgroup label="1급 (90%)">',
+  ...BUG_NAMES['1'].map(n=>`<option value="${n}|1">${n}</option>`),
+  '</optgroup>',
+  '<optgroup label="2급 (70%)">',
+  ...BUG_NAMES['2'].map(n=>`<option value="${n}|2">${n}</option>`),
+  '</optgroup>',
+  '<optgroup label="3급 (50%)">',
+  ...BUG_NAMES['3'].map(n=>`<option value="${n}|3">${n}</option>`),
+  '</optgroup>',
+].join('');
 
-function setBugGrade(bugNum, grade){
-  if(bugNum===1){ bug1.grade=grade; bug1.name=''; }
-  else          { bug2.grade=grade; bug2.name=''; }
+// 손해정도 드롭다운 옵션 (10~100%, 10단위)
+const RATE_OPTS = [10,20,30,40,50,60,70,80,90,100]
+  .map(v=>`<option value="${v}">${v}%</option>`).join('');
 
-  // 급수 버튼 강조
-  document.querySelectorAll(`.grade-sel-btn[data-bug="${bugNum}"]`).forEach(b=>{
-    const on = b.dataset.g === grade;
-    b.style.background   = on ? GRADE_BG[grade]    : '#f5f5f5';
-    b.style.borderColor  = on ? GRADE_COLOR[grade]  : 'var(--border)';
-    b.style.color        = on ? GRADE_COLOR[grade]  : 'var(--sub)';
-  });
-
-  // 드롭다운 채우기
-  const sel = document.getElementById(`bug${bugNum}-name`);
-  sel.disabled = false;
-  sel.innerHTML = `<option value="">- 병충해 선택 -</option>`
-    + (BUG_NAMES[grade]||[]).map(n=>`<option value="${n}">${n}</option>`).join('');
-  sel.classList.remove('filled');
-
-  renderBugTable(); calcTotals(); calc(); saveState();
-}
-
-function onBug1NameChange(){
-  bug1.name = document.getElementById('bug1-name').value;
-  document.getElementById('bug1-name').classList.toggle('filled', !!bug1.name);
-  // 테이블 헤더 업데이트
-  const th = document.getElementById('bug1w-th');
-  if(th) th.innerHTML = (bug1.name||'병충해-1') + '<br>(g)';
-  calcTotals(); calc(); saveState();
-}
-function onBug2NameChange(){
-  bug2.name = document.getElementById('bug2-name').value;
-  document.getElementById('bug2-name').classList.toggle('filled', !!bug2.name);
-  const th = document.getElementById('bug2w-th');
-  if(th) th.innerHTML = (bug2.name||'병충해-2') + '<br>(g)';
-  calcTotals(); calc(); saveState();
-}
-
-// ── 손해정도비율 선택 ─────────────────────────────
-function setBugRate(bugNum, val){
-  if(bugNum===1){ bug1.rate = val; }
-  else          { bug2.rate = val; }
-  // 버튼 강조
-  document.querySelectorAll(`.rate-btn[data-bug="${bugNum}"]`).forEach(b=>{
-    b.classList.toggle('on', parseInt(b.dataset.val)===val);
-  });
-  renderBugTable(); calcTotals(); calc(); saveState();
-}
-
-// ── 병충해-2 표시/숨김 ───────────────────────────
-function showBug2(){
-  bug2visible = true;
-  document.getElementById('bug2-add-row').style.display = 'none';
-  document.getElementById('bug2-config').style.display = 'block';
-  renderBugTable();
-}
-function hideBug2(){
-  bug2visible = false;
-  bug2 = {name:'',grade:'',rate:0};
-  document.getElementById('bug2-add-row').style.display = 'block';
-  document.getElementById('bug2-config').style.display = 'none';
-  document.getElementById('bug2-name').value = '';
-  document.getElementById('bug2-grade-display').value = '';
-  document.querySelectorAll('.rate-btn[data-bug="2"]').forEach(b=>b.classList.remove('on'));
-  renderBugTable(); calcTotals(); calc(); saveState();
-}
-
-// ── 병충해 테이블 렌더링 ─────────────────────────
+// ── 병충해 테이블 렌더링 (행 단위) ───────────────
 function renderBugTable(){
-  const hasBug2 = bug2visible && bug2.grade;
-  const th1 = document.getElementById('bug1w-th');
-  const th2 = document.getElementById('bug2w-th');
-  const td2 = document.getElementById('t-bug2w');
-  if(th1) th1.innerHTML = (bug1.name || '병충해-1') + '<br>(g)';
-  if(th2) { th2.innerHTML = (bug2.name || '병충해-2') + '<br>(g)'; th2.style.display = hasBug2?'':'none'; }
-  if(td2)   td2.style.display = hasBug2?'':'none';
-
+  if(bugYn !== 'yes' || samples.length === 0){
+    document.getElementById('bug-body').innerHTML = '';
+    document.getElementById('t-bug1w').textContent = '-';
+    document.getElementById('t-bugLoss').textContent = '-';
+    return;
+  }
   document.getElementById('bug-body').innerHTML = samples.map((s,i)=>{
     const loss = calcBugLossRow(s);
+    const nameVal = s.bugName ? `${s.bugName}|${s.bugGrade||''}` : '';
     return `<tr>
-      <td style="font-weight:600;color:var(--sub);font-size:11px">${i+1}</td>
-      <td style="background:#fff9f0">
-        <input type="number" value="${s.bug1w||''}" inputmode="decimal"
-          class="${s.bug1w?'filled':''}"
-          oninput="samples[${i}].bug1w=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
+      <td style="font-weight:700;color:var(--sub);font-size:11px;text-align:center">${i+1}</td>
+      <td style="background:#fff9f0;padding:2px">
+        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:11px;background:#fff9f0;color:var(--text);text-align:center;-webkit-appearance:none"
+          onchange="onBugRowNameChange(${i},this.value);calcTotals();calc()">
+          ${BUG_ALL_OPTS.replace(`value="${nameVal}"`,`value="${nameVal}" selected`)}
+        </select>
+      </td>
+      <td style="background:#fff9f0;padding:2px">
+        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:12px;background:#fff9f0;color:var(--text);text-align:center;-webkit-appearance:none"
+          onchange="samples[${i}].bugRate=parseInt(this.value);calcTotals();calc()">
+          <option value="">-%</option>
+          ${RATE_OPTS.replace(`value="${s.bugRate}"`,`value="${s.bugRate}" selected`)}
+        </select>
+      </td>
+      <td style="background:#fffbf0;padding:2px">
+        <input type="number" value="${s.bugW||''}" inputmode="decimal"
+          class="${s.bugW?'filled':''}"
+          style="height:32px;background:#fffbf0;border-color:#f0c080"
+          oninput="samples[${i}].bugW=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
           onblur="calc()">
       </td>
-      ${hasBug2?`<td style="background:#f0f9ff">
-        <input type="number" value="${s.bug2w||''}" inputmode="decimal"
-          class="${s.bug2w?'filled':''}"
-          oninput="samples[${i}].bug2w=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-          onblur="calc()">
-      </td>`:''}
-      <td style="background:#fffde0">
+      <td style="background:#fffde0;padding:2px">
         <input type="text" value="${loss>0?loss.toFixed(1)+' g':''}" readonly
-          style="background:#fffde0;border-color:#e0c060;color:#8a5f00;font-weight:600;font-size:11px">
+          style="height:32px;background:#fffde0;border-color:#e0c060;color:#8a5f00;font-weight:700;font-size:11px">
       </td>
     </tr>`;
   }).join('');
   bindMobileFocusHandlers();
 }
 
+function onBugRowNameChange(i, val){
+  if(!val){ samples[i].bugName=''; samples[i].bugGrade=''; return; }
+  const [name, grade] = val.split('|');
+  samples[i].bugName = name;
+  samples[i].bugGrade = grade;
+}
+
 // ── 행별 병충해 감수량 (g) ────────────────────────
 function calcBugLossRow(s){
-  let loss = 0;
-  if(bugYn==='yes'){
-    const b1w = parseFloat(s.bug1w)||0;
-    const b1g = GRADE_RATE[bug1.grade]||0;
-    const b1r = (bug1.rate||0)/100;
-    if(b1w && b1g && b1r) loss += b1w * b1r * b1g;
-    if(bug2visible){
-      const b2w = parseFloat(s.bug2w)||0;
-      const b2g = GRADE_RATE[bug2.grade]||0;
-      const b2r = (bug2.rate||0)/100;
-      if(b2w && b2g && b2r) loss += b2w * b2r * b2g;
-    }
-  }
-  return loss;
+  if(bugYn !== 'yes') return 0;
+  const w = parseFloat(s.bugW)||0;
+  const r = (parseFloat(s.bugRate)||0)/100;
+  const g = GRADE_RATE[s.bugGrade]||0;
+  return (w && r && g) ? w * r * g : 0;
 }
 function calcCommon(){
   const avgYield = toNum(document.getElementById('avgYield'));
@@ -745,9 +591,9 @@ function renderSamples(){
         oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
         onblur="calc()"></td>
       <td class="col-normal" style="border-left:2px solid #b5dca0">
-        <input type="number" value="${s.normal!==''&&s.normal!==undefined&&s.normal!==null?s.normal:''}" inputmode="decimal"
-        class="${s.normal!==''&&s.normal!==undefined&&s.normal!==null?'filled':''}"
-        oninput="samples[${i}].normal=this.value;this.classList.toggle('filled',this.value!=='');calcTotals()"
+        <input type="number" value="${s.normal||''}" inputmode="decimal"
+        class="${s.normal?'filled':''}"
+        oninput="samples[${i}].normal=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
         onblur="calc()"></td>
       <td class="col-dmg50">
         <input type="number" value="${s.dmg50||''}" inputmode="decimal"
@@ -777,14 +623,13 @@ function calcBugLossRow(s){
 
 // ── 합계 계산 ─────────────────────────────────────
 function calcTotals(){
-  let tLen=0,tWid=0,tNormal=0,tDmg50=0,tBug1w=0,tBug2w=0,tBugLoss=0;
+  let tLen=0,tWid=0,tNormal=0,tDmg50=0,tBugW=0,tBugLoss=0;
   samples.forEach(s=>{
     tLen    += parseFloat(s.len)||0;
     tWid    += parseFloat(s.wid)||0;
     tNormal += parseFloat(s.normal)||0;
     tDmg50  += parseFloat(s.dmg50)||0;
-    tBug1w  += parseFloat(s.bug1w)||0;
-    tBug2w  += parseFloat(s.bug2w)||0;
+    tBugW   += parseFloat(s.bugW)||0;
     tBugLoss += calcBugLossRow(s);
   });
 
@@ -792,8 +637,7 @@ function calcTotals(){
   document.getElementById('t-wid').textContent    = tWid>0?tWid.toFixed(1)+' m':'-';
   document.getElementById('t-normal').textContent = tNormal>0?tNormal.toLocaleString()+' g':'-';
   document.getElementById('t-dmg50').textContent  = tDmg50>0?tDmg50.toLocaleString()+' g':'-';
-  document.getElementById('t-bug1w').textContent  = tBug1w>0?tBug1w.toLocaleString()+' g':'-';
-  document.getElementById('t-bug2w').textContent  = tBug2w>0?tBug2w.toLocaleString()+' g':'-';
+  document.getElementById('t-bug1w').textContent  = tBugW>0?tBugW.toLocaleString()+' g':'-';
   document.getElementById('t-bugLoss').textContent= tBugLoss>0?tBugLoss.toFixed(1)+' g':'-';
   document.getElementById('s-bug').textContent    = tBugLoss>0?(tBugLoss/1000).toFixed(3)+' kg':'-';
 
@@ -831,20 +675,14 @@ function calc(){
     // 표본구간 수확량 합계 = 정상 + (50%피해 × 0.5) + 병충해피해중량
     const norm  = parseFloat(s.normal)||0;
     const d50   = parseFloat(s.dmg50)||0;
-    const bug1w = parseFloat(s.bug1w)||0;
-    const bug2w = parseFloat(s.bug2w)||0;
-    const rowSurvey = norm + d50*0.5 + bug1w + bug2w;
+    const bugW  = parseFloat(s.bugW)||0;
+    const rowSurvey = norm + d50*0.5 + bugW;
     totalSurveyG += rowSurvey;
 
     // 병충해 감수량
-    const b1r = (parseFloat(s.bug1rate)||0)/100;
-    const b1g = GRADE_RATE[s.bug1grade]||0;
-    const b2r = (parseFloat(s.bug2rate)||0)/100;
-    const b2g = GRADE_RATE[s.bug2grade]||0;
-    if(bug1w && b1g) totalBugLossG += bug1w * b1r * b1g;
-    if(bug2w && b2g) totalBugLossG += bug2w * b2r * b2g;
+    totalBugLossG += calcBugLossRow(s);
 
-    if(norm || d50 || bug1w || bug2w) inputted++;
+    if(norm || d50 || bugW) inputted++;
   });
 
   const resultBox = document.getElementById('result-section');
@@ -901,7 +739,8 @@ function calc(){
 
 // ── 표본 추가/삭제 ────────────────────────────────
 function emptySample(){
-  return { len:'', wid:'', normal:'', dmg50:'', bug1w:'', bug2w:'' };
+  return { len:'', wid:'', normal:'', dmg50:'',
+           bugName:'', bugGrade:'', bugRate:'', bugW:'' };
 }
 
 function addRow(){
@@ -922,47 +761,6 @@ function removeSample(){
 
 // ── 계산하기/수정하기 ─────────────────────────────
 function setCalcMode(){
-  const missing = [];
-
-  // 평년수확량
-  if(!toNum(document.getElementById('avgYield')))
-    missing.push('• 평년수확량');
-
-  // 실제경작면적
-  if(!toNum(document.getElementById('actArea')))
-    missing.push('• 실경작면적');
-
-  // 표본구간: 길이·폭·무게조사·정상
-  if(samples.length > 0){
-    const emptyRows = [];
-    samples.forEach((s,i)=>{
-      const hasLen    = parseFloat(s.len)    > 0;
-      const hasWid    = parseFloat(s.wid)    > 0;
-      // 무게조사: 정상 또는 50% 중 하나라도 입력
-      const hasWeight = (s.normal!==''&&s.normal!==undefined&&s.normal!==null) ||
-                        (s.dmg50 !==''&&s.dmg50 !==undefined&&s.dmg50 !==null);
-      const hasNormal = s.normal!==''&&s.normal!==undefined&&s.normal!==null;
-      if(!hasLen || !hasWid || !hasWeight || !hasNormal){
-        const fields = [];
-        if(!hasLen)    fields.push('길이');
-        if(!hasWid)    fields.push('폭');
-        if(!hasWeight) fields.push('무게조사');
-        else if(!hasNormal) fields.push('정상');
-        emptyRows.push(`  ${i+1}구간: ${fields.join('·')} 미입력`);
-      }
-    });
-    if(emptyRows.length > 0){
-      missing.push('• 표본구간');
-      emptyRows.forEach(r => missing.push(r));
-    }
-  }
-
-  if(missing.length > 0){
-    document.getElementById('validation-list').innerHTML = missing.join('<br>');
-    document.getElementById('validation-overlay').style.display = 'flex';
-    return;
-  }
-
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
@@ -984,20 +782,13 @@ function bindMobileFocusHandlers(){
     el.dataset.mfb = '1';
     el.addEventListener('focus', ()=>{ el.classList.add('mobile-focus'); }, {passive:true});
     el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
-    if(el.readOnly) return;
-    let _tsx=0,_tsy=0,_scrolling=false;
-    el.addEventListener('touchstart',(e)=>{ _tsx=e.touches[0].clientX; _tsy=e.touches[0].clientY; _scrolling=false; },{passive:true});
-    el.addEventListener('touchmove',(e)=>{ if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6) _scrolling=true; },{passive:true});
-    el.addEventListener('touchend',(e)=>{
-      if(_scrolling) return;
+    el.addEventListener('touchend', (e)=>{
+      if(el.readOnly) return;
       if(e.cancelable) e.preventDefault();
+      const wasFilled = el.classList.contains('filled');
       el.focus();
-      el.classList.add('mobile-focus');
-      try{ el.select(); }catch(_){
-        const len=el.value.length;
-        try{ el.setSelectionRange(0,len); }catch(_){}
-      }
-    },{passive:false});
+      if(wasFilled){ el.value=''; el.classList.remove('filled'); }
+    }, {passive:false});
   });
 }
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -1068,21 +859,10 @@ function resetAll(){
   document.getElementById('weight-body').innerHTML = '';
   document.getElementById('bug-body').innerHTML = '';
   document.getElementById('bug-config').style.display = 'none';
-  document.getElementById('bug2-config').style.display = 'none';
-  document.getElementById('bug2-add-row').style.display = 'block';
-  // 라디오 리셋
   document.getElementById('radio-yes').style.borderColor='#ccc';
   document.getElementById('radio-yes-dot').style.background='transparent';
   document.getElementById('radio-no').style.borderColor='#ccc';
   document.getElementById('radio-no-dot').style.background='transparent';
-  document.querySelectorAll('.rate-btn').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.grade-sel-btn').forEach(b=>{
-    b.style.background='#f5f5f5'; b.style.borderColor='var(--border)'; b.style.color='var(--sub)';
-  });
-  const s1=document.getElementById('bug1-name');
-  if(s1){s1.innerHTML='<option value="">← 급수 먼저 선택</option>';s1.disabled=true;s1.classList.remove('filled');}
-  const s2=document.getElementById('bug2-name');
-  if(s2){s2.innerHTML='<option value="">← 급수 먼저 선택</option>';s2.disabled=true;s2.classList.remove('filled');}
   document.getElementById('sample-badge').textContent = '';
   document.getElementById('s-area').textContent = '-';
   document.getElementById('s-unit').textContent = '-';
