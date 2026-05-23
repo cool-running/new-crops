@@ -3,18 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#5B7E3F">
-<title>감자 피해율 계산기</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>감자 피해율계산기</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function bindMobileFocusHandlers(){
+  document.querySelectorAll('input.inp, select.inp, tbody td input, tbody td select').forEach(el=>{
+    if(el.dataset.mfb==='1') return;
+    el.dataset.mfb='1';
+    el.addEventListener('focus',()=>el.classList.add('mobile-focus'),{passive:true});
+    el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
+    const isSelect=el.tagName==='SELECT', isDate=el.type==='date';
+    if(!isSelect&&!isDate){
+      let _tsx=0,_tsy=0,_sc=false;
+      el.addEventListener('touchstart',e=>{_tsx=e.touches[0].clientX;_tsy=e.touches[0].clientY;_sc=false;},{passive:true});
+      el.addEventListener('touchmove',e=>{if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6)_sc=true;},{passive:true});
+      el.addEventListener('touchend',e=>{
+        if(_sc)return;
+        if(e.cancelable)e.preventDefault();
+        el.focus();
+        el.classList.add('mobile-focus');
+        setTimeout(()=>{try{el.select();}catch(_){try{el.setSelectionRange(0,el.value.length);}catch(_){}}},50);
+      },{passive:false});
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
+});
+</script>
 <style>
 :root{
-  --green:#5B7E3F;--green2:#7FAD52;--auto:#F3F1EA;--border:#D8D6CE;
-  --binp:#7FAD52;--text:#1a1a1a;--sub:#666;--hint:#aaa;--bg:#F5F4F0;
-  --card:#fff;--red:#e24b4a;--blue:#185FA5;--r:12px;--rs:8px
+  --green:#5B7E3F;--green2:#7FAD52;
+  --auto:#F3F1EA;--border:#D8D6CE;--binp:#7FAD52;
+  --text:#1a1a1a;--sub:#666;--hint:#aaa;
+  --bg:#F5F4F0;--card:#fff;--red:#e24b4a;--blue:#185FA5;
+  --r:12px;--rs:8px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+
 .header{background:var(--green);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
 .back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
@@ -28,131 +60,108 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
 
 .content{padding:12px 12px 40px}
-.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border)}
-.sec-title{font-size:12px;font-weight:600;color:var(--sub);margin-bottom:10px;letter-spacing:0.04em}
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+.sec-title{font-size:13px;font-weight:700;color:#555;margin-bottom:12px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sec-head .sec-title{margin-bottom:0}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.field{display:flex;flex-direction:column;gap:3px}
+.field{display:flex;flex-direction:column;gap:3px;position:relative}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
-input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center}
-input.inp:focus{outline:none!important;border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(91,126,63,0.2)!important;background:#dceeff!important;color:var(--green)!important}
-input.inp.filled{background:#eaf3e0;border-color:var(--green);color:#2d5016}
-input.inp.filled:focus{background:#dceeff!important;color:var(--green)!important;border-color:var(--green)!important}
-select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:13px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;cursor:pointer}
-select.inp:focus{outline:none!important;border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(91,126,63,0.2)!important}
-select.inp.filled{background:#eaf3e0;border-color:var(--green);color:#2d5016}
-input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
+.unit-badge{position:absolute;right:6px;top:0;font-size:10px;font-weight:600;color:var(--sub);background:var(--bg);border-radius:4px;padding:1px 4px;line-height:1.4;pointer-events:none;z-index:1}
+
+input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
+select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;cursor:pointer;transition:background .15s,border-color .15s}
+input.inp::placeholder{color:var(--hint);text-align:center}
+input.inp.filled,select.inp.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
+
+/* 모바일 포커스 */
+input.inp.mobile-focus,select.inp.mobile-focus,tbody td input.mobile-focus,tbody td select.mobile-focus,
+input.inp:focus,select.inp:focus,tbody td input:focus,tbody td select:focus{
+  outline:none!important;border-color:var(--green)!important;
+  box-shadow:0 0 0 3px rgba(91,126,63,0.22)!important;
+  background:#dff5e8!important;color:#2d5016!important;
+}
+
+/* 크게보기 */
+.bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--green2);border-radius:var(--rs);color:var(--green2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.bigtext-btn.on{background:var(--green2);color:#fff}
+body.big-text input.inp,body.big-text select.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
+body.big-text input.auto{height:52px!important;font-size:18px!important;font-weight:600!important}
+body.big-text .field label{font-size:13px!important}
+body.big-text tbody td input,body.big-text tbody td select{height:44px!important;font-size:16px!important;font-weight:700!important}
+body.big-text thead th{font-size:12px!important;padding:8px 2px!important}
+body.big-text tfoot td{font-size:12px!important;padding:8px 1px!important}
+
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 
 /* 표 */
-.tbl-wrap{overflow-x:auto;width:100%;margin-bottom:8px;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:#f8f8f8;padding:5px 2px;text-align:center;font-weight:600;color:var(--sub);font-size:10px!important;border-bottom:1.5px solid var(--border);line-height:1.4;white-space:pre-line}
+.tbl-wrap{overflow-x:hidden;width:100%;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+thead th{background:#f8f8f8;padding:6px 2px;text-align:center;font-weight:600;color:var(--sub);font-size:11px;border-bottom:1.5px solid var(--border);line-height:1.4}
 tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
-tfoot td{padding:6px 1px;background:#f0f0f0;font-weight:700;font-size:10px;text-align:center;border-top:1.5px solid var(--border)}
-tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:12px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text)}
-tbody td input:focus{outline:none!important;border-color:var(--green)!important;box-shadow:0 0 0 2px rgba(91,126,63,0.2)!important;background:#dceeff!important;color:var(--green)!important}
-tbody td input.filled{background:#eaf3e0;border-color:var(--green);color:#2d5016}
-tbody td select{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:11px;background:white;box-sizing:border-box;color:var(--text);-webkit-appearance:none;cursor:pointer}
-tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d5016}
-/* 병충해 중량 열 - 구분 색상 */
-.col-bug1{background:#fff9f0!important}
-.col-bug2{background:#f0f9ff!important}
-.col-normal{background:#f0fff4!important}
-.col-dmg50{background:#fffbf0!important}
+tfoot td{padding:6px 1px;background:#f3efe8;font-weight:700;font-size:11px;text-align:center;border-top:1.5px solid var(--border)}
+tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:13px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background .15s,border-color .15s}
+tbody td select{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:11px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);cursor:pointer}
+tbody td input.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
+tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
+tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e8!important;color:#2d5016!important;border-color:var(--green)!important}
 
-/* 표본구간 추가/삭제 버튼 */
-.sample-btn-row{display:flex;gap:8px;margin-top:10px;align-items:stretch}
-.sample-btn-row .add-btn,.sample-btn-row .del-sample-btn{flex:1;margin:0;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center}
-.add-btn{height:42px;border:2px dashed var(--green2);background:#eaf3e0;border-radius:12px;font-size:14px;font-weight:800;color:#2d5016;cursor:pointer;width:100%}
-.del-sample-btn{height:42px;border:2px solid var(--red);background:#fff4f4;color:#c8403d;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;width:100%}
+/* 표본 버튼 */
+.sample-btn-row{display:flex;gap:8px;margin-top:10px}
+.add-btn{flex:1;height:42px;border:2px dashed var(--green2);background:#eaf3e0;border-radius:12px;font-size:14px;font-weight:800;color:#2d5016;cursor:pointer}
+.del-sample-btn{flex:1;height:42px;border:2px solid var(--red);background:#fff4f4;color:#c8403d;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer}
 .add-btn:active,.del-sample-btn:active{transform:translateY(1px)}
+.add-bug-btn{flex:1;height:42px;border:2px dashed #f59e0b;background:#fffbeb;border-radius:12px;font-size:14px;font-weight:800;color:#92400e;cursor:pointer}
+.del-bug-btn{flex:1;height:42px;border:2px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer}
 
-/* 표본 요약 */
-.sample-summary-row{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
-.sample-summary-item{display:flex;align-items:baseline;gap:4px;min-width:0;white-space:nowrap}
-.sample-summary-label{font-size:11px;color:var(--sub);flex-shrink:0}
-.sample-summary-value{font-size:13px;font-weight:800;color:var(--text)}
-
-/* 인정비율 참고표 */
-.grade-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
-.grade-table th{background:#f0f5eb;padding:5px 4px;text-align:center;font-weight:600;color:var(--green);border:0.5px solid var(--border)}
-.grade-table td{padding:5px 4px;text-align:center;border:0.5px solid var(--border);color:var(--sub);line-height:1.4}
-.grade-table .grade-pct{font-weight:700;color:var(--green)}
-
-/* 계산/수정 버튼 */
-.calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.btn-calc{height:46px;border:none;border-radius:12px;background:var(--green);color:white;font-size:15px;font-weight:700;cursor:pointer}
-.btn-calc:active{opacity:0.85}
-.btn-edit{height:46px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer}
-.btn-edit:active{background:#f0fdf8}
-.btn-calc.active{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);box-shadow:0 4px 14px rgba(91,126,63,0.35)}
-.btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
-
-/* 결과 박스 */
+/* 결과 */
 .result-box{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(91,126,63,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
 .result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
-.result-pct{font-size:40px;font-weight:700;line-height:1}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 
-/* 입력 잠금 */
+/* 계산/수정 */
+.calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.btn-calc{height:46px;border:none;border-radius:12px;background:var(--green);color:white;font-size:15px;font-weight:700;cursor:pointer}
+.btn-edit{height:46px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer}
+.btn-calc.active{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);box-shadow:0 4px 14px rgba(91,126,63,0.35)}
+.btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
 .locked input.inp,.locked select.inp,.locked tbody td input,.locked tbody td select{pointer-events:none;opacity:0.72}
+.locked input[type=date].inp{pointer-events:none;opacity:0.72}
 
 /* 모달 */
-#reset-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:310;align-items:center;justify-content:center;padding:20px}
-#reset-overlay.show{display:flex!important}
-.reset-modal{background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18);text-align:center}
-.reset-modal .title{font-size:18px;font-weight:800;color:#333;margin-bottom:10px}
-.reset-modal .desc{font-size:14px;line-height:1.65;color:#666;margin-bottom:20px}
-.reset-actions{display:flex;gap:10px}
-.reset-actions button{flex:1;height:46px;border-radius:12px;font-size:15px;font-weight:700}
-.reset-actions .cancel{border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555}
-.reset-actions .confirm{border:none;background:var(--green);color:#fff}
+#reset-overlay,#history-overlay,#delete-limit-overlay,#save-done-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px}
+#reset-overlay.show,#history-overlay.show,#delete-limit-overlay.show,#save-done-overlay.show{display:flex}
 
-.del-limit-modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:350;align-items:center;justify-content:center;padding:20px}
-.del-limit-modal-wrap.show{display:flex}
-.del-limit-modal{background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;box-shadow:0 18px 40px rgba(0,0,0,0.18);text-align:center}
-.del-limit-modal .title{font-size:18px;font-weight:800;color:#333;margin-bottom:10px}
-.del-limit-modal .desc{font-size:14px;line-height:1.6;color:#666;margin-bottom:18px}
-.del-limit-modal .btn-ok{width:100%;height:44px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+/* 라디오 병충해 */
+.bug-radio-wrap{display:flex;align-items:center;gap:16px;padding:8px 10px;background:#fffbeb;border-radius:8px;border:1px solid #f0c080;margin-bottom:8px}
 
-/* 결과 상세 */
-.result-detail{background:#f8faf5;border-radius:12px;padding:12px;margin-top:8px;border:0.5px solid #c5dba8}
-.result-detail-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px}
-.result-detail-row:not(:last-child){border-bottom:0.5px solid #e0ecd0}
-.detail-label{color:var(--sub)}
-.detail-value{font-weight:700;color:var(--text)}
-
-/* 병충해 등급 칩 */
+/* 인정비율 참고 */
+.grade-ref-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+.grade-ref-table th{background:#f0f5eb;padding:5px 4px;text-align:center;font-weight:600;color:var(--green);border:0.5px solid var(--border)}
+.grade-ref-table td{padding:5px 4px;border:0.5px solid var(--border);color:var(--sub);line-height:1.4;font-size:10px}
 .grade-chip{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700}
-.grade-1{background:#fce8e8;color:#c0392b}
-.grade-2{background:#fef3e2;color:#e67e22}
-.grade-3{background:#e8f4fd;color:#2980b9}
+.g1{background:#fce8e8;color:#c0392b}.g2c{background:#fef3e2;color:#e67e22}.g3c{background:#e8f4fd;color:#2980b9}
 
-/* 두 표본 테이블 구간열 너비 동기화 */
-#weight-table th:first-child, #weight-table td:first-child,
-#bug-table th:first-child,    #bug-table td:first-child {
-  width:34px !important; min-width:34px !important; max-width:34px !important;
-  text-align:center;
-}
+/* 자동계산 박스 */
+.auto-box{background:#f0f5eb;border-radius:12px;padding:10px 10px 6px;margin-top:8px}
+.info-strip{display:flex;flex-direction:row;align-items:center;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
+.info-strip span{font-size:12px;color:var(--sub);white-space:nowrap}
+.info-strip strong{font-size:13px;font-weight:800;color:var(--text)}
 
-/* 손해정도 버튼 */
-.rate-btn{height:32px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;background:#f5f5f5;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;transition:all .1s}
-.rate-btn.on{background:#d97706;border-color:#d97706;color:white}
-
-/* 병충해 있음/없음 버튼 on 상태 */
-.bug-yn-on-no{background:#f5f5f5 !important;border-color:#aaa !important;color:#555 !important}
-.bug-yn-on-yes{background:#d97706 !important;border-color:#d97706 !important;color:white !important}
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);padding:14px 16px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.1)}
+#install-banner.show{display:block}
+.btn-install{height:42px;background:var(--green);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;width:70%}
+.btn-later{height:42px;padding:0 16px;background:var(--bg);color:var(--sub);border:none;border-radius:var(--rs);font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <button class="back-btn" onclick="history.back()">‹</button>
+  <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🥔</div>
-  <div><h1>감자 피해율 계산기</h1><div class="header-sub">밭작물 · 수확량조사 (사고 중 발생)</div></div>
+  <div><h1>감자 피해율계산기</h1><div class="header-sub">밭작물 · 수확량조사 (사고 중 발생)</div></div>
 </div>
 
 <div class="legend">
@@ -163,176 +172,189 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
 
 <div class="content">
 
-  <!-- ① 보험가입사항 -->
+  <!-- 상단 컨트롤 -->
   <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">① 보험가입사항</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
+      <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
-    <div class="g3">
-      <div class="field"><label>평년수확량 (kg)</label>
-        <input type="text" id="avgYield" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
-      <div class="field"><label>가입면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="text" id="insArea" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
-      <div class="field"><label>실경작면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="text" id="actArea" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
-    </div>
-    <div class="g3">
-      <div class="field"><label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="deadArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
-      <div class="field"><label>타작물미보상 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="uninsArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
-      <div class="field"><label>기수확면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="preArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
-    </div>
-    <div class="g3">
-      <div class="field"><label>미보상비율 <span style="font-size:10px;color:var(--hint)">%</span></label>
-        <input type="number" id="uninsRate" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
-      <div class="field"><label>조사대상면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="text" id="surveyArea" class="auto" readonly></div>
-      <div class="field"><label>계약변경여부</label>
-        <input type="text" id="contractYn" class="auto" readonly></div>
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div class="field" style="width:40%">
+        <label>농지번호 4자리</label>
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호" maxlength="4"
+          oninput="markFilled(this)" autocomplete="off">
+      </div>
+      <div class="field" style="width:40%">
+        <label>조사일자</label>
+        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);calc()" autocomplete="off">
+      </div>
+      <div style="width:20%;flex-shrink:0">
+        <button onclick="openHistoryModal()" title="이전 기록 불러오기"
+          style="width:100%;height:46px;border:1.5px solid var(--green2);border-radius:var(--rs);background:white;color:var(--green);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">📋</button>
+      </div>
     </div>
   </div>
 
-  <!-- ② 표본구간 조사 -->
+  <!-- 면적 정보 -->
   <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">② 표본구간 조사 <span id="sample-badge" style="font-size:11px;font-weight:400;color:var(--green)"></span></div>
-      <span style="font-size:10px;color:var(--hint);font-weight:400">중량 단위: g</span>
+    <div class="sec-title">① 면적 정보</div>
+    <div class="g3">
+      <div class="field">
+        <label>평년수확량</label><span class="unit-badge">kg</span>
+        <input type="text" id="avg_yield" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>가입면적</label><span class="unit-badge">㎡</span>
+        <input type="text" id="ins_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>실제경작면적</label><span class="unit-badge">㎡</span>
+        <input type="text" id="act_area" class="inp" inputmode="decimal" oninput="onCommaInput(this);updateSamplesAndCalc()" autocomplete="off">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>고사면적</label><span class="unit-badge">㎡</span>
+        <input type="number" id="dead_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>타작물미보상</label><span class="unit-badge">㎡</span>
+        <input type="number" id="other_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>기수확면적</label><span class="unit-badge">㎡</span>
+        <input type="text" id="harv_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>미보상비율</label><span class="unit-badge">%</span>
+        <input type="number" id="unins_rate" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()" autocomplete="off">
+      </div>
+      <div class="field"><label style="color:var(--green)">조사대상면적</label><input type="text" id="survey_area_disp" class="auto" readonly></div>
+      <div class="field"><label style="color:var(--green)">계약변경여부</label><input type="text" id="contract_yn_disp" class="auto" readonly></div>
+    </div>
+  </div>
+
+  <!-- 표본구간 조사 2-1 무게조사 -->
+  <div class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div class="sec-title" style="margin-bottom:0">② 표본조사 2-1 무게조사 <span id="sample-badge" style="font-size:14px;font-weight:700;color:var(--green)"></span></div>
+        <div style="font-size:10px;color:var(--hint);margin-top:2px">길이·폭(m) / 중량(g)</div>
+      </div>
+      <!-- 길이 일괄 -->
+      <div id="batch-len-row" style="display:none;align-items:center;gap:5px;background:#eaf3e0;border:1.5px solid var(--green2);border-radius:10px;padding:5px 8px;width:48%;flex-shrink:0">
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;font-size:11px;font-weight:700;color:var(--green);flex-shrink:0">
+          <input type="checkbox" id="batch-len-chk" onchange="toggleBatchLen()" style="width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0">
+          길이
+        </label>
+        <input type="text" id="batch-len-val" inputmode="decimal" placeholder="일괄"
+          style="flex:1;height:30px;border:1.5px solid var(--green2);border-radius:7px;padding:0 6px;font-size:12px;font-weight:700;text-align:center;background:white;color:var(--green);-webkit-appearance:none;min-width:0"
+          oninput="onBatchLenInput(this)" onblur="applyBatchLen()" autocomplete="off">
+        <button onclick="applyBatchLen()" style="height:30px;width:40px;background:var(--green);color:white;border:none;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0">적용</button>
+      </div>
     </div>
 
-    <!-- 표본 1 - 무게조사 -->
-    <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px;padding:4px 6px;background:#f0f5eb;border-radius:6px">
-      표본조사 2-1 무게조사
-    </div>
-    <div class="tbl-wrap">
-      <table id="weight-table" style="width:100%;table-layout:fixed">
+    <div id="sample-guide" style="text-align:center;padding:16px 0;font-size:13px;color:var(--hint)">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
+    <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
+      <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:34px">
-          <col style="width:70px">
-          <col style="width:70px">
-          <col>
-          <col>
+          <col style="width:10%"><col style="width:20%"><col style="width:18%">
+          <col style="width:26%"><col style="width:26%">
         </colgroup>
         <thead>
           <tr>
-            <th rowspan="2" style="vertical-align:middle">구간</th>
-            <th rowspan="2" style="vertical-align:middle">길이<br>(m)</th>
-            <th rowspan="2" style="vertical-align:middle">폭<br>(m)</th>
-            <th colspan="2" style="border-left:2px solid #b5dca0;background:#f0fff4;border-bottom:0.5px solid #b5dca0">무게조사 (g)</th>
-          </tr>
-          <tr>
-            <th style="border-left:2px solid #b5dca0;background:#f0fff4;font-size:10px">정상</th>
-            <th style="background:#fffbf0;font-size:10px">50%</th>
+            <th>No.</th><th>길이(m)</th><th>폭(m)</th>
+            <th style="background:#f0fff4">정상(g)</th>
+            <th style="background:#fffbf0">50%형(g)</th>
           </tr>
         </thead>
-        <tbody id="weight-body"></tbody>
+        <tbody id="sample-body"></tbody>
         <tfoot>
           <tr>
             <td>합계</td>
-            <td id="t-len">-</td>
-            <td id="t-wid">-</td>
-            <td id="t-normal">-</td>
-            <td id="t-dmg50">-</td>
+            <td id="t-len">-</td><td id="t-wid">-</td>
+            <td id="t-norm">-</td><td id="t-d50">-</td>
           </tr>
         </tfoot>
       </table>
     </div>
+    <div class="sample-btn-row" id="sample-btn-row" style="display:none">
+      <button class="add-btn" onclick="addSample()">+ 구간 추가</button>
+      <button class="del-sample-btn" onclick="removeSample()">- 구간 삭제</button>
+    </div>
+    <div class="info-strip">
+      <span>표본면적: <strong id="s-area">-</strong></span>
+      <span>㎡당 수확량: <strong id="s-unit">-</strong></span>
+    </div>
+  </div>
 
-    <!-- 표본조사 2-2 병충해 -->
-    <div style="margin:12px 0 8px;padding:8px 10px;background:#fffbeb;border-radius:8px;border:1px solid #f0c080">
+  <!-- 표본조사 2-2 병충해 -->
+  <div class="section">
+    <div class="sec-title">② 표본조사 2-2 병충해 피해</div>
 
-      <!-- 병충해 라디오형 있음/없음 -->
-      <div style="display:flex;align-items:center;gap:16px">
+    <!-- 병충해 있음/없음(70%) + 인정비율 팝업버튼(30%) -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <div class="bug-radio-wrap" style="flex:7;margin-bottom:0">
         <span style="font-size:13px;font-weight:700;color:#b45309;min-width:44px">병충해</span>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text)">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600">
           <span id="radio-yes" onclick="setBugYn('yes')" style="width:20px;height:20px;border-radius:50%;border:2px solid #ccc;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s">
             <span id="radio-yes-dot" style="width:10px;height:10px;border-radius:50%;background:transparent;transition:all .15s"></span>
           </span>
           <span onclick="setBugYn('yes')" style="cursor:pointer">있음</span>
         </label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text)">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600">
           <span id="radio-no" onclick="setBugYn('no')" style="width:20px;height:20px;border-radius:50%;border:2px solid #ccc;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s">
             <span id="radio-no-dot" style="width:10px;height:10px;border-radius:50%;background:transparent;transition:all .15s"></span>
           </span>
           <span onclick="setBugYn('no')" style="cursor:pointer">없음</span>
         </label>
       </div>
+      <div style="flex:3">
+        <button onclick="openGradeModal()"
+          style="width:100%;height:40px;border:1.5px solid var(--green2);border-radius:var(--rs);background:#eaf3e0;color:#2d5016;font-size:12px;font-weight:700;cursor:pointer;line-height:1.3">
+          등급별<br>인정비율
+        </button>
+      </div>
     </div>
 
-    <!-- 병충해 설정 (있음 선택 시 표시) -->
-    <div id="bug-config" style="display:none;margin-top:8px">
-      <div class="scroll-hint">← 좌우 스크롤</div>
+    <!-- 병충해 테이블 (있음일 때) -->
+    <div id="bug-config" style="display:none">
       <div class="tbl-wrap">
-        <table id="bug-table" style="width:100%;table-layout:fixed;min-width:360px">
+        <table style="width:100%;table-layout:fixed">
           <colgroup>
-            <col style="width:34px">
-            <col style="width:110px">
-            <col style="width:72px">
-            <col style="width:72px">
-            <col style="width:60px">
+            <col style="width:10%"><col style="width:34%">
+            <col style="width:20%"><col style="width:22%"><col style="width:14%">
           </colgroup>
           <thead>
             <tr>
               <th>구간</th>
               <th style="background:#fff9f0">병충해명</th>
-              <th style="background:#fff9f0">손해정도<br>비율</th>
-              <th style="background:#fffbf0">중량<br>(g)</th>
-              <th style="background:#fffde0;font-size:10px">감수량<br>(g)</th>
+              <th style="background:#fff9f0">손해정도</th>
+              <th style="background:#fffbf0">중량(g)</th>
+              <th style="background:#fffde0;font-size:9px">감수량(g)</th>
             </tr>
           </thead>
           <tbody id="bug-body"></tbody>
           <tfoot>
             <tr>
               <td colspan="3">합계</td>
-              <td id="t-bug1w">-</td>
-              <td id="t-bugLoss" style="color:#d97706;font-weight:700">-</td>
+              <td id="t-bugw">-</td>
+              <td id="t-bugloss" style="color:#d97706;font-weight:700">-</td>
             </tr>
           </tfoot>
         </table>
       </div>
+      <div class="sample-btn-row">
+        <button class="add-bug-btn" onclick="addBugRow()">+ 병충해 행 추가</button>
+        <button class="del-bug-btn" onclick="removeBugRow()">- 병충해 행 삭제</button>
+      </div>
     </div>
 
-    <!-- 표본구간 추가/삭제 -->
-    <div class="sample-btn-row">
-      <button class="add-btn" onclick="addRow()">+ 표본구간 추가</button>
-      <button class="del-sample-btn" onclick="removeSample()">- 표본구간 삭제</button>
+    <div class="info-strip">
+      <span>병충해 감수량: <strong id="s-bug">-</strong></span>
     </div>
-
-    <!-- 표본 요약 -->
-    <div class="sample-summary-row">
-      <div class="sample-summary-item"><span class="sample-summary-label">표본면적:</span><span class="sample-summary-value" id="s-area">-</span></div>
-      <div class="sample-summary-item"><span class="sample-summary-label">㎡당 수확량:</span><span class="sample-summary-value" id="s-unit">-</span></div>
-      <div class="sample-summary-item"><span class="sample-summary-label">병충해감수량:</span><span class="sample-summary-value" id="s-bug">-</span></div>
-    </div>
-  </div>
-
-  <!-- ③ 인정비율 참고 -->
-  <div class="section">
-    <div class="sec-title">③ 감자 병충해 등급별 인정비율 참고</div>
-    <table class="grade-table">
-      <thead>
-        <tr><th>급수</th><th>주요 종류</th><th>인정비율</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="grade-chip grade-1">1급</span></td>
-          <td style="text-align:left;font-size:10px;padding:5px 6px">역병, 갈쭉병, 모자이크병, 무름병, 둘레썩음병, 가루더뎅이병, 잎말림병, 감자뿔나방</td>
-          <td><span class="grade-pct">90%</span></td>
-        </tr>
-        <tr>
-          <td><span class="grade-chip grade-2">2급</span></td>
-          <td style="text-align:left;font-size:10px;padding:5px 6px">홍색부패병, 시들음병, 마른썩음병, 풋마름병, 줄기검은병, 더뎅이병, 균핵병, 검은무늬썩음병, 진딧물류, 아메리카잎굴파리, 방아벌레류</td>
-          <td><span class="grade-pct">70%</span></td>
-        </tr>
-        <tr>
-          <td><span class="grade-chip grade-3">3급</span></td>
-          <td style="text-align:left;font-size:10px;padding:5px 6px">반쪽시들음병, 흰비단병, 잿빛곰팡이병, 탄저병, 겹둥근무늬병, 오이총채벌레, 뿌리혹선충, 파밤나방, 큰28점박이무당벌레, 기타</td>
-          <td><span class="grade-pct">50%</span></td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
   <!-- 계산하기/수정하기 -->
@@ -345,547 +367,784 @@ tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#2d501
   <div class="result-box pending" id="result-section">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
-        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">피해율</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500">피해율</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
-        <span class="result-pct" id="result-pct" style="font-size:26px;font-weight:700;color:#d4f7b0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">입력 대기중</span>
+        <span id="result-pct" style="font-size:26px;font-weight:700;color:#d4f7b0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
-        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>저장</span></button>
+        <button class="save-btn" onclick="saveImage()"><span>📷</span><span>저장</span></button>
       </div>
     </div>
   </div>
-
-  <!-- 결과 상세 -->
-  <div class="result-detail" id="result-detail" style="display:none">
-    <div class="result-detail-row"><span class="detail-label">평년수확량</span><span class="detail-value" id="r-avg">-</span></div>
-    <div class="result-detail-row"><span class="detail-label">표본조사 수확량</span><span class="detail-value" id="r-survey">-</span></div>
-    <div class="result-detail-row"><span class="detail-label">병충해 감수량</span><span class="detail-value" id="r-bugLoss">-</span></div>
-    <div class="result-detail-row"><span class="detail-label">미보상 감수량</span><span class="detail-value" id="r-unins">-</span></div>
-    <div class="result-detail-row"><span class="detail-label">피해율</span><span class="detail-value" id="r-pct2" style="color:var(--green);font-size:16px">-</span></div>
-  </div>
-
 </div>
 
 <!-- 리셋 모달 -->
 <div id="reset-overlay">
-  <div class="reset-modal">
-    <div class="title">전체 초기화</div>
-    <div class="desc">입력한 모든 값을 초기화할까요?<br>초기화 후에는 되돌릴 수 없습니다.</div>
-    <div class="reset-actions">
-      <button class="cancel" onclick="closeResetModal()">취소</button>
-      <button class="confirm" onclick="confirmResetAll()">초기화</button>
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:18px;font-weight:800;margin-bottom:10px">전체 초기화</div>
+    <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.65">입력한 모든 값을 초기화할까요?<br>되돌릴 수 없습니다.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeResetModal()" style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="confirmResetAll()" style="flex:1;height:46px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
     </div>
   </div>
 </div>
 
-<!-- 삭제불가 모달 -->
-<div id="delete-limit-overlay" class="del-limit-modal-wrap">
-  <div class="del-limit-modal">
-    <div class="title">표본 삭제 불가</div>
-    <div class="desc">적정표본구간 이하의 표본은<br>삭제할 수 없습니다.</div>
-    <button class="btn-ok" onclick="document.getElementById('delete-limit-overlay').classList.remove('show')">확인</button>
+<!-- 삭제제한 모달 -->
+<div id="delete-limit-overlay">
+  <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:18px;font-weight:800;margin-bottom:10px">삭제 불가</div>
+    <div style="font-size:14px;color:#666;margin-bottom:18px;line-height:1.6">적정 표본구간 이하는<br>삭제할 수 없습니다.</div>
+    <button onclick="document.getElementById('delete-limit-overlay').classList.remove('show')" style="width:100%;height:44px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
   </div>
 </div>
 
-<div id="potato-hidden" style="display:none">
-  <span id="r-area">-</span>
-  <span id="r-unit-val">-</span>
+<!-- 인정비율 팝업 모달 -->
+<div id="grade-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:18px;width:100%;max-width:360px;box-shadow:0 18px 40px rgba(0,0,0,0.2);overflow:hidden">
+    <div style="background:var(--green);padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:15px;font-weight:800;color:white">🥔 감자 병충해 등급별 인정비율</div>
+      <button onclick="closeGradeModal()" style="border:none;background:rgba(255,255,255,0.2);color:white;font-size:18px;width:30px;height:30px;border-radius:8px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div style="padding:14px">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr>
+            <th style="background:#f0f5eb;padding:7px 6px;border:0.5px solid var(--border);color:var(--green);font-weight:700;text-align:center;width:15%">급수</th>
+            <th style="background:#f0f5eb;padding:7px 6px;border:0.5px solid var(--border);color:var(--green);font-weight:700;text-align:center">주요 종류</th>
+            <th style="background:#f0f5eb;padding:7px 6px;border:0.5px solid var(--border);color:var(--green);font-weight:700;text-align:center;width:18%">인정비율</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);text-align:center;vertical-align:middle"><span class="grade-chip g1" style="font-size:12px">1급</span></td>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);color:var(--sub);line-height:1.6;font-size:11px">역병, 갈쭉병, 모자이크병, 무름병, 둘레썩음병, 가루더뎅이병, 잎말림병, 감자뿔나방</td>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);text-align:center;font-size:16px;font-weight:800;color:#c0392b">90%</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);text-align:center;vertical-align:middle"><span class="grade-chip g2c" style="font-size:12px">2급</span></td>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);color:var(--sub);line-height:1.6;font-size:11px">홍색부패병, 시들음병, 마른썩음병, 풋마름병, 줄기검은병, 더뎅이병, 균핵병, 검은무늬썩음병, 줄기기부썩음병, 진딧물류, 아메리카잎굴파리, 방아벌레류</td>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);text-align:center;font-size:16px;font-weight:800;color:#e67e22">70%</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);text-align:center;vertical-align:middle"><span class="grade-chip g3c" style="font-size:12px">3급</span></td>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);color:var(--sub);line-height:1.6;font-size:11px">반쪽시들음병, 흰비단병, 잿빛곰팡이병, 탄저병, 겹둥근무늬병, 오이총채벌레, 뿌리혹선충, 파밤나방, 큰28점박이무당벌레, 기타</td>
+            <td style="padding:8px 6px;border:0.5px solid var(--border);text-align:center;font-size:16px;font-weight:800;color:#2980b9">50%</td>
+          </tr>
+        </tbody>
+      </table>
+      <button onclick="closeGradeModal()" style="width:100%;height:42px;margin-top:14px;border:none;border-radius:12px;background:var(--green);color:white;font-size:15px;font-weight:700;cursor:pointer">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 저장완료 모달 -->
+<div id="save-done-overlay">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center">
+    <div style="font-size:32px;margin-bottom:12px">✅</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:8px">저장 완료</div>
+    <div style="font-size:13px;color:#666;margin-bottom:18px">갤러리에 저장되었습니다</div>
+    <button onclick="document.getElementById('save-done-overlay').classList.remove('show')" style="width:100%;height:44px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
+<!-- 이전 기록 모달 -->
+<div id="history-overlay">
+  <div style="background:#fff;border-radius:18px;width:100%;max-width:360px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="padding:18px 18px 12px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:16px;font-weight:800;color:var(--green)">📋 이전 기록 불러오기</div>
+      <button onclick="closeHistoryModal()" style="border:none;background:none;font-size:22px;color:#aaa;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div id="history-list" style="overflow-y:auto;flex:1;padding:10px 12px"></div>
+    <div style="padding:12px 18px;border-top:1px solid #eee">
+      <button onclick="closeHistoryModal()" style="width:100%;height:42px;border:1.5px solid #ddd;border-radius:10px;background:#f5f5f5;color:#666;font-size:14px;font-weight:700;cursor:pointer">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 캡처 템플릿 -->
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:800px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="min-height:800px;background:linear-gradient(180deg,#3a6b25 0%,#5B7E3F 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
+    <div style="height:20px"></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">🥔 감자 피해율 계산결과</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date-disp" style="font-size:13px;font-weight:700;color:#fff"></span>
+        <span id="cap-farmno-disp" style="font-size:13px;font-weight:700;color:#fff"></span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">기본정보</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">평년수확량</th>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">조사일자</th>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;text-align:center">계약변경</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-avg-yield">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-ins-area">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-survey-date">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-contract">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">면적조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작</th>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">고사</th>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">미보상</th>
+            <th style="padding:6px;background:#5B7E3F;color:#fff;text-align:center">기수확</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-act-area">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-dead-area">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-other-area">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-harv-area">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">표본조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden" id="cap-sample-table-wrap">
+          <thead><tr>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">No</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">길이</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">폭</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정상(g)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">50%형(g)</th>
+          </tr></thead>
+          <tbody id="cap-sample-tbody"></tbody>
+        </table>
+      </div>
+      <div style="background:linear-gradient(135deg,#5B7E3F,#7FAD52);border-radius:14px;padding:14px;color:white">
+        <div style="font-size:13px;font-weight:900;margin-bottom:10px">계산 결과</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">조사수확량</div>
+            <div style="font-size:14px;font-weight:700" id="cap-surv">-</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">병충해감수량</div>
+            <div style="font-size:14px;font-weight:700" id="cap-bug">-</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">미보상감수량</div>
+            <div style="font-size:14px;font-weight:700" id="cap-unins">-</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.25);border-radius:8px;padding:8px;text-align:center;border:1.5px solid rgba(255,255,255,0.4)">
+            <div style="font-size:10px;opacity:0.8;margin-bottom:3px">피해율</div>
+            <div style="font-size:22px;font-weight:800;color:#d4f7b0" id="cap-pct">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="install-banner">
+  <div style="font-size:14px;font-weight:600;margin-bottom:4px">홈 화면에 추가하기</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:12px">앱처럼 설치하면 오프라인에서도 사용 가능해요</div>
+  <div style="display:flex;gap:8px">
+    <button class="btn-install" id="btn-install">홈 화면에 추가</button>
+    <button class="btn-later" onclick="document.getElementById('install-banner').classList.remove('show')">나중에</button>
+  </div>
 </div>
 
 <script>
-// ── 인정비율 테이블 ────────────────────────────────
-const GRADE_RATE = { '1': 0.90, '2': 0.70, '3': 0.50 };
-const GRADE_LABEL = { '1':'1급 (90%)', '2':'2급 (70%)', '3':'3급 (50%)' };
+// ── 상수 ──────────────────────────────────────────
+const GRADE_RATE = {'1':0.90,'2':0.70,'3':0.50};
+const BUG_OPTS = [
+  '<option value="">- 선택 -</option>',
+  '<optgroup label="1급 (90%)">',
+  ...['역병','갈쭉병','모자이크병','무름병','둘레썩음병','가루더뎅이병','잎말림병','감자뿔나방'].map(n=>`<option value="${n}|1">${n}</option>`),
+  '</optgroup><optgroup label="2급 (70%)">',
+  ...['홍색부패병','시들음병','마른썩음병','풋마름병','줄기검은병','더뎅이병','균핵병','검은무늬썩음병','줄기기부썩음병','진딧물류','아메리카잎굴파리','방아벌레류'].map(n=>`<option value="${n}|2">${n}</option>`),
+  '</optgroup><optgroup label="3급 (50%)">',
+  ...['반쪽시들음병','흰비단병','잿빛곰팡이병','탄저병','겹둥근무늬병','오이총채벌레','뿌리혹선충','파밤나방','큰28점박이무당벌레','기타'].map(n=>`<option value="${n}|3">${n}</option>`),
+  '</optgroup>',
+].join('');
+const RATE_OPTS = [10,20,30,40,50,60,70,80,90,100].map(v=>`<option value="${v}">${v}%</option>`).join('');
+const fmt = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-let samples = [];
+// ── 상태 ──────────────────────────────────────────
+let samples = [];   // {len, wid, norm, d50}
+let bugRows = [];   // {sampleNo, name, grade, rate, weight}
+let bugYn = 'no';
 let _isLocked = false;
-let bugYn = 'no';        // 'no' | 'yes'
-let bug1 = { name:'', grade:'', rate:0 };
-let bug2 = { name:'', grade:'', rate:0 };
-let bug2visible = false;
+
+// ── 유틸 ──────────────────────────────────────────
+function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
+function markFilled(el){ el.classList.toggle('filled', el.value!==''); }
+function onCommaInput(el){
+  const raw=el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
+  const parts=raw.split('.');
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value=parts.join('.');
+  el.classList.toggle('filled', el.value!==''&&el.value!=='0');
+}
+function normalizeDim(val){
+  if(!val&&val!==0) return '';
+  let v=String(val).trim();
+  if(/^\.\d/.test(v)) v='0'+v;
+  const num=parseFloat(v);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
+function vibrate(p){ try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){} }
 
 // ── 모달 ──────────────────────────────────────────
 function openResetModal(){ document.getElementById('reset-overlay').classList.add('show'); }
 function closeResetModal(){ document.getElementById('reset-overlay').classList.remove('show'); }
 function confirmResetAll(){ closeResetModal(); resetAll(); }
 
-// ── 입력 유틸 ─────────────────────────────────────
-function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
-function toNumV(v){ return parseFloat((String(v||'')).replace(/,/g,''))||0; }
-function onCommaInput(el){
-  const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
-  const parts = raw.split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
-  el.value = parts.join('.');
-  el.classList.toggle('filled', el.value !== '');
-}
-function markFilled(el){ el.classList.toggle('filled', el.value !== ''); }
-
-// ── 적정 표본 구간 수 ─────────────────────────────
-function getProper(area){
-  if(area<=2499) return 4;
-  if(area<=4999) return 5;
-  if(area<=7499) return 6;
-  if(area<=9999) return 7;
+// ── 표본구간 수 ───────────────────────────────────
+function getSampleCount(area){
+  if(!area||area<=0) return 0;
+  if(area<2500) return 4;
+  if(area<5000) return 5;
+  if(area<7500) return 6;
+  if(area<10000) return 7;
   return 8;
 }
 
-// ── 병충해 있음/없음 라디오 ───────────────────────
-function setBugYn(yn){
-  bugYn = yn;
-  const rYes = document.getElementById('radio-yes');
-  const rNo  = document.getElementById('radio-no');
-  const dotYes = document.getElementById('radio-yes-dot');
-  const dotNo  = document.getElementById('radio-no-dot');
-  if(yn === 'yes'){
-    rYes.style.borderColor = '#d97706'; dotYes.style.background = '#d97706';
-    rNo.style.borderColor  = '#ccc';    dotNo.style.background  = 'transparent';
-    document.getElementById('bug-config').style.display = 'block';
-  } else {
-    rNo.style.borderColor  = '#888';    dotNo.style.background  = '#888';
-    rYes.style.borderColor = '#ccc';    dotYes.style.background = 'transparent';
-    document.getElementById('bug-config').style.display = 'none';
-    bug1 = {name:'',grade:'',rate:0};
-    bug2 = {name:'',grade:'',rate:0};
+// ── 면적 변경 → 표본 자동생성 ────────────────────
+function updateSamplesAndCalc(){
+  const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
+  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
+  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
+  const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
+  const needed=getSampleCount(surveyArea);
+
+  const hasData=i=>{const s=samples[i];return s&&(s.len||s.wid||s.norm||s.d50);};
+  const lastDataIdx=samples.reduce((max,_,i)=>hasData(i)?i:max,-1);
+
+  if(needed===0){
+    if(lastDataIdx<0) samples=[];
+  } else if(needed>samples.length){
+    while(samples.length<needed) samples.push({len:'',wid:'',norm:'',d50:''});
+  } else if(needed<samples.length){
+    const safeNeeded=Math.max(needed,lastDataIdx+1);
+    samples=samples.slice(0,safeNeeded);
   }
-  renderBugTable(); calcTotals(); calc(); saveState();
+  renderSamples();
+  calc();
+  saveState();
 }
 
-// ── 병충해명 데이터 ───────────────────────────────
-const BUG_NAMES = {
-  '1': ['역병','갈쭉병','모자이크병','무름병','둘레썩음병','가루더뎅이병','잎말림병','감자뿔나방'],
-  '2': ['홍색부패병','시들음병','마른썩음병','풋마름병','줄기검은병','더뎅이병','균핵병','검은무늬썩음병','줄기기부썩음병','진딧물류','아메리카잎굴파리','방아벌레류'],
-  '3': ['반쪽시들음병','흰비단병','잿빛곰팡이병','탄저병','겹둥근무늬병','오이총채벌레','뿌리혹선충','파밤나방','큰28점박이무당벌레','기타'],
-};
-// 병충해명 전체 → 급수 매핑
-const BUG_ALL_OPTS = [
-  '<option value="">- 선택 -</option>',
-  '<optgroup label="1급 (90%)">',
-  ...BUG_NAMES['1'].map(n=>`<option value="${n}|1">${n}</option>`),
-  '</optgroup>',
-  '<optgroup label="2급 (70%)">',
-  ...BUG_NAMES['2'].map(n=>`<option value="${n}|2">${n}</option>`),
-  '</optgroup>',
-  '<optgroup label="3급 (50%)">',
-  ...BUG_NAMES['3'].map(n=>`<option value="${n}|3">${n}</option>`),
-  '</optgroup>',
-].join('');
-
-// 손해정도 드롭다운 옵션 (10~100%, 10단위)
-const RATE_OPTS = [10,20,30,40,50,60,70,80,90,100]
-  .map(v=>`<option value="${v}">${v}%</option>`).join('');
-
-// ── 병충해 테이블 렌더링 (행 단위) ───────────────
-function renderBugTable(){
-  if(bugYn !== 'yes' || samples.length === 0){
-    document.getElementById('bug-body').innerHTML = '';
-    document.getElementById('t-bug1w').textContent = '-';
-    document.getElementById('t-bugLoss').textContent = '-';
+// ── 표본 렌더링 ───────────────────────────────────
+function renderSamples(){
+  const guide=document.getElementById('sample-guide');
+  const wrap=document.getElementById('sample-tbl-wrap');
+  const btnRow=document.getElementById('sample-btn-row');
+  const badge=document.getElementById('sample-badge');
+  if(samples.length===0){
+    guide.style.display='block'; wrap.style.display='none'; btnRow.style.display='none';
+    badge.textContent=''; document.getElementById('batch-len-row').style.display='none';
     return;
   }
-  document.getElementById('bug-body').innerHTML = samples.map((s,i)=>{
-    const loss = calcBugLossRow(s);
-    const nameVal = s.bugName ? `${s.bugName}|${s.bugGrade||''}` : '';
+  guide.style.display='none'; wrap.style.display='block'; btnRow.style.display='flex';
+  badge.textContent=`(${samples.length}구간)`;
+  document.getElementById('batch-len-row').style.display='flex';
+
+  document.getElementById('sample-body').innerHTML = samples.map((s,i)=>`
+    <tr>
+      <td style="font-weight:600;color:var(--sub);font-size:11px">${i+1}</td>
+      <td><input type="text" value="${s.len||''}" inputmode="decimal" class="${s.len?'filled':''}"
+        oninput="this.classList.toggle('filled',this.value!='')"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;if(document.getElementById('batch-len-chk').checked)syncBatchLenFromSample(this.value);calcTotals();saveState()" autocomplete="off"></td>
+      <td><input type="text" value="${s.wid||''}" inputmode="decimal" class="${s.wid?'filled':''}"
+        oninput="this.classList.toggle('filled',this.value!='')"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals();saveState()" autocomplete="off"></td>
+      <td style="background:#f0fff480"><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal" class="${s.norm?'filled':''}"
+        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'')"
+        onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals();saveState()" autocomplete="off"></td>
+      <td style="background:#fffbf080"><input type="text" value="${s.d50?Number(s.d50).toLocaleString():''}" inputmode="decimal" class="${s.d50?'filled':''}"
+        oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'')"
+        onblur="samples[${i}].d50=this.value.replace(/,/g,'');calcTotals();saveState()" autocomplete="off"></td>
+    </tr>`).join('');
+  setTimeout(()=>{bindMobileFocusHandlers();},0);
+}
+
+function addSample(){
+  if(samples.length>=8){alert('최대 8구간까지 입력 가능해요');return;}
+  samples.push({len:'',wid:'',norm:'',d50:''});
+  renderSamples();
+}
+function removeSample(){
+  const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
+  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
+  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
+  const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
+  const needed=getSampleCount(surveyArea);
+  if(samples.length<=needed){ document.getElementById('delete-limit-overlay').classList.add('show'); return; }
+  samples.pop(); renderSamples(); calcTotals();
+}
+
+// ── 길이 일괄 ─────────────────────────────────────
+function toggleBatchLen(){
+  const chk=document.getElementById('batch-len-chk');
+  const val=document.getElementById('batch-len-val');
+  if(chk.checked){ if(!val.value&&samples.length>0&&samples[0].len) val.value=samples[0].len; val.focus(); val.select?.(); }
+}
+function onBatchLenInput(el){ el.classList.toggle('filled',el.value!==''); }
+function applyBatchLen(){
+  const chk=document.getElementById('batch-len-chk');
+  if(!chk.checked) return;
+  const val=normalizeDim(document.getElementById('batch-len-val').value);
+  if(!val) return;
+  vibrate([20]);
+  samples.forEach(s=>{s.len=val;});
+  renderSamples(); calcTotals(); saveState();
+}
+function syncBatchLenFromSample(val){
+  const inp=document.getElementById('batch-len-val');
+  if(inp) inp.value=val||'';
+}
+
+// ── 표본 합계 ─────────────────────────────────────
+function calcTotals(){
+  let tL=0,tW=0,tN=0,tD=0,tA=0,tEff=0;
+  const round2=v=>Math.round(v*100)/100;
+  for(const s of samples){
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
+    const n=parseFloat(s.norm)||0, d=parseFloat(s.d50)||0;
+    tL+=l; tW+=w; tN+=n; tD+=d;
+    tA+=round2(l*w);
+    tEff+=n+d*0.5;
+  }
+  document.getElementById('t-len').textContent=tL>0?tL.toFixed(2)+'m':'-';
+  document.getElementById('t-wid').textContent=tW>0?tW.toFixed(2)+'m':'-';
+  document.getElementById('t-norm').textContent=tN>0?tN.toLocaleString():'−';
+  document.getElementById('t-d50').textContent=tD>0?tD.toLocaleString():'−';
+  document.getElementById('s-area').textContent=tA>0?tA.toFixed(2)+' ㎡':'-';
+  document.getElementById('s-unit').textContent=tA>0?((tEff/1000)/tA).toFixed(4)+' kg/㎡':'-';
+  // 병충해 합계도 갱신
+  updateBugTotals();
+  calc();
+  saveState();
+}
+
+// ── 병충해 ────────────────────────────────────────
+function setBugYn(yn){
+  bugYn=yn;
+  const rY=document.getElementById('radio-yes'), rN=document.getElementById('radio-no');
+  const dY=document.getElementById('radio-yes-dot'), dN=document.getElementById('radio-no-dot');
+  if(yn==='yes'){
+    rY.style.borderColor='#d97706'; dY.style.background='#d97706';
+    rN.style.borderColor='#ccc';   dN.style.background='transparent';
+    document.getElementById('bug-config').style.display='block';
+    if(bugRows.length===0) addBugRow();
+  } else {
+    rN.style.borderColor='#888';   dN.style.background='#888';
+    rY.style.borderColor='#ccc';   dY.style.background='transparent';
+    document.getElementById('bug-config').style.display='none';
+  }
+  updateBugTotals(); calc(); saveState();
+}
+
+function sampleNoOpts(sel){
+  const n=Math.max(samples.length,1);
+  return Array.from({length:n},(_,i)=>`<option value="${i+1}"${sel===i+1?' selected':''}>${i+1}구간</option>`).join('');
+}
+
+function calcBugLoss(r){
+  if(bugYn!=='yes') return 0;
+  const w=parseFloat(r.weight)||0, rate=(parseFloat(r.rate)||0)/100, g=GRADE_RATE[r.grade]||0;
+  return (w&&rate&&g)?w*rate*g:0;
+}
+
+function renderBugTable(){
+  if(bugYn!=='yes'){ document.getElementById('bug-body').innerHTML=''; updateBugTotals(); return; }
+  document.getElementById('bug-body').innerHTML=bugRows.map((r,i)=>{
+    const nv=r.name&&r.grade?`${r.name}|${r.grade}`:'';
+    const loss=calcBugLoss(r);
     return `<tr>
-      <td style="font-weight:700;color:var(--sub);font-size:11px;text-align:center">${i+1}</td>
-      <td style="background:#fff9f0;padding:2px">
-        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:11px;background:#fff9f0;color:var(--text);text-align:center;-webkit-appearance:none"
-          onchange="onBugRowNameChange(${i},this.value);calcTotals();calc()">
-          ${BUG_ALL_OPTS.replace(`value="${nameVal}"`,`value="${nameVal}" selected`)}
+      <td style="padding:2px">
+        <select style="width:100%;height:32px;border:1.5px solid #d1a060;border-radius:6px;font-size:11px;background:#fffbeb;-webkit-appearance:none;text-align:center"
+          onchange="bugRows[${i}].sampleNo=parseInt(this.value);saveState()">
+          ${sampleNoOpts(r.sampleNo)}
         </select>
       </td>
       <td style="background:#fff9f0;padding:2px">
-        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:12px;background:#fff9f0;color:var(--text);text-align:center;-webkit-appearance:none"
-          onchange="samples[${i}].bugRate=parseInt(this.value);calcTotals();calc()">
+        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:10px;background:#fff9f0;-webkit-appearance:none"
+          onchange="(function(v){if(!v){bugRows[${i}].name='';bugRows[${i}].grade=''}else{const p=v.split('|');bugRows[${i}].name=p[0];bugRows[${i}].grade=p[1];}updateBugTotals();calc();saveState();})(this.value)">
+          ${BUG_OPTS.replace(`value="${nv}"`,`value="${nv}" selected`)}
+        </select>
+      </td>
+      <td style="background:#fff9f0;padding:2px">
+        <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:12px;background:#fff9f0;-webkit-appearance:none;text-align:center"
+          onchange="bugRows[${i}].rate=parseInt(this.value)||0;updateBugTotals();calc();saveState()">
           <option value="">-%</option>
-          ${RATE_OPTS.replace(`value="${s.bugRate}"`,`value="${s.bugRate}" selected`)}
+          ${RATE_OPTS.replace(`value="${r.rate||''}"`,`value="${r.rate||''}" selected`)}
         </select>
       </td>
       <td style="background:#fffbf0;padding:2px">
-        <input type="number" value="${s.bugW||''}" inputmode="decimal"
-          class="${s.bugW?'filled':''}"
+        <input type="text" value="${r.weight?Number(r.weight).toLocaleString():''}" inputmode="decimal"
+          class="${r.weight?'filled':''}"
           style="height:32px;background:#fffbf0;border-color:#f0c080"
-          oninput="samples[${i}].bugW=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-          onblur="calc()">
+          oninput="onCommaInput(this);bugRows[${i}].weight=this.value.replace(/,/g,'');updateBugTotals()"
+          onblur="bugRows[${i}].weight=this.value.replace(/,/g,'');updateBugTotals();calc();saveState()">
       </td>
       <td style="background:#fffde0;padding:2px">
         <input type="text" value="${loss>0?loss.toFixed(1)+' g':''}" readonly
-          style="height:32px;background:#fffde0;border-color:#e0c060;color:#8a5f00;font-weight:700;font-size:11px">
+          style="height:32px;background:#fffde0;border-color:#e0c060;color:#8a5f00;font-weight:700;font-size:10px">
       </td>
     </tr>`;
   }).join('');
   bindMobileFocusHandlers();
 }
 
-function onBugRowNameChange(i, val){
-  if(!val){ samples[i].bugName=''; samples[i].bugGrade=''; return; }
-  const [name, grade] = val.split('|');
-  samples[i].bugName = name;
-  samples[i].bugGrade = grade;
+function updateBugTotals(){
+  let tW=0,tL=0;
+  bugRows.forEach(r=>{tW+=parseFloat(r.weight)||0; tL+=calcBugLoss(r);});
+  document.getElementById('t-bugw').textContent=tW>0?tW.toLocaleString()+' g':'-';
+  document.getElementById('t-bugloss').textContent=tL>0?tL.toFixed(1)+' g':'-';
+  document.getElementById('s-bug').textContent=tL>0?(tL/1000).toFixed(3)+' kg':'-';
 }
 
-// ── 행별 병충해 감수량 (g) ────────────────────────
-function calcBugLossRow(s){
-  if(bugYn !== 'yes') return 0;
-  const w = parseFloat(s.bugW)||0;
-  const r = (parseFloat(s.bugRate)||0)/100;
-  const g = GRADE_RATE[s.bugGrade]||0;
-  return (w && r && g) ? w * r * g : 0;
-}
-function calcCommon(){
-  const avgYield = toNum(document.getElementById('avgYield'));
-  const insArea  = toNum(document.getElementById('insArea'));
-  const actArea  = toNum(document.getElementById('actArea'));
-  const deadArea = parseFloat(document.getElementById('deadArea').value)||0;
-  const uninsArea= parseFloat(document.getElementById('uninsArea').value)||0;
-  const preArea  = parseFloat(document.getElementById('preArea').value)||0;
-  const realArea = actArea || insArea;
-
-  // 조사대상면적 = 실경작 - 고사 - 타작물미보상 - 기수확
-  const surveyArea = Math.max(0, realArea - deadArea - uninsArea - preArea);
-  document.getElementById('surveyArea').value = surveyArea > 0 ? surveyArea.toLocaleString() + ' ㎡' : '';
-
-  // 계약변경 여부
-  const areaErr = (insArea > 0 && actArea > 0) ? (actArea - insArea) / insArea : 0;
-  const contractEl = document.getElementById('contractYn');
-  if(insArea > 0 && actArea > 0){
-    const isChanged = Math.abs(areaErr) > 0.1;
-    contractEl.value = isChanged ? '원장변경 대상' : '이상무';
-    contractEl.style.color = isChanged ? '#e24b4a' : '#1D9E75';
-    contractEl.style.fontWeight = '700';
-  } else {
-    contractEl.value = '';
-    contractEl.style.color = '';
-    contractEl.style.fontWeight = '';
-  }
-
-  // 면적 오차 10% 초과 시 평년수확량 보정
-  const effAvg = (insArea > 0 && actArea > 0 && Math.abs(areaErr) > 0.1)
-    ? Math.round(avgYield * (actArea / insArea) * 10) / 10 : avgYield;
-
-  const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0) / 100;
-
-  return { avgYield, insArea, actArea, realArea, surveyArea, effAvg, uninsRate,
-           deadArea, uninsArea, preArea };
-}
-
-// ── 표본 렌더링 ───────────────────────────────────
-function gradeOpts(selected){
-  return GRADE_OPTS.map(o=>`<option value="${o.val}" ${o.val===selected?'selected':''}>${o.label}</option>`).join('');
-}
-
-function renderSamples(){
-  // 무게조사 테이블
-  document.getElementById('weight-body').innerHTML = samples.map((s,i)=>`
-    <tr>
-      <td style="font-weight:600;color:var(--sub);font-size:11px">${i+1}</td>
-      <td><input type="number" value="${s.len||''}" inputmode="decimal" step="0.1"
-        class="${s.len?'filled':''}"
-        oninput="samples[${i}].len=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()"></td>
-      <td><input type="number" value="${s.wid||''}" inputmode="decimal" step="0.1"
-        class="${s.wid?'filled':''}"
-        oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()"></td>
-      <td class="col-normal" style="border-left:2px solid #b5dca0">
-        <input type="number" value="${s.normal||''}" inputmode="decimal"
-        class="${s.normal?'filled':''}"
-        oninput="samples[${i}].normal=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()"></td>
-      <td class="col-dmg50">
-        <input type="number" value="${s.dmg50||''}" inputmode="decimal"
-        class="${s.dmg50?'filled':''}"
-        oninput="samples[${i}].dmg50=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()"></td>
-    </tr>`).join('');
-
+function addBugRow(){
+  const n=samples.length>0?1:1;
+  bugRows.push({sampleNo:n,name:'',grade:'',rate:'',weight:''});
   renderBugTable();
-  calcTotals();
-  bindMobileFocusHandlers();
+}
+function removeBugRow(){
+  if(bugRows.length===0) return;
+  bugRows.pop(); renderBugTable(); updateBugTotals(); calc(); saveState();
 }
 
-// 행별 병충해 감수량 계산 (g)
-function calcBugLossRow(s){
-  let loss = 0;
-  const b1w = parseFloat(s.bug1w)||0;
-  const b1r = (parseFloat(s.bug1rate)||0)/100;
-  const b1g = GRADE_RATE[s.bug1grade] || 0;
-  const b2w = parseFloat(s.bug2w)||0;
-  const b2r = (parseFloat(s.bug2rate)||0)/100;
-  const b2g = GRADE_RATE[s.bug2grade] || 0;
-  if(b1w && b1g) loss += b1w * b1r * b1g;
-  if(b2w && b2g) loss += b2w * b2r * b2g;
-  return loss > 0 ? loss.toFixed(1) + ' g' : '';
-}
-
-// ── 합계 계산 ─────────────────────────────────────
-function calcTotals(){
-  let tLen=0,tWid=0,tNormal=0,tDmg50=0,tBugW=0,tBugLoss=0;
-  samples.forEach(s=>{
-    tLen    += parseFloat(s.len)||0;
-    tWid    += parseFloat(s.wid)||0;
-    tNormal += parseFloat(s.normal)||0;
-    tDmg50  += parseFloat(s.dmg50)||0;
-    tBugW   += parseFloat(s.bugW)||0;
-    tBugLoss += calcBugLossRow(s);
-  });
-
-  document.getElementById('t-len').textContent    = tLen>0?tLen.toFixed(1)+' m':'-';
-  document.getElementById('t-wid').textContent    = tWid>0?tWid.toFixed(1)+' m':'-';
-  document.getElementById('t-normal').textContent = tNormal>0?tNormal.toLocaleString()+' g':'-';
-  document.getElementById('t-dmg50').textContent  = tDmg50>0?tDmg50.toLocaleString()+' g':'-';
-  document.getElementById('t-bug1w').textContent  = tBugW>0?tBugW.toLocaleString()+' g':'-';
-  document.getElementById('t-bugLoss').textContent= tBugLoss>0?tBugLoss.toFixed(1)+' g':'-';
-  document.getElementById('s-bug').textContent    = tBugLoss>0?(tBugLoss/1000).toFixed(3)+' kg':'-';
-
-  // 행별 감수량 업데이트
-  const bugRows = document.querySelectorAll('#bug-body tr');
-  bugRows.forEach((tr,i)=>{
-    const inp = tr.querySelector('input[readonly]');
-    if(inp && samples[i]){
-      const v = calcBugLossRow(samples[i]);
-      inp.value = v>0 ? v.toFixed(1)+' g' : '';
-    }
-  });
-}
+function openGradeModal(){ document.getElementById('grade-overlay').style.display='flex'; }
+function closeGradeModal(){ document.getElementById('grade-overlay').style.display='none'; }
 
 // ── 메인 계산 ─────────────────────────────────────
 function calc(){
-  const {effAvg, surveyArea, uninsRate, deadArea, uninsArea, preArea} = calcCommon();
+  const avgYield=toNum(document.getElementById('avg_yield'));
+  const insArea=toNum(document.getElementById('ins_area'));
+  const actArea=toNum(document.getElementById('act_area'))||insArea;
+  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
+  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
+  const uninsRate=(parseFloat(document.getElementById('unins_rate').value)||0)/100;
 
-  const proper = surveyArea > 0 ? getProper(surveyArea) : 0;
-  document.getElementById('sample-badge').textContent = samples.length>0 ? `(${samples.length}구간)` : '';
+  const areaErrNum=insArea>0?(actArea-insArea)/insArea:0;
+  const isChanged=insArea>0&&actArea>0&&Math.abs(areaErrNum)>0.1;
+  const effArea=(!isChanged&&insArea>0)?insArea:actArea;
+  const surveyArea=Math.max(0,effArea-deadArea-otherArea-harvArea);
 
-  if(proper > 0 && samples.length === 0){
-    for(let i=0;i<proper;i++) samples.push(emptySample());
-    renderSamples();
-  }
+  // 자동계산 표시
+  document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
+  const contractEl=document.getElementById('contract_yn_disp');
+  if(insArea>0&&actArea>0){
+    contractEl.value=isChanged?'여':'부';
+    contractEl.style.color=isChanged?'#e24b4a':'#185FA5';
+    contractEl.style.fontWeight='700';
+  } else { contractEl.value=''; contractEl.style.color=''; }
 
-  // 표본 면적 및 수확량 합산
-  let totalArea = 0, totalSurveyG = 0, totalBugLossG = 0;
-  let inputted = 0;
-  samples.forEach(s=>{
-    const l = parseFloat(s.len)||0, w = parseFloat(s.wid)||0;
-    if(l && w){
-      totalArea += Math.round(l*w*100)/100;
-    }
-    // 표본구간 수확량 합계 = 정상 + (50%피해 × 0.5) + 병충해피해중량
-    const norm  = parseFloat(s.normal)||0;
-    const d50   = parseFloat(s.dmg50)||0;
-    const bugW  = parseFloat(s.bugW)||0;
-    const rowSurvey = norm + d50*0.5 + bugW;
-    totalSurveyG += rowSurvey;
+  if(avgYield&&effArea>0){} // avg_unit removed
 
-    // 병충해 감수량
-    totalBugLossG += calcBugLossRow(s);
+  const resultBox=document.getElementById('result-section');
+  const pctEl=document.getElementById('result-pct');
 
-    if(norm || d50 || bugW) inputted++;
-  });
-
-  const resultBox = document.getElementById('result-section');
-  const pctEl = document.getElementById('result-pct');
-
-  if(!effAvg || !surveyArea || totalArea === 0 || inputted === 0){
-    resultBox.className='result-box pending';
-    pctEl.textContent='입력 대기중';
-    document.getElementById('result-detail').style.display='none';
+  if(!avgYield||!actArea||surveyArea<=0){
+    resultBox.className='result-box pending'; pctEl.textContent='- -';
     return;
   }
 
-  // 단위면적당 수확량 (kg/㎡) - 표본구간
-  const unitYield = totalSurveyG / totalArea / 1000;  // kg/㎡
-  // 표본조사 수확량 = 단위면적당 수확량 × 조사대상면적
-  const surveyYield = Math.round(unitYield * surveyArea);
+  // 표본 면적·수확량
+  const round2=v=>Math.round(v*100)/100;
+  const round3=v=>Math.round(v*1000)/1000;
+  let tA=0,tEff=0;
+  for(const s of samples){
+    const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
+    const n=parseFloat(s.norm)||0,d=parseFloat(s.d50)||0;
+    tA+=round2(l*w);
+    tEff+=n+d*0.5;
+  }
+  const effAvg=isChanged?Math.round(avgYield/insArea*actArea):avgYield;
 
-  // 단위면적당 평년수확량 × (타작물미보상 + 기수확면적)
-  const unitAvg = effAvg / (toNum(document.getElementById('actArea')) || toNum(document.getElementById('insArea')));
-  const addYield = Math.round(unitAvg * (uninsArea + preArea));
+  if(tA<=0||tEff<=0){
+    resultBox.className='result-box pending'; pctEl.textContent='- -';
+    return;
+  }
 
-  // 실제 수확량 = 조사수확량 + 추가
-  const totalYield = surveyYield + addYield;
+  // ③ 단위면적당 수확량
+  const unitYield=round3(tEff/1000/tA);
+  // ④ 조사수확량 = 단위면적당 × 조사대상 + 단위평년 × (타작물+기수확)
+  const unitAvg=insArea>0?effAvg/insArea:0;
+  const survYield=Math.round(unitYield*surveyArea+unitAvg*(otherArea+harvArea));
 
-  // 병충해 감수량 kg
-  const bugLossKg = totalBugLossG / 1000 * (surveyArea / totalArea);
+  // 병충해 감수량
+  const bugLoss=bugRows.reduce((s,r)=>s+calcBugLoss(r),0)/1000;
 
   // 미보상감수량
-  const uninsLoss = Math.round(Math.max(0, effAvg - totalYield) * uninsRate);
+  const rawLoss=Math.max(0,effAvg-survYield);
+  const uninsLoss=Math.round(rawLoss*uninsRate);
 
-  // 피해율 = (평년 - 수확량 - 미보상 + 병충해) / 평년
-  const pihaeyul = Math.max(0,
-    Math.round((effAvg - totalYield - uninsLoss + bugLossKg) / effAvg * 10000) / 10000
-  );
+  // 피해율
+  const pihaeyul=Math.max(0,Math.round((effAvg-survYield-uninsLoss+bugLoss)/effAvg*10000)/100);
 
-  // UI 업데이트
-  document.getElementById('s-area').textContent = totalArea.toFixed(2) + ' ㎡';
-  document.getElementById('s-unit').textContent = unitYield.toFixed(3) + ' kg/㎡';
-  document.getElementById('s-bug').textContent  = Math.round(bugLossKg*10)/10 + ' kg';
-
-  resultBox.className = 'result-box';
-  pctEl.textContent = (pihaeyul * 100).toFixed(2) + '%';
-
-  // 상세 결과
-  document.getElementById('result-detail').style.display = 'block';
-  document.getElementById('r-avg').textContent    = effAvg.toLocaleString() + ' kg';
-  document.getElementById('r-survey').textContent = totalYield.toLocaleString() + ' kg';
-  document.getElementById('r-bugLoss').textContent= Math.round(bugLossKg*10)/10 + ' kg';
-  document.getElementById('r-unins').textContent  = uninsLoss.toLocaleString() + ' kg';
-  document.getElementById('r-pct2').textContent   = (pihaeyul*100).toFixed(2) + '%';
-
+  resultBox.className='result-box';
+  pctEl.textContent=pihaeyul.toFixed(2)+'%';
+  pctEl.style.color=pihaeyul>=20?'#FFD0D0':'#d4f7b0';
   saveState();
-}
-
-// ── 표본 추가/삭제 ────────────────────────────────
-function emptySample(){
-  return { len:'', wid:'', normal:'', dmg50:'',
-           bugName:'', bugGrade:'', bugRate:'', bugW:'' };
-}
-
-function addRow(){
-  if(samples.length >= 8){ alert('최대 8구간까지 입력 가능해요'); return; }
-  samples.push(emptySample());
-  renderSamples();
-}
-
-function removeSample(){
-  const {surveyArea} = calcCommon();
-  const proper = surveyArea > 0 ? getProper(surveyArea) : 0;
-  if(samples.length <= proper){
-    document.getElementById('delete-limit-overlay').classList.add('show');
-    return;
-  }
-  samples.pop(); renderSamples(); calc();
 }
 
 // ── 계산하기/수정하기 ─────────────────────────────
 function setCalcMode(){
-  _isLocked = true;
+  vibrate([30,40,60]);
+  _isLocked=true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
-  saveState();
+  saveHistory(); saveState();
 }
 function setEditMode(){
-  _isLocked = false;
+  _isLocked=false;
   document.querySelector('.content').classList.remove('locked');
   document.getElementById('btn-edit').classList.add('active');
   document.getElementById('btn-calc').classList.remove('active');
   saveState();
 }
 
-// ── 모바일 포커스 ──────────────────────────────────
-function bindMobileFocusHandlers(){
-  document.querySelectorAll('input.inp, tbody td input').forEach(el=>{
-    if(el.dataset.mfb === '1') return;
-    el.dataset.mfb = '1';
-    el.addEventListener('focus', ()=>{ el.classList.add('mobile-focus'); }, {passive:true});
-    el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
-    el.addEventListener('touchend', (e)=>{
-      if(el.readOnly) return;
-      if(e.cancelable) e.preventDefault();
-      const wasFilled = el.classList.contains('filled');
-      el.focus();
-      if(wasFilled){ el.value=''; el.classList.remove('filled'); }
-    }, {passive:false});
-  });
+// ── 크게보기 ──────────────────────────────────────
+function toggleBigText(){
+  const on=document.body.classList.toggle('big-text');
+  document.getElementById('bigtext-btn').classList.toggle('on',on);
+  document.getElementById('bigtext-label').textContent=on?'원래대로':'크게';
+  try{localStorage.setItem('potato_bigtext',on?'1':'0');}catch(e){}
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  bindMobileFocusHandlers();
-  document.addEventListener('click', ()=>{ setTimeout(bindMobileFocusHandlers, 0); }, {passive:true});
-});
 
-// ── 저장/불러오기 ──────────────────────────────────
-function saveState(){
-  try{
-    localStorage.setItem('potato_state', JSON.stringify({
-      avgYield: document.getElementById('avgYield').value,
-      insArea:  document.getElementById('insArea').value,
-      actArea:  document.getElementById('actArea').value,
-      deadArea: document.getElementById('deadArea').value,
-      uninsArea:document.getElementById('uninsArea').value,
-      preArea:  document.getElementById('preArea').value,
-      uninsRate:document.getElementById('uninsRate').value,
-      samples, isLocked: _isLocked,
-      bugYn, bug1, bug2, bug2visible,
-    }));
-  }catch(e){}
+// ── 이전 기록 ─────────────────────────────────────
+function openHistoryModal(){
+  const list=document.getElementById('history-list');
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('potato_history')||'[]');}catch(e){}
+  if(records.length===0){
+    list.innerHTML='<div style="text-align:center;color:#aaa;padding:30px 0;font-size:14px">저장된 기록이 없습니다</div>';
+  } else {
+    list.innerHTML=records.slice().reverse().map((r,ri)=>{
+      const idx=records.length-1-ri;
+      return `<div style="border:1.5px solid #e0ecd0;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;background:white"
+        onclick="loadHistoryRecord(${idx})"
+        onmouseenter="this.style.background='#eaf3e0'" onmouseleave="this.style.background='white'">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:15px;font-weight:800;color:var(--green)">${r.farm_no?'농지 '+r.farm_no:'농지번호 미입력'}</span>
+          <span style="font-size:11px;color:#aaa">${r.saved_at||''}</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <span style="font-size:12px;color:#555">🥔 감자</span>
+          <span style="font-size:12px;color:#555">📐 ${r.act_area||r.ins_area||'-'} ㎡</span>
+          <span style="font-size:12px;color:#555">📊 ${r.pct!=null?r.pct+'%':'-'}</span>
+          <span style="font-size:12px;color:#555">🗓 ${r.survey_date||'-'}</span>
+        </div>
+        <div style="margin-top:6px;display:flex;justify-content:flex-end;gap:6px">
+          <button onclick="event.stopPropagation();deleteHistoryRecord(${idx})" style="height:26px;padding:0 10px;border:1px solid #ffb3b3;border-radius:6px;background:white;color:#e24b4a;font-size:11px;font-weight:700;cursor:pointer">삭제</button>
+          <button onclick="event.stopPropagation();loadHistoryRecord(${idx})" style="height:26px;padding:0 10px;border:none;border-radius:6px;background:var(--green);color:white;font-size:11px;font-weight:700;cursor:pointer">불러오기</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('history-overlay').classList.add('show');
 }
+function closeHistoryModal(){ document.getElementById('history-overlay').classList.remove('show'); }
+
+function loadHistoryRecord(idx){
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('potato_history')||'[]');}catch(e){}
+  const r=records[idx]; if(!r) return;
+  if(r.samples&&r.samples.length>0) samples=JSON.parse(JSON.stringify(r.samples));
+  if(r.bugRows) bugRows=JSON.parse(JSON.stringify(r.bugRows));
+  ['farm_no','avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','survey_date'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.value=r[id]||''; el.classList.toggle('filled',!!(r[id]));
+  });
+  closeHistoryModal();
+  if(r.bugYn) setBugYn(r.bugYn); else setBugYn('no');
+  renderSamples(); renderBugTable(); calcTotals(); calc(); saveState();
+}
+
+function deleteHistoryRecord(idx){
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('potato_history')||'[]');}catch(e){}
+  records.splice(idx,1);
+  try{localStorage.setItem('potato_history',JSON.stringify(records));}catch(e){}
+  openHistoryModal();
+}
+
+function saveHistory(){
+  const farmNo=(document.getElementById('farm_no')?.value||'').trim();
+  const surveyDate=document.getElementById('survey_date')?.value||'';
+  const pct=document.getElementById('result-pct')?.textContent;
+  if(!pct||pct==='- -') return;
+  const record={
+    farm_no:farmNo, avg_yield:document.getElementById('avg_yield').value,
+    ins_area:document.getElementById('ins_area').value, act_area:document.getElementById('act_area').value,
+    dead_area:document.getElementById('dead_area').value, other_area:document.getElementById('other_area').value,
+    harv_area:document.getElementById('harv_area').value, unins_rate:document.getElementById('unins_rate').value,
+    survey_date:surveyDate, samples:JSON.parse(JSON.stringify(samples)),
+    bugRows:JSON.parse(JSON.stringify(bugRows)), bugYn:bugYn, pct:pct,
+    saved_at:new Date().toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/ /g,'')
+  };
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem('potato_history')||'[]');}catch(e){}
+  const ei=farmNo?records.findIndex(r=>r.farm_no===farmNo&&r.survey_date===surveyDate):-1;
+  if(ei>=0) records[ei]=record; else records.push(record);
+  if(records.length>30) records=records.slice(-30);
+  try{localStorage.setItem('potato_history',JSON.stringify(records));}catch(e){}
+}
+
+// ── 저장/불러오기 ─────────────────────────────────
+function saveState(){
+  const state={
+    farm_no:document.getElementById('farm_no').value,
+    avg_yield:document.getElementById('avg_yield').value,
+    ins_area:document.getElementById('ins_area').value,
+    act_area:document.getElementById('act_area').value,
+    dead_area:document.getElementById('dead_area').value,
+    other_area:document.getElementById('other_area').value,
+    harv_area:document.getElementById('harv_area').value,
+    unins_rate:document.getElementById('unins_rate').value,
+    survey_date:document.getElementById('survey_date').value,
+    samples, bugRows, bugYn, isLocked:_isLocked
+  };
+  try{localStorage.setItem('potato_state',JSON.stringify(state));}catch(e){}
+}
+
 function loadState(){
   try{
-    const raw = localStorage.getItem('potato_state');
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el && s[id] !== undefined && s[id] !== ''){
-        el.value = s[id]; el.classList.add('filled');
+    const raw=localStorage.getItem('potato_state'); if(!raw) return false;
+    const s=JSON.parse(raw);
+    ['farm_no','avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','survey_date'].forEach(id=>{
+      if(s[id]!==undefined&&s[id]!==''){
+        const el=document.getElementById(id); el.value=s[id]; el.classList.add('filled');
       }
     });
-    if(s.bugYn) setBugYn(s.bugYn);
-    if(s.bug1)  { bug1 = s.bug1; }
-    if(s.bug2)  { bug2 = s.bug2; }
-    if(s.bug2visible) { bug2visible = true; showBug2(); }
-    // 드롭다운/버튼 복원
-    if(bug1.name && bug1.grade){
-      const sel = document.getElementById('bug1-name');
-      if(sel) sel.value = `${bug1.name}|${bug1.grade}`;
-      const disp = document.getElementById('bug1-grade-display');
-      if(disp) disp.value = GRADE_LABEL[bug1.grade]||'';
-    }
-    if(bug1.rate) setBugRate(1, bug1.rate);
-    if(bug2.name && bug2.grade){
-      const sel = document.getElementById('bug2-name');
-      if(sel) sel.value = `${bug2.name}|${bug2.grade}`;
-      const disp = document.getElementById('bug2-grade-display');
-      if(disp) disp.value = GRADE_LABEL[bug2.grade]||'';
-    }
-    if(bug2.rate) setBugRate(2, bug2.rate);
-    if(s.samples && s.samples.length > 0){ samples = s.samples; renderSamples(); }
-    if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
-  }catch(e){}
+    if(s.samples&&s.samples.length>0) samples=s.samples;
+    if(s.bugRows) bugRows=s.bugRows;
+    if(s.bugYn) bugYn=s.bugYn;
+    if(s.isLocked) setTimeout(()=>{
+      _isLocked=true;
+      document.querySelector('.content')?.classList.add('locked');
+      document.getElementById('btn-calc')?.classList.add('active');
+      document.getElementById('btn-edit')?.classList.remove('active');
+    },0);
+    return true;
+  }catch(e){return false;}
 }
 
 // ── 초기화 ────────────────────────────────────────
 function resetAll(){
-  try{ localStorage.removeItem('potato_state'); }catch(e){}
-  ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el){ el.value=''; el.classList.remove('filled'); el.style.color=''; el.style.fontWeight=''; }
+  try{localStorage.removeItem('potato_state');}catch(e){}
+  ['farm_no','avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
-  samples = [];
-  bugYn='no'; bug1={name:'',grade:'',rate:0}; bug2={name:'',grade:'',rate:0}; bug2visible=false;
-  document.getElementById('weight-body').innerHTML = '';
-  document.getElementById('bug-body').innerHTML = '';
-  document.getElementById('bug-config').style.display = 'none';
+  samples=[]; bugRows=[]; bugYn='no';
+  document.getElementById('survey_date').value=fmt(new Date());
+  document.getElementById('survey_date').classList.add('filled');
   document.getElementById('radio-yes').style.borderColor='#ccc';
   document.getElementById('radio-yes-dot').style.background='transparent';
   document.getElementById('radio-no').style.borderColor='#ccc';
   document.getElementById('radio-no-dot').style.background='transparent';
-  document.getElementById('sample-badge').textContent = '';
-  document.getElementById('s-area').textContent = '-';
-  document.getElementById('s-unit').textContent = '-';
-  document.getElementById('s-bug').textContent  = '-';
-  document.getElementById('result-section').className = 'result-box pending';
-  document.getElementById('result-pct').textContent = '입력 대기중';
-  document.getElementById('result-detail').style.display = 'none';
-  _isLocked = false;
-  document.querySelector('.content').classList.remove('locked');
-  document.getElementById('btn-edit').classList.add('active');
-  document.getElementById('btn-calc').classList.remove('active');
-  window.scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('bug-config').style.display='none';
+  document.getElementById('survey_area_disp').value='';
+  document.getElementById('contract_yn_disp').value='';
+  _isLocked=false; setEditMode();
+  renderSamples(); renderBugTable();
+  document.getElementById('result-section').className='result-box pending';
+  document.getElementById('result-pct').textContent='- -';
+  document.getElementById('s-bug').textContent='-';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── 이미지 저장 (추후 구현) ───────────────────────
+// ── 갤러리 저장 ───────────────────────────────────
 async function saveImage(){
-  alert('저장 기능은 곧 추가될 예정이에요 🥔');
+  try{
+    if(document.getElementById('result-section').classList.contains('pending')){
+      alert('계산 결과가 없어요. 값을 입력해주세요.'); return;
+    }
+    // 캡처 데이터 채우기
+    const farmNo=(document.getElementById('farm_no')?.value||'').trim();
+    const survDate=document.getElementById('survey_date')?.value||'';
+    document.getElementById('cap-date-disp').textContent=survDate;
+    document.getElementById('cap-farmno-disp').textContent=farmNo?'농지번호: '+farmNo:'';
+    document.getElementById('cap-avg-yield').textContent=document.getElementById('avg_yield').value?document.getElementById('avg_yield').value+' kg':'-';
+    document.getElementById('cap-ins-area').textContent=document.getElementById('ins_area').value?document.getElementById('ins_area').value+' ㎡':'-';
+    document.getElementById('cap-survey-date').textContent=survDate||'-';
+    document.getElementById('cap-contract').textContent=document.getElementById('contract_yn_disp').value||'-';
+    document.getElementById('cap-act-area').textContent=document.getElementById('act_area').value?document.getElementById('act_area').value+' ㎡':'-';
+    document.getElementById('cap-dead-area').textContent=(document.getElementById('dead_area').value||'0')+' ㎡';
+    document.getElementById('cap-other-area').textContent=(document.getElementById('other_area').value||'0')+' ㎡';
+    document.getElementById('cap-harv-area').textContent=(document.getElementById('harv_area').value||'0')+' ㎡';
+    // 표본 테이블
+    const tbody=document.getElementById('cap-sample-tbody');
+    tbody.innerHTML=samples.map((s,i)=>`<tr>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px">${i+1}</td>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.len||'-'}</td>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.wid||'-'}</td>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.norm?Number(s.norm).toLocaleString():'-'}</td>
+      <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
+    </tr>`).join('');
+    // 결과
+    document.getElementById('cap-surv').textContent=document.getElementById('result-pct').textContent!=='- -'?'계산완료':'-';
+    document.getElementById('cap-bug').textContent=document.getElementById('s-bug').textContent||'-';
+    document.getElementById('cap-unins').textContent='-';
+    document.getElementById('cap-pct').textContent=document.getElementById('result-pct').textContent||'-';
+
+    const canvas=await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
+    const now=new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    const link=document.createElement('a');
+    link.download=`감자피해율_${stamp}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    document.getElementById('save-done-overlay').classList.add('show');
+  }catch(e){alert('저장 중 오류가 발생했어요.');}
+}
+
+// ── PWA ───────────────────────────────────────────
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
+document.getElementById('btn-install')?.addEventListener('click',async()=>{
+  if(!deferredPrompt)return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null;
+  document.getElementById('install-banner').classList.remove('show');
+});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
+  caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
 }
 
 // ── 초기 실행 ─────────────────────────────────────
-loadState();
-setTimeout(()=>{ calc(); }, 50);
-window.addEventListener('beforeunload', saveState);
+const loaded=loadState();
+// 크게보기 복원
+try{
+  if(localStorage.getItem('potato_bigtext')==='1'){
+    document.body.classList.add('big-text');
+    document.getElementById('bigtext-btn').classList.add('on');
+    document.getElementById('bigtext-label').textContent='원래대로';
+  }
+}catch(e){}
+// 조사일자 오늘
+if(!document.getElementById('survey_date').value){
+  document.getElementById('survey_date').value=fmt(new Date());
+  document.getElementById('survey_date').classList.add('filled');
+}
+// 병충해 라디오 복원
+if(bugYn==='yes') setBugYn('yes'); else setBugYn('no');
+
+window.addEventListener('beforeunload',saveState);
+setTimeout(()=>{
+  if(loaded&&samples.length>0){ renderSamples(); renderBugTable(); calcTotals(); }
+  else updateSamplesAndCalc();
+},50);
 </script>
 </body>
 </html>
