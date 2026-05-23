@@ -521,17 +521,19 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
       <!-- 1. 기본정보 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 기본정보</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
-          <colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden;table-layout:fixed">
+          <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:40%"></colgroup>
           <thead><tr>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">평년수확량</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
-            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">계약변경</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">계약변경</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center"></th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-avg-yield">-</td>
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-ins-area">-</td>
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-contract">-</td>
+            <td style="padding:5px;border-left:1px solid #e0e0e0;background:#fff"></td>
           </tr></tbody>
         </table>
       </div>
@@ -1208,45 +1210,43 @@ async function saveImage(){
       <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
     </tr>`).join('');
 
-    // 3-2 병충해 - 피벗 테이블 (행: 병충해명, 열: 손해정도%, 셀: 중량 합계)
+    // 3-2 병충해 - 행:병충해종류, 열:손해정도%, 셀:구간번호
     const bugSection=document.getElementById('cap-bug-section');
     const bugTbody=document.getElementById('cap-bug-tbody');
     const bugThead=document.getElementById('cap-bug-thead');
-    const activeBugs=bugRows.filter(r=>r.weight);
+    const activeBugs=bugRows.filter(r=>r.name&&r.weight);
     if(bugYn==='yes'&&activeBugs.length>0){
       bugSection.style.display='block';
 
-      // 사용된 손해정도% (오름차순)
-      const rates=[...new Set(activeBugs.map(r=>Number(r.rate)||0))].sort((a,b)=>a-b);
-      // 사용된 병충해명
-      const bugNames=[...new Set(activeBugs.map(r=>r.name||'미선택'))];
+      // 입력된 손해정도% 만 (오름차순)
+      const rates=[...new Set(activeBugs.map(r=>Number(r.rate)||0))].filter(r=>r>0).sort((a,b)=>a-b);
+      // 입력된 병충해명 만
+      const bugNames=[...new Set(activeBugs.map(r=>r.name))];
 
-      // 열 너비: 병충해명 고정, 나머지 균등
-      const nameW=Math.max(22, 80-rates.length*6)+'%';
-      const rateW=((100-parseFloat(nameW))/rates.length).toFixed(1)+'%';
-
-      const thBase='padding:3px 2px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center;font-size:9px;font-weight:700';
+      const thS='padding:4px 3px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center;font-size:10px;font-weight:700';
+      const thSLast='padding:4px 3px;background:#d97706;color:#fff;text-align:center;font-size:10px;font-weight:700';
       bugThead.innerHTML=`<tr>
-        <th style="${thBase};width:${nameW}">병충해 종류</th>
-        ${rates.map((r,ri)=>`<th style="${thBase}${ri===rates.length-1?';border-right:none':''};width:${rateW}">${r}%</th>`).join('')}
+        <th style="${thS}">병충해 종류</th>
+        ${rates.map((r,ri)=>`<th style="${ri===rates.length-1?thSLast:thS}">${r}%</th>`).join('')}
       </tr>`;
 
-      const tdName='padding:3px 2px;border-bottom:1px solid #f0c080;border-right:1px solid #f0c080;font-size:9px;font-weight:700;background:#fff9f0';
-      const tdVal=(hasVal)=>`padding:3px 2px;border-bottom:1px solid #f0c080;border-right:1px solid #f0c080;text-align:center;font-size:10px;font-weight:${hasVal?'700':'400'};background:${hasVal?'#e8faf3':'#fff'}`;
-      const tdValLast=(hasVal)=>`padding:3px 2px;border-bottom:1px solid #f0c080;text-align:center;font-size:10px;font-weight:${hasVal?'700':'400'};background:${hasVal?'#e8faf3':'#fff'}`;
-
+      const tdName='padding:4px 3px;border-bottom:1px solid #f0c080;border-right:1px solid #f0c080;font-size:10px;font-weight:700;background:#fff9f0';
       bugTbody.innerHTML=bugNames.map(name=>{
-        const rowData={};
-        activeBugs.filter(r=>(r.name||'미선택')===name).forEach(r=>{
+        // 이 병충해명 × 각 비율 → 구간번호 목록
+        const cells={};
+        activeBugs.filter(r=>r.name===name).forEach(r=>{
           const rk=Number(r.rate)||0;
-          rowData[rk]=(rowData[rk]||0)+parseFloat(r.weight||0);
+          if(!cells[rk]) cells[rk]=[];
+          cells[rk].push(r.sampleNo||1);
         });
         return `<tr>
           <td style="${tdName}">${name}</td>
           ${rates.map((rate,ri)=>{
-            const val=rowData[rate];
+            const nos=cells[rate];
             const isLast=ri===rates.length-1;
-            return `<td style="${isLast?tdValLast(val):tdVal(val)}">${val?val.toLocaleString():''}</td>`;
+            const bg=nos?'#e8faf3':'#fff';
+            const td=`padding:4px 3px;border-bottom:1px solid #f0c080;${isLast?'':'border-right:1px solid #f0c080;'}text-align:center;font-size:11px;font-weight:${nos?'700':'400'};background:${bg}`;
+            return `<td style="${td}">${nos?nos.join(','):''}</td>`;
           }).join('')}
         </tr>`;
       }).join('');
