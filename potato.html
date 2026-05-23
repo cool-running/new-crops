@@ -376,6 +376,21 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
   </div>
 </div>
 
+<!-- 병충해 없음 선택 확인 모달 -->
+<div id="bug-yn-no-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:24px;margin-bottom:10px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:8px">병충해 입력값 삭제</div>
+    <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.6">입력된 병충해 값이 있습니다.<br>'없음'으로 변경하면 모든 입력값이<br>삭제됩니다. 계속할까요?</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('bug-yn-no-overlay').classList.remove('show')"
+        style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="document.getElementById('bug-yn-no-overlay').classList.remove('show');bugRows=[];_applyBugYn('no')"
+        style="flex:1;height:46px;border-radius:12px;border:none;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer">삭제 후 변경</button>
+    </div>
+  </div>
+</div>
+
 <!-- 병충해 행 삭제 확인 모달 -->
 <div id="bug-del-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
@@ -505,7 +520,7 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-ins-area">-</td>
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-survey-date">-</td>
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-contract">-</td>
-            <td style="padding:5px;border-left:1px solid #e0e0e0"></td>
+            <td style="padding:5px;border-left:1px solid #e0e0e0;background:#fff"></td>
           </tr></tbody>
         </table>
       </div>
@@ -523,10 +538,10 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
           </tr></thead>
           <tbody><tr>
             <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-act-area">-</td>
-            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-dead-area">-</td>
-            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-other-area">-</td>
-            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-harv-area">-</td>
-            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-survey-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-dead-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-other-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-harv-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-survey-area">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -775,6 +790,17 @@ function calcTotals(){
 
 // ── 병충해 ────────────────────────────────────────
 function setBugYn(yn){
+  if(yn==='no' && bugYn==='yes'){
+    // 입력값 있으면 팝업
+    const hasAny=bugRows.some(r=>r.name||String(r.weight||'').trim()||String(r.rate||'').trim());
+    if(hasAny){
+      document.getElementById('bug-yn-no-overlay').classList.add('show');
+      return;
+    }
+  }
+  _applyBugYn(yn);
+}
+function _applyBugYn(yn){
   bugYn=yn;
   const rY=document.getElementById('radio-yes'), rN=document.getElementById('radio-no');
   const dY=document.getElementById('radio-yes-dot'), dN=document.getElementById('radio-no-dot');
@@ -788,7 +814,7 @@ function setBugYn(yn){
     rY.style.borderColor='#ccc';   dY.style.background='transparent';
     document.getElementById('bug-config').style.display='none';
   }
-  updateBugTotals(); calc(); saveState();
+  renderBugTable(); updateBugTotals(); calc(); saveState();
 }
 
 function sampleNoOpts(sel){
@@ -859,7 +885,7 @@ function addBugRow(){
 function removeBugRow(){
   if(bugRows.length===0) return;
   const last=bugRows[bugRows.length-1];
-  const hasData=last.name||last.weight||last.rate;
+  const hasData=!!(last.name||String(last.weight||'').trim()||String(last.rate||'').trim());
   if(hasData){
     document.getElementById('bug-del-overlay').classList.add('show');
   } else {
@@ -1149,25 +1175,42 @@ async function saveImage(){
       <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
     </tr>`).join('');
 
-    // 3-2 병충해 - No / 병충해명 / 비율 / 중량 행 단위
+    // 3-2 병충해 - 피벗 테이블 (행: 병충해명, 열: 손해정도%, 셀: 구간별 중량)
     const bugSection=document.getElementById('cap-bug-section');
     const bugTbody=document.getElementById('cap-bug-tbody');
     const bugThead=document.getElementById('cap-bug-thead');
     const activeBugs=bugRows.filter(r=>r.weight);
     if(bugYn==='yes'&&activeBugs.length>0){
       bugSection.style.display='block';
+
+      // 사용된 손해정도% 목록 (오름차순)
+      const rates=[...new Set(activeBugs.map(r=>r.rate||0))].sort((a,b)=>a-b);
+      // 사용된 병충해명 목록
+      const bugNames=[...new Set(activeBugs.map(r=>r.name||'미선택'))];
+
+      // 헤더: 병충해 종류 | 10% | 20% | ...
+      const thStyle='padding:4px 3px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center;font-size:10px';
       bugThead.innerHTML=`<tr>
-        <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">No</th>
-        <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">병충해명</th>
-        <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">비율</th>
-        <th style="padding:5px;background:#d97706;color:#fff;text-align:center">중량(g)</th>
+        <th style="${thStyle}">병충해 종류</th>
+        ${rates.map(r=>`<th style="${thStyle}">${r}%</th>`).join('')}
       </tr>`;
-      bugTbody.innerHTML=activeBugs.map((r,i)=>`<tr>
-        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;font-weight:700">${r.sampleNo||1}</td>
-        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${r.name||'-'}</td>
-        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${r.rate?r.rate+'%':'-'}</td>
-        <td style="padding:4px;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${r.weight?Number(r.weight).toLocaleString():'-'}</td>
-      </tr>`).join('');
+
+      // 행: 병충해명 × 열: 손해정도% → 셀: 해당 조합의 중량 합계
+      const tdStyle=(hasBorder)=>`padding:4px 3px;border-bottom:1px solid #f0c080;${hasBorder?'border-right:1px solid #f0c080;':''}text-align:center;font-size:11px`;
+      bugTbody.innerHTML=bugNames.map(name=>{
+        const rowData={};
+        activeBugs.filter(r=>(r.name||'미선택')===name).forEach(r=>{
+          const rk=r.rate||0;
+          rowData[rk]=(rowData[rk]||0)+parseFloat(r.weight||0);
+        });
+        return `<tr>
+          <td style="${tdStyle(true)}background:#fff9f0;font-weight:700;font-size:10px">${name}</td>
+          ${rates.map((rate,ri)=>{
+            const val=rowData[rate];
+            return `<td style="${tdStyle(ri<rates.length-1)}background:${val?'#e8faf3':'#fff'};font-weight:${val?'700':'400'}">${val?val.toLocaleString():''}</td>`;
+          }).join('')}
+        </tr>`;
+      }).join('');
     } else {
       bugSection.style.display='none';
     }
