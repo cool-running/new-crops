@@ -521,8 +521,8 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
       <!-- 1. 기본정보 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 기본정보</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden;table-layout:fixed">
-          <colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup>
+        <table style="width:60%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden;table-layout:fixed">
+          <colgroup><col style="width:33%"><col style="width:34%"><col style="width:33%"></colgroup>
           <thead><tr>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">평년수확량</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
@@ -1208,7 +1208,7 @@ async function saveImage(){
       <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
     </tr>`).join('');
 
-    // 3-2 병충해: 행=표본구간, 열=병충해종류+손해정도%(10~100), 셀=중량
+    // 3-2 병충해: 행=표본구간, 헤더2행(No|병충해종류|손해정도비율→%), 셀=중량
     const bugSection=document.getElementById('cap-bug-section');
     const bugTbody=document.getElementById('cap-bug-tbody');
     const bugThead=document.getElementById('cap-bug-thead');
@@ -1216,35 +1216,33 @@ async function saveImage(){
     if(bugYn==='yes'&&activeBugs.length>0){
       bugSection.style.display='block';
 
-      // 입력된 구간번호 (오름차순)
       const sampleNos=[...new Set(activeBugs.map(r=>r.sampleNo||1))].sort((a,b)=>a-b);
-      // 입력된 손해정도% (오름차순)
       const rates=[...new Set(activeBugs.map(r=>Number(r.rate)||0))].filter(v=>v>0).sort((a,b)=>a-b);
 
-      const thB='padding:3px 2px;background:#d97706;color:#fff;text-align:center;font-size:9px;font-weight:700;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;white-space:nowrap';
-      const thBL='padding:3px 2px;background:#d97706;color:#fff;text-align:center;font-size:9px;font-weight:700;border-bottom:1px solid #f0c080;white-space:nowrap';
+      const th='padding:3px 2px;background:#d97706;color:#fff;text-align:center;font-size:10px;font-weight:700;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080';
+      const thL='padding:3px 2px;background:#d97706;color:#fff;text-align:center;font-size:10px;font-weight:700;border-bottom:1px solid #f0c080';
 
-      // 헤더: 표본구간 | 병충해종류 | 10% | 20% | ... (입력된 것만)
-      bugThead.innerHTML=`<tr>
-        <th style="${thB}">표본<br>구간</th>
-        <th style="${thB}">병충해<br>종류</th>
-        ${rates.map((r,ri)=>`<th style="${ri===rates.length-1?thBL:thB}">${r}%</th>`).join('')}
-      </tr>`;
+      bugThead.innerHTML=`
+        <tr>
+          <th rowspan="2" style="${th};vertical-align:middle">No</th>
+          <th rowspan="2" style="${th};vertical-align:middle">병충해<br>종류</th>
+          <th colspan="${rates.length}" style="${rates.length>1?th:thL}">손해정도비율</th>
+        </tr>
+        <tr>
+          ${rates.map((r,ri)=>`<th style="${ri===rates.length-1?thL:th}">${r}%</th>`).join('')}
+        </tr>`;
 
-      // tbody: 구간별 행
+      const tdB='padding:4px 2px;border-bottom:1px solid #f0c080;border-right:1px solid #f0c080;text-align:center;font-size:10px';
+      const tdBL='padding:4px 2px;border-bottom:1px solid #f0c080;text-align:center;font-size:10px';
+
       bugTbody.innerHTML=sampleNos.map(no=>{
         const rowBugs=activeBugs.filter(r=>(r.sampleNo||1)===no);
-        // 이 구간의 병충해명 (중복제거)
-        const names=[...new Set(rowBugs.map(r=>r.name))];
-        const bugName=names.join(', ')||'-';
-        // 비율별 중량
+        const names=[...new Set(rowBugs.map(r=>r.name))].join(', ')||'-';
         const cells={};
         rowBugs.forEach(r=>{ cells[Number(r.rate)||0]=parseFloat(r.weight||0); });
-        const tdB='padding:3px 2px;border-bottom:1px solid #f0c080;border-right:1px solid #f0c080;text-align:center;font-size:10px';
-        const tdBL='padding:3px 2px;border-bottom:1px solid #f0c080;text-align:center;font-size:10px';
         return `<tr>
           <td style="${tdB};font-weight:700;background:#fff9f0">${no}</td>
-          <td style="${tdB};font-weight:700;background:#fff9f0;font-size:9px">${bugName}</td>
+          <td style="${tdB};font-weight:700;background:#fff9f0;font-size:9px">${names}</td>
           ${rates.map((rate,ri)=>{
             const val=cells[rate];
             const isLast=ri===rates.length-1;
