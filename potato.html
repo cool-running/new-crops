@@ -56,7 +56,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
-.dot-filled{width:10px;height:10px;border-radius:2px;background:#eaf3e0;border:1.5px solid var(--green)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
 .dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
 
 .content{padding:12px 12px 40px}
@@ -73,15 +73,25 @@ input,textarea{-webkit-user-select:text;user-select:text}
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
 select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;cursor:pointer;transition:background .15s,border-color .15s}
 input.inp::placeholder{color:var(--hint);text-align:center}
-input.inp.filled,select.inp.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
+input.inp.filled,select.inp.filled{background:#e8faf3;border-color:var(--green);color:#000000;font-weight:700}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
 
-/* 모바일 포커스 */
+/* 조사일자 날짜 전체 표시 */
+input[type=date].inp{font-size:13px;letter-spacing:-0.03em;padding:0 4px}
+
+/* 모바일 포커스 - 마늘과 동일하게 파란색 */
 input.inp.mobile-focus,select.inp.mobile-focus,tbody td input.mobile-focus,tbody td select.mobile-focus,
 input.inp:focus,select.inp:focus,tbody td input:focus,tbody td select:focus{
-  outline:none!important;border-color:var(--green)!important;
-  box-shadow:0 0 0 3px rgba(91,126,63,0.22)!important;
-  background:#dff5e8!important;color:#2d5016!important;
+  outline:none!important;border-color:var(--blue)!important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;
+  background:#dceeff!important;color:#185FA5!important;
+}
+input.inp.filled.mobile-focus,select.inp.filled.mobile-focus,
+tbody td input.filled.mobile-focus,
+input.inp.filled:focus,select.inp.filled:focus,tbody td input.filled:focus{
+  outline:none!important;border-color:var(--blue)!important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;
+  background:#dceeff!important;color:#185FA5!important;
 }
 
 /* 크게보기 */
@@ -104,9 +114,9 @@ tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center;vertic
 tfoot td{padding:6px 1px;background:#f3efe8;font-weight:700;font-size:11px;text-align:center;border-top:1.5px solid var(--border)}
 tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:13px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background .15s,border-color .15s}
 tbody td select{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:11px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);cursor:pointer}
-tbody td input.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
-tbody td select.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
-tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e8!important;color:#2d5016!important;border-color:var(--green)!important}
+tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#000000;font-weight:700}
+tbody td select.filled{background:#e8faf3;border-color:var(--green);color:#000000;font-weight:700}
+tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceeff!important;color:#185FA5!important;border-color:var(--blue)!important}
 
 /* 표본 버튼 */
 .sample-btn-row{display:flex;gap:8px;margin-top:10px}
@@ -238,22 +248,9 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e
 
   <!-- 표본구간 조사 2-1 무게조사 -->
   <div class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div>
-        <div class="sec-title" style="margin-bottom:0">② 표본조사 2-1 무게조사 <span id="sample-badge" style="font-size:14px;font-weight:700;color:var(--green)"></span></div>
-        <div style="font-size:10px;color:var(--hint);margin-top:2px">길이·폭(m) / 중량(g)</div>
-      </div>
-      <!-- 길이 일괄 -->
-      <div id="batch-len-row" style="display:none;align-items:center;gap:5px;background:#eaf3e0;border:1.5px solid var(--green2);border-radius:10px;padding:5px 8px;width:48%;flex-shrink:0">
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;font-size:11px;font-weight:700;color:var(--green);flex-shrink:0">
-          <input type="checkbox" id="batch-len-chk" onchange="toggleBatchLen()" style="width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0">
-          길이
-        </label>
-        <input type="text" id="batch-len-val" inputmode="decimal" placeholder="일괄"
-          style="flex:1;height:30px;border:1.5px solid var(--green2);border-radius:7px;padding:0 6px;font-size:12px;font-weight:700;text-align:center;background:white;color:var(--green);-webkit-appearance:none;min-width:0"
-          oninput="onBatchLenInput(this)" onblur="applyBatchLen()" autocomplete="off">
-        <button onclick="applyBatchLen()" style="height:30px;width:40px;background:var(--green);color:white;border:none;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0">적용</button>
-      </div>
+    <div style="margin-bottom:10px">
+      <div class="sec-title" style="margin-bottom:0">② 표본조사 2-1 무게조사 <span id="sample-badge" style="font-size:14px;font-weight:700;color:var(--green)"></span></div>
+      <div style="font-size:10px;color:var(--hint);margin-top:2px">길이·폭(m) / 중량(g)</div>
     </div>
 
     <div id="sample-guide" style="text-align:center;padding:16px 0;font-size:13px;color:var(--hint)">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -324,8 +321,8 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e
       <div class="tbl-wrap">
         <table style="width:100%;table-layout:fixed">
           <colgroup>
-            <col style="width:10%"><col style="width:34%">
-            <col style="width:20%"><col style="width:22%"><col style="width:14%">
+            <col style="width:12%"><col style="width:40%">
+            <col style="width:24%"><col style="width:24%">
           </colgroup>
           <thead>
             <tr>
@@ -333,7 +330,6 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e
               <th style="background:#fff9f0">병충해명</th>
               <th style="background:#fff9f0">손해정도</th>
               <th style="background:#fffbf0">중량(g)</th>
-              <th style="background:#fffde0;font-size:9px">감수량(g)</th>
             </tr>
           </thead>
           <tbody id="bug-body"></tbody>
@@ -341,7 +337,6 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e
             <tr>
               <td colspan="3">합계</td>
               <td id="t-bugw">-</td>
-              <td id="t-bugloss" style="color:#d97706;font-weight:700">-</td>
             </tr>
           </tfoot>
         </table>
@@ -512,8 +507,8 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e
         </table>
       </div>
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">표본조사</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden" id="cap-sample-table-wrap">
+        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">표본조사 2-1 무게조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
           <thead><tr>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">No</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">길이</th>
@@ -522,6 +517,19 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dff5e
             <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">50%형(g)</th>
           </tr></thead>
           <tbody id="cap-sample-tbody"></tbody>
+        </table>
+      </div>
+      <!-- 병충해 (있을 때만 표시) -->
+      <div id="cap-bug-section" style="display:none;background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:13px;font-weight:900;color:#111;margin-bottom:8px">🐛 표본조사 2-2 병충해 피해</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #f0c080;border-radius:8px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">구간</th>
+            <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">병충해명</th>
+            <th style="padding:5px;background:#d97706;color:#fff;border-right:1px solid #f0c080;text-align:center">손해정도</th>
+            <th style="padding:5px;background:#d97706;color:#fff;text-align:center">중량(g)</th>
+          </tr></thead>
+          <tbody id="cap-bug-tbody"></tbody>
         </table>
       </div>
       <div style="background:linear-gradient(135deg,#5B7E3F,#7FAD52);border-radius:14px;padding:14px;color:white">
@@ -636,6 +644,7 @@ function updateSamplesAndCalc(){
     samples=samples.slice(0,safeNeeded);
   }
   renderSamples();
+  renderBugTable(); // 병충해 구간번호 드롭다운 동기화
   calc();
   saveState();
 }
@@ -648,19 +657,18 @@ function renderSamples(){
   const badge=document.getElementById('sample-badge');
   if(samples.length===0){
     guide.style.display='block'; wrap.style.display='none'; btnRow.style.display='none';
-    badge.textContent=''; document.getElementById('batch-len-row').style.display='none';
+    badge.textContent='';
     return;
   }
   guide.style.display='none'; wrap.style.display='block'; btnRow.style.display='flex';
   badge.textContent=`(${samples.length}구간)`;
-  document.getElementById('batch-len-row').style.display='flex';
 
   document.getElementById('sample-body').innerHTML = samples.map((s,i)=>`
     <tr>
       <td style="font-weight:600;color:var(--sub);font-size:11px">${i+1}</td>
       <td><input type="text" value="${s.len||''}" inputmode="decimal" class="${s.len?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
-        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;if(document.getElementById('batch-len-chk').checked)syncBatchLenFromSample(this.value);calcTotals();saveState()" autocomplete="off"></td>
+        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calcTotals();saveState()" autocomplete="off"></td>
       <td><input type="text" value="${s.wid||''}" inputmode="decimal" class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
         onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals();saveState()" autocomplete="off"></td>
@@ -678,6 +686,7 @@ function addSample(){
   if(samples.length>=8){alert('최대 8구간까지 입력 가능해요');return;}
   samples.push({len:'',wid:'',norm:'',d50:''});
   renderSamples();
+  renderBugTable(); // 병충해 구간번호 드롭다운 동기화
 }
 function removeSample(){
   const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
@@ -687,7 +696,10 @@ function removeSample(){
   const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
   const needed=getSampleCount(surveyArea);
   if(samples.length<=needed){ document.getElementById('delete-limit-overlay').classList.add('show'); return; }
-  samples.pop(); renderSamples(); calcTotals();
+  // 삭제되는 구간번호 참조하는 병충해 행 → 마지막 구간으로 보정
+  const removing=samples.length;
+  bugRows.forEach(r=>{ if(r.sampleNo===removing) r.sampleNo=Math.max(1,removing-1); });
+  samples.pop(); renderSamples(); renderBugTable(); calcTotals();
 }
 
 // ── 길이 일괄 ─────────────────────────────────────
@@ -767,7 +779,6 @@ function renderBugTable(){
   if(bugYn!=='yes'){ document.getElementById('bug-body').innerHTML=''; updateBugTotals(); return; }
   document.getElementById('bug-body').innerHTML=bugRows.map((r,i)=>{
     const nv=r.name&&r.grade?`${r.name}|${r.grade}`:'';
-    const loss=calcBugLoss(r);
     return `<tr>
       <td style="padding:2px">
         <select style="width:100%;height:32px;border:1.5px solid #d1a060;border-radius:6px;font-size:11px;background:#fffbeb;-webkit-appearance:none;text-align:center"
@@ -777,7 +788,7 @@ function renderBugTable(){
       </td>
       <td style="background:#fff9f0;padding:2px">
         <select style="width:100%;height:32px;border:1.5px solid #f0c080;border-radius:6px;font-size:10px;background:#fff9f0;-webkit-appearance:none"
-          onchange="(function(v){if(!v){bugRows[${i}].name='';bugRows[${i}].grade=''}else{const p=v.split('|');bugRows[${i}].name=p[0];bugRows[${i}].grade=p[1];}updateBugTotals();calc();saveState();})(this.value)">
+          onchange="(function(v){if(!v){bugRows[${i}].name='';bugRows[${i}].grade='';}else{const p=v.split('|');bugRows[${i}].name=p[0];bugRows[${i}].grade=p[1];}updateBugTotals();calc();saveState();})(this.value)">
           ${BUG_OPTS.replace(`value="${nv}"`,`value="${nv}" selected`)}
         </select>
       </td>
@@ -795,10 +806,6 @@ function renderBugTable(){
           oninput="onCommaInput(this);bugRows[${i}].weight=this.value.replace(/,/g,'');updateBugTotals()"
           onblur="bugRows[${i}].weight=this.value.replace(/,/g,'');updateBugTotals();calc();saveState()">
       </td>
-      <td style="background:#fffde0;padding:2px">
-        <input type="text" value="${loss>0?loss.toFixed(1)+' g':''}" readonly
-          style="height:32px;background:#fffde0;border-color:#e0c060;color:#8a5f00;font-weight:700;font-size:10px">
-      </td>
     </tr>`;
   }).join('');
   bindMobileFocusHandlers();
@@ -808,7 +815,6 @@ function updateBugTotals(){
   let tW=0,tL=0;
   bugRows.forEach(r=>{tW+=parseFloat(r.weight)||0; tL+=calcBugLoss(r);});
   document.getElementById('t-bugw').textContent=tW>0?tW.toLocaleString()+' g':'-';
-  document.getElementById('t-bugloss').textContent=tL>0?tL.toFixed(1)+' g':'-';
   document.getElementById('s-bug').textContent=tL>0?(tL/1000).toFixed(3)+' kg':'-';
 }
 
@@ -1088,16 +1094,35 @@ async function saveImage(){
     const tbody=document.getElementById('cap-sample-tbody');
     tbody.innerHTML=samples.map((s,i)=>`<tr>
       <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px">${i+1}</td>
-      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.len||'-'}</td>
-      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.wid||'-'}</td>
-      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.norm?Number(s.norm).toLocaleString():'-'}</td>
-      <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#eaf3e0;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.len||'-'}</td>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.wid||'-'}</td>
+      <td style="padding:4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.norm?Number(s.norm).toLocaleString():'-'}</td>
+      <td style="padding:4px;border-bottom:1px solid #e0e0e0;text-align:center;font-size:11px;background:#e8faf3;font-weight:700">${s.d50?Number(s.d50).toLocaleString():'-'}</td>
     </tr>`).join('');
-    // 결과
-    document.getElementById('cap-surv').textContent=document.getElementById('result-pct').textContent!=='- -'?'계산완료':'-';
-    document.getElementById('cap-bug').textContent=document.getElementById('s-bug').textContent||'-';
-    document.getElementById('cap-unins').textContent='-';
-    document.getElementById('cap-pct').textContent=document.getElementById('result-pct').textContent||'-';
+
+    // 병충해 테이블 (있을 때만)
+    const bugSection=document.getElementById('cap-bug-section');
+    const bugTbody=document.getElementById('cap-bug-tbody');
+    const activeBugs=bugRows.filter(r=>r.name&&r.weight);
+    if(bugYn==='yes'&&activeBugs.length>0){
+      bugSection.style.display='block';
+      bugTbody.innerHTML=activeBugs.map(r=>`<tr>
+        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fffbeb;font-weight:700">${r.sampleNo}구간</td>
+        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fff9f0;font-weight:700">${r.name||'-'}<br><span style="font-size:9px;color:#888">${r.grade?r.grade+'급('+Math.round(GRADE_RATE[r.grade]*100)+'%)':''}</span></td>
+        <td style="padding:4px;border-right:1px solid #f0c080;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fff9f0;font-weight:700">${r.rate?r.rate+'%':'-'}</td>
+        <td style="padding:4px;border-bottom:1px solid #f0c080;text-align:center;font-size:11px;background:#fffbf0;font-weight:700">${r.weight?Number(r.weight).toLocaleString()+' g':'-'}</td>
+      </tr>`).join('');
+    } else {
+      bugSection.style.display='none';
+    }
+
+    // 결과 - calc 재실행해서 정확한 값 가져오기
+    const pctText=document.getElementById('result-pct').textContent||'-';
+    const bugLossKg=bugRows.reduce((s,r)=>s+calcBugLoss(r),0)/1000;
+    document.getElementById('cap-surv').textContent=document.getElementById('survey_area_disp').value||'-';
+    document.getElementById('cap-bug').textContent=bugYn==='yes'&&bugLossKg>0?bugLossKg.toFixed(3)+' kg':'-';
+    document.getElementById('cap-unins').textContent=(document.getElementById('unins_rate').value||'0')+'%';
+    document.getElementById('cap-pct').textContent=pctText;
 
     const canvas=await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
     const now=new Date();
