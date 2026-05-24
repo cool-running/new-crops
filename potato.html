@@ -379,6 +379,17 @@ tbody td input.filled.mobile-focus,tbody td input.filled:focus{background:#dceef
   </div>
 </div>
 
+<!-- 병충해 구간 중복 경고 모달 -->
+<div id="bug-dup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:28px;margin-bottom:10px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:8px">1구간 1병충해</div>
+    <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.6">해당 표본구간에 이미<br>병충해가 입력되어 있습니다.<br>구간당 1개만 입력 가능해요.</div>
+    <button onclick="document.getElementById('bug-dup-overlay').style.display='none'"
+      style="width:100%;height:46px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
 <!-- 병충해 마지막 행 삭제(없음 전환) 확인 모달 -->
 <div id="bug-last-del-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
@@ -864,13 +875,37 @@ function renderBugTable(){
     return `<tr>
       <td style="padding:2px">
         <select style="width:100%;height:32px;border:1.5px solid;border-radius:6px;font-size:11px;-webkit-appearance:none;text-align:center;${r.sampleNo?filledSel:normSel}"
-          onchange="bugRows[${i}].sampleNo=parseInt(this.value);renderBugTable();saveState()">
+          onchange="(function(sel,i){
+            const no=parseInt(sel.value);
+            const myName=bugRows[i].name;
+            const dup=bugRows.some((r,ri)=>ri!==i&&r.sampleNo===no&&r.name&&myName&&r.name!==myName);
+            if(dup){
+              document.getElementById('bug-dup-overlay').style.display='flex';
+              sel.value=bugRows[i].sampleNo||'';
+              return;
+            }
+            bugRows[i].sampleNo=no;renderBugTable();saveState();
+          })(this,${i})">
           ${sampleNoOpts(r.sampleNo)}
         </select>
       </td>
       <td style="padding:2px">
         <select style="width:100%;height:32px;border:1.5px solid;border-radius:6px;font-size:10px;-webkit-appearance:none;${r.name?filledBug:normBug}"
-          onchange="(function(v){if(!v){bugRows[${i}].name='';bugRows[${i}].grade='';}else{const p=v.split('|');bugRows[${i}].name=p[0];bugRows[${i}].grade=p[1];}renderBugTable();updateBugTotals();calc();saveState();})(this.value)">
+          onchange="(function(v,i){
+            const no=bugRows[i].sampleNo||1;
+            if(v){
+              const p=v.split('|');
+              const newName=p[0];
+              const dup=bugRows.some((r,ri)=>ri!==i&&r.sampleNo===no&&r.name&&r.name!==newName);
+              if(dup){
+                document.getElementById('bug-dup-overlay').style.display='flex';
+                this.value=bugRows[i].name&&bugRows[i].grade?bugRows[i].name+'|'+bugRows[i].grade:'';
+                return;
+              }
+              bugRows[i].name=p[0];bugRows[i].grade=p[1];
+            } else {bugRows[i].name='';bugRows[i].grade='';}
+            renderBugTable();updateBugTotals();calc();saveState();
+          }).call(this,this.value,${i})">
           ${BUG_OPTS.replace(`value="${nv}"`,`value="${nv}" selected`)}
         </select>
       </td>
