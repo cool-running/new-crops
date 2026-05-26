@@ -787,7 +787,7 @@ function calcAll(){
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white'; return;
   }
-  const u   = Math.round(tWall/tA/1000*10000)/10000;
+  const u   = Math.round(tWall/tA/1000*1000)/1000;
   const sv  = Math.round(u*surveyArea+m2Avg*(otherArea+harvArea));
   const loss= Math.max(0,effAvg-sv);
   const uLoss=Math.round(loss*uninsRate);
@@ -984,7 +984,7 @@ function fillCaptureTemplate(){
   let _tA2=0, _tW1=0, _tW2=0, _tW3=0;
   samples.forEach(s=>{ const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0; _tA2+=Math.round(l*w*100)/100; _tW1+=parseFloat(s.w1)||0; _tW2+=parseFloat(s.w2)||0; _tW3+=parseFloat(s.w3)||0; });
   const _tWall = _tW1+_tW2+_tW3;
-  const _capUall = _tA2>0&&_tWall>0?Math.round(_tWall/_tA2/1000*10000)/10000:0;
+  const _capUall = _tA2>0&&_tWall>0?Math.round(_tWall/_tA2/1000*1000)/1000:0;
   const capSv   = _tA2>0&&_tWall>0?Math.round(_capUall*surveyArea+m2Avg*(otherArea+harvArea)):0;
   const capLoss = Math.max(0,effAvg-capSv);
   const capULoss= Math.round(capLoss*uninsRate);
