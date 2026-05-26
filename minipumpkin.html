@@ -96,7 +96,7 @@ input.inp:not([type=date]).mobile-focus,input.inp:not([type=date]):focus,
 tbody td input.mobile-focus,tbody td input:focus{
   outline:none!important;border-color:#E8923A!important;
   box-shadow:0 0 0 3px rgba(232,146,58,0.18)!important;
-  background:#FEF9F5!important;color:#E8923A!important;
+  background:#FEF9F5!important;color:#1a1a1a!important;
 }
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 .bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--or2);border-radius:var(--rs);color:var(--or2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;-webkit-appearance:none}
@@ -258,38 +258,6 @@ body.big-text .field{gap:5px!important}
     </div>
   </div>
 
-  <!-- ② 조사일정 (선택·접이식) -->
-  <div class="section" style="padding-bottom:0">
-    <div class="collapsible-header" onclick="toggleCollapse('sched')">
-      <div class="sec-title" style="margin-bottom:0">조사일정 <span style="font-size:11px;font-weight:400;color:var(--hint)">(선택)</span></div>
-      <span class="collapse-arrow" id="arrow-sched">▼</span>
-    </div>
-    <div class="collapsible-body closed" id="body-sched" style="max-height:0">
-      <div style="padding-top:12px;padding-bottom:14px">
-        <div class="g2">
-          <div class="field">
-            <label>정식일</label>
-            <input type="date" id="planting_date" class="inp" onchange="markFilled(this)" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>수확개시일</label>
-            <input type="date" id="harv_start" class="inp" onchange="markFilled(this)" autocomplete="off">
-          </div>
-        </div>
-        <div class="g2">
-          <div class="field">
-            <label>수확예정일</label>
-            <input type="date" id="harv_plan" class="inp" onchange="markFilled(this)" autocomplete="off">
-          </div>
-          <div class="field">
-            <label>수확종료일</label>
-            <input type="date" id="harv_end" class="inp" onchange="markFilled(this)" autocomplete="off">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ③ 표본구간 조사 -->
   <div class="section">
     <div class="sec-head">
@@ -335,35 +303,77 @@ body.big-text .field{gap:5px!important}
     </div>
   </div>
 
-  <!-- ④ 수량 입력 (선택·접이식) -->
-  <div class="section" id="qty-section" style="display:none;padding-bottom:0">
-    <div class="collapsible-header" onclick="toggleCollapse('qty')">
-      <div class="sec-title" style="margin-bottom:0">수량 입력 <span style="font-size:11px;font-weight:400;color:var(--hint)">(선택)</span></div>
-      <span class="collapse-arrow" id="arrow-qty">▼</span>
+  <!-- ④⑤ 조사일정 + 수량입력 탭 -->
+  <div id="tab-section" style="display:none;position:relative;margin-bottom:10px">
+
+    <!-- 탭 헤더 행: 좌측 탭 2개 + 우측 선택사항 텍스트 -->
+    <div style="display:flex;align-items:flex-end;position:relative;z-index:2">
+      <!-- 탭 버튼 좌측 -->
+      <button id="tab-btn-sched" onclick="switchTab('sched')"
+        style="width:90px;height:34px;border:none;border-radius:10px 10px 0 0;background:#E8923A;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all .22s;box-shadow:0 -2px 8px rgba(232,146,58,0.2);margin-right:2px;white-space:nowrap">
+        📅 조사일정
+      </button>
+      <button id="tab-btn-qty" onclick="switchTab('qty')"
+        style="width:90px;height:34px;border:none;border-radius:10px 10px 0 0;background:#c8c8c8;color:#fff;font-size:12px;font-weight:500;cursor:pointer;transition:all .22s;white-space:nowrap;opacity:0.72">
+        🔢 수량입력
+      </button>
+      <!-- 우측 선택사항 텍스트 -->
+      <div style="flex:1;text-align:right;padding:0 4px 6px;font-size:10px;font-weight:600;color:#bbb;letter-spacing:0.04em">선택사항</div>
     </div>
-    <div class="collapsible-body closed" id="body-qty" style="max-height:0">
-      <div style="padding-top:10px;padding-bottom:14px">
-        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">
-          전체수량 = 구간 내 총 개수 / 수확수량 = 차수별 수확 개수<br>
-          <span style="color:var(--hint);font-size:10px">1·2·3차 수확 합계가 전체수량에 도달하면 조사 완료</span>
+
+    <!-- 카드 본체: 100% 전체 폭 -->
+    <div style="background:#fff;border-radius:0 12px 12px 12px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04);overflow:hidden;position:relative;z-index:1">
+      <div id="tab-slider-wrap" style="overflow:hidden">
+        <div id="tab-slider" style="display:flex;transition:transform .28s cubic-bezier(.4,0,.2,1);will-change:transform">
+
+          <!-- 조사일정 패널 -->
+          <div id="tab-panel-sched" style="min-width:100%;padding:14px;box-sizing:border-box">
+            <div class="g2">
+              <div class="field">
+                <label>정식일</label>
+                <input type="date" id="planting_date" class="inp" onchange="markFilled(this)" autocomplete="off">
+              </div>
+              <div class="field">
+                <label>수확개시일</label>
+                <input type="date" id="harv_start" class="inp" onchange="markFilled(this)" autocomplete="off">
+              </div>
+            </div>
+            <div class="g2">
+              <div class="field">
+                <label>수확예정일</label>
+                <input type="date" id="harv_plan" class="inp" onchange="markFilled(this)" autocomplete="off">
+              </div>
+              <div class="field">
+                <label>수확종료일</label>
+                <input type="date" id="harv_end" class="inp" onchange="markFilled(this)" autocomplete="off">
+              </div>
+            </div>
+          </div>
+
+          <!-- 수량입력 패널 -->
+          <div id="tab-panel-qty" style="min-width:100%;padding:14px;box-sizing:border-box">
+            <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">
+              전체수량 = 구간 내 총 개수 / 수확수량 = 차수별 수확 개수<br>
+              <span style="color:var(--hint);font-size:10px">1·2·3차 수확 합계가 전체수량에 도달하면 조사 완료</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
+              <colgroup>
+                <col style="width:10%"><col style="width:22%">
+                <col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%">
+              </colgroup>
+              <thead><tr>
+                <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">No.</th>
+                <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">전체(개)</th>
+                <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">1차</th>
+                <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">2차</th>
+                <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">3차</th>
+                <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">잔여</th>
+              </tr></thead>
+              <tbody id="qty-body"></tbody>
+            </table>
+          </div>
+
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
-          <colgroup>
-            <col style="width:10%"><col style="width:22%">
-            <col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%">
-          </colgroup>
-          <thead>
-            <tr>
-              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">No.</th>
-              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">전체(개)</th>
-              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">1차</th>
-              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">2차</th>
-              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">3차</th>
-              <th style="padding:5px 2px;text-align:center;font-size:10px;color:var(--sub);font-weight:600;border-bottom:1.5px solid var(--border)">잔여</th>
-            </tr>
-          </thead>
-          <tbody id="qty-body"></tbody>
-        </table>
       </div>
     </div>
   </div>
@@ -435,79 +445,80 @@ body.big-text .field{gap:5px!important}
 </div>
 
 <!-- 캡처 템플릿 -->
-<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
-  <div style="min-height:932px;background:linear-gradient(180deg,#7A3010 0%,#E8923A 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
-    <div style="height:26px"></div>
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:800px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="min-height:800px;background:linear-gradient(180deg,#7A3010 0%,#E8923A 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
+    <div style="height:20px"></div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
       <div style="font-size:15px;font-weight:700">🎃 단호박 피해율 계산결과</div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-        <span id="cap-date" style="font-size:15px;font-weight:800;color:#fff"></span>
-        <span id="cap-farmno" style="font-size:15px;font-weight:800;color:#fff"></span>
+        <span id="cap-date" style="font-size:13px;font-weight:700;color:#fff"></span>
+        <span id="cap-farmno" style="font-size:13px;font-weight:700;color:#fff"></span>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
 
       <!-- 1. 기본정보 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px">1. 기본정보</div>
+        <table style="width:60%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden;table-layout:fixed">
+          <colgroup><col style="width:33%"><col style="width:34%"><col style="width:33%"></colgroup>
           <thead><tr>
-            <th style="padding:7px 16px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">평년수확량</th>
-            <th style="padding:7px 16px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">가입면적</th>
-            <th style="padding:7px 16px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">원장변경유무</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">평년수확량</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;text-align:center">원장변경</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-avg-yield">-</td>
-            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-ins-area">-</td>
-            <td style="padding:7px 16px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-contract">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-avg-yield">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-ins-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-contract">-</td>
           </tr></tbody>
         </table>
       </div>
 
       <!-- 2. 면적조사 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px">2. 면적조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <thead><tr>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">실제경작</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">고사면적</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">타작물·미보상</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">기수확면적</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작(㎡)</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">고사(㎡)</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">미보상(㎡)</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;text-align:center">기수확(㎡)</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-act-area">-</td>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-dead-area">-</td>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-other-area">-</td>
-            <td style="padding:7px 4px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-harv-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-act-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-dead-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-other-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-harv-area">-</td>
           </tr></tbody>
         </table>
       </div>
 
-      <!-- 3. 조사일정 (항상 표시, 미입력 시 -) -->
-      <div id="cap-sched-block" style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 조사일정</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
+      <!-- 3. 조사일정 -->
+      <div id="cap-sched-block" style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px">3. 조사일정</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <thead><tr>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">정식일</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">수확개시일</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">수확예정일</th>
-            <th style="padding:7px 4px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">수확종료일</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정식일</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시일</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확예정일</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;text-align:center">수확종료일</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-weight:700;font-size:12px" id="cap-planting">-</td>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-weight:700;font-size:12px" id="cap-harv-start">-</td>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-weight:700;font-size:12px" id="cap-harv-plan">-</td>
-            <td style="padding:7px 4px;text-align:center;background:#f8fafc;font-weight:700;font-size:12px" id="cap-harv-end">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-planting">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-harv-start">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-harv-plan">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-harv-end">-</td>
           </tr></tbody>
         </table>
       </div>
 
       <!-- 4. 표본구간 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:6px" id="cap-sample-title">4. 표본구간</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px" id="cap-sample-title">4. 표본구간</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <colgroup>
             <col style="width:8%">
             <col style="width:16%">
@@ -517,35 +528,35 @@ body.big-text .field{gap:5px!important}
             <col style="width:28%">
           </colgroup>
           <thead><tr>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">No</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">길이(m)</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">폭(m)</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">전체갯수</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">수확수량</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">중량(g)</th>
+            <th style="padding:5px 2px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">No</th>
+            <th style="padding:5px 2px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">길이(m)</th>
+            <th style="padding:5px 2px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">폭(m)</th>
+            <th style="padding:5px 2px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">전체갯수</th>
+            <th style="padding:5px 2px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확수량</th>
+            <th style="padding:5px 2px;background:#c87a30;color:#fff;text-align:center">중량(g)</th>
           </tr></thead>
           <tbody id="cap-sample-tbody"></tbody>
         </table>
       </div>
 
       <!-- 5. 결과 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px" id="cap-result-title">5. 결과</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px" id="cap-result-title">5. 결과</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
           <thead><tr>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">피해율</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">미보상비율</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">조사수확량</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">감수량</th>
-            <th style="padding:7px 2px;background:#c87a30;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">미보상감수량</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">피해율</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">미보상비율</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">조사수확량</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;border-right:1px solid #e0e0e0;text-align:center">감수량</th>
+            <th style="padding:5px;background:#c87a30;color:#fff;text-align:center">미보상감수량</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-pct">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins-rate">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-surv">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-loss">-</td>
-            <td style="padding:7px 2px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px" id="cap-pct">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-unins-rate">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-surv">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-loss">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;font-size:11px;border-left:1px solid #e0e0e0" id="cap-unins">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -583,36 +594,28 @@ function getProper(area){
   return 7;
 }
 
-// ── 접이식 토글 ───────────────────────────────────────────────
-function toggleCollapse(id){
-  const body  = document.getElementById('body-'+id);
-  const arrow = document.getElementById('arrow-'+id);
-  const isOpen = arrow.classList.contains('open');
-  if(isOpen){
-    body.style.overflow='hidden';
-    body.style.maxHeight = body.scrollHeight+'px';
-    requestAnimationFrame(()=>{ body.style.maxHeight='0'; body.classList.add('closed'); });
-    arrow.classList.remove('open');
-  } else {
-    body.classList.remove('closed');
-    body.style.maxHeight = body.scrollHeight+'px';
-    setTimeout(()=>{ body.style.maxHeight=''; body.style.overflow='visible'; }, 260);
-    arrow.classList.add('open');
-    setTimeout(bindMobileFocusHandlers, 300);
-  }
-  try{ localStorage.setItem('pumpkin_collapse_'+id, isOpen?'0':'1'); }catch(e){}
+// ── 탭 전환 ──────────────────────────────────────────────────
+const TAB_ORDER = ['sched','qty'];
+const TAB_COLORS = { sched:'#E8923A', qty:'#E8923A' };
+function switchTab(tab){
+  const idx = TAB_ORDER.indexOf(tab);
+  const slider = document.getElementById('tab-slider');
+  if(slider) slider.style.transform = `translateX(-${idx*100}%)`;
+  TAB_ORDER.forEach(t=>{
+    const btn = document.getElementById('tab-btn-'+t);
+    if(!btn) return;
+    const active = (t===tab);
+    btn.style.background = active ? TAB_COLORS[t] : '#c0c0c0';
+    btn.style.opacity = active ? '1' : '0.75';
+  });
+  try{ localStorage.setItem('pumpkin_active_tab', tab); }catch(e){}
+  setTimeout(bindMobileFocusHandlers, 300);
 }
-function restoreCollapse(id){
+function restoreTab(){
   try{
-    if(localStorage.getItem('pumpkin_collapse_'+id)==='1'){
-      const body=document.getElementById('body-'+id);
-      const arrow=document.getElementById('arrow-'+id);
-      body.classList.remove('closed');
-      body.style.maxHeight='';
-      body.style.overflow='visible';
-      arrow.classList.add('open');
-    }
-  }catch(e){}
+    const t=localStorage.getItem('pumpkin_active_tab')||'sched';
+    switchTab(t);
+  }catch(e){ switchTab('sched'); }
 }
 
 // ── 표본 렌더링 ───────────────────────────────────────────────
@@ -620,13 +623,13 @@ function renderSamples(){
   const guide = document.getElementById('sample-guide');
   const wrap  = document.getElementById('sample-wrap');
   const badge = document.getElementById('sample-count-badge');
-  const qtySec= document.getElementById('qty-section');
+  const tabSec= document.getElementById('tab-section');
   if(samples.length===0){
     guide.style.display='block'; wrap.style.display='none';
-    badge.textContent=''; qtySec.style.display='none'; return;
+    badge.textContent=''; tabSec.style.display='none'; return;
   }
   guide.style.display='none'; wrap.style.display='block';
-  qtySec.style.display='block';
+  tabSec.style.display='block';
   badge.textContent=`(${samples.length}구간)`;
 
   document.getElementById('sample-body').innerHTML=samples.map((s,i)=>`
@@ -687,10 +690,6 @@ function renderQty(){
       <td style="text-align:center;padding:2px;font-size:11px">${remBadge||'-'}</td>
     </tr>`;
   }).join('');
-  // qty-body 높이 변경 시 collapsible 높이 재조정
-  const bodyEl=document.getElementById('body-qty');
-  const arrow=document.getElementById('arrow-qty');
-  if(bodyEl&&arrow&&arrow.classList.contains('open')) bodyEl.style.maxHeight='';
   setTimeout(bindMobileFocusHandlers, 0);
 }
 
@@ -959,23 +958,21 @@ function fillCaptureTemplate(){
     tW3 += parseFloat(s.w3)||0;
   });
   // 표본구간: 길이/폭/전체갯수/수확수량/중량
-  const thS  = 'padding:7px 4px;background:#c87a30;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
-  const tdS  = 'padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap';
-  const tdG  = 'padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap';
-  const tdGL = 'padding:7px 4px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap';
+  const tdS  = 'padding:5px 2px;border-right:1px solid #e0e0e0;text-align:center;font-weight:700;font-size:11px';
+  const tdSL = 'padding:5px 2px;text-align:center;font-weight:700;font-size:11px';
 
   let rows='';
   samples.forEach((s,idx)=>{
     const totalQty = (s.totalQty!==undefined&&s.totalQty!=='') ? Number(s.totalQty).toLocaleString() : '-';
     const harvQty  = (()=>{ const q=(parseInt(s.q1)||0)+(parseInt(s.q2)||0)+(parseInt(s.q3)||0); return q>0?q.toLocaleString():'-'; })();
     const weight   = (()=>{ const w=(parseFloat(s.w1)||0)+(parseFloat(s.w2)||0)+(parseFloat(s.w3)||0); return w>0?w.toLocaleString():'-'; })();
-    rows+=`<tr>
+    rows+=`<tr style="border-bottom:1px solid #e0e0e0">
       <td style="${tdS}">${idx+1}</td>
       <td style="${tdS}">${s.len||'-'}</td>
       <td style="${tdS}">${s.wid||'-'}</td>
-      <td style="${tdG}">${totalQty}</td>
-      <td style="${tdG}">${harvQty}</td>
-      <td style="${tdGL}">${weight}</td>
+      <td style="${tdS}">${totalQty}</td>
+      <td style="${tdS}">${harvQty}</td>
+      <td style="${tdSL}">${weight}</td>
     </tr>`;
   });
   document.getElementById('cap-sample-tbody').innerHTML = rows || '<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
@@ -1043,8 +1040,7 @@ try{
     document.getElementById('bigtext-label').textContent='원래대로';
   }
 }catch(e){}
-restoreCollapse('sched');
-restoreCollapse('qty');
+restoreTab();
 document.getElementById('survey_date').value=fmt(new Date());
 document.getElementById('survey_date').classList.add('filled');
 setTimeout(()=>{
