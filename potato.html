@@ -794,7 +794,7 @@ function syncBatchLenFromSample(val){
 // ── 표본 합계 ─────────────────────────────────────
 function calcTotals(){
   let tL=0,tW=0,tN=0,tD=0,tA=0,tEff=0;
-  const ceil2=v=>Math.ceil(v*100)/100;
+  const ceil2=v=>Math.round((v+Number.EPSILON)*100)/100;
   const round3=v=>Math.round(v*1000)/1000;
   // 구간별 병충해 중량
   const bugByNo={};
@@ -1024,7 +1024,7 @@ function calc(){
   // ② 유효중량 = 정상 + 50%피해×0.5 + 병충해중량(있을 경우 구간별 합산)
   // ③ 단위면적당 = ROUND(유효중량합/1000 / 면적합, 3)
   // ④ 조사수확량 = ROUND(단위면적당×조사대상) + ROUND(단위평년R3×(타작물+기수확))
-  const ceil2=v=>Math.ceil(v*100)/100;
+  const ceil2=v=>Math.round((v+Number.EPSILON)*100)/100;
   const round3=v=>Math.round(v*1000)/1000;
 
   // 구간별 병충해 중량 합산
@@ -1338,7 +1338,7 @@ async function saveImage(){
     const _effAvg=_isChg?Math.round(_avgY/_insA*_actA):_avgY;
     const _effArea=(!_isChg&&_insA>0)?_insA:_actA;
     const _survA=Math.max(0,_effArea-_dead-_other-_harv);
-    const ceil2=v=>Math.ceil(v*100)/100, round3=v=>Math.round(v*1000)/1000;
+    const ceil2=v=>Math.round((v+Number.EPSILON)*100)/100, round3=v=>Math.round(v*1000)/1000;
     // 병충해 구간별 중량 합산
     const _bugByNo={};
     if(bugYn==='yes') bugRows.forEach(r=>{const no=r.sampleNo||1,w=parseFloat(r.weight)||0;_bugByNo[no]=(_bugByNo[no]||0)+w;});
