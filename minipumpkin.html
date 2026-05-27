@@ -518,7 +518,7 @@ body.big-text .field{gap:5px!important}
       <!-- 4. 표본구간 -->
       <!-- 4-1. 표본구간 (1차 중심) -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px" id="cap-sample-title">4. 표본구간</div>
+        <div style="font-size:12px;font-weight:900;color:#E8923A;margin-bottom:8px" id="cap-sample-title">4-1. 표본구간</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0;overflow:hidden">
           <colgroup>
             <col style="width:8%"><col style="width:16%"><col style="width:16%">
@@ -960,7 +960,7 @@ function fillCaptureTemplate(){
   document.getElementById('cap-harv-start').textContent = harvStart||'-';
   document.getElementById('cap-harv-plan').textContent  = harvPlan||'-';
   document.getElementById('cap-harv-end').textContent   = harvEnd||'-';
-  document.getElementById('cap-sample-title').textContent = '4. 표본구간';
+  document.getElementById('cap-sample-title').textContent = '4-1. 표본구간';
   document.getElementById('cap-result-title').textContent = '5. 결과';
 
   // 4. 표본구간 - 금차(이번 차수)에 입력된 중량만 표시
@@ -996,12 +996,13 @@ function fillCaptureTemplate(){
   });
   document.getElementById('cap-sample-tbody').innerHTML = rows || '<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
 
-  // 4-2. 차수별 수량 - 2차 또는 3차 수량이 하나라도 있으면 표시
+  // 4-2. 차수별 수량 - 1·2·3차 수량이 하나라도 있으면 표시
+  const has1stQty = samples.some(s=>parseInt(s.q1)>0);
   const has2ndQty = samples.some(s=>parseInt(s.q2)>0);
   const has3rdQty = samples.some(s=>parseInt(s.q3)>0);
   const block2 = document.getElementById('cap-sample2-block');
   if(block2){
-    if(has2ndQty || has3rdQty){
+    if(has1stQty || has2ndQty || has3rdQty){
       block2.style.display='block';
       const td2 = 'padding:5px 2px;border-right:1px solid #e0e0e0;text-align:center;font-weight:700;font-size:11px';
       const td2L= 'padding:5px 2px;text-align:center;font-weight:700;font-size:11px';
