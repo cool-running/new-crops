@@ -53,18 +53,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-name">인삼</div>
     <div class="crop-desc">수확량조사</div>
   </div>
-  <div class="crop-card done" onclick="go('minipumpkin')">
-    <span class="badge badge-done">개발중</span>
-    <div class="crop-icon">🎃</div>
-    <div class="crop-name">단호박</div>
-    <div class="crop-desc">수확량조사</div>
-  </div>
+
 </div>
 
 <script>
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
-  if(page==='minipumpkin') location.href='./minipumpkin.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
