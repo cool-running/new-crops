@@ -14,7 +14,7 @@
 :root{
   --blue:#185FA5;--blue2:#378ADD;
   --border:#D8D6CE;--text:#1a1a1a;--sub:#666;--hint:#aaa;
-  --bg:#F5F4F0;--card:#fff;--green:#1D9E75;
+  --bg:#F5F4F0;--card:#fff;--green:#1D9E75;--amber:#C2410C;
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -28,11 +28,13 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .crop-card{background:var(--card);border-radius:var(--r);padding:20px 14px;text-align:center;border:0.5px solid var(--border);cursor:pointer;position:relative;transition:transform 0.1s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .crop-card:active{transform:scale(0.97)}
 .crop-card.done{border-color:var(--green)}
+.crop-card.test{border-color:var(--amber)}
 .crop-icon{font-size:22px;margin-bottom:10px;line-height:1.4}
 .crop-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:-0.02em}
 .crop-desc{font-size:12px;color:var(--sub);font-weight:500}
 .badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
 .badge-done{background:#e8faf3;color:var(--green)}
+.badge-test{background:#FBEEE2;color:var(--amber)}
 </style>
 </head>
 <body>
@@ -54,11 +56,19 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확량조사</div>
   </div>
 
+  <div class="crop-card test" onclick="go('pepper')">
+    <span class="badge badge-test">테스트</span>
+    <div class="crop-icon">🌶️</div>
+    <div class="crop-name">고추</div>
+    <div class="crop-desc">생산비보장 · 누적피해율</div>
+  </div>
+
 </div>
 
 <script>
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
+  else if(page==='pepper')  location.href='./pepper.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
