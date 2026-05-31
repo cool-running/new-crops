@@ -60,6 +60,9 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .bigtext-btn.on{background:var(--org2);color:#fff}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 body.big-text input.inp,body.big-text select.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
+body.big-text input[type=date].inp{font-size:15px!important;font-weight:700!important;letter-spacing:-0.04em!important;padding:0 2px!important}
+body.big-text select.inp{font-size:16px!important;padding:0 4px!important}
+body.big-text input.auto{font-size:15px!important;letter-spacing:-0.04em!important;padding:0 2px!important}
 body.big-text input.auto{height:52px!important;font-size:18px!important;font-weight:600!important}
 body.big-text .field label{font-size:13px!important}
 body.big-text table.smp td input{height:40px!important;font-size:16px!important;font-weight:700!important}
@@ -183,12 +186,12 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
     <div class="g2" id="cause-row" style="margin-top:8px;grid-template-columns:1fr">
       <div class="field"><label>사고원인</label>
         <select id="disaster" class="inp" style="text-align:left;text-align-last:left" onchange="onField(this)">
-          <option value="n|100">자연재해 (100%)</option>
-          <option value="n|100">조수해 (100%)</option>
-          <option value="n|100">화재 (100%)</option>
-          <option value="b|70">병충해 1등급 (70%)</option>
-          <option value="b|50">병충해 2등급 (50%)</option>
-          <option value="b|30">병충해 3등급 (30%)</option>
+          <option value="n|100">자연재해 100%</option>
+          <option value="n|100">조수해 100%</option>
+          <option value="n|100">화재 100%</option>
+          <option value="b|70">병충해 1등급 70%</option>
+          <option value="b|50">병충해 2등급 50%</option>
+          <option value="b|30">병충해 3등급 30%</option>
         </select>
       </div>
       <div class="field" id="disease-wrap" style="display:none"><label id="disease-label">병명</label>
@@ -204,15 +207,16 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
       <div data-v="pre" class="on" onclick="setPhase('pre')">수확개시 전</div>
       <div data-v="post" onclick="setPhase('post')">수확개시 후</div>
     </div>
-    <div class="g3" id="phase-pre">
+    <div class="g2" id="phase-pre">
       <div class="field"><label>정식일자</label><input type="date" id="plantDate" class="inp" onchange="onField(this)"></div>
-      <div class="field"><label style="color:var(--green)">수확예정</label><input type="text" id="harvestPlan" class="auto" readonly placeholder="-"></div>
       <div class="field"><label>사고일자</label><input type="date" id="accDate" class="inp" onchange="onField(this)"></div>
     </div>
-    <div class="g3" id="phase-post" style="display:none">
+    <div class="g2" id="phase-post" style="display:none">
       <div class="field"><label>수확개시일</label><input type="date" id="harvestStart" class="inp" onchange="onField(this)"></div>
-      <div class="field"><label style="color:var(--green)">보장종료</label><input type="text" id="covEnd" class="auto" readonly placeholder="-"></div>
       <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
+    </div>
+    <div class="autobar" style="margin-top:8px">
+      <span id="aux-label">수확예정일</span><b id="aux-date">-</b>
     </div>
     <div class="g3" style="margin-top:8px">
       <div class="field"><label style="color:var(--green)">경과비율</label><input type="text" id="coeff-disp" class="auto" readonly placeholder="-"></div>
@@ -576,8 +580,10 @@ function setPhase(p){
 }
 
 function calc(){
-  $('harvestPlan').value=st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'';
-  $('covEnd').value=st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'';
+  const harvestPlan=st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'';
+  const covEnd=st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'';
+  if(st.phase==='pre'){ $('aux-label').textContent='수확예정일'; $('aux-date').textContent=harvestPlan||'-'; }
+  else { $('aux-label').textContent='보장종료일'; $('aux-date').textContent=covEnd||'-'; }
   const co=coeff(),ar=areaRate(),so=sonhae();
   $('r-coeff').textContent=co===null?'-':fmtPct(co);
   $('coeff-disp').value=co===null?'':fmtPct(co);
@@ -695,7 +701,7 @@ function fillCaptureTemplate(){
     body='<td style="padding:6px;text-align:center;font-weight:700;background:#eef3e7;color:#3f5a2b">수확개시 전</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate||'-')+'</td>'+
-         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+($('harvestPlan').value||'-')+'</td>';
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'-')+'</td>';
   }else{
     head='<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
          '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시</th>'+
@@ -704,7 +710,7 @@ function fillCaptureTemplate(){
     body='<td style="padding:6px;text-align:center;font-weight:700;background:#eef3e7;color:#3f5a2b">수확개시 후</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.harvestStart||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate2||'-')+'</td>'+
-         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+($('covEnd').value||'-')+'</td>';
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'-')+'</td>';
   }
   $('cap-date-head').innerHTML=head;
   $('cap-date-body').innerHTML=body;
