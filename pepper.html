@@ -4,17 +4,17 @@
 <meta charset="UTF-8">
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#C2410C">
+<meta name="theme-color" content="#5B7E3F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>고추 피해율계산기 (개발)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
-  --org:#C2410C;--org2:#E2680F;
-  --auto:#F4EEE7;--border:#D8D6CE;--binp:#E2680F;--hint:#C9A98E;
+  --org:#5B7E3F;--org2:#7FAD52;
+  --auto:#F3F1EA;--border:#D8D6CE;--binp:#7FAD52;--hint:#aaa;
   --text:#1a1a1a;--sub:#666;
-  --bg:#F5F4F0;--card:#fff;--red:#e24b4a;--green:#1D9E75;
+  --bg:#F5F4F0;--card:#fff;--red:#e24b4a;--green:#1D9E75;--blue:#185FA5;
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
@@ -48,6 +48,12 @@ select.inp{cursor:pointer;text-align-last:center}
 input.inp::placeholder{color:var(--hint)}
 input.inp.filled,select.inp.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 input[type=date].inp{font-size:13px;letter-spacing:-0.03em;padding:0 4px}
+input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
+input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
+  outline:none!important;border-color:var(--blue)!important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;
+  background:#dceeff!important;color:#185FA5!important;
+}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 
 .bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--org2);border-radius:var(--rs);color:var(--org2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
@@ -59,7 +65,7 @@ body.big-text .field label{font-size:13px!important}
 body.big-text table.smp td input{height:40px!important;font-size:16px!important;font-weight:700!important}
 body.big-text table.smp th{font-size:12px!important}
 
-.autobar{display:flex;align-items:center;justify-content:space-between;background:#FBF3EC;border-radius:var(--rs);padding:9px 11px;margin-top:8px}
+.autobar{display:flex;align-items:center;justify-content:space-between;background:#eef3e7;border-radius:var(--rs);padding:9px 11px;margin-top:8px}
 .autobar span{font-size:11px;color:var(--sub)}
 .autobar b{font-size:14px;font-weight:800}
 
@@ -74,17 +80,17 @@ body.big-text table.smp th{font-size:12px!important}
 .prev-row input.filled{background:#e8faf3;border-color:var(--green);font-weight:700}
 .prev-row .pu{font-size:13px;color:var(--sub);width:14px;flex-shrink:0}
 .prev-row .del{width:30px;height:30px;flex-shrink:0;border:none;background:#f3f1ea;border-radius:8px;color:var(--hint);font-size:16px;cursor:pointer}
-.prev-add{width:100%;border:1.5px dashed var(--org2);background:#FBF3EC;border-radius:var(--rs);padding:9px;font-size:12px;color:var(--org);font-weight:700;cursor:pointer;margin-top:3px}
+.prev-add{width:100%;border:1.5px dashed var(--org2);background:#eef3e7;border-radius:var(--rs);padding:9px;font-size:12px;color:var(--org);font-weight:700;cursor:pointer;margin-top:3px}
 .prev-empty{font-size:11px;color:var(--hint);text-align:center;padding:6px 0 9px}
 
 table.smp{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;text-align:center}
 table.smp col.c-no{width:24px}
 table.smp col.c-side{width:33px}
 table.smp col.c-tot{width:34px}
-table.smp th{background:var(--org);color:#fff;font-weight:700;border:0.5px solid #9a350a;padding:3px 0}
-table.smp th.norm{color:#bdf0db}
+table.smp th{background:var(--org);color:#fff;font-weight:700;border:0.5px solid #3f5a2b;padding:3px 0}
+table.smp th.norm{color:#d8ecc4}
 table.smp td{border:0.5px solid var(--border);padding:0}
-table.smp td.no{background:#faf8f4;font-weight:700;color:var(--sub)}
+table.smp td.no{background:#f7f9f3;font-weight:700;color:var(--sub)}
 table.smp td.tot{background:var(--auto);font-weight:800;font-size:11px}
 table.smp input{width:100%;height:30px;border:none;background:#fff;text-align:center;font-size:13px;color:var(--text);-webkit-appearance:none;border-radius:0}
 table.smp input::placeholder{color:var(--hint);font-size:10px}
@@ -108,7 +114,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 .result .lab .s{font-size:10px;color:rgba(255,255,255,0.55)}
 .result .vbar{width:1px;height:38px;background:rgba(255,255,255,0.28);flex-shrink:0}
 .result .pct{padding:0 12px;flex:1;min-width:0}
-.result .pct span{font-size:25px;font-weight:800;color:#FFD8BC;letter-spacing:-0.02em;white-space:nowrap}
+.result .pct span{font-size:25px;font-weight:800;color:#d8ecc4;letter-spacing:-0.02em;white-space:nowrap}
 .save-btn{background:rgba(255,255,255,0.18);color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer;margin-left:8px;flex-shrink:0}
 .subres{display:flex;gap:6px;margin-top:8px}
 .subres div{flex:1;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:7px 8px}
@@ -144,7 +150,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
     <div style="display:flex;gap:8px;align-items:flex-end">
       <div class="field" style="width:40%">
         <label>농지번호</label>
-        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호" oninput="onField(this)" autocomplete="off">
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호 4자리" maxlength="4" oninput="onField(this)" autocomplete="off">
       </div>
       <div class="field" style="width:40%">
         <label>조사일자</label>
@@ -165,33 +171,26 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
           <option value="강원외">강원 외</option><option value="강원">강원</option>
         </select></div>
     </div>
-  </div>
-
-  <!-- ① 재해 / 병충해 -->
-  <div class="section">
-    <div class="sec-title">① 재해 · 병충해</div>
-    <div class="toggle" id="dtype-toggle">
-      <div data-v="natural" class="on" onclick="setDtype('natural')">자연재해·조수해·화재</div>
-      <div data-v="bug" onclick="setDtype('bug')">병충해</div>
-    </div>
-    <div id="bug-grade" style="display:none">
-      <div class="field" style="margin-bottom:8px"><label>병충해 등급</label>
+    <div class="g2" id="cause-row" style="margin-top:8px;grid-template-columns:1fr">
+      <div class="field"><label>사고원인</label>
         <select id="disaster" class="inp" style="text-align:left;text-align-last:left" onchange="onField(this)">
-          <option value="70">1등급 — 역병/풋마름병/바이러스병/세균성점무늬병/탄저병 (70%)</option>
-          <option value="50">2등급 — 잿빛곰팡이병/시들음병/담배가루이/담배나방 (50%)</option>
-          <option value="30">3등급 — 흰가루병/균핵병/무름병/진딧물 및 기타 (30%)</option>
-        </select></div>
-    </div>
-    <div class="g2">
-      <div class="autobar" style="margin-top:0"><span>병충해 인정비율</span><b id="r-recog">100%</b></div>
-      <div class="field"><label>미보상비율</label><span class="unit-badge">%</span>
-        <input type="text" id="uninsRate" class="inp" inputmode="decimal" placeholder="%" oninput="onField(this)"></div>
+          <option value="n|100">자연재해 (100%)</option>
+          <option value="n|100">조수해 (100%)</option>
+          <option value="n|100">화재 (100%)</option>
+          <option value="b|70">병충해 1등급 (70%)</option>
+          <option value="b|50">병충해 2등급 (50%)</option>
+          <option value="b|30">병충해 3등급 (30%)</option>
+        </select>
+      </div>
+      <div class="field" id="disease-wrap" style="display:none"><label id="disease-label">병명</label>
+        <select id="disease" class="inp" style="text-align:left;text-align-last:left" onchange="onField(this)"></select>
+      </div>
     </div>
   </div>
 
-  <!-- ② 수확개시 전/후 → 경과비율 -->
+  <!-- ① 사고시기 -->
   <div class="section">
-    <div class="sec-title">② 사고시기 · 경과비율</div>
+    <div class="sec-title">① 사고시기 · 경과비율</div>
     <div class="toggle" id="phase-toggle">
       <div data-v="pre" class="on" onclick="setPhase('pre')">수확개시 전</div>
       <div data-v="post" onclick="setPhase('post')">수확개시 후</div>
@@ -206,12 +205,18 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
       <div class="field"><label style="color:var(--green)">보장종료</label><input type="text" id="covEnd" class="auto" readonly placeholder="-"></div>
       <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
     </div>
-    <div class="autobar"><span>경과비율 (자동 · 준비기 55.5%)</span><b id="r-coeff">-</b></div>
+    <div class="g2" style="margin-top:8px">
+      <div class="field"><label style="color:var(--green)">경과비율</label><input type="text" id="coeff-disp" class="auto" readonly placeholder="-"></div>
+      <div class="field"><label>미보상비율</label><span class="unit-badge">%</span>
+        <input type="text" id="uninsRate" class="inp" inputmode="decimal" placeholder="%" oninput="onField(this)"></div>
+    </div>
+    <b id="r-coeff" style="display:none">-</b>
+    <b id="r-recog" style="display:none">100%</b>
   </div>
 
-  <!-- ③ 면적 정보 -->
+  <!-- ② 면적 정보 -->
   <div class="section">
-    <div class="sec-title">③ 면적 정보</div>
+    <div class="sec-title">② 면적 정보</div>
     <div class="g3">
       <div class="field"><label>가입면적</label><span class="unit-badge">㎡</span>
         <input type="text" id="insArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
@@ -220,20 +225,20 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
       <div class="field"><label>피해면적</label><span class="unit-badge">㎡</span>
         <input type="text" id="dmgArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
     </div>
-    <div class="autobar"><span>면적피해비율 (자동)</span><b id="r-areapct">-</b></div>
+    <b id="r-areapct" style="display:none">-</b>
   </div>
 
-  <!-- ④ 표본이랑 조사 -->
+  <!-- ③ 표본이랑 조사 -->
   <div class="section">
-    <div class="sec-title">④ 표본이랑 조사 <span class="hl" id="smp-cnt">피해면적 입력 시 자동</span></div>
+    <div class="sec-title">③ 표본이랑 조사 <span class="hl" id="smp-cnt">피해면적 입력 시 자동</span></div>
     <div id="smp-wrap"></div>
     <div class="autobar"><span>평균손해정도비율 (자동)</span><b id="r-sonhae">-</b></div>
     <div class="smp-note">윗줄 10·20·30·40·50 · 아랫줄 60·70·80·90·100 (한 이랑 = 2줄)</div>
   </div>
 
-  <!-- ⑤ 이전 차수 -->
+  <!-- ④ 이전 차수 -->
   <div class="section">
-    <div class="sec-title">⑤ 이전 차수 누적피해율 <span class="hl">(과거조사 요약표 보고 입력)</span></div>
+    <div class="sec-title">④ 이전 차수 누적피해율 <span class="hl">(과거조사 요약표 보고 입력)</span></div>
     <div class="g2" style="margin-bottom:9px">
       <div class="field"><label>이번 조사 차수</label>
         <select id="thisChasu" class="inp" onchange="onField(this)">
@@ -258,11 +263,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
     <div class="vbar"></div>
     <button class="save-btn" onclick="saveImage()">📷 저장</button>
   </div>
-  <div class="subres">
-    <div><div class="k">이번 차수</div><div class="v" id="r-chasu">1차</div></div>
-    <div><div class="k">누적피해율</div><div class="v" id="r-nujeok2">-</div></div>
-    <div><div class="k">기누적</div><div class="v" id="r-ginujeok2">0%</div></div>
-  </div>
+  <b id="r-chasu" style="display:none">1차</b><b id="r-nujeok2" style="display:none">-</b><b id="r-ginujeok2" style="display:none">0%</b>
 
 </div>
 
@@ -291,7 +292,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 
 <!-- 갤러리 저장용 작성표 (화면 밖) -->
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;background:#f3f4f6;z-index:-1">
-  <div style="background:linear-gradient(180deg,#7A2408 0%,#C2410C 9%,#f3f4f6 9%,#f3f4f6 100%);padding:0 16px 22px;box-sizing:border-box">
+  <div style="background:linear-gradient(180deg,#3f5a2b 0%,#5B7E3F 9%,#f3f4f6 9%,#f3f4f6 100%);padding:0 16px 22px;box-sizing:border-box">
     <div style="height:18px"></div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:13px">
       <div style="font-size:15px;font-weight:700">🌶️ 고추 생산비조사 작성표</div>
@@ -304,15 +305,15 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 
       <!-- 1. 사고원인 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">1. 사고원인 조사</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 사고원인 조사</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <tbody>
             <tr>
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#FBF3EC;font-weight:700;color:#9a350a;width:42%">재해종류</td>
+              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;width:42%">재해종류</td>
               <td style="padding:6px 8px;font-weight:700" id="cap-disaster">-</td>
             </tr>
             <tr style="border-top:1px solid #e0e0e0">
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#FBF3EC;font-weight:700;color:#9a350a">병충해 인정비율</td>
+              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b">병충해 인정비율</td>
               <td style="padding:6px 8px;font-weight:700" id="cap-recog">100%</td>
             </tr>
           </tbody>
@@ -321,24 +322,24 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 
       <!-- 2. 일자조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px" id="cap-date-title">2. 일자조사 · 경과비율</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px" id="cap-date-title">2. 일자조사 · 경과비율</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <thead><tr id="cap-date-head"></tr></thead>
           <tbody><tr id="cap-date-body"></tr></tbody>
         </table>
-        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#C2410C">경과비율 <span id="cap-coeff">-</span></div>
+        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#5B7E3F">경과비율 <span id="cap-coeff">-</span></div>
       </div>
 
       <!-- 3. 면적조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">3. 면적조사 (피해비율 산출)</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">3. 면적조사 (피해비율 산출)</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <colgroup><col style="width:33%"><col style="width:34%"><col style="width:33%"></colgroup>
           <thead><tr>
-            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
-            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작(A)</th>
-            <th style="padding:5px;background:#c2410c;color:#fff;text-align:center">피해면적</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작(A)</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">피해면적</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:5px;text-align:center;font-weight:700" id="cap-ins-area">-</td>
@@ -346,35 +347,35 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
             <td style="padding:5px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-dmg-area">-</td>
           </tr></tbody>
         </table>
-        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#C2410C">면적피해비율 <span id="cap-areapct">-</span></div>
+        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#5B7E3F">면적피해비율 <span id="cap-areapct">-</span></div>
       </div>
 
       <!-- 4. 손해정도비율 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">4. 손해정도비율 조사</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">4. 손해정도비율 조사</div>
         <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #e0e0e0;table-layout:fixed">
           <thead id="cap-smp-head"></thead>
           <tbody id="cap-smp-body"></tbody>
         </table>
-        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#C2410C">평균손해정도비율 <span id="cap-sonhae">-</span></div>
+        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#5B7E3F">평균손해정도비율 <span id="cap-sonhae">-</span></div>
       </div>
 
       <!-- 5. 결과 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">5. 피해율 결과</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">5. 피해율 결과</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <thead><tr>
-            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">차수</th>
-            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">누적피해율</th>
-            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">기누적</th>
-            <th style="padding:5px;background:#c2410c;color:#fff;text-align:center">적용피해율</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">차수</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">누적피해율</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">기누적</th>
+            <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">적용피해율</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:6px;text-align:center;font-weight:700" id="cap-chasu">-</td>
             <td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-nujeok">-</td>
             <td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-ginujeok">-</td>
-            <td style="padding:6px;text-align:center;font-weight:900;color:#C2410C;border-left:1px solid #e0e0e0" id="cap-final">-</td>
+            <td style="padding:6px;text-align:center;font-weight:900;color:#5B7E3F;border-left:1px solid #e0e0e0" id="cap-final">-</td>
           </tr></tbody>
         </table>
         <div style="margin-top:8px;font-size:9px;color:#999;line-height:1.5">※ 미보상비율 <span id="cap-unins">0%</span> 반영 · 사고원인·면적·표본·조사자의견은 종이 조사서에 직접 기재</div>
@@ -392,7 +393,7 @@ const KEY='pepper_state', HKEY='pepper_history', BKEY='pepper_bigtext';
 
 let st={
   farm_no:'',survey_date:'',pumjong:'홍고추',region:'강원외',
-  dtype:'natural',disaster:'70',uninsRate:'',
+  disasterIdx:0,diseaseIdx:0,uninsRate:'',
   phase:'pre',plantDate:'',accDate:'',harvestStart:'',accDate2:'',
   insArea:'',actArea:'',dmgArea:'',
   thisChasu:'1',prev:[],samples:[]
@@ -402,6 +403,7 @@ let mode='edit';
 const $=id=>document.getElementById(id);
 const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
 const fmtPct=x=>(x*100).toFixed(2).replace(/\.?0+$/,'')+'%';
+function todayStr(){const d=new Date();const z=n=>(n<10?'0':'')+n;return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
 
 function persist(){ try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){} }
 function restore(){ try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(st,JSON.parse(r));}catch(e){} }
@@ -417,7 +419,15 @@ function ensureSamples(){
 /* 계산 */
 function daysBetween(a,b){if(!a||!b)return null;return Math.round((new Date(b)-new Date(a))/86400000);}
 function addDays(a,n){if(!a)return '';const d=new Date(a);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
-function recog(){ return st.dtype==='natural'?100:num(st.disaster); }
+const DISASTERS=[
+  {label:'자연재해',recog:100,diseases:['태풍','우박','동상해','호우','강풍','냉해','조해(潮害)','설해','한해(가뭄)','폭염','기타자연재해']},
+  {label:'조수해',recog:100,diseases:['조수해']},
+  {label:'화재',recog:100,diseases:['화재']},
+  {label:'병충해 1등급',recog:70,diseases:['역병','풋마름병','바이러스병','세균성점무늬병','탄저병']},
+  {label:'병충해 2등급',recog:50,diseases:['잿빛곰팡이병','시들음병','담배가루이','담배나방']},
+  {label:'병충해 3등급',recog:30,diseases:['흰가루병','균핵병','무름병','진딧물','기타']}
+];
+function recog(){ const d=DISASTERS[st.disasterIdx]; return d?d.recog:100; }
 function coeff(){
   const K=0.555;
   if(st.phase==='pre'){
@@ -499,22 +509,51 @@ function updateSampleTotals(){
 }
 
 /* 폼 */
+function renderDisease(){
+  const d=DISASTERS[st.disasterIdx];
+  const wrap=$('disease-wrap'), sel=$('disease'), row=$('cause-row'), lab=$('disease-label');
+  if(!d||!d.diseases){ wrap.style.display='none'; sel.innerHTML=''; if(row)row.style.gridTemplateColumns='1fr'; return; }
+  wrap.style.display='';
+  if(row)row.style.gridTemplateColumns='1fr 1fr';
+  if(lab) lab.textContent = (d.recog===100)?'세부재해':'병명';
+  sel.innerHTML=d.diseases.map((nm,i)=>'<option value="'+i+'">'+nm+'</option>').join('');
+  if(st.diseaseIdx>=d.diseases.length) st.diseaseIdx=0;
+  sel.selectedIndex=st.diseaseIdx;
+  markFilled(sel);
+}
+function diseaseName(){
+  const d=DISASTERS[st.disasterIdx];
+  if(!d||!d.diseases) return '';
+  return d.diseases[st.diseaseIdx]||'';
+}
 function loadForm(){
-  ['farm_no','survey_date','pumjong','region','disaster','uninsRate','plantDate','accDate','harvestStart','accDate2','insArea','actArea','dmgArea','thisChasu'].forEach(id=>{
+  ['farm_no','survey_date','pumjong','region','uninsRate','plantDate','accDate','harvestStart','accDate2','insArea','actArea','dmgArea','thisChasu'].forEach(id=>{
     const el=$(id);if(el){el.value=st[id]||'';markFilled(el);}
   });
-  document.querySelectorAll('#dtype-toggle div').forEach(d=>d.classList.toggle('on',d.dataset.v===st.dtype));
-  $('bug-grade').style.display=st.dtype==='bug'?'':'none';
+  const dsel=$('disaster'); if(dsel){ dsel.selectedIndex=st.disasterIdx||0; markFilled(dsel); }
+  renderDisease();
   document.querySelectorAll('#phase-toggle div').forEach(d=>d.classList.toggle('on',d.dataset.v===st.phase));
   $('phase-pre').style.display=st.phase==='pre'?'':'none';
   $('phase-post').style.display=st.phase==='post'?'':'none';
+  // 사고일자 미입력 시 조사일자로 자동
+  if(st.survey_date){
+    if(!st.accDate){ st.accDate=st.survey_date; const a=$('accDate'); if(a){a.value=st.survey_date;markFilled(a);} }
+    if(!st.accDate2){ st.accDate2=st.survey_date; const a2=$('accDate2'); if(a2){a2.value=st.survey_date;markFilled(a2);} }
+  }
   renderPrev();renderSamples();calc();
 }
 function markFilled(el){if(el.classList.contains('auto'))return;el.classList.toggle('filled',(el.value||'').trim()!=='');}
 
 function onField(el){
   markFilled(el);
-  if(st.hasOwnProperty(el.id)) st[el.id]=el.value;
+  if(el.id==='disaster'){ st.disasterIdx=el.selectedIndex; st.diseaseIdx=0; renderDisease(); }
+  else if(el.id==='disease'){ st.diseaseIdx=el.selectedIndex; }
+  else if(st.hasOwnProperty(el.id)) st[el.id]=el.value;
+  // 조사일자 입력 시 사고일자가 비어있으면 동일하게 자동
+  if(el.id==='survey_date' && el.value){
+    if(!st.accDate){ st.accDate=el.value; const a=$('accDate'); if(a){a.value=el.value;markFilled(a);} }
+    if(!st.accDate2){ st.accDate2=el.value; const a2=$('accDate2'); if(a2){a2.value=el.value;markFilled(a2);} }
+  }
   if(el.id==='dmgArea') renderSamples();
   persist();calc();
 }
@@ -524,12 +563,6 @@ function onSmp(el){
   else st.samples[r].d[+el.dataset.d]=el.value;
   el.classList.toggle('filled',(el.value||'').trim()!=='');
   updateSampleTotals();persist();calc();
-}
-function setDtype(t){
-  st.dtype=t;
-  document.querySelectorAll('#dtype-toggle div').forEach(d=>d.classList.toggle('on',d.dataset.v===t));
-  $('bug-grade').style.display=t==='bug'?'':'none';
-  persist();calc();
 }
 function setPhase(p){
   st.phase=p;
@@ -544,6 +577,7 @@ function calc(){
   $('covEnd').value=st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'';
   const co=coeff(),ar=areaRate(),so=sonhae();
   $('r-coeff').textContent=co===null?'-':fmtPct(co);
+  $('coeff-disp').value=co===null?'':fmtPct(co);
   $('r-areapct').textContent=ar===null?'-':fmtPct(ar);
   $('r-sonhae').textContent=so===null?'-':fmtPct(so);
   $('r-recog').textContent=recog()+'%';
@@ -579,6 +613,8 @@ function closeResetModal(){$('reset-overlay').classList.remove('show');}
 function confirmResetAll(){
   closeResetModal();
   localStorage.removeItem(KEY);
+  // 조사일자는 오늘로 자동 세팅 후 시작
+  try{ localStorage.setItem(KEY, JSON.stringify({survey_date:todayStr()})); }catch(e){}
   location.reload();
 }
 
@@ -636,9 +672,10 @@ function saveHistory(){
 }
 
 function disasterLabel(){
-  if(st.dtype==='natural') return '자연재해 · 조수해 · 화재';
-  const m={'70':'1등급 병충해','50':'2등급 병충해','30':'3등급 병충해'};
-  return m[st.disaster]||'병충해';
+  const d=DISASTERS[st.disasterIdx];
+  if(!d) return '-';
+  const dn=diseaseName();
+  return dn?(d.label+' · '+dn):d.label;
 }
 function fillCaptureTemplate(){
   $('cap-date').textContent=st.survey_date||'';
@@ -650,20 +687,20 @@ function fillCaptureTemplate(){
   const co=coeff();
   let head='',body='';
   if(st.phase==='pre'){
-    head='<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
-         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정식일</th>'+
-         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
-         '<th style="padding:5px;background:#c2410c;color:#fff;text-align:center">수확예정</th>';
-    body='<td style="padding:6px;text-align:center;font-weight:700;background:#FBF3EC;color:#9a350a">수확개시 전</td>'+
+    head='<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정식일</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">수확예정</th>';
+    body='<td style="padding:6px;text-align:center;font-weight:700;background:#eef3e7;color:#3f5a2b">수확개시 전</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+($('harvestPlan').value||'-')+'</td>';
   }else{
-    head='<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
-         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시</th>'+
-         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
-         '<th style="padding:5px;background:#c2410c;color:#fff;text-align:center">보장종료</th>';
-    body='<td style="padding:6px;text-align:center;font-weight:700;background:#FBF3EC;color:#9a350a">수확개시 후</td>'+
+    head='<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">보장종료</th>';
+    body='<td style="padding:6px;text-align:center;font-weight:700;background:#eef3e7;color:#3f5a2b">수확개시 후</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.harvestStart||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate2||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+($('covEnd').value||'-')+'</td>';
@@ -678,23 +715,23 @@ function fillCaptureTemplate(){
   $('cap-dmg-area').textContent=(st.dmgArea||'-')+(st.dmgArea?' ㎡':'');
   $('cap-areapct').textContent=ar===null?'-':fmtPct(ar);
   // 4. 손해정도 표본표 (앱과 동일한 2줄 격자)
-  let hh='<tr><th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">이랑</th>'+
-    '<th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#bdf0db;border:0.5px solid #9a350a">정상</th>'+
-    '<th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">10</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">20</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">30</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">40</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">50</th>'+
-    '<th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">고사</th>'+
-    '<th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">계</th></tr>'+
-    '<tr><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">60</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">70</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">80</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">90</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">100</th></tr>';
+  let hh='<tr><th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">이랑</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#d8ecc4;border:0.5px solid #3f5a2b">정상</th>'+
+    '<th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">10</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">20</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">30</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">40</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">50</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">고사</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">계</th></tr>'+
+    '<tr><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">60</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">70</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">80</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">90</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">100</th></tr>';
   $('cap-smp-head').innerHTML=hh;
   const cell='padding:3px 0;border:0.5px solid #e0e0e0;text-align:center';
   const dash=v=>num(v)>0?v:'·';
   let bb='';
   st.samples.forEach((s,r)=>{
     let row=num(s.normal)+num(s.dead); s.d.forEach(v=>row+=num(v));
-    bb+='<tr><td rowspan="2" style="'+cell+';background:#faf8f4;font-weight:700">'+(r+1)+'</td>'+
+    bb+='<tr><td rowspan="2" style="'+cell+';background:#f7f9f3;font-weight:700">'+(r+1)+'</td>'+
         '<td rowspan="2" style="'+cell+';font-weight:700">'+dash(s.normal)+'</td>';
     TOP.forEach(di=>{ bb+='<td style="'+cell+'">'+dash(s.d[di])+'</td>'; });
     bb+='<td rowspan="2" style="'+cell+'">'+dash(s.dead)+'</td>'+
-        '<td rowspan="2" style="'+cell+';background:#FBF3EC;font-weight:800">'+(row>0?row:'·')+'</td></tr><tr>';
+        '<td rowspan="2" style="'+cell+';background:#eef3e7;font-weight:800">'+(row>0?row:'·')+'</td></tr><tr>';
     BOT.forEach(di=>{ bb+='<td style="'+cell+'">'+dash(s.d[di])+'</td>'; });
     bb+='</tr>';
   });
@@ -727,6 +764,7 @@ function saveImage(){
 }
 
 restore();
+if(!st.survey_date) st.survey_date=todayStr();
 if(localStorage.getItem(BKEY)==='1'){document.body.classList.add('big-text');$('bigtext-btn').classList.add('on');$('bigtext-label').textContent='원래대로';}
 loadForm();
 </script>
