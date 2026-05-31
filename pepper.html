@@ -98,6 +98,10 @@ table.smp input.filled{background:#e8faf3;color:#0F6E56;font-weight:700}
 table.smp td.side input{height:62px}
 table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-color:#e9d4a8;font-size:11px;padding:5px 0}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
+.sample-btn-row{display:flex;gap:8px;margin-top:8px}
+.add-btn{flex:1;height:42px;border:2px dashed var(--org2);background:#eef3e7;border-radius:12px;font-size:14px;font-weight:800;color:var(--org);cursor:pointer}
+.del-sample-btn{flex:1;height:42px;border:2px solid var(--red);background:#fff4f4;color:#c8403d;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer}
+.add-btn:active,.del-sample-btn:active{transform:translateY(1px)}
 
 .modebar{display:flex;gap:8px;margin:4px 0 12px}
 .btn-edit,.btn-calc{flex:1;height:46px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer}
@@ -105,7 +109,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 .btn-calc{border:2px solid var(--green);background:#fff;color:var(--green)}
 .btn-edit.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(29,158,117,0.3)}
 .btn-calc.active{background:linear-gradient(135deg,#0F6E56,#1D9E75);color:#fff;box-shadow:0 4px 14px rgba(15,110,86,0.32)}
-.locked input.inp,.locked select.inp,.locked table.smp input,.locked .prev-row input,.locked input[type=date].inp{pointer-events:none;opacity:0.72}
+.locked input.inp,.locked select.inp,.locked table.smp input,.locked .prev-row input,.locked input[type=date].inp,.locked .add-btn,.locked .del-sample-btn{pointer-events:none;opacity:0.72}
 
 .result{background:var(--org);border-radius:12px;padding:14px 12px;display:flex;align-items:center}
 .result.pending{opacity:0.75}
@@ -121,8 +125,8 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 .subres .k{font-size:10px;color:var(--sub)}
 .subres .v{font-size:13px;font-weight:800;margin-top:1px}
 
-#reset-overlay,#history-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px}
-#reset-overlay.show,#history-overlay.show{display:flex}
+#reset-overlay,#history-overlay,#delete-limit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px}
+#reset-overlay.show,#history-overlay.show,#delete-limit-overlay.show{display:flex}
 </style>
 </head>
 <body>
@@ -241,6 +245,10 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
     <div id="smp-wrap"></div>
     <div class="autobar"><span>평균손해정도비율 (자동)</span><b id="r-sonhae">-</b></div>
     <div class="smp-note">윗줄 10·20·30·40·50 · 아랫줄 60·70·80·90·100 (한 이랑 = 2줄)</div>
+    <div class="sample-btn-row" id="sample-btn-row" style="display:none">
+      <button class="add-btn" onclick="addSample()">+ 이랑 추가</button>
+      <button class="del-sample-btn" onclick="removeSample()">- 이랑 삭제</button>
+    </div>
   </div>
 
   <div class="modebar">
@@ -268,6 +276,15 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
       <button onclick="closeResetModal()" style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d9d9d9;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
       <button onclick="confirmResetAll()" style="flex:1;height:46px;border-radius:12px;border:none;background:var(--org);color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
     </div>
+  </div>
+</div>
+
+<!-- 적정표본 이하 삭제불가 모달 -->
+<div id="delete-limit-overlay">
+  <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:18px;font-weight:800;margin-bottom:10px">삭제 불가</div>
+    <div style="font-size:14px;color:#666;margin-bottom:18px;line-height:1.6">적정 표본이랑 이하는<br>삭제할 수 없습니다.</div>
+    <button onclick="document.getElementById('delete-limit-overlay').classList.remove('show')" style="width:100%;height:44px;border:none;border-radius:12px;background:var(--org);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
   </div>
 </div>
 
@@ -400,11 +417,11 @@ function restore(){ try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(
 
 /* 표본 */
 function sampleCount(a){a=num(a);if(a<=0)return 0;if(a>=15000)return 10;if(a>=7000)return 8;if(a>=3000)return 6;return 4;}
+function minSamples(){return sampleCount(st.dmgArea);}
 function ensureSamples(){
-  const n=sampleCount(st.dmgArea);
+  const n=minSamples();
   while(st.samples.length<n) st.samples.push({normal:'',d:Array(10).fill(''),dead:''});
-  if(st.samples.length>n) st.samples.length=n;
-  return n;
+  return st.samples.length; // 초과분(사용자 추가)은 유지
 }
 /* 계산 */
 function daysBetween(a,b){if(!a||!b)return null;return Math.round((new Date(b)-new Date(a))/86400000);}
@@ -468,6 +485,18 @@ function renderSamples(){
   });
   h+='<tr class="sum"><td colspan="2">계</td><td id="sum-0">0</td><td id="sum-1">0</td><td id="sum-2">0</td><td id="sum-3">0</td><td id="sum-4">0</td><td id="sum-dead">0</td><td id="sum-all">0</td></tr></tbody></table>';
   wrap.innerHTML=h;updateSampleTotals();
+  const btnRow=$('sample-btn-row'); if(btnRow) btnRow.style.display=n?'flex':'none';
+}
+function addSample(){
+  if(st.samples.length>=20){ return; }
+  st.samples.push({normal:'',d:Array(10).fill(''),dead:''});
+  renderSamples();persist();calc();
+}
+function removeSample(){
+  const needed=minSamples();
+  if(st.samples.length<=needed){ $('delete-limit-overlay').classList.add('show'); return; }
+  st.samples.pop();
+  renderSamples();persist();calc();
 }
 function updateSampleTotals(){
   let colTop=[0,0,0,0,0],dead=0,all=0;
