@@ -161,7 +161,12 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
           style="width:100%;height:46px;border:1.5px solid var(--org2);border-radius:var(--rs);background:white;color:var(--org);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">📋</button>
       </div>
     </div>
-    <div class="g2" style="margin-top:8px">
+  </div>
+
+  <!-- 1. 기본정보 -->
+  <div class="section">
+    <div class="sec-title">1. 기본정보</div>
+    <div class="g2">
       <div class="field"><label>품종</label>
         <select id="pumjong" class="inp" onchange="onField(this)">
           <option value="홍고추">홍고추</option><option value="풋고추">풋고추</option>
@@ -190,7 +195,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 
   <!-- ① 사고시기 -->
   <div class="section">
-    <div class="sec-title">① 사고시기 · 경과비율</div>
+    <div class="sec-title">2. 사고시기 · 경과비율</div>
     <div class="toggle" id="phase-toggle">
       <div data-v="pre" class="on" onclick="setPhase('pre')">수확개시 전</div>
       <div data-v="post" onclick="setPhase('post')">수확개시 후</div>
@@ -205,10 +210,12 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
       <div class="field"><label style="color:var(--green)">보장종료</label><input type="text" id="covEnd" class="auto" readonly placeholder="-"></div>
       <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
     </div>
-    <div class="g2" style="margin-top:8px">
+    <div class="g3" style="margin-top:8px">
       <div class="field"><label style="color:var(--green)">경과비율</label><input type="text" id="coeff-disp" class="auto" readonly placeholder="-"></div>
       <div class="field"><label>미보상비율</label><span class="unit-badge">%</span>
         <input type="text" id="uninsRate" class="inp" inputmode="decimal" placeholder="%" oninput="onField(this)"></div>
+      <div class="field"><label>기누적피해율</label><span class="unit-badge">%</span>
+        <input type="text" id="ginujeok" class="inp" inputmode="decimal" placeholder="이전최대" oninput="onField(this)"></div>
     </div>
     <b id="r-coeff" style="display:none">-</b>
     <b id="r-recog" style="display:none">100%</b>
@@ -216,7 +223,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 
   <!-- ② 면적 정보 -->
   <div class="section">
-    <div class="sec-title">② 면적 정보</div>
+    <div class="sec-title">3. 면적 정보</div>
     <div class="g3">
       <div class="field"><label>가입면적</label><span class="unit-badge">㎡</span>
         <input type="text" id="insArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
@@ -230,25 +237,10 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 
   <!-- ③ 표본이랑 조사 -->
   <div class="section">
-    <div class="sec-title">③ 표본이랑 조사 <span class="hl" id="smp-cnt">피해면적 입력 시 자동</span></div>
+    <div class="sec-title">4. 표본이랑 조사 <span class="hl" id="smp-cnt">피해면적 입력 시 자동</span></div>
     <div id="smp-wrap"></div>
     <div class="autobar"><span>평균손해정도비율 (자동)</span><b id="r-sonhae">-</b></div>
     <div class="smp-note">윗줄 10·20·30·40·50 · 아랫줄 60·70·80·90·100 (한 이랑 = 2줄)</div>
-  </div>
-
-  <!-- ④ 이전 차수 -->
-  <div class="section">
-    <div class="sec-title">④ 이전 차수 누적피해율 <span class="hl">(과거조사 요약표 보고 입력)</span></div>
-    <div class="g2" style="margin-bottom:9px">
-      <div class="field"><label>이번 조사 차수</label>
-        <select id="thisChasu" class="inp" onchange="onField(this)">
-          <option value="1">1차</option><option value="2">2차</option><option value="3">3차</option>
-          <option value="4">4차</option><option value="5">5차</option><option value="6">6차</option>
-        </select></div>
-      <div class="autobar" style="margin-top:0"><span>기누적 (최대)</span><b id="r-ginujeok">0%</b></div>
-    </div>
-    <div id="prev-wrap"></div>
-    <button class="prev-add" id="prev-add" onclick="addPrev()">+ 이전 차수 추가</button>
   </div>
 
   <div class="modebar">
@@ -263,7 +255,7 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
     <div class="vbar"></div>
     <button class="save-btn" onclick="saveImage()">📷 저장</button>
   </div>
-  <b id="r-chasu" style="display:none">1차</b><b id="r-nujeok2" style="display:none">-</b><b id="r-ginujeok2" style="display:none">0%</b>
+  <b id="r-nujeok2" style="display:none">-</b><b id="r-ginujeok2" style="display:none">0%</b>
 
 </div>
 
@@ -364,16 +356,14 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">5. 피해율 결과</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
-          <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
+          <colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup>
           <thead><tr>
-            <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">차수</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">누적피해율</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">기누적</th>
             <th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">적용피해율</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:6px;text-align:center;font-weight:700" id="cap-chasu">-</td>
-            <td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-nujeok">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-nujeok">-</td>
             <td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-ginujeok">-</td>
             <td style="padding:6px;text-align:center;font-weight:900;color:#5B7E3F;border-left:1px solid #e0e0e0" id="cap-final">-</td>
           </tr></tbody>
@@ -396,7 +386,7 @@ let st={
   disasterIdx:0,diseaseIdx:0,uninsRate:'',
   phase:'pre',plantDate:'',accDate:'',harvestStart:'',accDate2:'',
   insArea:'',actArea:'',dmgArea:'',
-  thisChasu:'1',prev:[],samples:[]
+  ginujeok:'',samples:[]
 };
 let mode='edit';
 
@@ -456,29 +446,13 @@ function nujeok(){
   if(co===null||ar===null||so===null)return null;
   return co*ar*so*(recog()/100)*(1-num(st.uninsRate)/100);
 }
-function ginujeok(){let mx=0;st.prev.forEach(p=>{const v=num(p)/100;if(v>mx)mx=v;});return mx;}
-
-/* 이전 차수 */
-function renderPrev(){
-  const wrap=$('prev-wrap');wrap.innerHTML='';
-  if(st.prev.length===0) wrap.innerHTML='<div class="prev-empty">1차 조사면 비워두세요 (기누적 = 0%)</div>';
-  st.prev.forEach((p,i)=>{
-    const row=document.createElement('div');row.className='prev-row';
-    row.innerHTML='<div class="pl">'+(i+1)+'차</div>'+
-      '<input inputmode="decimal" placeholder="누적피해율" value="'+p+'" data-i="'+i+'" oninput="onPrev(this)" class="'+((''+p).trim()?'filled':'')+'">'+
-      '<div class="pu">%</div><button class="del" onclick="delPrev('+i+')">×</button>';
-    wrap.appendChild(row);
-  });
-}
-function addPrev(){st.prev.push('');renderPrev();persist();calc();}
-function delPrev(i){st.prev.splice(i,1);renderPrev();persist();calc();}
-function onPrev(el){st.prev[+el.dataset.i]=el.value;el.classList.toggle('filled',(el.value||'').trim()!=='');persist();calc();}
+function ginujeok(){return num(st.ginujeok)/100;}
 
 /* 표본 렌더 */
 function renderSamples(){
   const n=ensureSamples();const wrap=$('smp-wrap');
   $('smp-cnt').textContent=n?(n+'개 이랑'):'피해면적 입력 시 자동';
-  if(!n){wrap.innerHTML='<div class="smp-note" style="padding:14px 0">③ 피해면적을 입력하면 표본이랑이 생성됩니다</div>';return;}
+  if(!n){wrap.innerHTML='<div class="smp-note" style="padding:14px 0">3. 면적 정보의 피해면적을 입력하면 표본이랑이 생성됩니다</div>';return;}
   let h='<table class="smp"><colgroup><col class="c-no"><col class="c-side"><col><col><col><col><col><col class="c-side"><col class="c-tot"></colgroup>';
   h+='<thead><tr><th rowspan="2">이랑</th><th rowspan="2" class="norm">정상</th><th>10</th><th>20</th><th>30</th><th>40</th><th>50</th><th rowspan="2">고사</th><th rowspan="2">계</th></tr>';
   h+='<tr><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th></tr></thead><tbody>';
@@ -527,7 +501,7 @@ function diseaseName(){
   return d.diseases[st.diseaseIdx]||'';
 }
 function loadForm(){
-  ['farm_no','survey_date','pumjong','region','uninsRate','plantDate','accDate','harvestStart','accDate2','insArea','actArea','dmgArea','thisChasu'].forEach(id=>{
+  ['farm_no','survey_date','pumjong','region','uninsRate','ginujeok','plantDate','accDate','harvestStart','accDate2','insArea','actArea','dmgArea'].forEach(id=>{
     const el=$(id);if(el){el.value=st[id]||'';markFilled(el);}
   });
   const dsel=$('disaster'); if(dsel){ dsel.selectedIndex=st.disasterIdx||0; markFilled(dsel); }
@@ -540,7 +514,7 @@ function loadForm(){
     if(!st.accDate){ st.accDate=st.survey_date; const a=$('accDate'); if(a){a.value=st.survey_date;markFilled(a);} }
     if(!st.accDate2){ st.accDate2=st.survey_date; const a2=$('accDate2'); if(a2){a2.value=st.survey_date;markFilled(a2);} }
   }
-  renderPrev();renderSamples();calc();
+  renderSamples();calc();
 }
 function markFilled(el){if(el.classList.contains('auto'))return;el.classList.toggle('filled',(el.value||'').trim()!=='');}
 
@@ -582,8 +556,6 @@ function calc(){
   $('r-sonhae').textContent=so===null?'-':fmtPct(so);
   $('r-recog').textContent=recog()+'%';
   const nj=nujeok(),gnj=ginujeok();
-  $('r-ginujeok').textContent=fmtPct(gnj);
-  $('r-chasu').textContent=st.thisChasu+'차';
   $('r-nujeok2').textContent=nj===null?'-':fmtPct(nj);
   $('r-ginujeok2').textContent=fmtPct(gnj);
   $('result-pct').textContent=(nj!==null)?fmtPct(Math.max(0,nj-gnj)):'- -';
@@ -632,7 +604,7 @@ function openHistoryModal(){
         '<span style="font-size:15px;font-weight:800;color:var(--org)">'+(r.farm_no?'농지 '+r.farm_no:'농지번호 미입력')+'</span>'+
         '<span style="font-size:11px;color:#aaa">'+(r.saved_at||'')+'</span></div>'+
         '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
-        '<span style="font-size:12px;color:#555">🌶️ '+(r.thisChasu||'1')+'차</span>'+
+        '<span style="font-size:12px;color:#555">🌶️ '+(r.pumjong||'고추')+'</span>'+
         '<span style="font-size:12px;color:#555">📐 '+(r.actArea||r.insArea||'-')+' ㎡</span>'+
         '<span style="font-size:12px;color:#555">📊 '+(r.pct!=null?r.pct:'-')+'</span>'+
         '<span style="font-size:12px;color:#555">🗓 '+(r.survey_date||'-')+'</span></div>'+
@@ -648,7 +620,7 @@ function closeHistoryModal(){$('history-overlay').classList.remove('show');}
 function loadHistoryRecord(idx){
   let recs=[];try{recs=JSON.parse(localStorage.getItem(HKEY)||'[]');}catch(e){}
   const r=recs[idx];if(!r)return;
-  st=Object.assign({prev:[],samples:[]},r);
+  st=Object.assign({ginujeok:'',samples:[]},r);
   delete st.pct;delete st.saved_at;
   closeHistoryModal();
   persist();loadForm();
@@ -665,7 +637,7 @@ function saveHistory(){
   const rec=Object.assign({},st,{pct:pct,
     saved_at:new Date().toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/ /g,'')});
   let recs=[];try{recs=JSON.parse(localStorage.getItem(HKEY)||'[]');}catch(e){}
-  const ei=st.farm_no?recs.findIndex(r=>r.farm_no===st.farm_no&&r.survey_date===st.survey_date&&r.thisChasu===st.thisChasu):-1;
+  const ei=st.farm_no?recs.findIndex(r=>r.farm_no===st.farm_no&&r.survey_date===st.survey_date):-1;
   if(ei>=0)recs[ei]=rec;else recs.push(rec);
   if(recs.length>30)recs=recs.slice(-30);
   try{localStorage.setItem(HKEY,JSON.stringify(recs));}catch(e){}
@@ -748,7 +720,7 @@ function fillCaptureTemplate(){
   $('cap-sonhae').textContent=sonhae()===null?'-':fmtPct(sonhae());
   // 5. 결과
   const nj=nujeok(),gnj=ginujeok();
-  $('cap-chasu').textContent=st.thisChasu+'차';
+  // (차수 표시 제거)
   $('cap-nujeok').textContent=nj===null?'-':fmtPct(nj);
   $('cap-ginujeok').textContent=fmtPct(gnj);
   $('cap-final').textContent=nj===null?'-':fmtPct(Math.max(0,nj-gnj));
@@ -758,7 +730,7 @@ function saveImage(){
   fillCaptureTemplate();
   html2canvas(document.getElementById('capture-template'),{scale:2,backgroundColor:'#f3f4f6',windowWidth:430}).then(cv=>{
     const a=document.createElement('a');
-    a.download='고추_'+(st.farm_no||'')+'_'+st.thisChasu+'차.png';
+    a.download='고추_'+(st.farm_no||'')+'_'+(st.survey_date||'')+'.png';
     a.href=cv.toDataURL('image/png');a.click();
   });
 }
