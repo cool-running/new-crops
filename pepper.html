@@ -397,6 +397,25 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 </div>
 
 <script>
+function bindSelectAll(){
+  document.querySelectorAll('input.inp, table.smp input, .prev-row input').forEach(el=>{
+    if(el.dataset.sab==='1') return;
+    el.dataset.sab='1';
+    const isDate=el.type==='date';
+    if(isDate) return;
+    let _tsx=0,_tsy=0,_sc=false;
+    el.addEventListener('touchstart',e=>{_tsx=e.touches[0].clientX;_tsy=e.touches[0].clientY;_sc=false;},{passive:true});
+    el.addEventListener('touchmove',e=>{if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6)_sc=true;},{passive:true});
+    el.addEventListener('touchend',e=>{
+      if(_sc)return;
+      if(e.cancelable)e.preventDefault();
+      el.focus();
+      setTimeout(()=>{try{el.select();}catch(_){try{el.setSelectionRange(0,el.value.length);}catch(_){}}},50);
+    },{passive:false});
+    // PC/마우스 대응
+    el.addEventListener('focus',()=>{setTimeout(()=>{try{el.select();}catch(_){}},0);},{passive:true});
+  });
+}
 const LEVELS=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0];
 const TOP=[0,1,2,3,4], BOT=[5,6,7,8,9];
 const LABEL={top:['10%','20%','30%','40%','50%'],bot:['60%','70%','80%','90%','100%']};
@@ -490,6 +509,7 @@ function renderSamples(){
   h+='<tr class="sum"><td colspan="2">계</td><td id="sum-0">0</td><td id="sum-1">0</td><td id="sum-2">0</td><td id="sum-3">0</td><td id="sum-4">0</td><td id="sum-dead">0</td><td id="sum-all">0</td></tr></tbody></table>';
   wrap.innerHTML=h;updateSampleTotals();
   const btnRow=$('sample-btn-row'); if(btnRow) btnRow.style.display=n?'flex':'none';
+  bindSelectAll();
 }
 function addSample(){
   if(st.samples.length>=20){ return; }
@@ -548,6 +568,7 @@ function loadForm(){
     if(!st.accDate2){ st.accDate2=st.survey_date; const a2=$('accDate2'); if(a2){a2.value=st.survey_date;markFilled(a2);} }
   }
   renderSamples();calc();
+  bindSelectAll();
 }
 function markFilled(el){if(el.classList.contains('auto'))return;el.classList.toggle('filled',(el.value||'').trim()!=='');}
 
