@@ -14,7 +14,7 @@
   --org:#5B7E3F;--org2:#7FAD52;
   --auto:#F3F1EA;--border:#D8D6CE;--binp:#7FAD52;--hint:#aaa;
   --text:#1a1a1a;--sub:#666;
-  --bg:#F5F4F0;--card:#fff;--red:#e24b4a;--green:#1D9E75;--blue:#185FA5;
+  --bg:#F5F4F0;--card:#fff;--red:#e24b4a;--green:#5B7E3F;--blue:#185FA5;
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
@@ -30,7 +30,7 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 .legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
-.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#eaf3e0;border:1.5px solid var(--green)}
 .dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
 
 .content{padding:12px 12px 24px}
@@ -46,7 +46,7 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
 select.inp{cursor:pointer;text-align-last:center}
 input.inp::placeholder{color:var(--hint)}
-input.inp.filled,select.inp.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
+input.inp.filled,select.inp.filled{background:#eaf3e0;border-color:var(--green);color:#000;font-weight:700}
 input[type=date].inp{font-size:13px;letter-spacing:-0.03em;padding:0 4px}
 input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
 input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
@@ -74,13 +74,13 @@ body.big-text table.smp th{font-size:12px!important}
 
 .toggle{display:flex;gap:6px;margin-bottom:8px}
 .toggle div{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px;text-align:center;font-size:13px;color:var(--sub);font-weight:700;cursor:pointer;background:#fff}
-.toggle div.on{border-color:var(--green);background:#e8faf3;color:var(--green)}
+.toggle div.on{border-color:var(--green);background:#eaf3e0;color:var(--green)}
 
 .prev-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .prev-row .pl{width:46px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--sub);text-align:center}
 .prev-row input{flex:1;height:38px;border:1.5px solid var(--binp);background:#fff;border-radius:var(--rs);padding:0 10px;font-size:14px;text-align:center;-webkit-appearance:none}
 .prev-row input::placeholder{color:var(--hint)}
-.prev-row input.filled{background:#e8faf3;border-color:var(--green);font-weight:700}
+.prev-row input.filled{background:#eaf3e0;border-color:var(--green);font-weight:700}
 .prev-row .pu{font-size:13px;color:var(--sub);width:14px;flex-shrink:0}
 .prev-row .del{width:30px;height:30px;flex-shrink:0;border:none;background:#f3f1ea;border-radius:8px;color:var(--hint);font-size:16px;cursor:pointer}
 .prev-add{width:100%;border:1.5px dashed var(--org2);background:#eef3e7;border-radius:var(--rs);padding:9px;font-size:12px;color:var(--org);font-weight:700;cursor:pointer;margin-top:3px}
@@ -97,7 +97,7 @@ table.smp td.no{background:#f7f9f3;font-weight:700;color:var(--sub)}
 table.smp td.tot{background:var(--auto);font-weight:800;font-size:11px}
 table.smp input{width:100%;height:30px;border:none;background:#fff;text-align:center;font-size:13px;color:var(--text);-webkit-appearance:none;border-radius:0}
 table.smp input::placeholder{color:var(--hint);font-size:10px}
-table.smp input.filled{background:#e8faf3;color:#0F6E56;font-weight:700}
+table.smp input.filled{background:#eaf3e0;color:#000;border:1.5px solid #5B7E3F;font-weight:700}
 table.smp td.side input{height:62px}
 table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-color:#e9d4a8;font-size:11px;padding:5px 0}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
@@ -110,8 +110,8 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
 .btn-edit,.btn-calc{flex:1;height:46px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer}
 .btn-edit{border:2px solid var(--green);background:#fff;color:var(--green)}
 .btn-calc{border:2px solid var(--green);background:#fff;color:var(--green)}
-.btn-edit.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(29,158,117,0.3)}
-.btn-calc.active{background:linear-gradient(135deg,#0F6E56,#1D9E75);color:#fff;box-shadow:0 4px 14px rgba(15,110,86,0.32)}
+.btn-edit.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
+.btn-calc.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
 .locked input.inp,.locked select.inp,.locked table.smp input,.locked .prev-row input,.locked input[type=date].inp,.locked .add-btn,.locked .del-sample-btn{pointer-events:none;opacity:0.72}
 
 .result{background:var(--org);border-radius:12px;padding:14px 12px;display:flex;align-items:center}
