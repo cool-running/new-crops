@@ -100,6 +100,10 @@ table.smp input::placeholder{color:var(--hint);font-size:10px}
 table.smp input.filled{background:#eaf3e0;color:#000;border:1.5px solid #5B7E3F;font-weight:700}
 table.smp td.side input{height:62px}
 table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-color:#e9d4a8;font-size:11px;padding:5px 0}
+table.smp tr.rowodd td{background:#f6f7f3}
+table.smp tr.rowodd td.no{background:#eef1e8}
+table.smp tr.rowodd input{background:#f6f7f3}
+table.smp tr.rowodd input.filled{background:#eaf3e0}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
 .sample-btn-row{display:flex;gap:8px;margin-top:8px}
 .add-btn{flex:1;height:42px;border:2px dashed var(--org2);background:#eef3e7;border-radius:12px;font-size:14px;font-weight:800;color:var(--org);cursor:pointer}
@@ -498,11 +502,12 @@ function renderSamples(){
   h+='<tr><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th></tr></thead><tbody>';
   st.samples.forEach((s,r)=>{
     const fc=v=>(v!==''&&v!=null)?'filled':'';
-    h+='<tr><td class="no" rowspan="2">'+(r+1)+'</td>';
+    const oc=(r%2===0)?' rowodd':'';
+    h+='<tr class="rline'+oc+'"><td class="no" rowspan="2">'+(r+1)+'</td>';
     h+='<td class="side" rowspan="2"><input inputmode="numeric" data-r="'+r+'" data-k="normal" placeholder="정상" value="'+s.normal+'" class="'+fc(s.normal)+'" oninput="onSmp(this)"></td>';
     TOP.forEach((di,k)=>{h+='<td><input inputmode="numeric" data-r="'+r+'" data-d="'+di+'" placeholder="'+LABEL.top[k]+'" value="'+s.d[di]+'" class="'+fc(s.d[di])+'" oninput="onSmp(this)"></td>';});
     h+='<td class="side" rowspan="2"><input inputmode="numeric" data-r="'+r+'" data-k="dead" placeholder="고사" value="'+s.dead+'" class="'+fc(s.dead)+'" oninput="onSmp(this)"></td>';
-    h+='<td class="tot" rowspan="2" id="smp-tot-'+r+'">0</td></tr><tr>';
+    h+='<td class="tot" rowspan="2" id="smp-tot-'+r+'">0</td></tr><tr class="rline'+oc+'">';
     BOT.forEach((di,k)=>{h+='<td><input inputmode="numeric" data-r="'+r+'" data-d="'+di+'" placeholder="'+LABEL.bot[k]+'" value="'+s.d[di]+'" class="'+fc(s.d[di])+'" oninput="onSmp(this)"></td>';});
     h+='</tr>';
   });
