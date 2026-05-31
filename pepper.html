@@ -289,6 +289,101 @@ table.smp tr.sum td{background:#FAEEDA;color:#7a4a06;font-weight:800;border-colo
   </div>
 </div>
 
+<!-- 갤러리 저장용 작성표 (화면 밖) -->
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;background:#f3f4f6;z-index:-1">
+  <div style="background:linear-gradient(180deg,#7A2408 0%,#C2410C 9%,#f3f4f6 9%,#f3f4f6 100%);padding:0 16px 22px;box-sizing:border-box">
+    <div style="height:18px"></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:13px">
+      <div style="font-size:15px;font-weight:700">🌶️ 고추 생산비조사 작성표</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date" style="font-size:13px;font-weight:700;color:#fff"></span>
+        <span id="cap-farmno" style="font-size:13px;font-weight:700;color:#fff"></span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <!-- 1. 사고원인 -->
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">1. 사고원인 조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
+          <tbody>
+            <tr>
+              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#FBF3EC;font-weight:700;color:#9a350a;width:42%">재해종류</td>
+              <td style="padding:6px 8px;font-weight:700" id="cap-disaster">-</td>
+            </tr>
+            <tr style="border-top:1px solid #e0e0e0">
+              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#FBF3EC;font-weight:700;color:#9a350a">병충해 인정비율</td>
+              <td style="padding:6px 8px;font-weight:700" id="cap-recog">100%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 2. 일자조사 -->
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px" id="cap-date-title">2. 일자조사 · 경과비율</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
+          <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
+          <thead><tr id="cap-date-head"></tr></thead>
+          <tbody><tr id="cap-date-body"></tr></tbody>
+        </table>
+        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#C2410C">경과비율 <span id="cap-coeff">-</span></div>
+      </div>
+
+      <!-- 3. 면적조사 -->
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">3. 면적조사 (피해비율 산출)</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
+          <colgroup><col style="width:33%"><col style="width:34%"><col style="width:33%"></colgroup>
+          <thead><tr>
+            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
+            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실경작(A)</th>
+            <th style="padding:5px;background:#c2410c;color:#fff;text-align:center">피해면적</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:5px;text-align:center;font-weight:700" id="cap-ins-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-act-area">-</td>
+            <td style="padding:5px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-dmg-area">-</td>
+          </tr></tbody>
+        </table>
+        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#C2410C">면적피해비율 <span id="cap-areapct">-</span></div>
+      </div>
+
+      <!-- 4. 손해정도비율 -->
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">4. 손해정도비율 조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #e0e0e0;table-layout:fixed">
+          <thead id="cap-smp-head"></thead>
+          <tbody id="cap-smp-body"></tbody>
+        </table>
+        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#C2410C">평균손해정도비율 <span id="cap-sonhae">-</span></div>
+      </div>
+
+      <!-- 5. 결과 -->
+      <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:12px;font-weight:900;color:#C2410C;margin-bottom:8px">5. 피해율 결과</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
+          <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
+          <thead><tr>
+            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">차수</th>
+            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">누적피해율</th>
+            <th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">기누적</th>
+            <th style="padding:5px;background:#c2410c;color:#fff;text-align:center">적용피해율</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:6px;text-align:center;font-weight:700" id="cap-chasu">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-nujeok">-</td>
+            <td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-ginujeok">-</td>
+            <td style="padding:6px;text-align:center;font-weight:900;color:#C2410C;border-left:1px solid #e0e0e0" id="cap-final">-</td>
+          </tr></tbody>
+        </table>
+        <div style="margin-top:8px;font-size:9px;color:#999;line-height:1.5">※ 미보상비율 <span id="cap-unins">0%</span> 반영 · 사고원인·면적·표본·조사자의견은 종이 조사서에 직접 기재</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 const LEVELS=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0];
 const TOP=[0,1,2,3,4], BOT=[5,6,7,8,9];
@@ -540,8 +635,91 @@ function saveHistory(){
   try{localStorage.setItem(HKEY,JSON.stringify(recs));}catch(e){}
 }
 
+function disasterLabel(){
+  if(st.dtype==='natural') return '자연재해 · 조수해 · 화재';
+  const m={'70':'1등급 병충해','50':'2등급 병충해','30':'3등급 병충해'};
+  return m[st.disaster]||'병충해';
+}
+function fillCaptureTemplate(){
+  $('cap-date').textContent=st.survey_date||'';
+  $('cap-farmno').textContent=st.farm_no?('농지번호: '+st.farm_no):'';
+  // 1. 사고원인
+  $('cap-disaster').textContent=disasterLabel();
+  $('cap-recog').textContent=recog()+'%';
+  // 2. 일자조사 (전/후 분기)
+  const co=coeff();
+  let head='',body='';
+  if(st.phase==='pre'){
+    head='<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
+         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정식일</th>'+
+         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
+         '<th style="padding:5px;background:#c2410c;color:#fff;text-align:center">수확예정</th>';
+    body='<td style="padding:6px;text-align:center;font-weight:700;background:#FBF3EC;color:#9a350a">수확개시 전</td>'+
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate||'-')+'</td>'+
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate||'-')+'</td>'+
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+($('harvestPlan').value||'-')+'</td>';
+  }else{
+    head='<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
+         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시</th>'+
+         '<th style="padding:5px;background:#c2410c;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
+         '<th style="padding:5px;background:#c2410c;color:#fff;text-align:center">보장종료</th>';
+    body='<td style="padding:6px;text-align:center;font-weight:700;background:#FBF3EC;color:#9a350a">수확개시 후</td>'+
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.harvestStart||'-')+'</td>'+
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate2||'-')+'</td>'+
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+($('covEnd').value||'-')+'</td>';
+  }
+  $('cap-date-head').innerHTML=head;
+  $('cap-date-body').innerHTML=body;
+  $('cap-coeff').textContent=co===null?'-':fmtPct(co);
+  // 3. 면적
+  const ar=areaRate();
+  $('cap-ins-area').textContent=(st.insArea||'-')+(st.insArea?' ㎡':'');
+  $('cap-act-area').textContent=(st.actArea||'-')+(st.actArea?' ㎡':'');
+  $('cap-dmg-area').textContent=(st.dmgArea||'-')+(st.dmgArea?' ㎡':'');
+  $('cap-areapct').textContent=ar===null?'-':fmtPct(ar);
+  // 4. 손해정도 표본표 (앱과 동일한 2줄 격자)
+  let hh='<tr><th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">이랑</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#bdf0db;border:0.5px solid #9a350a">정상</th>'+
+    '<th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">10</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">20</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">30</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">40</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">50</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">고사</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">계</th></tr>'+
+    '<tr><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">60</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">70</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">80</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">90</th><th style="padding:2px 1px;background:#c2410c;color:#fff;border:0.5px solid #9a350a">100</th></tr>';
+  $('cap-smp-head').innerHTML=hh;
+  const cell='padding:3px 0;border:0.5px solid #e0e0e0;text-align:center';
+  const dash=v=>num(v)>0?v:'·';
+  let bb='';
+  st.samples.forEach((s,r)=>{
+    let row=num(s.normal)+num(s.dead); s.d.forEach(v=>row+=num(v));
+    bb+='<tr><td rowspan="2" style="'+cell+';background:#faf8f4;font-weight:700">'+(r+1)+'</td>'+
+        '<td rowspan="2" style="'+cell+';font-weight:700">'+dash(s.normal)+'</td>';
+    TOP.forEach(di=>{ bb+='<td style="'+cell+'">'+dash(s.d[di])+'</td>'; });
+    bb+='<td rowspan="2" style="'+cell+'">'+dash(s.dead)+'</td>'+
+        '<td rowspan="2" style="'+cell+';background:#FBF3EC;font-weight:800">'+(row>0?row:'·')+'</td></tr><tr>';
+    BOT.forEach(di=>{ bb+='<td style="'+cell+'">'+dash(s.d[di])+'</td>'; });
+    bb+='</tr>';
+  });
+  if(!bb) bb='<tr><td colspan="9" style="padding:10px;text-align:center">-</td></tr>';
+  // 합계행
+  let colTop=[0,0,0,0,0],dead=0,all=0,normalSum=0;
+  st.samples.forEach(s=>{ normalSum+=num(s.normal); dead+=num(s.dead); let row=num(s.normal)+num(s.dead); s.d.forEach((v,k)=>{row+=num(v);}); all+=row; [0,1,2,3,4].forEach(k=>{colTop[k]+=num(s.d[k])+num(s.d[k+5]);}); });
+  if(st.samples.length){
+    bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td colspan="2" style="'+cell+';border-color:#e9d4a8">계</td>';
+    colTop.forEach(c=>{ bb+='<td style="'+cell+';border-color:#e9d4a8">'+(c||'·')+'</td>'; });
+    bb+='<td style="'+cell+';border-color:#e9d4a8">'+(dead||'·')+'</td><td style="'+cell+';border-color:#e9d4a8">'+(all||'·')+'</td></tr>';
+  }
+  $('cap-smp-body').innerHTML=bb;
+  $('cap-sonhae').textContent=sonhae()===null?'-':fmtPct(sonhae());
+  // 5. 결과
+  const nj=nujeok(),gnj=ginujeok();
+  $('cap-chasu').textContent=st.thisChasu+'차';
+  $('cap-nujeok').textContent=nj===null?'-':fmtPct(nj);
+  $('cap-ginujeok').textContent=fmtPct(gnj);
+  $('cap-final').textContent=nj===null?'-':fmtPct(Math.max(0,nj-gnj));
+  $('cap-unins').textContent=(st.uninsRate||'0')+'%';
+}
 function saveImage(){
-  html2canvas(document.querySelector('.content'),{scale:2,backgroundColor:'#F5F4F0'}).then(cv=>{
+  fillCaptureTemplate();
+  html2canvas(document.getElementById('capture-template'),{scale:2,backgroundColor:'#f3f4f6',windowWidth:430}).then(cv=>{
     const a=document.createElement('a');
     a.download='고추_'+(st.farm_no||'')+'_'+st.thisChasu+'차.png';
     a.href=cv.toDataURL('image/png');a.click();
