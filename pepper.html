@@ -105,6 +105,27 @@ table.smp tr.rowodd td.no{background:#eef1e8}
 table.smp tr.rowodd input{background:#f6f7f3}
 table.smp tr.rowodd input.filled{background:#eaf3e0}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
+/* 4x3 격자 */
+.smp-row{margin-bottom:12px}
+.smp-rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
+.smp-rhead .rname{background:var(--green);color:#fff;border-radius:7px;padding:3px 11px;font-size:12px;font-weight:700;flex-shrink:0}
+.smp-rhead .rang{width:78px;height:30px;border:1.5px solid var(--binp);background:#fff;border-radius:7px;text-align:center;font-size:13px;font-weight:700;color:#1a1a1a;-webkit-appearance:none;flex-shrink:0}
+.smp-rhead .rang::placeholder{color:var(--hint);font-weight:400}
+.smp-rhead .rang.filled{background:#eaf3e0;border-color:var(--green)}
+.smp-rhead .rsum{font-size:13px;color:var(--sub);margin-left:auto;flex-shrink:0}
+.smp-rhead .rsum b{font-size:16px;font-weight:800;color:#1a1a1a}
+.smp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:8px;padding:3px 2px 2px;text-align:center}
+.scell .cl{font-size:9px;color:#aaa;font-weight:600;line-height:1.3}
+.scell .ci{width:100%;height:30px;border:none;background:transparent;text-align:center;font-size:17px;font-weight:700;color:#1a1a1a;-webkit-appearance:none;padding:0}
+.scell .ci::placeholder{color:#d2d0c8}
+.scell.has{background:#eaf3e0;border:1.5px solid var(--green)}
+.scell.has .cl{color:var(--green)}
+.scell:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
+.scell:focus-within .cl{color:var(--blue)}
+.scell:focus-within .ci{color:var(--blue)}
+body.big-text .scell .ci{height:38px!important;font-size:21px!important}
+body.big-text .scell .cl{font-size:11px!important}
 /* 칩 방식 */
 .chip-head{display:flex;justify-content:space-between;align-items:center;margin:4px 0 9px}
 .chip-nav{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
@@ -206,12 +227,10 @@ table.smp tr.rowodd input.filled{background:#eaf3e0}
     <div class="g2" id="cause-row" style="margin-top:8px;grid-template-columns:1fr">
       <div class="field"><label>사고원인</label>
         <select id="disaster" class="inp" style="text-align:left;text-align-last:left" onchange="onField(this)">
-          <option value="n|100">자연재해 100%</option>
-          <option value="n|100">조수해 100%</option>
-          <option value="n|100">화재 100%</option>
-          <option value="b|70">병충해 1등급 70%</option>
-          <option value="b|50">병충해 2등급 50%</option>
-          <option value="b|30">병충해 3등급 30%</option>
+          <option value="0">자연재해·조수해·화재</option>
+          <option value="1">병충해 1등급 (70%)</option>
+          <option value="2">병충해 2등급 (50%)</option>
+          <option value="3">병충해 3등급 (30%)</option>
         </select>
       </div>
       <div class="field" id="disease-wrap" style="display:none"><label id="disease-label">병명</label>
@@ -427,7 +446,7 @@ table.smp tr.rowodd input.filled{background:#eaf3e0}
 
 <script>
 function bindSelectAll(){
-  document.querySelectorAll('input.inp, table.smp input, .prev-row input').forEach(el=>{
+  document.querySelectorAll('input.inp, .scell .ci, .smp-rhead .rang').forEach(el=>{
     if(el.dataset.sab==='1') return;
     el.dataset.sab='1';
     const isDate=el.type==='date';
@@ -472,16 +491,14 @@ function sampleCount(a){a=num(a);if(a<=0)return 0;if(a>=15000)return 10;if(a>=70
 function minSamples(){return sampleCount(st.dmgArea);}
 function ensureSamples(){
   const n=minSamples();
-  while(st.samples.length<n) st.samples.push({normal:'',d:Array(10).fill(''),dead:''});
+  while(st.samples.length<n) st.samples.push({rang:'',normal:'',d:Array(10).fill(''),dead:''});
   return st.samples.length; // 초과분(사용자 추가)은 유지
 }
 /* 계산 */
 function daysBetween(a,b){if(!a||!b)return null;return Math.round((new Date(b)-new Date(a))/86400000);}
 function addDays(a,n){if(!a)return '';const d=new Date(a);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 const DISASTERS=[
-  {label:'자연재해',recog:100,diseases:['태풍','우박','동상해','호우','강풍','냉해','조해(潮害)','설해','한해(가뭄)','폭염','기타자연재해']},
-  {label:'조수해',recog:100,diseases:['조수해']},
-  {label:'화재',recog:100,diseases:['화재']},
+  {label:'자연재해·조수해·화재',recog:100,diseases:['태풍','우박','동상해','호우','강풍','냉해','조해(潮害)','설해','한해(가뭄)','폭염','기타자연재해','조수해','화재']},
   {label:'병충해 1등급',recog:70,diseases:['역병','풋마름병','바이러스병','세균성점무늬병','탄저병']},
   {label:'병충해 2등급',recog:50,diseases:['잿빛곰팡이병','시들음병','담배가루이','담배나방']},
   {label:'병충해 3등급',recog:30,diseases:['흰가루병','균핵병','무름병','진딧물','기타']}
@@ -518,8 +535,6 @@ function nujeok(){
 function ginujeok(){return num(st.ginujeok)/100;}
 
 /* 표본 렌더 */
-let activeRow=0, activeChip=null;
-// 칩 단계 정의: key는 'normal' | 'd0'~'d9' | 'dead'
 const CHIP_DEFS=[
   {key:'normal',label:'정상'},
   {key:'d0',label:'10%'},{key:'d1',label:'20%'},{key:'d2',label:'30%'},{key:'d3',label:'40%'},
@@ -547,58 +562,44 @@ function renderSamples(){
   $('smp-cnt').textContent=n?(n+'개 이랑'):'피해면적 입력 시 자동';
   if(!n){wrap.innerHTML='<div class="smp-note" style="padding:14px 0">3. 면적 정보의 피해면적을 입력하면 표본이랑이 생성됩니다</div>';
     const br=$('sample-btn-row'); if(br) br.style.display='none'; return;}
-  if(activeRow>=n) activeRow=n-1;
-  if(activeRow<0) activeRow=0;
-  const s=st.samples[activeRow];
-  let h='<div class="chip-head">';
-  h+='<div class="chip-nav">';
-  h+='<button class="arr" onclick="navRow(-1)"'+(activeRow===0?' disabled':'')+'>‹</button>';
-  h+='<span class="cur">'+(activeRow+1)+'번 이랑</span>';
-  h+='<button class="arr" onclick="navRow(1)"'+(activeRow===n-1?' disabled':'')+'>›</button>';
-  h+='</div>';
-  h+='<span class="chip-sum">합계 <b id="row-total">'+rowTotal(s)+'</b>주</span>';
-  h+='</div>';
-  h+='<div class="chips">';
-  CHIP_DEFS.forEach(c=>{
-    const v=chipVal(s,c.key);
-    const has=(v!==''&&v!=null&&num(v)!==0)?' has':'';
-    const sel=(activeChip===c.key)?' sel':'';
-    h+='<div class="chip'+has+sel+'" onclick="selChip(\''+c.key+'\')">'+c.label+(has?' <b>'+v+'</b>':'')+'</div>';
+  let h='';
+  st.samples.forEach((s,r)=>{
+    h+='<div class="smp-row">';
+    h+='<div class="smp-rhead"><span class="rname">'+(r+1)+'번 표본</span>'+
+       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="이랑번호" oninput="onRang(this)">'+
+       '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>주</span></div>';
+    h+='<div class="smp-grid">';
+    CHIP_DEFS.forEach(c=>{
+      const v=chipVal(s,c.key);
+      const has=(v!==''&&v!=null&&num(v)!==0)?' has':'';
+      h+='<div class="scell'+has+'">'+
+         '<div class="cl">'+c.label+'</div>'+
+         '<input inputmode="numeric" class="ci" data-r="'+r+'" data-key="'+c.key+'" value="'+(v||'')+'" placeholder="0" oninput="onCell(this)">'+
+         '</div>';
+    });
+    h+='</div></div>';
   });
-  h+='</div>';
-  h+='<div id="chip-input-wrap"></div>';
-  h+='<div class="smp-note">칩을 누르면 숫자칸이 열려요 · 안 쓰는 단계는 회색</div>';
   wrap.innerHTML=h;
-  renderChipInput();
   const btnRow=$('sample-btn-row'); if(btnRow) btnRow.style.display='flex';
+  bindSelectAll();
 }
-function renderChipInput(){
-  const box=$('chip-input-wrap'); if(!box) return;
-  if(activeChip===null){ box.innerHTML=''; return; }
-  const s=st.samples[activeRow];
-  const def=CHIP_DEFS.find(c=>c.key===activeChip);
-  const v=chipVal(s,activeChip);
-  box.innerHTML='<div class="chip-input"><span class="lab">'+def.label+' 주수</span>'+
-    '<input inputmode="numeric" id="chip-field" value="'+(v||'')+'" placeholder="0" oninput="onChip(this)">'+
-    '<button class="clr" onclick="clearChip()" aria-label="지우기">×</button></div>';
-  const f=$('chip-field'); if(f){ f.focus(); setTimeout(()=>{try{f.select();}catch(e){}},30); }
+function onRang(el){
+  const r=+el.dataset.r;
+  st.samples[r].rang=el.value;
+  el.classList.toggle('filled',(el.value||'').trim()!=='');
+  persist();
 }
-function navRow(d){ activeChip=null; activeRow+=d; renderSamples(); }
-function selChip(key){ activeChip=(activeChip===key?null:key); renderSamples(); }
-function clearChip(){
-  if(activeChip===null) return;
-  setChipVal(st.samples[activeRow],activeChip,'');
-  persist(); calc(); renderSamples();
-}
-function onChip(el){
-  setChipVal(st.samples[activeRow],activeChip,el.value);
-  // 합계만 즉시 갱신(전체 재렌더 안 함 → 포커스 유지)
-  const rt=$('row-total'); if(rt) rt.textContent=rowTotal(st.samples[activeRow]);
+function onCell(el){
+  const r=+el.dataset.r;
+  setChipVal(st.samples[r],el.dataset.key,el.value);
+  const cell=el.closest('.scell');
+  if(cell) cell.classList.toggle('has',(el.value||'').trim()!==''&&num(el.value)!==0);
+  const rs=$('rsum-'+r); if(rs) rs.textContent=rowTotal(st.samples[r]);
   persist(); calc();
 }
 function addSample(){
   if(st.samples.length>=20){ return; }
-  st.samples.push({normal:'',d:Array(10).fill(''),dead:''});
+  st.samples.push({rang:'',normal:'',d:Array(10).fill(''),dead:''});
   renderSamples();persist();calc();
 }
 function removeSample(){
