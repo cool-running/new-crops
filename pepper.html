@@ -105,6 +105,22 @@ table.smp tr.rowodd td.no{background:#eef1e8}
 table.smp tr.rowodd input{background:#f6f7f3}
 table.smp tr.rowodd input.filled{background:#eaf3e0}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
+/* 칩 방식 */
+.chip-head{display:flex;justify-content:space-between;align-items:center;margin:4px 0 9px}
+.chip-nav{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.chip-nav .arr{width:30px;height:30px;border:none;background:#f3f1ea;border-radius:8px;color:var(--org);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.chip-nav .arr:disabled{color:#ccc;cursor:default}
+.chip-nav .cur{background:var(--green);color:#fff;border-radius:8px;padding:5px 14px}
+.chip-sum{font-size:11px;color:var(--sub)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:9px;padding:7px 11px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:#f3f1ea;color:#999;font-weight:500;-webkit-user-select:none;user-select:none}
+.chip.has{background:#eaf3e0;border:1.5px solid var(--green);color:#000}
+.chip.sel{outline:2px solid var(--blue);outline-offset:1px}
+.chip b{font-weight:800;margin-left:2px}
+.chip-input{background:#dceeff;border:1.5px solid var(--blue);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-top:9px}
+.chip-input .lab{font-size:13px;font-weight:700;color:var(--blue);min-width:58px}
+.chip-input input{flex:1;height:44px;border:1.5px solid var(--blue);border-radius:8px;text-align:center;font-size:21px;font-weight:700;color:var(--blue);background:#fff;-webkit-appearance:none}
+.chip-input .clr{height:44px;width:44px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:20px;color:#999;cursor:pointer}
 .sample-btn-row{display:flex;gap:8px;margin-top:8px}
 .add-btn{flex:1;height:42px;border:2px dashed var(--org2);background:#eef3e7;border-radius:12px;font-size:14px;font-weight:800;color:var(--org);cursor:pointer}
 .del-sample-btn{flex:1;height:42px;border:2px solid var(--red);background:#fff4f4;color:#c8403d;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer}
@@ -502,28 +518,83 @@ function nujeok(){
 function ginujeok(){return num(st.ginujeok)/100;}
 
 /* 표본 렌더 */
+let activeRow=0, activeChip=null;
+// 칩 단계 정의: key는 'normal' | 'd0'~'d9' | 'dead'
+const CHIP_DEFS=[
+  {key:'normal',label:'정상'},
+  {key:'d0',label:'10%'},{key:'d1',label:'20%'},{key:'d2',label:'30%'},{key:'d3',label:'40%'},
+  {key:'d4',label:'50%'},{key:'d5',label:'60%'},{key:'d6',label:'70%'},{key:'d7',label:'80%'},
+  {key:'d8',label:'90%'},{key:'d9',label:'100%'},
+  {key:'dead',label:'고사'}
+];
+function chipVal(s,key){
+  if(key==='normal') return s.normal;
+  if(key==='dead') return s.dead;
+  return s.d[+key.slice(1)];
+}
+function setChipVal(s,key,v){
+  if(key==='normal') s.normal=v;
+  else if(key==='dead') s.dead=v;
+  else s.d[+key.slice(1)]=v;
+}
+function rowTotal(s){
+  let t=num(s.normal)+num(s.dead);
+  s.d.forEach(v=>t+=num(v));
+  return t;
+}
 function renderSamples(){
   const n=ensureSamples();const wrap=$('smp-wrap');
   $('smp-cnt').textContent=n?(n+'개 이랑'):'피해면적 입력 시 자동';
-  if(!n){wrap.innerHTML='<div class="smp-note" style="padding:14px 0">3. 면적 정보의 피해면적을 입력하면 표본이랑이 생성됩니다</div>';return;}
-  let h='<table class="smp"><colgroup><col class="c-no"><col class="c-side"><col><col><col><col><col><col class="c-side"><col class="c-tot"></colgroup>';
-  h+='<thead><tr><th rowspan="2">이랑</th><th rowspan="2" class="norm">정상</th><th>10</th><th>20</th><th>30</th><th>40</th><th>50</th><th rowspan="2">고사</th><th rowspan="2">계</th></tr>';
-  h+='<tr><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th></tr></thead><tbody>';
-  st.samples.forEach((s,r)=>{
-    const fc=v=>(v!==''&&v!=null)?'filled':'';
-    const oc=(r%2===0)?' rowodd':'';
-    h+='<tr class="rline'+oc+'"><td class="no" rowspan="2">'+(r+1)+'</td>';
-    h+='<td class="side" rowspan="2"><input inputmode="numeric" data-r="'+r+'" data-k="normal" placeholder="정상" value="'+s.normal+'" class="'+fc(s.normal)+'" oninput="onSmp(this)"></td>';
-    TOP.forEach((di,k)=>{h+='<td><input inputmode="numeric" data-r="'+r+'" data-d="'+di+'" placeholder="'+LABEL.top[k]+'" value="'+s.d[di]+'" class="'+fc(s.d[di])+'" oninput="onSmp(this)"></td>';});
-    h+='<td class="side" rowspan="2"><input inputmode="numeric" data-r="'+r+'" data-k="dead" placeholder="고사" value="'+s.dead+'" class="'+fc(s.dead)+'" oninput="onSmp(this)"></td>';
-    h+='<td class="tot" rowspan="2" id="smp-tot-'+r+'">0</td></tr><tr class="rline'+oc+'">';
-    BOT.forEach((di,k)=>{h+='<td><input inputmode="numeric" data-r="'+r+'" data-d="'+di+'" placeholder="'+LABEL.bot[k]+'" value="'+s.d[di]+'" class="'+fc(s.d[di])+'" oninput="onSmp(this)"></td>';});
-    h+='</tr>';
+  if(!n){wrap.innerHTML='<div class="smp-note" style="padding:14px 0">3. 면적 정보의 피해면적을 입력하면 표본이랑이 생성됩니다</div>';
+    const br=$('sample-btn-row'); if(br) br.style.display='none'; return;}
+  if(activeRow>=n) activeRow=n-1;
+  if(activeRow<0) activeRow=0;
+  const s=st.samples[activeRow];
+  let h='<div class="chip-head">';
+  h+='<div class="chip-nav">';
+  h+='<button class="arr" onclick="navRow(-1)"'+(activeRow===0?' disabled':'')+'>‹</button>';
+  h+='<span class="cur">'+(activeRow+1)+'번 이랑</span>';
+  h+='<button class="arr" onclick="navRow(1)"'+(activeRow===n-1?' disabled':'')+'>›</button>';
+  h+='</div>';
+  h+='<span class="chip-sum">합계 <b id="row-total">'+rowTotal(s)+'</b>주</span>';
+  h+='</div>';
+  h+='<div class="chips">';
+  CHIP_DEFS.forEach(c=>{
+    const v=chipVal(s,c.key);
+    const has=(v!==''&&v!=null&&num(v)!==0)?' has':'';
+    const sel=(activeChip===c.key)?' sel':'';
+    h+='<div class="chip'+has+sel+'" onclick="selChip(\''+c.key+'\')">'+c.label+(has?' <b>'+v+'</b>':'')+'</div>';
   });
-  h+='<tr class="sum"><td colspan="2">계</td><td id="sum-0">0</td><td id="sum-1">0</td><td id="sum-2">0</td><td id="sum-3">0</td><td id="sum-4">0</td><td id="sum-dead">0</td><td id="sum-all">0</td></tr></tbody></table>';
-  wrap.innerHTML=h;updateSampleTotals();
-  const btnRow=$('sample-btn-row'); if(btnRow) btnRow.style.display=n?'flex':'none';
-  bindSelectAll();
+  h+='</div>';
+  h+='<div id="chip-input-wrap"></div>';
+  h+='<div class="smp-note">칩을 누르면 숫자칸이 열려요 · 안 쓰는 단계는 회색</div>';
+  wrap.innerHTML=h;
+  renderChipInput();
+  const btnRow=$('sample-btn-row'); if(btnRow) btnRow.style.display='flex';
+}
+function renderChipInput(){
+  const box=$('chip-input-wrap'); if(!box) return;
+  if(activeChip===null){ box.innerHTML=''; return; }
+  const s=st.samples[activeRow];
+  const def=CHIP_DEFS.find(c=>c.key===activeChip);
+  const v=chipVal(s,activeChip);
+  box.innerHTML='<div class="chip-input"><span class="lab">'+def.label+' 주수</span>'+
+    '<input inputmode="numeric" id="chip-field" value="'+(v||'')+'" placeholder="0" oninput="onChip(this)">'+
+    '<button class="clr" onclick="clearChip()" aria-label="지우기">×</button></div>';
+  const f=$('chip-field'); if(f){ f.focus(); setTimeout(()=>{try{f.select();}catch(e){}},30); }
+}
+function navRow(d){ activeChip=null; activeRow+=d; renderSamples(); }
+function selChip(key){ activeChip=(activeChip===key?null:key); renderSamples(); }
+function clearChip(){
+  if(activeChip===null) return;
+  setChipVal(st.samples[activeRow],activeChip,'');
+  persist(); calc(); renderSamples();
+}
+function onChip(el){
+  setChipVal(st.samples[activeRow],activeChip,el.value);
+  // 합계만 즉시 갱신(전체 재렌더 안 함 → 포커스 유지)
+  const rt=$('row-total'); if(rt) rt.textContent=rowTotal(st.samples[activeRow]);
+  persist(); calc();
 }
 function addSample(){
   if(st.samples.length>=20){ return; }
