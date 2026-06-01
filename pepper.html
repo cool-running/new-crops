@@ -53,6 +53,7 @@ input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.pre
   box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;
   background:#dceeff!important;color:#185FA5!important;
 }
+.smp-rhead .rang:focus{outline:2px solid rgba(255,255,255,0.8)!important;outline-offset:2px;}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 
 .bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--org2);border-radius:var(--rs);color:var(--org2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
@@ -60,6 +61,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 body.big-text input.inp,body.big-text select.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
 body.big-text input[type=date].inp{font-size:15px!important;font-weight:700!important;letter-spacing:-0.04em!important;padding:0 2px!important}
+body.big-text .seg2-item{font-size:15px!important;padding:13px 0!important}
 body.big-text select.inp{font-size:16px!important;padding:0 4px!important}
 body.big-text input.auto{font-size:15px!important;letter-spacing:-0.04em!important;padding:0 2px!important}
 body.big-text input.auto{height:52px!important;font-size:18px!important;font-weight:600!important}
@@ -74,16 +76,18 @@ body.big-text table.smp th{font-size:12px!important}
 .toggle{display:flex;gap:6px;margin-bottom:8px}
 .toggle div.on{border-color:var(--fill-bd);background:var(--fill-bg);color:var(--fill-bd)}
 .phase-tab div.on{border-color:#F97316;background:#FDEBE0;color:#F97316}
-/* 사고시기 세그먼트(채움/테두리) + 묶음 박스 */
-.seg2{display:flex;gap:0;position:relative;z-index:2;background:#ece9e4;border-radius:11px;padding:3px;margin-bottom:9px}
-.seg2-slider{position:absolute;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);background:#F97316;border-radius:9px;box-shadow:0 1px 4px rgba(249,115,22,0.4);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1}
-.seg2.post .seg2-slider{transform:translateX(100%)}
-.seg2-item{flex:1;text-align:center;padding:9px 0;font-size:13px;font-weight:600;cursor:pointer;-webkit-user-select:none;user-select:none;color:#a9a298;position:relative;z-index:2;transition:color .2s}
-.seg2-item.on{color:#fff;font-weight:700}
-.phase-group{border:1.5px solid #F97316;border-radius:12px;background:#FFF6F0;padding:14px;position:relative;z-index:1}
-.phase-group .autobar{background:#fff;border-color:#f3d9c8}
-.phase-group .autobar{background:#fff;border-color:#f3d9c8}
-.phase-group .autobar{background:#fff;border-color:#f3d9c8}
+/* 사고시기 - 탭+카드 한몸 (슬라이더 전환) */
+.phase-wrap{margin-bottom:10px;position:relative}
+.seg2{display:flex;gap:4px;position:relative;z-index:3}
+.seg2-item{flex:0 0 calc(25% - 2px);text-align:center;padding:11px 0;font-size:13px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:11px 11px 0 0;position:relative;transition:all .2s;border:1.5px solid #E3D9CC;border-bottom:none;background:#F0EAE0;color:#A89D8C;z-index:1}
+.seg2-item.on{background:#FFF8F2;color:var(--org);font-weight:800;border-color:#EAD9C4;z-index:3;box-shadow:0 -3px 10px rgba(91,126,63,0.06)}
+/* 선택 탭 아래쪽을 카드와 이어 붙이는 가림막 */
+.seg2-item.on::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;background:#FFF8F2;z-index:4}
+.phase-card{background:#FFF8F2;border:1.5px solid #EAD9C4;border-radius:0 12px 12px 12px;box-shadow:0 6px 18px rgba(0,0,0,0.05);overflow:hidden;position:relative;z-index:2;margin-top:-1px}
+.phase-slider-wrap{overflow:hidden}
+.phase-slider{display:flex;transition:transform .3s cubic-bezier(.4,0,.2,1);will-change:transform}
+.phase-panel{min-width:100%;padding:14px;box-sizing:border-box}
+.phase-card .autobar{background:#fff;border-color:#EFE2D0}
 
 .prev-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .prev-row .pl{width:46px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--sub);text-align:center}
@@ -115,13 +119,14 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .smp-row{margin-bottom:12px}
 .smp-rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
 .smp-rhead .rname{background:var(--green);color:#fff;border-radius:7px;padding:3px 11px;font-size:12px;font-weight:700;flex-shrink:0}
-.smp-rhead .rang{width:78px;height:30px;border:1.5px solid var(--binp);background:#fff;border-radius:7px;text-align:center;font-size:13px;font-weight:700;color:#1a1a1a;-webkit-appearance:none;flex-shrink:0}
-.smp-rhead .rang.filled{background:var(--fill-bg);border-color:var(--fill-bd)}
+.smp-rhead .rang{width:80px;border:none;background:var(--green);border-radius:7px;padding:3px 11px;font-size:12px;font-weight:700;color:#fff;-webkit-appearance:none;flex-shrink:0;text-align:center;height:auto;line-height:inherit}
+.smp-rhead .rang::placeholder{color:rgba(255,255,255,0.6)}
+.smp-rhead .rang.filled{background:var(--green);color:#fff}
 .smp-rhead .rsum{font-size:13px;color:var(--sub);margin-left:auto;flex-shrink:0}
 .smp-rhead .rsum b{font-size:16px;font-weight:800;color:#1a1a1a}
 .smp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
 .scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:7px;text-align:center;position:relative;height:46px}
-.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#888;font-weight:700;pointer-events:none;transition:none}
+.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#888;font-weight:700;pointer-events:none;transition:none;word-break:keep-all;line-height:1.2;padding:0 2px;text-align:center;flex-direction:column}
 .scell .ci{position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
 .scell .ci::placeholder{color:transparent}
 /* 값 있으면 라벨 숨기고 숫자만 */
@@ -132,12 +137,8 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .scell:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
 .scell:focus-within .cl{opacity:1;align-items:flex-start;padding-top:2px;font-size:8px;color:var(--blue)}
 .scell:focus-within .ci{color:var(--blue);padding-top:9px}
-.scell.longlab .cl{font-size:11px;line-height:1.05;flex-direction:column}
-.scell.longlab .cl .sub{font-size:8px;color:#aaa;font-weight:600}
 body.big-text .scell{height:54px!important}
 body.big-text .scell .cl{font-size:15px!important}
-body.big-text .scell.longlab .cl{font-size:12px!important}
-body.big-text .scell.longlab .cl .sub{font-size:9px!important}
 body.big-text .scell:focus-within .cl{font-size:9px!important}
 body.big-text .scell .ci{font-size:19px!important}
 /* 칩 방식 */
@@ -252,27 +253,38 @@ body.big-text .scell .ci{font-size:19px!important}
     </div>
   </div>
 
-  <!-- 사고시기 (세그먼트 + 묶음 테두리 박스) -->
-  <div style="margin-bottom:10px">
+  <!-- 사고시기 (탭+카드 한몸, 슬라이더 전환) -->
+    <div class="phase-wrap">
     <div class="seg2" id="phase-seg">
-      <div class="seg2-slider" id="seg-slider"></div>
       <div class="seg2-item on" id="seg-pre" onclick="setPhase('pre')">수확개시 전</div>
       <div class="seg2-item" id="seg-post" onclick="setPhase('post')">수확개시 후</div>
     </div>
-    <div class="phase-group">
-      <div class="g2" id="phase-pre">
-        <div class="field"><label>정식일자</label><input type="date" id="plantDate" class="inp" onchange="onField(this)"></div>
-        <div class="field"><label>사고일자</label><input type="date" id="accDate" class="inp" onchange="onField(this)"></div>
+    <div class="phase-card">
+      <div class="phase-slider-wrap">
+        <div class="phase-slider" id="phase-slider">
+          <!-- 패널 1: 수확개시 전 -->
+          <div class="phase-panel">
+            <div class="g2">
+              <div class="field"><label>정식일자</label><input type="date" id="plantDate" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label>사고일자</label><input type="date" id="accDate" class="inp" onchange="onField(this)"></div>
+            </div>
+          </div>
+          <!-- 패널 2: 수확개시 후 -->
+          <div class="phase-panel">
+            <div class="g2">
+              <div class="field"><label>수확개시일</label><input type="date" id="harvestStart" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="g2" id="phase-post" style="display:none">
-        <div class="field"><label>수확개시일</label><input type="date" id="harvestStart" class="inp" onchange="onField(this)"></div>
-        <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
-      </div>
-      <div class="g2" style="margin-top:8px">
+      <!-- 공통: 보조일자 + 경과비율 (카드 하단 고정) -->
+      <div class="g2" style="padding:0 14px 14px">
         <div class="autobar" style="margin-top:0"><span id="aux-label">수확예정일</span><b id="aux-date">-</b></div>
         <div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-disp2">-</b></div>
       </div>
     </div>
+    </div><!-- /phase-wrap -->
     <input type="text" id="coeff-disp" class="auto" readonly style="display:none">
     <b id="r-coeff" style="display:none">-</b>
     <b id="r-recog" style="display:none">100%</b>
@@ -347,6 +359,16 @@ body.big-text .scell .ci{font-size:19px!important}
   </div>
 </div>
 
+<!-- 이미지 저장 완료 안내 모달 -->
+<div id="saved-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:18px;padding:24px 18px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:38px;margin-bottom:8px">✅</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:6px">이미지 저장되었습니다</div>
+    <div style="font-size:13px;color:#888;margin-bottom:18px;line-height:1.6">갤러리(다운로드)에서 확인하세요</div>
+    <button onclick="document.getElementById('saved-overlay').style.display='none'" style="width:100%;height:44px;border:none;border-radius:12px;background:var(--org);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
 <!-- 적정표본 이하 삭제불가 모달 -->
 <div id="delete-limit-overlay">
   <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
@@ -372,7 +394,7 @@ body.big-text .scell .ci{font-size:19px!important}
   <div style="background:linear-gradient(180deg,#3f5a2b 0%,#5B7E3F 9%,#f3f4f6 9%,#f3f4f6 100%);padding:0 16px 22px;box-sizing:border-box">
     <div style="height:18px"></div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:13px">
-      <div style="font-size:15px;font-weight:700">🌶️ 고추 생산비조사 작성표</div>
+      <div style="font-size:15px;font-weight:700">🌶️ 고추 생산비조사</div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
         <span id="cap-date" style="font-size:13px;font-weight:700;color:#fff"></span>
         <span id="cap-farmno" style="font-size:13px;font-weight:700;color:#fff"></span>
@@ -590,8 +612,8 @@ function renderSamples(){
       const v=chipVal(s,c.key);
       const has=(v!==''&&v!=null&&num(v)!==0)?' has':'';
       const isDead=(c.key==='dead');
-      const lcls=isDead?' longlab':'';
-      const labelHtml=isDead?'평가제외<span class="sub">(기고사)</span>':c.label;
+      const lcls='';
+      const labelHtml=isDead?'평가제외(기고사)':c.label;
       h+='<div class="scell'+has+lcls+'" onclick="focusCell(this)">'+
          '<div class="cl">'+labelHtml+'</div>'+
          '<input inputmode="numeric" class="ci" data-r="'+r+'" data-key="'+c.key+'" value="'+(v||'')+'" placeholder="" oninput="onCell(this)">'+
@@ -705,10 +727,8 @@ function paintPhaseTabs(){
   if(!pre||!post) return;
   pre.classList.toggle('on', st.phase==='pre');
   post.classList.toggle('on', st.phase==='post');
-  const seg=$('phase-seg');
-  if(seg) seg.classList.toggle('post', st.phase==='post');
-  $('phase-pre').style.display=st.phase==='pre'?'':'none';
-  $('phase-post').style.display=st.phase==='post'?'':'none';
+  const slider=$('phase-slider');
+  if(slider) slider.style.transform='translateX(-'+(st.phase==='post'?100:0)+'%)';
 }
 function setPhase(p){
   st.phase=p;
@@ -933,6 +953,7 @@ function saveImage(){
     const a=document.createElement('a');
     a.download='고추_'+(st.farm_no||'')+'_'+(st.survey_date||'')+'.png';
     a.href=cv.toDataURL('image/png');a.click();
+    document.getElementById('saved-overlay').style.display='flex';
   });
 }
 
