@@ -46,12 +46,12 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
 select.inp{cursor:pointer;text-align-last:center}
 input.inp.filled,select.inp.filled{background:var(--fill-bg);border-color:var(--fill-bd);color:#000;font-weight:700}
-input[type=date].inp{font-size:14px;letter-spacing:-0.02em;padding:0 4px;text-align:center}
+input[type=date].inp{font-size:14px;letter-spacing:-0.02em;padding:0 4px;text-align:center;position:relative}
 input[type=date].inp.filled{font-weight:700}
-/* 날짜 입력칸 내부 텍스트 가운데 정렬 */
+/* 날짜 내부 텍스트 가운데 + 달력아이콘 숨김(칸 전체가 클릭영역) */
 input[type=date].inp::-webkit-datetime-edit{margin:0 auto;text-align:center}
 input[type=date].inp.filled::-webkit-datetime-edit{font-weight:700;color:#000}
-input[type=date].inp::-webkit-calendar-picker-indicator{opacity:0.55;cursor:pointer}
+input[type=date].inp::-webkit-calendar-picker-indicator{position:absolute;right:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;padding:0}
 input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
 input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
   outline:none!important;border-color:var(--blue)!important;
