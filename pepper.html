@@ -46,12 +46,15 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
 select.inp{cursor:pointer;text-align-last:center}
 input.inp.filled,select.inp.filled{background:var(--fill-bg);border-color:var(--fill-bd);color:#000;font-weight:700}
-input[type=date].inp{font-size:14px;letter-spacing:-0.02em;padding:0 4px;text-align:center;position:relative}
-input[type=date].inp.filled{font-weight:700}
-/* 날짜 내부 텍스트 가운데 + 달력아이콘 숨김(칸 전체가 클릭영역) */
-input[type=date].inp::-webkit-datetime-edit{margin:0 auto;text-align:center}
-input[type=date].inp.filled::-webkit-datetime-edit{font-weight:700;color:#000}
-input[type=date].inp::-webkit-calendar-picker-indicator{position:absolute;right:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;padding:0}
+/* 날짜칸: 보이는 텍스트(가운데정렬) + 위에 겹친 투명 date input */
+.datewrap{position:relative;width:100%}
+.datewrap .date-disp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;letter-spacing:-0.02em}
+.datewrap.filled .date-disp{background:var(--fill-bg);border-color:var(--fill-bd);color:#000;font-weight:700}
+.datewrap .date-disp.ph{color:#bbb;font-weight:400}
+.datewrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;margin:0;padding:0;cursor:pointer;z-index:2}
+.datewrap input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
+.datewrap:focus-within .date-disp{border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15);background:#dceeff;color:#185FA5}
+body.big-text .datewrap .date-disp{height:52px;font-size:17px;font-weight:800}
 input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
 input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
   outline:none!important;border-color:var(--blue)!important;
@@ -65,8 +68,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .bigtext-btn.on{background:var(--org2);color:#fff}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 body.big-text input.inp,body.big-text select.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
-body.big-text input[type=date].inp{font-size:17px!important;font-weight:800!important;letter-spacing:-0.02em!important;padding:0 2px!important}
-body.big-text input[type=date].inp::-webkit-datetime-edit{justify-content:center}
+body.big-text .datewrap input[type=date]{font-size:17px!important}
 body.big-text .seg2-item{font-size:15px!important;height:52px!important;line-height:49px!important;padding:0!important}
 body.big-text select.inp{font-size:16px!important;padding:0 4px!important}
 body.big-text input.auto{font-size:15px!important;letter-spacing:-0.04em!important;padding:0 2px!important}
@@ -178,7 +180,7 @@ body.big-text .scell .ci{font-size:18px!important}
 .btn-calc{border:2px solid var(--green);background:#fff;color:var(--green)}
 .btn-edit.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
 .btn-calc.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
-.locked input.inp,.locked select.inp,.locked table.smp input,.locked .prev-row input,.locked input[type=date].inp,.locked .add-btn,.locked .del-sample-btn{pointer-events:none;opacity:0.72}
+.locked input.inp,.locked select.inp,.locked table.smp input,.locked .prev-row input,.locked .datewrap,.locked .add-btn,.locked .del-sample-btn{pointer-events:none;opacity:0.72}
 
 .result{background:var(--org);border-radius:12px;padding:14px 12px;display:flex;align-items:center}
 .result.pending{opacity:0.75}
@@ -227,7 +229,7 @@ body.big-text .scell .ci{font-size:18px!important}
       </div>
       <div class="field" style="width:40%">
         <label>조사일자</label>
-        <input type="date" id="survey_date" class="inp" onchange="onField(this)" autocomplete="off">
+        <div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="survey_date" onchange="onDateField(this)" autocomplete="off"></div>
       </div>
       <div style="width:20%;flex-shrink:0">
         <button onclick="openHistoryModal()" title="이전 기록 불러오기"
@@ -276,23 +278,23 @@ body.big-text .scell .ci{font-size:18px!important}
           <!-- 패널 1: 수확개시 전 (정식/사고 + 수확예정/경과비율) -->
           <div class="phase-panel">
             <div class="g2">
-              <div class="field"><label>정식일자</label><input type="date" id="plantDate" class="inp" onchange="onField(this)"></div>
-              <div class="field"><label>사고일자</label><input type="date" id="accDate" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label>정식일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="plantDate" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="accDate" onchange="onDateField(this)"></div></div>
             </div>
             <div class="g2" style="margin-top:8px">
-              <div class="field"><label>수확예정일</label><input type="date" id="harvestPlan" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label>수확예정일</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="harvestPlan" onchange="onDateField(this)"></div></div>
               <div class="field"><label style="visibility:hidden">.</label><div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-pre">-</b></div></div>
             </div>
           </div>
           <!-- 패널 2: 수확개시 후 (정식/수확개시 + 사고/경과비율) -->
           <div class="phase-panel">
             <div class="g2">
-              <div class="field"><label>정식일자</label><input type="date" id="plantDate2" class="inp" onchange="onField(this)"></div>
-              <div class="field"><label>수확개시일</label><input type="date" id="harvestStart" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label>정식일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="plantDate2" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>수확개시일</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="harvestStart" onchange="onDateField(this)"></div></div>
             </div>
             <div class="g2" style="margin-top:8px">
-              <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
-              <div class="field"><label>수확종료일</label><input type="date" id="covEnd" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="accDate2" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>수확종료일</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="covEnd" onchange="onDateField(this)"></div></div>
             </div>
             <div class="autobar" style="margin-top:8px"><span>경과비율</span><b id="coeff-post">-</b></div>
           </div>
@@ -760,7 +762,23 @@ function loadForm(){
   renderSamples();calc();
   bindSelectAll();
 }
-function markFilled(el){if(el.classList.contains('auto'))return;el.classList.toggle('filled',(el.value||'').trim()!=='');}
+function markFilled(el){
+  if(el.classList.contains('auto'))return;
+  const has=(el.value||'').trim()!=='';
+  el.classList.toggle('filled',has);
+  if(el.type==='date'){
+    const wrap=el.closest('.datewrap');
+    if(wrap){
+      wrap.classList.toggle('filled',has);
+      const disp=wrap.querySelector('.date-disp');
+      if(disp){
+        if(has){ disp.textContent=el.value; disp.classList.remove('ph'); }
+        else{ disp.textContent='년-월-일'; disp.classList.add('ph'); }
+      }
+    }
+  }
+}
+function onDateField(el){ onField(el); }
 
 function onField(el){
   markFilled(el);
@@ -1069,6 +1087,11 @@ restore();
 if(!st.survey_date) st.survey_date=todayStr();
 if(localStorage.getItem(BKEY)==='1'){document.body.classList.add('big-text');$('bigtext-btn').classList.add('on');$('bigtext-label').textContent='원래대로';}
 loadForm();
+// 날짜칸: 칸 어디를 눌러도 달력이 뜨도록 (모바일 호환)
+document.querySelectorAll('.datewrap input[type=date]').forEach(inp=>{
+  const open=()=>{ try{ if(inp.showPicker) inp.showPicker(); }catch(e){} };
+  inp.addEventListener('click',open);
+});
 </script>
 </body>
 </html>
