@@ -529,9 +529,9 @@ function coeff(){
 }
 function areaRate(){const act=num(st.actArea),dmg=num(st.dmgArea);if(act<=0)return null;return Math.min(1,dmg/act);}
 function sonhae(){
-  // 평가제외(고사) = 손해정도 100%로 산정 (분자 ×1, 분모 포함) — 엑셀 계산기 기준
+  // 평가제외 = 손해정도 계산에서 완전 제외 (분자·분모 모두 제외) — 전산 3건 검증 확정
   let w=0,t=0;
-  st.samples.forEach(s=>{t+=num(s.normal)+num(s.dead);w+=num(s.dead);s.d.forEach((v,i)=>{t+=num(v);w+=num(v)*LEVELS[i];});});
+  st.samples.forEach(s=>{t+=num(s.normal);s.d.forEach((v,i)=>{t+=num(v);w+=num(v)*LEVELS[i];});});
   if(t<=0)return null;return Math.round((w/t)*10000)/10000;
 }
 function nujeok(){
