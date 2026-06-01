@@ -337,6 +337,12 @@ body.big-text .scell .ci{font-size:18px!important}
   </div>
   <b id="r-nujeok2" style="display:none">-</b><b id="r-ginujeok2" style="display:none">0%</b>
 
+  <!-- 검증용 계수 토글 (검증 끝나면 이 블록만 삭제) -->
+  <div id="verify-toggle" onclick="toggleVerify()" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px;border:1px dashed #ccc;border-radius:10px;cursor:pointer;font-size:11px;color:#aaa;-webkit-user-select:none;user-select:none">
+    <span id="verify-dot" style="width:8px;height:8px;border-radius:50%;background:#ccc"></span>
+    <span id="verify-text">검증모드: 2026 계수(0.555)</span>
+  </div>
+
 </div>
 
 <!-- 전체 초기화 모달 -->
@@ -540,8 +546,19 @@ const DISASTERS=[
   {label:'병충해 3등급',recog:30,diseases:['흰가루병','균핵병','무름병','진딧물','기타']}
 ];
 function recog(){ const d=DISASTERS[st.disasterIdx]; return d?d.recog:100; }
+function toggleVerify(){
+  window.__verify2025=!window.__verify2025;
+  const on=window.__verify2025;
+  const dot=document.getElementById('verify-dot');
+  const txt=document.getElementById('verify-text');
+  const box=document.getElementById('verify-toggle');
+  if(dot) dot.style.background=on?'#E0A800':'#ccc';
+  if(txt){ txt.textContent=on?'검증모드: 2025 계수(0.542) ✓':'검증모드: 2026 계수(0.555)'; txt.style.color=on?'#9a7000':'#aaa'; }
+  if(box){ box.style.borderColor=on?'#E0A800':'#ccc'; box.style.background=on?'#FFF8E6':'transparent'; }
+  calc();
+}
 function coeff(){
-  const K=0.555;
+  const K=window.__verify2025?0.542:0.555;
   if(st.phase==='pre'){
     const dv=(st.pumjong==='홍고추')?100:70;
     const days=daysBetween(st.plantDate,st.accDate);
