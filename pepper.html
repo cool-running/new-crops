@@ -74,6 +74,16 @@ body.big-text table.smp th{font-size:12px!important}
 .toggle{display:flex;gap:6px;margin-bottom:8px}
 .toggle div.on{border-color:var(--fill-bd);background:var(--fill-bg);color:var(--fill-bd)}
 .phase-tab div.on{border-color:#F97316;background:#FDEBE0;color:#F97316}
+/* 사고시기 세그먼트(채움/테두리) + 묶음 박스 */
+.seg2{display:flex;gap:0;position:relative;z-index:2;background:#ece9e4;border-radius:11px;padding:3px;margin-bottom:9px}
+.seg2-slider{position:absolute;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);background:#F97316;border-radius:9px;box-shadow:0 1px 4px rgba(249,115,22,0.4);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1}
+.seg2.post .seg2-slider{transform:translateX(100%)}
+.seg2-item{flex:1;text-align:center;padding:9px 0;font-size:13px;font-weight:600;cursor:pointer;-webkit-user-select:none;user-select:none;color:#a9a298;position:relative;z-index:2;transition:color .2s}
+.seg2-item.on{color:#fff;font-weight:700}
+.phase-group{border:1.5px solid #F97316;border-radius:12px;background:#FFF6F0;padding:14px;position:relative;z-index:1}
+.phase-group .autobar{background:#fff;border-color:#f3d9c8}
+.phase-group .autobar{background:#fff;border-color:#f3d9c8}
+.phase-group .autobar{background:#fff;border-color:#f3d9c8}
 
 .prev-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .prev-row .pl{width:46px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--sub);text-align:center}
@@ -109,25 +119,27 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .smp-rhead .rang.filled{background:var(--fill-bg);border-color:var(--fill-bd)}
 .smp-rhead .rsum{font-size:13px;color:var(--sub);margin-left:auto;flex-shrink:0}
 .smp-rhead .rsum b{font-size:16px;font-weight:800;color:#1a1a1a}
-.smp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:8px;text-align:center;position:relative;height:52px}
-.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;font-weight:700;pointer-events:none;transition:none}
-.scell .ci{position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:20px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
+.smp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:7px;text-align:center;position:relative;height:46px}
+.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#888;font-weight:700;pointer-events:none;transition:none}
+.scell .ci{position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
 .scell .ci::placeholder{color:transparent}
-/* 값 있으면 라벨 숨기고 숫자만 크게 */
+/* 값 있으면 라벨 숨기고 숫자만 */
 .scell.has .cl{opacity:0}
 .scell.has .ci{color:#1a1a1a}
 .scell.has{background:var(--fill-bg);border:1.5px solid var(--fill-bd)}
-/* 편집 중(포커스)엔 라벨 작게 위로 + 숫자 */
+/* 편집 중엔 라벨 작게 위로 + 숫자 */
 .scell:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
-.scell:focus-within .cl{opacity:1;align-items:flex-start;padding-top:3px;font-size:9px;color:var(--blue)}
-.scell:focus-within .ci{color:var(--blue);padding-top:11px}
-.scell.longlab .cl{font-size:14px}
-body.big-text .scell{height:60px!important}
-body.big-text .scell .cl{font-size:21px!important}
-body.big-text .scell.longlab .cl{font-size:16px!important}
-body.big-text .scell:focus-within .cl{font-size:11px!important}
-body.big-text .scell .ci{font-size:24px!important}
+.scell:focus-within .cl{opacity:1;align-items:flex-start;padding-top:2px;font-size:8px;color:var(--blue)}
+.scell:focus-within .ci{color:var(--blue);padding-top:9px}
+.scell.longlab .cl{font-size:11px;line-height:1.05;flex-direction:column}
+.scell.longlab .cl .sub{font-size:8px;color:#aaa;font-weight:600}
+body.big-text .scell{height:54px!important}
+body.big-text .scell .cl{font-size:15px!important}
+body.big-text .scell.longlab .cl{font-size:12px!important}
+body.big-text .scell.longlab .cl .sub{font-size:9px!important}
+body.big-text .scell:focus-within .cl{font-size:9px!important}
+body.big-text .scell .ci{font-size:19px!important}
 /* 칩 방식 */
 .chip-head{display:flex;justify-content:space-between;align-items:center;margin:4px 0 9px}
 .chip-nav{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
@@ -240,15 +252,14 @@ body.big-text .scell .ci{font-size:24px!important}
     </div>
   </div>
 
-  <!-- 사고시기 (위 탭: 수확개시 전/후) -->
-  <div style="position:relative;margin-bottom:10px">
-    <div style="display:flex;align-items:flex-end;position:relative;z-index:2">
-      <button id="ptab-pre" onclick="setPhase('pre')"
-        style="min-width:110px;height:36px;border:none;border-radius:12px 12px 0 0;background:#F97316;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;margin-right:2px">수확개시 전</button>
-      <button id="ptab-post" onclick="setPhase('post')"
-        style="min-width:110px;height:36px;border:none;border-radius:12px 12px 0 0;background:#d8c4bb;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;opacity:0.8">수확개시 후</button>
+  <!-- 사고시기 (세그먼트 + 묶음 테두리 박스) -->
+  <div style="margin-bottom:10px">
+    <div class="seg2" id="phase-seg">
+      <div class="seg2-slider" id="seg-slider"></div>
+      <div class="seg2-item on" id="seg-pre" onclick="setPhase('pre')">수확개시 전</div>
+      <div class="seg2-item" id="seg-post" onclick="setPhase('post')">수확개시 후</div>
     </div>
-    <div style="background:#fff;border-radius:0 12px 12px 12px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04);padding:14px;position:relative;z-index:1">
+    <div class="phase-group">
       <div class="g2" id="phase-pre">
         <div class="field"><label>정식일자</label><input type="date" id="plantDate" class="inp" onchange="onField(this)"></div>
         <div class="field"><label>사고일자</label><input type="date" id="accDate" class="inp" onchange="onField(this)"></div>
@@ -578,9 +589,11 @@ function renderSamples(){
     CHIP_DEFS.forEach(c=>{
       const v=chipVal(s,c.key);
       const has=(v!==''&&v!=null&&num(v)!==0)?' has':'';
-      const lcls=(c.label.length>=4)?' longlab':'';
+      const isDead=(c.key==='dead');
+      const lcls=isDead?' longlab':'';
+      const labelHtml=isDead?'평가제외<span class="sub">(기고사)</span>':c.label;
       h+='<div class="scell'+has+lcls+'" onclick="focusCell(this)">'+
-         '<div class="cl">'+c.label+'</div>'+
+         '<div class="cl">'+labelHtml+'</div>'+
          '<input inputmode="numeric" class="ci" data-r="'+r+'" data-key="'+c.key+'" value="'+(v||'')+'" placeholder="" oninput="onCell(this)">'+
          '</div>';
     });
@@ -688,17 +701,14 @@ function onSmp(el){
   updateSampleTotals();persist();calc();
 }
 function paintPhaseTabs(){
-  const pre=$('ptab-pre'), post=$('ptab-post');
+  const pre=$('seg-pre'), post=$('seg-post');
   if(!pre||!post) return;
-  const on=st.phase;
-  pre.style.background = on==='pre'?'#F97316':'#d8c4bb';
-  pre.style.fontWeight = on==='pre'?'700':'500';
-  pre.style.opacity = on==='pre'?'1':'0.8';
-  post.style.background = on==='post'?'#F97316':'#d8c4bb';
-  post.style.fontWeight = on==='post'?'700':'500';
-  post.style.opacity = on==='post'?'1':'0.8';
-  $('phase-pre').style.display=on==='pre'?'':'none';
-  $('phase-post').style.display=on==='post'?'':'none';
+  pre.classList.toggle('on', st.phase==='pre');
+  post.classList.toggle('on', st.phase==='post');
+  const seg=$('phase-seg');
+  if(seg) seg.classList.toggle('post', st.phase==='post');
+  $('phase-pre').style.display=st.phase==='pre'?'':'none';
+  $('phase-post').style.display=st.phase==='post'?'':'none';
 }
 function setPhase(p){
   st.phase=p;
