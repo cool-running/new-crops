@@ -421,13 +421,12 @@ body.big-text .scell .ci{font-size:18px!important}
 
       <!-- 2. 일자조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px" id="cap-date-title">2. 일자조사 · 경과비율</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px" id="cap-date-title">2. 일자조사</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <thead><tr id="cap-date-head"></tr></thead>
           <tbody><tr id="cap-date-body"></tr></tbody>
         </table>
-        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#5B7E3F">경과비율 <span id="cap-coeff">-</span></div>
       </div>
 
       <!-- 3. 면적조사 -->
@@ -446,7 +445,6 @@ body.big-text .scell .ci{font-size:18px!important}
             <td style="padding:5px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-dmg-area">-</td>
           </tr></tbody>
         </table>
-        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#5B7E3F">면적피해비율 <span id="cap-areapct">-</span></div>
       </div>
 
       <!-- 4. 손해정도비율 -->
@@ -456,7 +454,6 @@ body.big-text .scell .ci{font-size:18px!important}
           <thead id="cap-smp-head"></thead>
           <tbody id="cap-smp-body"></tbody>
         </table>
-        <div style="margin-top:7px;text-align:right;font-size:11px;font-weight:800;color:#5B7E3F">평균손해정도비율 <span id="cap-sonhae">-</span></div>
       </div>
 
       <!-- 5. 결과 -->
@@ -877,7 +874,6 @@ function fillCaptureTemplate(){
   $('cap-disaster').textContent=disasterLabel();
   $('cap-recog').textContent=recog()+'%';
   // 2. 일자조사 (전/후 분기)
-  const co=coeff();
   let head='',body='';
   if(st.phase==='pre'){
     head='<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
@@ -900,15 +896,13 @@ function fillCaptureTemplate(){
   }
   $('cap-date-head').innerHTML=head;
   $('cap-date-body').innerHTML=body;
-  $('cap-coeff').textContent=co===null?'-':fmtPct(co);
   // 3. 면적
-  const ar=areaRate();
   $('cap-ins-area').textContent=(st.insArea||'-')+(st.insArea?' ㎡':'');
   $('cap-act-area').textContent=(st.actArea||'-')+(st.actArea?' ㎡':'');
   $('cap-dmg-area').textContent=(st.dmgArea||'-')+(st.dmgArea?' ㎡':'');
-  $('cap-areapct').textContent=ar===null?'-':fmtPct(ar);
   // 4. 손해정도 표본표 (앱과 동일한 2줄 격자)
-  let hh='<tr><th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">이랑</th>'+
+  let hh='<tr><th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">표본</th>'+
+    '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">이랑</th>'+
     '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#d8ecc4;border:0.5px solid #3f5a2b">정상</th>'+
     '<th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">10</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">20</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">30</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">40</th><th style="padding:2px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">50</th>'+
     '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">평가제외</th>'+
@@ -921,6 +915,7 @@ function fillCaptureTemplate(){
   st.samples.forEach((s,r)=>{
     let row=num(s.normal)+num(s.dead); s.d.forEach(v=>row+=num(v));
     bb+='<tr><td rowspan="2" style="'+cell+';background:#f7f9f3;font-weight:700">'+(r+1)+'</td>'+
+        '<td rowspan="2" style="'+cell+';background:#f7f9f3;font-weight:700">'+(s.rang||'·')+'</td>'+
         '<td rowspan="2" style="'+cell+';font-weight:700">'+dash(s.normal)+'</td>';
     TOP.forEach(di=>{ bb+='<td style="'+cell+'">'+dash(s.d[di])+'</td>'; });
     bb+='<td rowspan="2" style="'+cell+'">'+dash(s.dead)+'</td>'+
@@ -928,17 +923,16 @@ function fillCaptureTemplate(){
     BOT.forEach(di=>{ bb+='<td style="'+cell+'">'+dash(s.d[di])+'</td>'; });
     bb+='</tr>';
   });
-  if(!bb) bb='<tr><td colspan="9" style="padding:10px;text-align:center">-</td></tr>';
+  if(!bb) bb='<tr><td colspan="10" style="padding:10px;text-align:center">-</td></tr>';
   // 합계행
   let colTop=[0,0,0,0,0],dead=0,all=0,normalSum=0;
   st.samples.forEach(s=>{ normalSum+=num(s.normal); dead+=num(s.dead); let row=num(s.normal)+num(s.dead); s.d.forEach((v,k)=>{row+=num(v);}); all+=row; [0,1,2,3,4].forEach(k=>{colTop[k]+=num(s.d[k])+num(s.d[k+5]);}); });
   if(st.samples.length){
-    bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td colspan="2" style="'+cell+';border-color:#e9d4a8">계</td>';
+    bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td colspan="3" style="'+cell+';border-color:#e9d4a8">계</td>';
     colTop.forEach(c=>{ bb+='<td style="'+cell+';border-color:#e9d4a8">'+(c||'·')+'</td>'; });
     bb+='<td style="'+cell+';border-color:#e9d4a8">'+(dead||'·')+'</td><td style="'+cell+';border-color:#e9d4a8">'+(all||'·')+'</td></tr>';
   }
   $('cap-smp-body').innerHTML=bb;
-  $('cap-sonhae').textContent=sonhae()===null?'-':fmtPct(sonhae());
   // 5. 결과
   const nj=nujeok(),gnj=ginujeok();
   // (차수 표시 제거)
