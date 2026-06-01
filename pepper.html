@@ -47,7 +47,7 @@ input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:va
 select.inp{cursor:pointer;text-align-last:center}
 input.inp.filled,select.inp.filled{background:var(--fill-bg);border-color:var(--fill-bd);color:#000;font-weight:700}
 input[type=date].inp{font-size:14px;letter-spacing:-0.02em;padding:0 4px}
-input[type=date].inp.filled{font-weight:700!important}
+input[type=date].inp.filled{font-weight:700!important;text-shadow:0.35px 0 0 #000,-0.35px 0 0 #000}
 /* 날짜 입력칸 내부를 가운데로 모으고 또렷하게 */
 input[type=date].inp::-webkit-datetime-edit{width:100%;text-align:center;display:flex;justify-content:center}
 input[type=date].inp.filled::-webkit-datetime-edit{font-weight:700;color:#000}
@@ -60,6 +60,7 @@ input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.pre
   box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;
   background:#dceeff!important;color:#185FA5!important;
 }
+input[type=date].inp.filled:focus{text-shadow:none!important}
 .smp-rhead .rang:focus{outline:2px solid rgba(255,255,255,0.8)!important;outline-offset:2px;}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 
