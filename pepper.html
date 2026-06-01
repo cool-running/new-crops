@@ -73,6 +73,9 @@ body.big-text table.smp th{font-size:12px!important}
 .autobar{display:flex;align-items:center;justify-content:space-between;background:#eef3e7;border-radius:var(--rs);padding:9px 11px;margin-top:8px;gap:6px}
 .autobar span{font-size:11px;color:var(--sub);white-space:nowrap;flex-shrink:0}
 .autobar b{font-size:14px;font-weight:800;white-space:nowrap}
+.autobar.smp-sum{padding:9px 9px;gap:4px}
+.autobar.smp-sum span{font-size:10px}
+.autobar.smp-sum b{font-size:13px}
 .phase-card .autobar{padding:0 10px;background:#fff;border-color:#EFE2D0;height:40px}
 .phase-card .autobar span{font-size:10px}
 .phase-card .autobar b{font-size:12px;letter-spacing:-0.02em}
@@ -185,8 +188,8 @@ body.big-text .scell .ci{font-size:18px!important}
 .subres .k{font-size:10px;color:var(--sub)}
 .subres .v{font-size:13px;font-weight:800;margin-top:1px}
 
-#reset-overlay,#history-overlay,#delete-limit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px}
-#reset-overlay.show,#history-overlay.show,#delete-limit-overlay.show{display:flex}
+#reset-overlay,#history-overlay,#delete-limit-overlay,#phase-switch-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px}
+#reset-overlay.show,#history-overlay.show,#delete-limit-overlay.show,#phase-switch-overlay.show{display:flex}
 </style>
 </head>
 <body>
@@ -271,8 +274,8 @@ body.big-text .scell .ci{font-size:18px!important}
               <div class="field"><label>사고일자</label><input type="date" id="accDate" class="inp" onchange="onField(this)"></div>
             </div>
             <div class="g2" style="margin-top:8px">
-              <div class="autobar" style="margin-top:0"><span>수확예정일</span><b id="aux-date-pre">-</b></div>
-              <div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-pre">-</b></div>
+              <div class="field"><label>수확예정일</label><input type="date" id="harvestPlan" class="inp" onchange="onField(this)"></div>
+              <div class="field"><label style="visibility:hidden">.</label><div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-pre">-</b></div></div>
             </div>
           </div>
           <!-- 패널 2: 수확개시 후 (정식/수확개시 + 사고/경과비율) -->
@@ -283,8 +286,9 @@ body.big-text .scell .ci{font-size:18px!important}
             </div>
             <div class="g2" style="margin-top:8px">
               <div class="field"><label>사고일자</label><input type="date" id="accDate2" class="inp" onchange="onField(this)"></div>
-              <div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-post">-</b></div>
+              <div class="field"><label>수확종료일</label><input type="date" id="covEnd" class="inp" onchange="onField(this)"></div>
             </div>
+            <div class="autobar" style="margin-top:8px"><span>경과비율</span><b id="coeff-post">-</b></div>
           </div>
         </div>
       </div>
@@ -319,7 +323,10 @@ body.big-text .scell .ci{font-size:18px!important}
   <div class="section">
     <div class="sec-title">3. 표본이랑 조사 <span class="hl" id="smp-cnt">피해면적 입력 시 자동</span></div>
     <div id="smp-wrap"></div>
-    <div class="autobar"><span>평균손해정도비율 (자동)</span><b id="r-sonhae">-</b></div>
+    <div class="g2">
+      <div class="autobar smp-sum" style="margin-top:0"><span>평균손해정도</span><b id="r-sonhae">-</b></div>
+      <div class="autobar smp-sum" style="margin-top:0"><span>전체합계주수</span><b id="sum-all">0</b></div>
+    </div>
     <div class="smp-note">윗줄 10·20·30·40·50 · 아랫줄 60·70·80·90·100 (한 이랑 = 2줄)</div>
     <div class="sample-btn-row" id="sample-btn-row" style="display:none">
       <button class="add-btn" onclick="addSample()">+ 이랑 추가</button>
@@ -377,6 +384,19 @@ body.big-text .scell .ci{font-size:18px!important}
     <div style="font-size:18px;font-weight:800;margin-bottom:6px">이미지 저장되었습니다</div>
     <div style="font-size:13px;color:#888;margin-bottom:18px;line-height:1.6">갤러리(다운로드)에서 확인하세요</div>
     <button onclick="document.getElementById('saved-overlay').style.display='none'" style="width:100%;height:44px;border:none;border-radius:12px;background:var(--org);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
+<!-- 탭(수확개시 전/후) 전환 경고 모달 -->
+<div id="phase-switch-overlay">
+  <div style="background:#fff;border-radius:18px;padding:24px 20px;width:100%;max-width:340px;text-align:center;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:38px;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:8px">입력값이 있습니다</div>
+    <div style="font-size:13px;color:#888;margin-bottom:20px;line-height:1.6">현재 탭에 입력한 일자가 모두 삭제됩니다.<br>삭제 후 이동하시겠습니까?</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="cancelPhaseSwitch()" style="flex:1;height:46px;border:1.5px solid #ddd;border-radius:12px;background:#fff;color:#666;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="confirmPhaseSwitch()" style="flex:1;height:46px;border:none;border-radius:12px;background:var(--org);color:#fff;font-size:15px;font-weight:700;cursor:pointer">삭제 후 이동</button>
+    </div>
   </div>
 </div>
 
@@ -518,7 +538,7 @@ const KEY='pepper_state', HKEY='pepper_history', BKEY='pepper_bigtext';
 let st={
   farm_no:'',survey_date:'',pumjong:'홍고추',region:'강원외',
   disasterIdx:0,diseaseIdx:0,uninsRate:'',
-  phase:'pre',plantDate:'',accDate:'',harvestStart:'',accDate2:'',
+  phase:'pre',plantDate:'',accDate:'',harvestStart:'',accDate2:'',covEnd:'',covEndManual:false,harvestPlan:'',harvestPlanManual:false,
   insArea:'',actArea:'',dmgArea:'',
   ginujeok:'',samples:[]
 };
@@ -561,6 +581,19 @@ function toggleVerify(){
   if(box){ box.style.borderColor=on?'#E0A800':'#ccc'; box.style.background=on?'#FFF8E6':'transparent'; }
   calc();
 }
+function autoFillDates(){
+  // 조사자가 직접 수정하지 않았으면 정식일 기준 자동 채움
+  if(!st.covEndManual){
+    const auto=st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'';
+    st.covEnd=auto;
+    const el=$('covEnd'); if(el){ el.value=auto; markFilled(el); }
+  }
+  if(!st.harvestPlanManual){
+    const auto=st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'';
+    st.harvestPlan=auto;
+    const el=$('harvestPlan'); if(el){ el.value=auto; markFilled(el); }
+  }
+}
 function coeff(){
   const K=window.__verify2025?0.542:0.555;
   if(st.phase==='pre'){
@@ -570,7 +603,7 @@ function coeff(){
     const prog=days/dv;
     return prog>=1?1:Math.round((K+(1-K)*prog)*10000)/10000;
   }else{
-    const covEnd=addDays(st.plantDate,st.region==='강원'?130:150);
+    const covEnd=st.covEnd || addDays(st.plantDate,st.region==='강원'?130:150);
     const total=daysBetween(st.harvestStart,covEnd);
     const used=daysBetween(st.harvestStart,st.accDate2);
     if(total===null||used===null||total<=0)return null;
@@ -643,6 +676,7 @@ function renderSamples(){
   wrap.innerHTML=h;
   const btnRow=$('sample-btn-row'); if(btnRow) btnRow.style.display='flex';
   bindSelectAll();
+  updateSampleTotals();
 }
 function focusCell(cell){
   const inp=cell.querySelector('.ci');
@@ -705,7 +739,7 @@ function diseaseName(){
   return d.diseases[st.diseaseIdx]||'';
 }
 function loadForm(){
-  ['farm_no','survey_date','pumjong','region','uninsRate','ginujeok','plantDate','accDate','harvestStart','accDate2','insArea','actArea','dmgArea'].forEach(id=>{
+  ['farm_no','survey_date','pumjong','region','uninsRate','ginujeok','plantDate','accDate','harvestStart','accDate2','covEnd','harvestPlan','insArea','actArea','dmgArea'].forEach(id=>{
     const el=$(id);if(el){el.value=st[id]||'';markFilled(el);}
   });
   const dsel=$('disaster'); if(dsel){ dsel.selectedIndex=st.disasterIdx||0; markFilled(dsel); }
@@ -730,7 +764,12 @@ function onField(el){
     // 정식일은 전/후 탭 공용 — 한쪽 입력 시 양쪽·st 동기화
     st.plantDate=el.value;
     ['plantDate','plantDate2'].forEach(pid=>{ const p=$(pid); if(p&&p!==el){ p.value=el.value; markFilled(p); } });
+    autoFillDates();
   }
+  else if(el.id==='region'){ st.region=el.value; autoFillDates(); }
+  else if(el.id==='pumjong'){ st.pumjong=el.value; autoFillDates(); }
+  else if(el.id==='covEnd'){ st.covEnd=el.value; st.covEndManual=!!el.value; }
+  else if(el.id==='harvestPlan'){ st.harvestPlan=el.value; st.harvestPlanManual=!!el.value; }
   else if(st.hasOwnProperty(el.id)) st[el.id]=el.value;
   // 조사일자 입력 시 사고일자가 비어있으면 동일하게 자동
   if(el.id==='survey_date' && el.value){
@@ -755,20 +794,59 @@ function paintPhaseTabs(){
   const slider=$('phase-slider');
   if(slider) slider.style.transform='translateX(-'+(st.phase==='post'?100:0)+'%)';
 }
+function phaseHasInput(phase){
+  // 조사일자로 자동 채워진 사고일자는 '입력'으로 보지 않음
+  const acc1=(st.accDate && st.accDate!==st.survey_date) ? st.accDate : '';
+  const acc2=(st.accDate2 && st.accDate2!==st.survey_date) ? st.accDate2 : '';
+  if(phase==='pre'){
+    return !!(st.plantDate||acc1||st.harvestPlan);
+  }else{
+    return !!(st.plantDate||st.harvestStart||acc2||st.covEnd);
+  }
+}
+function clearPhaseInput(phase){
+  // 정식일까지 모두 삭제 (정식일은 공용이라 양쪽 입력칸 동시 클리어)
+  st.plantDate='';
+  ['plantDate','plantDate2'].forEach(id=>{const e=$(id);if(e){e.value='';markFilled(e);}});
+  if(phase==='pre'){
+    st.accDate=''; st.harvestPlan=''; st.harvestPlanManual=false;
+    ['accDate','harvestPlan'].forEach(id=>{const e=$(id);if(e){e.value='';markFilled(e);}});
+  }else{
+    st.harvestStart=''; st.accDate2=''; st.covEnd=''; st.covEndManual=false;
+    ['harvestStart','accDate2','covEnd'].forEach(id=>{const e=$(id);if(e){e.value='';markFilled(e);}});
+  }
+}
+let _pendingPhase=null;
 function setPhase(p){
+  if(p===st.phase) return;
+  // 현재 탭에 입력값이 있으면 경고
+  if(phaseHasInput(st.phase)){
+    _pendingPhase=p;
+    $('phase-switch-overlay').classList.add('show');
+    return;
+  }
+  doSetPhase(p);
+}
+function doSetPhase(p){
   st.phase=p;
   paintPhaseTabs();
   persist();calc();
 }
+function confirmPhaseSwitch(){
+  clearPhaseInput(st.phase);   // 떠나는 탭의 입력 삭제
+  $('phase-switch-overlay').classList.remove('show');
+  if(_pendingPhase){ doSetPhase(_pendingPhase); _pendingPhase=null; }
+}
+function cancelPhaseSwitch(){
+  $('phase-switch-overlay').classList.remove('show');
+  _pendingPhase=null;
+}
 
 function calc(){
-  const harvestPlan=st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'';
   const co=coeff(),ar=areaRate(),so=sonhae();
   const coTxt=co===null?'-':fmtPct(co);
-  // 전 패널 autobar
-  if($('aux-date-pre')) $('aux-date-pre').textContent=harvestPlan||'-';
+  // 경과비율 표시 (전/후 패널 공용)
   if($('coeff-pre')) $('coeff-pre').textContent=coTxt;
-  // 후 패널 autobar
   if($('coeff-post')) $('coeff-post').textContent=coTxt;
   $('r-coeff').textContent=coTxt;
   $('coeff-disp').value=co===null?'':fmtPct(co);
@@ -913,16 +991,16 @@ function fillCaptureTemplate(){
     body='<td style="padding:6px;text-align:center;font-weight:700;background:#eef3e7;color:#3f5a2b">수확개시 전</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate||'-')+'</td>'+
-         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'-')+'</td>';
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.harvestPlan||(st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'-'))+'</td>';
   }else{
     head='<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">구분</th>'+
-         '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시</th>'+
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">수확개시일</th>'+
          '<th style="padding:5px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">사고일</th>'+
-         '<th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">보장종료</th>';
+         '<th style="padding:5px;background:#5B7E3F;color:#fff;text-align:center">수확종료일</th>';
     body='<td style="padding:6px;text-align:center;font-weight:700;background:#eef3e7;color:#3f5a2b">수확개시 후</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.harvestStart||'-')+'</td>'+
          '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.accDate2||'-')+'</td>'+
-         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'-')+'</td>';
+         '<td style="padding:6px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0">'+(st.covEnd||(st.plantDate?addDays(st.plantDate,st.region==='강원'?130:150):'-'))+'</td>';
   }
   $('cap-date-head').innerHTML=head;
   $('cap-date-body').innerHTML=body;
