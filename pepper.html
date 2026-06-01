@@ -61,7 +61,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 body.big-text input.inp,body.big-text select.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
 body.big-text input[type=date].inp{font-size:15px!important;font-weight:700!important;letter-spacing:-0.04em!important;padding:0 2px!important}
-body.big-text .seg2-item{font-size:15px!important;padding:13px 0!important}
+body.big-text .seg2-item{font-size:15px!important;height:52px!important;line-height:49px!important;padding:0!important}
 body.big-text select.inp{font-size:16px!important;padding:0 4px!important}
 body.big-text input.auto{font-size:15px!important;letter-spacing:-0.04em!important;padding:0 2px!important}
 body.big-text input.auto{height:52px!important;font-size:18px!important;font-weight:600!important}
@@ -79,7 +79,7 @@ body.big-text table.smp th{font-size:12px!important}
 /* 사고시기 - 탭+카드 한몸 (슬라이더 전환) */
 .phase-wrap{margin-bottom:10px;position:relative}
 .seg2{display:flex;gap:4px;position:relative;z-index:3}
-.seg2-item{flex:0 0 calc(25% - 2px);text-align:center;padding:11px 0;font-size:13px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:11px 11px 0 0;position:relative;transition:all .2s;border:1.5px solid #E3D9CC;border-bottom:none;background:#F0EAE0;color:#A89D8C;z-index:1}
+.seg2-item{flex:0 0 calc(40% - 2px);text-align:center;height:40px;line-height:37px;padding:0;font-size:13px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:11px 11px 0 0;position:relative;transition:all .2s;border:1.5px solid #E3D9CC;border-bottom:none;background:#F0EAE0;color:#A89D8C;z-index:1}
 .seg2-item.on{background:#FFF8F2;color:var(--org);font-weight:800;border-color:#EAD9C4;z-index:3;box-shadow:0 -3px 10px rgba(91,126,63,0.06)}
 /* 선택 탭 아래쪽을 카드와 이어 붙이는 가림막 */
 .seg2-item.on::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;background:#FFF8F2;z-index:4}
@@ -116,18 +116,18 @@ table.smp tr.rowodd td.no{background:#eef1e8}
 table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
 /* 4x3 격자 */
-.smp-row{margin-bottom:12px}
+.smp-row{margin-bottom:10px}
 .smp-rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
-.smp-rhead .rname{background:var(--green);color:#fff;border-radius:7px;padding:3px 11px;font-size:12px;font-weight:700;flex-shrink:0}
-.smp-rhead .rang{width:80px;border:none;background:var(--green);border-radius:7px;padding:3px 11px;font-size:12px;font-weight:700;color:#fff;-webkit-appearance:none;flex-shrink:0;text-align:center;height:auto;line-height:inherit}
-.smp-rhead .rang::placeholder{color:rgba(255,255,255,0.6)}
+.smp-rhead .rname{background:var(--green);color:#fff;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;flex-shrink:0}
+.smp-rhead .rang{width:48px;border:none;background:var(--green);border-radius:6px;padding:3px 6px;font-size:12px;font-weight:700;color:#fff;-webkit-appearance:none;flex-shrink:0;text-align:center;height:auto;line-height:inherit}
+.smp-rhead .rang::placeholder{color:rgba(255,255,255,0.6);font-size:11px}
 .smp-rhead .rang.filled{background:var(--green);color:#fff}
-.smp-rhead .rsum{font-size:13px;color:var(--sub);margin-left:auto;flex-shrink:0}
-.smp-rhead .rsum b{font-size:16px;font-weight:800;color:#1a1a1a}
-.smp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
-.scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:7px;text-align:center;position:relative;height:46px}
-.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#888;font-weight:700;pointer-events:none;transition:none;word-break:keep-all;line-height:1.2;padding:0 2px;text-align:center;flex-direction:column}
-.scell .ci{position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
+.smp-rhead .rsum{font-size:12px;color:var(--sub);margin-left:auto;flex-shrink:0}
+.smp-rhead .rsum b{font-size:15px;font-weight:800;color:#1a1a1a}
+.smp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:6px;text-align:center;position:relative;height:38px}
+.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;font-weight:600;pointer-events:none;transition:none;word-break:keep-all;line-height:1.15;padding:0 2px;text-align:center;flex-direction:column}
+.scell .ci{position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:15px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
 .scell .ci::placeholder{color:transparent}
 /* 값 있으면 라벨 숨기고 숫자만 */
 .scell.has .cl{opacity:0}
@@ -136,11 +136,11 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 /* 편집 중엔 라벨 작게 위로 + 숫자 */
 .scell:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
 .scell:focus-within .cl{opacity:1;align-items:flex-start;padding-top:2px;font-size:8px;color:var(--blue)}
-.scell:focus-within .ci{color:var(--blue);padding-top:9px}
-body.big-text .scell{height:54px!important}
-body.big-text .scell .cl{font-size:15px!important}
+.scell:focus-within .ci{color:var(--blue);padding-top:7px}
+body.big-text .scell{height:46px!important}
+body.big-text .scell .cl{font-size:14px!important}
 body.big-text .scell:focus-within .cl{font-size:9px!important}
-body.big-text .scell .ci{font-size:19px!important}
+body.big-text .scell .ci{font-size:18px!important}
 /* 칩 방식 */
 .chip-head{display:flex;justify-content:space-between;align-items:center;margin:4px 0 9px}
 .chip-nav{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
@@ -605,7 +605,7 @@ function renderSamples(){
   st.samples.forEach((s,r)=>{
     h+='<div class="smp-row">';
     h+='<div class="smp-rhead"><span class="rname">'+(r+1)+'번 표본</span>'+
-       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="이랑번호" oninput="onRang(this)">'+
+       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="이랑" oninput="onRang(this)">'+
        '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>주</span></div>';
     h+='<div class="smp-grid">';
     CHIP_DEFS.forEach(c=>{
