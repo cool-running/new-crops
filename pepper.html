@@ -46,7 +46,14 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center;transition:background .15s,border-color .15s}
 select.inp{cursor:pointer;text-align-last:center}
 input.inp.filled,select.inp.filled{background:var(--fill-bg);border-color:var(--fill-bd);color:#000;font-weight:700}
-input[type=date].inp{font-size:13px;letter-spacing:-0.03em;padding:0 4px}
+input[type=date].inp{font-size:14px;letter-spacing:-0.02em;padding:0 4px}
+input[type=date].inp.filled{font-weight:700!important}
+/* 날짜 입력칸 내부를 가운데로 모으고 또렷하게 */
+input[type=date].inp::-webkit-datetime-edit{width:100%;text-align:center;display:flex;justify-content:center}
+input[type=date].inp.filled::-webkit-datetime-edit{font-weight:700;color:#000}
+input[type=date].inp::-webkit-datetime-edit-fields-wrapper{justify-content:center}
+input[type=date].inp::-webkit-calendar-picker-indicator{margin-left:2px;opacity:0.55;cursor:pointer}
+input[type=date].inp::-webkit-date-and-time-value{text-align:center}
 input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
 input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
   outline:none!important;border-color:var(--blue)!important;
@@ -60,7 +67,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .bigtext-btn.on{background:var(--org2);color:#fff}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 body.big-text input.inp,body.big-text select.inp{height:52px!important;font-size:20px!important;font-weight:700!important;border-width:2px!important}
-body.big-text input[type=date].inp{font-size:15px!important;font-weight:700!important;letter-spacing:-0.04em!important;padding:0 2px!important}
+body.big-text input[type=date].inp{font-size:17px!important;font-weight:800!important;letter-spacing:-0.02em!important;padding:0 2px!important}
+body.big-text input[type=date].inp::-webkit-datetime-edit{justify-content:center}
 body.big-text .seg2-item{font-size:15px!important;height:52px!important;line-height:49px!important;padding:0!important}
 body.big-text select.inp{font-size:16px!important;padding:0 4px!important}
 body.big-text input.auto{font-size:15px!important;letter-spacing:-0.04em!important;padding:0 2px!important}
@@ -245,7 +253,7 @@ body.big-text .scell .ci{font-size:18px!important}
     </div>
     <div class="g2" id="cause-row" style="margin-top:8px;grid-template-columns:1fr">
       <div class="field"><label>사고원인</label>
-        <select id="disaster" class="inp" style="text-align:left;text-align-last:left" onchange="onField(this)">
+        <select id="disaster" class="inp" style="text-align:center;text-align-last:center" onchange="onField(this)">
           <option value="0">자연재해·조수해·화재</option>
           <option value="1">병충해 1등급 (70%)</option>
           <option value="2">병충해 2등급 (50%)</option>
@@ -253,7 +261,7 @@ body.big-text .scell .ci{font-size:18px!important}
         </select>
       </div>
       <div class="field" id="disease-wrap" style="display:none"><label id="disease-label">병명</label>
-        <select id="disease" class="inp" style="text-align:left;text-align-last:left" onchange="onField(this)"></select>
+        <select id="disease" class="inp" style="text-align:center;text-align-last:center" onchange="onField(this)"></select>
       </div>
     </div>
   </div>
