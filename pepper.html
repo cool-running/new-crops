@@ -448,15 +448,17 @@ body.big-text .scell .ci{font-size:18px!important}
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 사고원인 조사</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
-          <colgroup><col style="width:50%"><col style="width:50%"></colgroup>
+          <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <tbody>
             <tr>
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;text-align:center">사고원인</td>
-              <td style="padding:6px 8px;font-weight:700;border-bottom:1px solid #e0e0e0;text-align:center" id="cap-disaster">-</td>
+              <td style="padding:6px 4px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;text-align:center">사고원인</td>
+              <td style="padding:6px 4px;font-weight:700;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center" id="cap-disaster">-</td>
+              <td style="padding:6px 4px;font-weight:700;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;text-align:center" id="cap-disease">-</td>
+              <td style="padding:6px 4px;font-weight:700;border-bottom:1px solid #e0e0e0;text-align:center" id="cap-cont">-</td>
             </tr>
             <tr>
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;text-align:center">인정비율</td>
-              <td style="padding:6px 8px;font-weight:700;text-align:center" id="cap-recog">100%</td>
+              <td style="padding:6px 4px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;text-align:center">인정비율</td>
+              <td style="padding:6px 4px;font-weight:700;text-align:center" colspan="3" id="cap-recog">100%</td>
             </tr>
           </tbody>
         </table>
@@ -1042,7 +1044,17 @@ function fillCaptureTemplate(){
   $('cap-date').textContent=st.survey_date||'';
   $('cap-farmno').textContent=st.farm_no?('농지번호: '+st.farm_no):'';
   // 1. 사고원인
-  $('cap-disaster').textContent=disasterLabel();
+  const d=DISASTERS[st.disasterIdx];
+  const dn=diseaseName();
+  if(st.disasterIdx===0){
+    $('cap-disaster').textContent='자연재해';
+    $('cap-disease').textContent=dn||'-';
+    $('cap-cont').textContent='비연속적재해';
+  }else{
+    $('cap-disaster').textContent=d?d.label:'-';
+    $('cap-disease').textContent=dn||'-';
+    $('cap-cont').textContent='연속적재해';
+  }
   $('cap-recog').textContent=recog()+'%';
   // 2. 일자조사 (전/후 분기)
   let head='',body='';
