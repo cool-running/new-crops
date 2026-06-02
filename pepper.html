@@ -454,7 +454,7 @@ body.big-text .scell .ci{font-size:18px!important}
               <td style="padding:6px 8px;font-weight:700" id="cap-disaster">-</td>
             </tr>
             <tr style="border-top:1px solid #e0e0e0">
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b">병충해 인정비율</td>
+              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b">인정비율</td>
               <td style="padding:6px 8px;font-weight:700" id="cap-recog">100%</td>
             </tr>
           </tbody>
@@ -1028,8 +1028,10 @@ function saveHistory(){
 function disasterLabel(){
   const d=DISASTERS[st.disasterIdx];
   if(!d) return '-';
+  // 자연재해(idx 0)는 '자연재해'로만 표기 (조수해·화재 생략), 그 외(병충해)는 등급 라벨 그대로
+  const base=(st.disasterIdx===0)?'자연재해':d.label;
   const dn=diseaseName();
-  return dn?(d.label+' · '+dn):d.label;
+  return dn?(base+' · '+dn):base;
 }
 function fillCaptureTemplate(){
   $('cap-date').textContent=st.survey_date||'';
