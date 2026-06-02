@@ -762,8 +762,8 @@ function loadForm(){
   const pd2=$('plantDate2'); if(pd2){ pd2.value=st.plantDate||''; markFilled(pd2); }
   renderDisease();
   paintPhaseTabs();
-  // 사고일자 미입력 시 조사일자로 자동
-  if(st.survey_date){
+  // 사고일자 미입력 시: 병충해(idx>=1)만 조사일자로 자동 (자연재해는 자동 안 함)
+  if(st.survey_date && st.disasterIdx>=1){
     if(!st.accDate){ st.accDate=st.survey_date; const a=$('accDate'); if(a){a.value=st.survey_date;markFilled(a);} }
     if(!st.accDate2){ st.accDate2=st.survey_date; const a2=$('accDate2'); if(a2){a2.value=st.survey_date;markFilled(a2);} }
   }
@@ -804,7 +804,18 @@ function onAreaInput(el){
 }
 function onField(el){
   markFilled(el);
-  if(el.id==='disaster'){ st.disasterIdx=el.selectedIndex; st.diseaseIdx=0; renderDisease(); }
+  if(el.id==='disaster'){
+    st.disasterIdx=el.selectedIndex; st.diseaseIdx=0; renderDisease();
+    // 병충해로 변경 → 사고일을 조사일로 자동 채움 / 자연재해로 변경 → 조사일과 같던 자동값 해제
+    if(st.disasterIdx>=1){
+      if(!st.accDate && st.survey_date){ st.accDate=st.survey_date; const a=$('accDate'); if(a){a.value=st.survey_date;markFilled(a);} }
+      if(!st.accDate2 && st.survey_date){ st.accDate2=st.survey_date; const a2=$('accDate2'); if(a2){a2.value=st.survey_date;markFilled(a2);} }
+    }else{
+      // 자연재해: 조사일과 동일하게 자동입력됐던 사고일은 비움(직접 수정한 값은 보존)
+      if(st.accDate===st.survey_date){ st.accDate=''; const a=$('accDate'); if(a){a.value='';markFilled(a);} }
+      if(st.accDate2===st.survey_date){ st.accDate2=''; const a2=$('accDate2'); if(a2){a2.value='';markFilled(a2);} }
+    }
+  }
   else if(el.id==='disease'){ st.diseaseIdx=el.selectedIndex; }
   else if(el.id==='plantDate'||el.id==='plantDate2'){
     // 정식일은 전/후 탭 공용 — 한쪽 입력 시 양쪽·st 동기화
@@ -817,8 +828,8 @@ function onField(el){
   else if(el.id==='covEnd'){ st.covEnd=el.value; st.covEndManual=!!el.value; }
   else if(el.id==='harvestPlan'){ st.harvestPlan=el.value; st.harvestPlanManual=!!el.value; }
   else if(st.hasOwnProperty(el.id)) st[el.id]=el.value;
-  // 조사일자 입력 시 사고일자가 비어있으면 동일하게 자동
-  if(el.id==='survey_date' && el.value){
+  // 조사일자 입력 시: 병충해(idx>=1)만 사고일자를 동일하게 자동 (자연재해는 실제 사고일이 달라 자동 안 함)
+  if(el.id==='survey_date' && el.value && st.disasterIdx>=1){
     if(!st.accDate){ st.accDate=el.value; const a=$('accDate'); if(a){a.value=el.value;markFilled(a);} }
     if(!st.accDate2){ st.accDate2=el.value; const a2=$('accDate2'); if(a2){a2.value=el.value;markFilled(a2);} }
   }
