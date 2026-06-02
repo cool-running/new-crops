@@ -312,11 +312,11 @@ body.big-text .scell .ci{font-size:18px!important}
     <div class="sec-title">2. 면적 정보</div>
     <div class="g3">
       <div class="field"><label>가입면적</label><span class="unit-badge">㎡</span>
-        <input type="text" id="insArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
+        <input type="text" id="insArea" class="inp" inputmode="numeric" oninput="onAreaInput(this)"></div>
       <div class="field"><label>실경작면적</label><span class="unit-badge">㎡</span>
-        <input type="text" id="actArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
+        <input type="text" id="actArea" class="inp" inputmode="numeric" oninput="onAreaInput(this)"></div>
       <div class="field"><label>피해면적</label><span class="unit-badge">㎡</span>
-        <input type="text" id="dmgArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
+        <input type="text" id="dmgArea" class="inp" inputmode="numeric" oninput="onAreaInput(this)"></div>
     </div>
     <div class="g2" style="margin-top:8px">
       <div class="autobar" style="margin-top:0"><span>면적피해비율</span><b id="r-areapct">-</b></div>
@@ -473,7 +473,7 @@ body.big-text .scell .ci{font-size:18px!important}
 
       <!-- 3. 면적조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">3. 면적조사 (피해비율 산출)</div>
+        <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">3. 면적조사</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <colgroup><col style="width:33%"><col style="width:34%"><col style="width:33%"></colgroup>
           <thead><tr>
@@ -556,7 +556,7 @@ let st={
 let mode='edit';
 
 const $=id=>document.getElementById(id);
-const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+const num=v=>{const n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?0:n;};
 const fmtPct=x=>(x*100).toFixed(2).replace(/\.?0+$/,'')+'%';
 function todayStr(){const d=new Date();const z=n=>(n<10?'0':'')+n;return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
 
@@ -705,6 +705,7 @@ function onCell(el){
   const cell=el.closest('.scell');
   if(cell) cell.classList.toggle('has',(el.value||'').trim()!==''&&num(el.value)!==0);
   const rs=$('rsum-'+r); if(rs) rs.textContent=rowTotal(st.samples[r]);
+  updateSampleTotals();
   persist(); calc();
 }
 function addSample(){
@@ -753,6 +754,10 @@ function loadForm(){
   ['farm_no','survey_date','pumjong','region','uninsRate','ginujeok','plantDate','accDate','harvestStart','accDate2','covEnd','harvestPlan','insArea','actArea','dmgArea'].forEach(id=>{
     const el=$(id);if(el){el.value=st[id]||'';markFilled(el);}
   });
+  // 면적칸 천단위 콤마 복원
+  ['insArea','actArea','dmgArea'].forEach(id=>{
+    const el=$(id); if(el&&st[id]){ const n=String(st[id]).replace(/,/g,''); const [i,d]=n.split('.'); el.value=(i?Number(i).toLocaleString('en-US'):'')+(n.indexOf('.')>=0?'.'+(d||''):''); markFilled(el); }
+  });
   const dsel=$('disaster'); if(dsel){ dsel.selectedIndex=st.disasterIdx||0; markFilled(dsel); }
   const pd2=$('plantDate2'); if(pd2){ pd2.value=st.plantDate||''; markFilled(pd2); }
   renderDisease();
@@ -783,6 +788,20 @@ function markFilled(el){
 }
 function onDateField(el){ onField(el); }
 
+function onAreaInput(el){
+  // 숫자만 추출(소수점 허용) 후 천단위 콤마, st에는 콤마 없는 값 저장
+  let raw=el.value.replace(/[^0-9.]/g,'');
+  // 소수점 2개 이상 방지
+  const parts=raw.split('.');
+  if(parts.length>2) raw=parts[0]+'.'+parts.slice(1).join('');
+  const [intp,decp]=raw.split('.');
+  const formatted=(intp?Number(intp).toLocaleString('en-US'):'')+(raw.indexOf('.')>=0?'.'+(decp||''):'');
+  el.value=formatted;
+  st[el.id]=raw;
+  markFilled(el);
+  if(el.id==='dmgArea') renderSamples();
+  persist();calc();
+}
 function onField(el){
   markFilled(el);
   if(el.id==='disaster'){ st.disasterIdx=el.selectedIndex; st.diseaseIdx=0; renderDisease(); }
@@ -957,7 +976,7 @@ function openHistoryModal(){
         '<span style="font-size:11px;color:#aaa">'+(r.saved_at||'')+'</span></div>'+
         '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
         '<span style="font-size:12px;color:#555">🌶️ '+(r.pumjong||'고추')+'</span>'+
-        '<span style="font-size:12px;color:#555">📐 '+(r.actArea||r.insArea||'-')+' ㎡</span>'+
+        '<span style="font-size:12px;color:#555">📐 '+(()=>{const v=r.actArea||r.insArea;if(!v)return '-';const n=String(v).replace(/,/g,'');const [i,d]=n.split('.');return (i?Number(i).toLocaleString('en-US'):'0')+(n.indexOf('.')>=0?'.'+(d||''):'');})()+' ㎡</span>'+
         '<span style="font-size:12px;color:#555">📊 '+(r.pct!=null?r.pct:'-')+'</span>'+
         '<span style="font-size:12px;color:#555">🗓 '+(r.survey_date||'-')+'</span></div>'+
         '<div style="margin-top:6px;display:flex;justify-content:flex-end;gap:6px">'+
@@ -1031,9 +1050,10 @@ function fillCaptureTemplate(){
   $('cap-date-head').innerHTML=head;
   $('cap-date-body').innerHTML=body;
   // 3. 면적
-  $('cap-ins-area').textContent=(st.insArea||'-')+(st.insArea?' ㎡':'');
-  $('cap-act-area').textContent=(st.actArea||'-')+(st.actArea?' ㎡':'');
-  $('cap-dmg-area').textContent=(st.dmgArea||'-')+(st.dmgArea?' ㎡':'');
+  const fmtArea=v=>{ if(!v) return '-'; const n=String(v).replace(/,/g,''); const [i,d]=n.split('.'); return (i?Number(i).toLocaleString('en-US'):'0')+(n.indexOf('.')>=0?'.'+(d||''):''); };
+  $('cap-ins-area').textContent=fmtArea(st.insArea)+(st.insArea?' ㎡':'');
+  $('cap-act-area').textContent=fmtArea(st.actArea)+(st.actArea?' ㎡':'');
+  $('cap-dmg-area').textContent=fmtArea(st.dmgArea)+(st.dmgArea?' ㎡':'');
   // 4. 손해정도 표본표 (앱과 동일한 2줄 격자)
   let hh='<tr><th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">표본</th>'+
     '<th rowspan="2" style="padding:3px 1px;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b">이랑</th>'+
