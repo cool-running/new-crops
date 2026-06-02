@@ -447,18 +447,18 @@ body.big-text .scell .ci{font-size:18px!important}
       <!-- 1. 사고원인 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 사고원인 조사</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
-          <tbody>
-            <tr>
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;width:42%">재해종류</td>
-              <td style="padding:6px 8px;font-weight:700" id="cap-disaster">-</td>
-            </tr>
-            <tr>
-              <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b">인정비율</td>
-              <td style="padding:6px 8px;font-weight:700" id="cap-recog">100%</td>
-            </tr>
-          </tbody>
-        </table>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <!-- 사고원인 박스 (좌측, 넓게) -->
+          <div style="flex:1;background:#eef3e7;border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:4px;min-width:0">
+            <span style="font-size:9.5px;font-weight:700;color:#7a9a5e;letter-spacing:0.02em">사고원인</span>
+            <span id="cap-disaster" style="font-size:12px;font-weight:800;color:#2d4a1e;line-height:1.45;word-break:keep-all;white-space:pre-line">-</span>
+          </div>
+          <!-- 인정비율 박스 (우측, 고정폭) -->
+          <div style="width:76px;flex-shrink:0;background:#FFF3E8;border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center">
+            <span style="font-size:9.5px;font-weight:700;color:#C2410C;letter-spacing:0.02em">인정비율</span>
+            <span id="cap-recog" style="font-size:16px;font-weight:900;color:#C2410C">100%</span>
+          </div>
+        </div>
       </div>
 
       <!-- 2. 일자조사 -->
@@ -1031,11 +1031,11 @@ function disasterLabel(){
   if(!d) return '-';
   const dn=diseaseName();
   if(st.disasterIdx===0){
-    // 자연재해: '자연재해 / 세부재해 (비연속적재해)'
-    return dn?('자연재해 / '+dn+' (비연속적재해)'):'자연재해 (비연속적재해)';
+    // 자연재해: 두 줄로 자연스럽게
+    return dn?('자연재해\n'+dn):'자연재해';
   }
-  // 병충해: 등급 / 병명
-  return dn?(d.label+' / '+dn):d.label;
+  // 병충해: 등급 / 병명 (두 줄)
+  return dn?(d.label+'\n'+dn):d.label;
 }
 function fillCaptureTemplate(){
   $('cap-date').textContent=st.survey_date||'';
