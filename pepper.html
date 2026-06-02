@@ -55,11 +55,6 @@ input.inp.filled,select.inp.filled{background:var(--fill-bg);border-color:var(--
 .datewrap input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
 .datewrap:focus-within .date-disp{border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15);background:#dceeff;color:#185FA5}
 body.big-text .datewrap .date-disp{height:52px;font-size:17px;font-weight:800}
-/* 3칸 그리드 안 날짜는 살짝 작게 */
-.g3 .datewrap .date-disp{font-size:12px;padding:0 2px;letter-spacing:-0.04em}
-.g3 .autobar{padding:0 6px;height:40px}
-.g3 .autobar span{font-size:10px}
-.g3 .autobar b{font-size:12px}
 input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
 input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
   outline:none!important;border-color:var(--blue)!important;
@@ -140,6 +135,7 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .smp-rhead .rname{background:var(--green);color:#fff;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;flex-shrink:0}
 .smp-rhead .rang{width:48px;border:none;background:var(--green);border-radius:6px;padding:3px 6px;font-size:12px;font-weight:700;color:#fff;-webkit-appearance:none;flex-shrink:0;text-align:center;height:auto;line-height:inherit}
 .smp-rhead .rang::placeholder{color:rgba(255,255,255,0.6);font-size:11px}
+#ginujeok::placeholder{font-size:12px;letter-spacing:-0.04em}
 .smp-rhead .rang.filled{background:var(--green);color:#fff}
 .smp-rhead .rsum{font-size:12px;color:var(--sub);margin-left:auto;flex-shrink:0}
 .smp-rhead .rsum b{font-size:15px;font-weight:800;color:#1a1a1a}
@@ -234,7 +230,7 @@ body.big-text .scell .ci{font-size:18px!important}
       </div>
       <div class="field" style="width:40%">
         <label>조사일자</label>
-        <div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="survey_date" onchange="onDateField(this)" autocomplete="off"></div>
+        <div class="datewrap"><div class="date-disp ph" data-ph="조사일자">조사일자</div><input type="date" id="survey_date" onchange="onDateField(this)" autocomplete="off"></div>
       </div>
       <div style="width:20%;flex-shrink:0">
         <button onclick="openHistoryModal()" title="이전 기록 불러오기"
@@ -283,24 +279,23 @@ body.big-text .scell .ci{font-size:18px!important}
           <!-- 패널 1: 수확개시 전 (정식/사고 + 수확예정/경과비율) -->
           <div class="phase-panel">
             <div class="g2">
-              <div class="field"><label>정식일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="plantDate" onchange="onDateField(this)"></div></div>
-              <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="accDate" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>정식일자</label><div class="datewrap"><div class="date-disp ph" data-ph="정식일자">정식일자</div><input type="date" id="plantDate" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph" data-ph="사고일자">사고일자</div><input type="date" id="accDate" onchange="onDateField(this)"></div></div>
             </div>
             <div class="g2" style="margin-top:8px">
-              <div class="field"><label>수확예정일</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="harvestPlan" onchange="onDateField(this)"></div></div>
-              <div class="field"><label style="visibility:hidden">.</label><div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-pre">-</b></div></div>
+              <div class="field"><label>수확예정일</label><div class="datewrap"><div class="date-disp ph" data-ph="수확예정일">수확예정일</div><input type="date" id="harvestPlan" onchange="onDateField(this)"></div></div>
+              <div class="field"></div>
             </div>
           </div>
-          <!-- 패널 2: 수확개시 후 (정식/사고 + 수확개시/수확종료/경과비율) -->
+          <!-- 패널 2: 수확개시 후 (정식/사고 + 수확개시/수확종료 + 경과비율) -->
           <div class="phase-panel">
             <div class="g2">
-              <div class="field"><label>정식일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="plantDate2" onchange="onDateField(this)"></div></div>
-              <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="accDate2" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>정식일자</label><div class="datewrap"><div class="date-disp ph" data-ph="정식일자">정식일자</div><input type="date" id="plantDate2" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph" data-ph="사고일자">사고일자</div><input type="date" id="accDate2" onchange="onDateField(this)"></div></div>
             </div>
-            <div class="g3" style="margin-top:8px">
-              <div class="field"><label>수확개시일</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="harvestStart" onchange="onDateField(this)"></div></div>
-              <div class="field"><label>수확종료일</label><div class="datewrap"><div class="date-disp ph">년-월-일</div><input type="date" id="covEnd" onchange="onDateField(this)"></div></div>
-              <div class="field"><label style="visibility:hidden">.</label><div class="autobar" style="margin-top:0"><span>경과</span><b id="coeff-post">-</b></div></div>
+            <div class="g2" style="margin-top:8px">
+              <div class="field"><label>수확개시일</label><div class="datewrap"><div class="date-disp ph" data-ph="수확개시일">수확개시일</div><input type="date" id="harvestStart" onchange="onDateField(this)"></div></div>
+              <div class="field"><label>수확종료일</label><div class="datewrap"><div class="date-disp ph" data-ph="수확종료일">수확종료일</div><input type="date" id="covEnd" onchange="onDateField(this)"></div></div>
             </div>
           </div>
         </div>
@@ -324,12 +319,15 @@ body.big-text .scell .ci{font-size:18px!important}
         <input type="text" id="dmgArea" class="inp" inputmode="decimal" oninput="onField(this)"></div>
     </div>
     <div class="g2" style="margin-top:8px">
+      <div class="autobar" style="margin-top:0"><span>면적피해비율</span><b id="r-areapct">-</b></div>
+      <div class="autobar" style="margin-top:0"><span>경과비율</span><b id="coeff-area">-</b></div>
+    </div>
+    <div class="g2" style="margin-top:8px">
       <div class="field"><label>미보상비율</label><span class="unit-badge">%</span>
         <input type="text" id="uninsRate" class="inp" inputmode="decimal" placeholder="%" oninput="onField(this)"></div>
       <div class="field"><label>기누적피해율</label><span class="unit-badge">%</span>
-        <input type="text" id="ginujeok" class="inp" inputmode="decimal" placeholder="이전최대" oninput="onField(this)"></div>
+        <input type="text" id="ginujeok" class="inp" inputmode="decimal" placeholder="이전최대피해율" oninput="onField(this)"></div>
     </div>
-    <b id="r-areapct" style="display:none">-</b>
   </div>
 
   <!-- ③ 표본이랑 조사 -->
@@ -778,7 +776,7 @@ function markFilled(el){
       const disp=wrap.querySelector('.date-disp');
       if(disp){
         if(has){ disp.textContent=el.value; disp.classList.remove('ph'); }
-        else{ disp.textContent='년-월-일'; disp.classList.add('ph'); }
+        else{ disp.textContent=disp.getAttribute('data-ph')||'년-월-일'; disp.classList.add('ph'); }
       }
     }
   }
@@ -874,9 +872,8 @@ function cancelPhaseSwitch(){
 function calc(){
   const co=coeff(),ar=areaRate(),so=sonhae();
   const coTxt=co===null?'-':fmtPct(co);
-  // 경과비율 표시 (전/후 패널 공용)
-  if($('coeff-pre')) $('coeff-pre').textContent=coTxt;
-  if($('coeff-post')) $('coeff-post').textContent=coTxt;
+  // 경과비율 표시 (면적 정보 섹션)
+  if($('coeff-area')) $('coeff-area').textContent=coTxt;
   $('r-coeff').textContent=coTxt;
   $('coeff-disp').value=co===null?'':fmtPct(co);
   $('r-areapct').textContent=ar===null?'-':fmtPct(ar);
