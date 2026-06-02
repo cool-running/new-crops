@@ -56,19 +56,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확량조사</div>
   </div>
 
-  <div class="crop-card test" onclick="go('pepper')">
-    <span class="badge badge-test">테스트</span>
-    <div class="crop-icon">🌶️</div>
-    <div class="crop-name">고추</div>
-    <div class="crop-desc">생산비보장 · 누적피해율</div>
-  </div>
 
 </div>
 
 <script>
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
-  else if(page==='pepper')  location.href='./pepper.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
