@@ -132,10 +132,9 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 /* 4x3 격자 */
 .smp-row{margin-bottom:10px}
 .smp-rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:6px}
-.smp-rhead .rname{background:var(--green);color:#fff;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;flex-shrink:0}
-.smp-rhead .rang-label{font-size:11px;color:var(--sub);font-weight:600;flex-shrink:0;margin-left:2px}
-.smp-rhead .rang{width:52px;border:1.5px solid var(--green);background:#fff;border-radius:6px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--green);-webkit-appearance:none;flex-shrink:0;text-align:center;height:28px;box-sizing:border-box}
-.smp-rhead .rang::placeholder{color:#bbb;font-size:11px;font-weight:400}
+.smp-rhead .rname{background:var(--green);color:#fff;border-radius:6px;padding:0 12px;font-size:13px;font-weight:700;flex-shrink:0;height:28px;display:inline-flex;align-items:center;box-sizing:border-box}
+.smp-rhead .rang{width:62px;border:1.5px solid var(--green);background:#fff;border-radius:6px;padding:0 4px;font-size:13px;font-weight:700;color:var(--green);-webkit-appearance:none;flex-shrink:0;text-align:center;height:28px;box-sizing:border-box}
+.smp-rhead .rang::placeholder{color:#bbb;font-size:10px;font-weight:500;letter-spacing:-0.05em}
 .smp-rhead .rang.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 #ginujeok::placeholder{font-size:12px;letter-spacing:-0.04em}
 .smp-rhead .rsum{font-size:12px;color:var(--sub);margin-left:auto;flex-shrink:0}
@@ -669,8 +668,7 @@ function renderSamples(){
   st.samples.forEach((s,r)=>{
     h+='<div class="smp-row">';
     h+='<div class="smp-rhead"><span class="rname">'+(r+1)+'번 표본</span>'+
-       '<span class="rang-label">이랑번호</span>'+
-       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="번호" oninput="onRang(this)">'+
+       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="이랑번호" oninput="onRang(this)">'+
        '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>주</span></div>';
     h+='<div class="smp-grid">';
     CHIP_DEFS.forEach(c=>{
