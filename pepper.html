@@ -54,8 +54,6 @@ input.inp.filled,select.inp.filled{background:var(--fill-bg);border-color:var(--
 .datewrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;margin:0;padding:0;cursor:pointer;z-index:2}
 .datewrap input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
 .datewrap:focus-within .date-disp{border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15);background:#dceeff;color:#185FA5}
-.datewrap.fixed{pointer-events:none}
-.datewrap.fixed .date-disp{background:var(--auto,#f3f1ea);border-style:dashed}
 body.big-text .datewrap .date-disp{height:52px;font-size:17px;font-weight:800}
 input.inp:focus,select.inp:focus,table.smp input:focus,.prev-row input:focus,
 input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.prev-row input.filled:focus{
@@ -285,7 +283,7 @@ body.big-text .scell .ci{font-size:18px!important}
               <div class="field"><label>사고일자</label><div class="datewrap"><div class="date-disp ph" data-ph="사고일자">사고일자</div><input type="date" id="accDate" onchange="onDateField(this)"></div></div>
             </div>
             <div class="g2" style="margin-top:8px">
-              <div class="field"><label>수확예정일</label><div class="datewrap fixed"><div class="date-disp ph" data-ph="수확예정일" id="harvestPlan-disp">수확예정일</div></div></div>
+              <div class="field"><label>수확예정일</label><div class="datewrap"><div class="date-disp ph" data-ph="수확예정일">수확예정일</div><input type="date" id="harvestPlan" onchange="onDateField(this)"></div></div>
               <div class="field"></div>
             </div>
           </div>
@@ -455,7 +453,7 @@ body.big-text .scell .ci{font-size:18px!important}
               <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b;width:42%">재해종류</td>
               <td style="padding:6px 8px;font-weight:700" id="cap-disaster">-</td>
             </tr>
-            <tr style="border-top:1px solid #e0e0e0">
+            <tr>
               <td style="padding:6px 8px;border-right:1px solid #e0e0e0;background:#eef3e7;font-weight:700;color:#3f5a2b">인정비율</td>
               <td style="padding:6px 8px;font-weight:700" id="cap-recog">100%</td>
             </tr>
@@ -594,16 +592,6 @@ function toggleVerify(){
   if(box){ box.style.borderColor=on?'#E0A800':'#ccc'; box.style.background=on?'#FFF8E6':'transparent'; }
   calc();
 }
-function syncHarvestPlanDisp(){
-  // 수확예정일은 전산처럼 고정 자동값 (정식일+생장일수)
-  const auto=st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'';
-  st.harvestPlan=auto;
-  const disp=$('harvestPlan-disp');
-  if(disp){
-    if(auto){ disp.textContent=auto; disp.classList.remove('ph'); disp.closest('.datewrap').classList.add('filled'); }
-    else{ disp.textContent='수확예정일'; disp.classList.add('ph'); disp.closest('.datewrap').classList.remove('filled'); }
-  }
-}
 function autoFillDates(){
   // 보장종료일: 조사자가 직접 수정하지 않았으면 자동
   if(!st.covEndManual){
@@ -611,8 +599,12 @@ function autoFillDates(){
     st.covEnd=auto;
     const el=$('covEnd'); if(el){ el.value=auto; markFilled(el); }
   }
-  // 수확예정일: 항상 자동(고정)
-  syncHarvestPlanDisp();
+  // 수확예정일: 조사자가 직접 수정하지 않았으면 자동(정식일+생장일수), 수정 시 보존
+  if(!st.harvestPlanManual){
+    const auto=st.plantDate?addDays(st.plantDate,st.pumjong==='홍고추'?100:70):'';
+    st.harvestPlan=auto;
+    const el=$('harvestPlan'); if(el){ el.value=auto; markFilled(el); }
+  }
 }
 function coeff(){
   const K=window.__verify2025?0.542:0.555;
@@ -760,7 +752,7 @@ function diseaseName(){
   return d.diseases[st.diseaseIdx]||'';
 }
 function loadForm(){
-  ['farm_no','survey_date','pumjong','region','uninsRate','ginujeok','plantDate','accDate','harvestStart','accDate2','covEnd','insArea','actArea','dmgArea'].forEach(id=>{
+  ['farm_no','survey_date','pumjong','region','uninsRate','ginujeok','plantDate','accDate','harvestStart','accDate2','covEnd','harvestPlan','insArea','actArea','dmgArea'].forEach(id=>{
     const el=$(id);if(el){el.value=st[id]||'';markFilled(el);}
   });
   // 면적칸 천단위 콤마 복원
@@ -769,7 +761,6 @@ function loadForm(){
   });
   const dsel=$('disaster'); if(dsel){ dsel.selectedIndex=st.disasterIdx||0; markFilled(dsel); }
   const pd2=$('plantDate2'); if(pd2){ pd2.value=st.plantDate||''; markFilled(pd2); }
-  syncHarvestPlanDisp();
   renderDisease();
   paintPhaseTabs();
   // 사고일자 미입력 시: 병충해(idx>=1)만 조사일자로 자동 (자연재해는 자동 안 함)
@@ -836,6 +827,7 @@ function onField(el){
   else if(el.id==='region'){ st.region=el.value; autoFillDates(); }
   else if(el.id==='pumjong'){ st.pumjong=el.value; autoFillDates(); }
   else if(el.id==='covEnd'){ st.covEnd=el.value; st.covEndManual=!!el.value; }
+  else if(el.id==='harvestPlan'){ st.harvestPlan=el.value; st.harvestPlanManual=!!el.value; }
   else if(st.hasOwnProperty(el.id)) st[el.id]=el.value;
   // 조사일자 입력 시: 병충해(idx>=1)만 사고일자를 동일하게 자동 (자연재해는 실제 사고일이 달라 자동 안 함)
   if(el.id==='survey_date' && el.value && st.disasterIdx>=1){
@@ -865,7 +857,7 @@ function phaseHasInput(phase){
   const acc1=(st.accDate && st.accDate!==st.survey_date) ? st.accDate : '';
   const acc2=(st.accDate2 && st.accDate2!==st.survey_date) ? st.accDate2 : '';
   if(phase==='pre'){
-    return !!(st.plantDate||acc1);
+    return !!(st.plantDate||acc1||st.harvestPlan);
   }else{
     return !!(st.plantDate||st.harvestStart||acc2||st.covEnd);
   }
@@ -876,8 +868,7 @@ function clearPhaseInput(phase){
   ['plantDate','plantDate2'].forEach(id=>{const e=$(id);if(e){e.value='';markFilled(e);}});
   if(phase==='pre'){
     st.accDate=''; st.harvestPlan=''; st.harvestPlanManual=false;
-    const a=$('accDate'); if(a){a.value='';markFilled(a);}
-    syncHarvestPlanDisp();
+    ['accDate','harvestPlan'].forEach(id=>{const e=$(id);if(e){e.value='';markFilled(e);}});
   }else{
     st.harvestStart=''; st.accDate2=''; st.covEnd=''; st.covEndManual=false;
     ['harvestStart','accDate2','covEnd'].forEach(id=>{const e=$(id);if(e){e.value='';markFilled(e);}});
@@ -1038,10 +1029,13 @@ function saveHistory(){
 function disasterLabel(){
   const d=DISASTERS[st.disasterIdx];
   if(!d) return '-';
-  // 자연재해(idx 0)는 '자연재해'로만 표기 (조수해·화재 생략), 그 외(병충해)는 등급 라벨 그대로
-  const base=(st.disasterIdx===0)?'자연재해':d.label;
   const dn=diseaseName();
-  return dn?(base+' · '+dn):base;
+  if(st.disasterIdx===0){
+    // 자연재해: '자연재해 / 세부재해 (비연속적재해)'
+    return dn?('자연재해 / '+dn+' (비연속적재해)'):'자연재해 (비연속적재해)';
+  }
+  // 병충해: 등급 / 병명
+  return dn?(d.label+' / '+dn):d.label;
 }
 function fillCaptureTemplate(){
   $('cap-date').textContent=st.survey_date||'';
