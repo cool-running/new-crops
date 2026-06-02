@@ -61,7 +61,7 @@ input.inp.filled:focus,select.inp.filled:focus,table.smp input.filled:focus,.pre
   box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;
   background:#dceeff!important;color:#185FA5!important;
 }
-.smp-rhead .rang:focus{outline:2px solid rgba(255,255,255,0.8)!important;outline-offset:2px;}
+.smp-rhead .rang:focus{outline:none!important;border-color:var(--blue)!important;background:#dceeff!important;color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.15)!important;}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 
 .bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--org2);border-radius:var(--rs);color:var(--org2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
@@ -83,7 +83,7 @@ body.big-text table.smp th{font-size:12px!important}
 .autobar b{font-size:14px;font-weight:800;white-space:nowrap}
 .autobar.smp-sum{padding:9px 9px;gap:4px}
 .autobar.smp-sum span{font-size:10px}
-.autobar.smp-sum b{font-size:13px}
+.autobar.smp-sum b{font-size:15px}
 .phase-card .autobar{padding:0 10px;background:#fff;border-color:#EFE2D0;height:40px}
 .phase-card .autobar span{font-size:10px}
 .phase-card .autobar b{font-size:12px;letter-spacing:-0.02em}
@@ -131,12 +131,13 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .smp-note{font-size:10px;color:var(--hint);text-align:center;margin-top:6px}
 /* 4x3 격자 */
 .smp-row{margin-bottom:10px}
-.smp-rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
+.smp-rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:6px}
 .smp-rhead .rname{background:var(--green);color:#fff;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;flex-shrink:0}
-.smp-rhead .rang{width:48px;border:none;background:var(--green);border-radius:6px;padding:3px 6px;font-size:12px;font-weight:700;color:#fff;-webkit-appearance:none;flex-shrink:0;text-align:center;height:auto;line-height:inherit}
-.smp-rhead .rang::placeholder{color:rgba(255,255,255,0.6);font-size:11px}
+.smp-rhead .rang-label{font-size:11px;color:var(--sub);font-weight:600;flex-shrink:0;margin-left:2px}
+.smp-rhead .rang{width:52px;border:1.5px solid var(--green);background:#fff;border-radius:6px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--green);-webkit-appearance:none;flex-shrink:0;text-align:center;height:28px;box-sizing:border-box}
+.smp-rhead .rang::placeholder{color:#bbb;font-size:11px;font-weight:400}
+.smp-rhead .rang.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 #ginujeok::placeholder{font-size:12px;letter-spacing:-0.04em}
-.smp-rhead .rang.filled{background:var(--green);color:#fff}
 .smp-rhead .rsum{font-size:12px;color:var(--sub);margin-left:auto;flex-shrink:0}
 .smp-rhead .rsum b{font-size:15px;font-weight:800;color:#1a1a1a}
 .smp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
@@ -668,7 +669,8 @@ function renderSamples(){
   st.samples.forEach((s,r)=>{
     h+='<div class="smp-row">';
     h+='<div class="smp-rhead"><span class="rname">'+(r+1)+'번 표본</span>'+
-       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="이랑" oninput="onRang(this)">'+
+       '<span class="rang-label">이랑번호</span>'+
+       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="번호" oninput="onRang(this)">'+
        '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>주</span></div>';
     h+='<div class="smp-grid">';
     CHIP_DEFS.forEach(c=>{
