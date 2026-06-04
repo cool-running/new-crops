@@ -337,6 +337,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="auto" id="autoAdmitCnt" type="text" readonly value="-">
       </div>
     </div>
+    <div class="hint">※ 수확완료 · 미보상(고사 · 미고사) 주수는 <b>금차 + 과거</b> 누계로 입력합니다.</div>
   </div>
 
   <!-- 낙과 표본조사 -->
@@ -392,6 +393,22 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
     </div>
   </div>
 
+</div>
+
+<!-- 이미지 저장 미리보기 -->
+<div class="overlay" id="imgOverlay">
+  <div class="modal" style="max-width:360px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="margin:0">이미지 저장</h3>
+      <button onclick="closeImg()" style="border:none;background:none;font-size:22px;color:#aaa;cursor:pointer">✕</button>
+    </div>
+    <div style="overflow:auto;max-height:58vh;border:1px solid #eee;border-radius:10px"><img id="imgPreview" alt="계산결과" style="width:100%;display:block"></div>
+    <div style="font-size:11px;color:#888;text-align:center;margin:8px 0 10px;line-height:1.4">이미지를 길게 눌러 저장하거나<br>아래 <b>저장</b> 버튼을 누르세요</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button onclick="closeImg()" style="height:44px;border:1.5px solid #ddd;border-radius:10px;background:#f5f5f5;color:#666;font-weight:700;cursor:pointer">닫기</button>
+      <button id="imgDownloadBtn" style="height:44px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer">저장</button>
+    </div>
+  </div>
 </div>
 
 <!-- 초기화 -->
@@ -528,6 +545,31 @@ function updateGrade(){
   var er=document.getElementById('autoDmgRatio'); if(er) er.value=ratio.toFixed(2);
 }
 
+/* 계산하기 전에도 나무조사 자동칸 실시간 반영 */
+function liveUpdate(){
+  updateGrade(); updatePrev();
+  var afterCnt=num('afterCnt'), realTree=num('realTree');
+  var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
+  var sampleN=num('sampleN'), fallSum=sumSamples();
+  var g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
+  var gradeSum=num('g0')+g30+g50+g80+g100;
+  var dmgRatio=gradeSum>0?(g30*0.3+g50*0.5+g80*0.8+g100*1)/gradeSum*100:0;
+  var prevRate=calcPrevRate().rate;
+  var target=realTree-harvestDone-deadNC-aliveNC;
+  var fd=document.getElementById('autoFallDmg'), ar=document.getElementById('autoAdmitRate'), ac=document.getElementById('autoAdmitCnt');
+  if(afterCnt>0 && realTree>0 && sampleN>0 && target>0){
+    var fallDamage=Math.round((fallSum/sampleN)*target);
+    var covered=fallDamage>afterCnt*0.06;
+    var admitRate=Math.max(0,dmgRatio-prevRate);
+    var admitCnt=covered?Math.round(fallDamage*admitRate/100):0;
+    if(fd) fd.value=fmt(fallDamage);
+    if(ar) ar.value=admitRate.toFixed(2);
+    if(ac) ac.value=fmt(admitCnt);
+  }else{
+    if(fd) fd.value='-'; if(ar) ar.value='-'; if(ac) ac.value='-';
+  }
+}
+
 function saveState(){
   try{
     var st={samples:getSamples(),sampleVars:getVarieties()};
@@ -545,6 +587,7 @@ function restoreState(){
   document.querySelectorAll('.inp').forEach(mark);
   updateGrade();
   refreshPrevUI();
+  liveUpdate();
   if(st.calcDone){ calc(true); }
   return true;
 }
@@ -690,6 +733,7 @@ function buildCapture(){
   var g0=num('g0'),g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
   var gradeSum=g0+g30+g50+g80+g100;
   var samps=[]; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ samps.push(parseFloat((i.value||'').replace(/,/g,''))||0); });
+  var varis=[]; document.querySelectorAll('#sampRows .samp-variety').forEach(function(i){ varis.push((i.value||'').trim()); });
 
   var TH='padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center';
   var THl='padding:7px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center';
@@ -714,12 +758,15 @@ function buildCapture(){
     '<tbody><tr><td style="'+TD+'">'+fmt(harvestDone)+'</td><td style="'+TD+'">'+fmt(deadNC)+'</td><td style="'+TD+'">'+fmt(aliveNC)+'</td><td style="'+TGl+'">'+fmt(L.target)+' 주</td></tr></tbody>'));
 
   // 3. 일소(낙과) 표본조사
-  var sTh='',sTd='';
-  samps.forEach(function(v,i){ sTh+='<th style="'+TH+'">'+(i+1)+'번</th>'; sTd+='<td style="'+TD+'">'+fmt(v)+'</td>'; });
-  sTh+='<th style="'+THl+'">합계</th>'; sTd+='<td style="'+TGl+'">'+fmt(L.fallSum)+'</td>';
-  var c3=card('3. 일소(낙과) 표본조사',
-    sub('표본주별 낙과수 (표본주수 '+fmt(L.sampleN)+'주)')+
-    tbl('<thead><tr>'+sTh+'</tr></thead><tbody><tr>'+sTd+'</tr></tbody>')+
+  var sRows='';
+  samps.forEach(function(v,i){
+    sRows+='<tr><td style="'+TD+'">'+(i+1)+'</td><td style="'+TD+'">'+(varis[i]||'-')+'</td><td style="'+TDl+'">'+fmt(v)+'</td></tr>';
+  });
+  sRows+='<tr><td style="'+TG+'">합계</td><td style="'+TG+'">-</td><td style="'+TGl+'">'+fmt(L.fallSum)+'</td></tr>';
+  var c3=card('3. 일소(낙과) 표본조사 (표본주수 '+fmt(L.sampleN)+'주)',
+    tbl('<colgroup><col style="width:28%"><col style="width:44%"><col style="width:28%"></colgroup>'+
+      '<thead><tr><th style="'+TH+'">표본주번호</th><th style="'+TH+'">숙기/품종</th><th style="'+THl+'">낙과수</th></tr></thead>'+
+      '<tbody>'+sRows+'</tbody>')+
     '<div style="height:10px"></div>'+
     sub('1주당 낙과수 · 낙과피해과실수')+
     tbl('<colgroup><col style="width:50%"><col style="width:50%"></colgroup>'+
@@ -749,7 +796,7 @@ function buildCapture(){
     '<div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 12%,#f3f4f6 12%,#f3f4f6 100%);padding:0 16px 22px;box-sizing:border-box">'+
       '<div style="height:24px"></div>'+
       '<div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">'+
-        '<div style="font-size:16px;font-weight:800">☀️ 일소피해 계산결과</div>'+
+        '<div style="font-size:16px;font-weight:800">☀️ '+crop+' 일소피해 계산결과</div>'+
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">'+
           '<span style="font-size:14px;font-weight:800;color:#fff">조사일자 '+date+'</span>'+
           '<span style="font-size:14px;font-weight:800;color:#fff">농지번호 '+farmNo+'</span></div></div>'+
@@ -763,16 +810,21 @@ function saveImage(){
   box.innerHTML=buildCapture();
   showToast('이미지 만드는 중…');
   html2canvas(box,{scale:2,backgroundColor:'#f3f4f6',useCORS:true,windowWidth:430}).then(function(canvas){
+    box.innerHTML='';
+    var url=canvas.toDataURL('image/png');
     var farmNo=(document.getElementById('farmNo').value||'농지').replace(/[^0-9]/g,'')||'농지';
     var d=new Date(), stamp=d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'_'+('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2);
-    var link=document.createElement('a');
-    link.download='일소피해_'+farmNo+'_'+stamp+'.png';
-    link.href=canvas.toDataURL('image/png');
-    link.click();
-    box.innerHTML='';
-    showToast('갤러리에 저장됐어요!');
-  }).catch(function(){ box.innerHTML=''; showToast('저장에 실패했습니다'); });
+    var crop=document.getElementById('crop').value||'사과';
+    var fname=crop+'_일소피해_'+farmNo+'_'+stamp+'.png';
+    document.getElementById('imgPreview').src=url;
+    document.getElementById('imgDownloadBtn').onclick=function(){
+      var link=document.createElement('a'); link.download=fname; link.href=url; link.click();
+      showToast('저장됐어요!');
+    };
+    document.getElementById('imgOverlay').classList.add('show');
+  }).catch(function(){ box.innerHTML=''; showToast('이미지 생성에 실패했습니다'); });
 }
+function closeImg(){ document.getElementById('imgOverlay').classList.remove('show'); }
 
 /* 초기 구동 */
 (function init(){
@@ -795,6 +847,10 @@ function saveImage(){
   mark(document.getElementById('crop'));
   updateGrade();
   refreshPrevUI();
+  liveUpdate();
+  document.getElementById('content').addEventListener('input',function(){
+    if(!document.getElementById('content').classList.contains('locked')) liveUpdate();
+  },{passive:true});
 })();
 </script>
 </body>
