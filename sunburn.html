@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#185FA5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>일소피해 피해율 계산기</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --blue:#185FA5;--blue2:#378ADD;
+  --auto:#F3F1EA;--border:#D8D6CE;--binp:#378ADD;
+  --text:#1a1a1a;--sub:#666;--hint:#aaa;
+  --bg:#F5F4F0;--card:#fff;
+  --red:#e24b4a;--green:#1D9E75;--amber:#C2410C;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;-webkit-user-select:none;user-select:none;padding-bottom:env(safe-area-inset-bottom,30px)}
+.header{background:var(--blue);color:white;padding:13px 14px 11px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.back-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;flex-shrink:0;color:#fff;text-decoration:none}
+.header-icon{width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.header h1{font-size:16px;font-weight:700;flex:1}
+.header-sub{font-size:10.5px;opacity:0.72;margin-top:1px}
+
+.content{padding:12px 14px 40px}
+.section{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r);padding:12px 13px 13px;margin-bottom:11px}
+.sec-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:-0.01em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sec-title .tag{font-size:10px;font-weight:700;color:var(--blue);background:#eaf2fb;border-radius:6px;padding:2px 7px}
+.subhead{font-size:11px;font-weight:800;color:var(--blue);margin:11px 0 6px;letter-spacing:-0.01em}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.field{display:flex;flex-direction:column;gap:4px;position:relative}
+.field label{font-size:11px;color:var(--sub);font-weight:600}
+.field .unit{font-size:10px;color:var(--hint);font-weight:500}
+input.inp,select.inp{height:42px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:15px;font-weight:600;background:white;color:var(--text);width:100%;text-align:center;transition:background .15s,border-color .15s;-webkit-appearance:none;appearance:none}
+select.inp{text-align:left;-webkit-appearance:auto;appearance:auto}
+input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,0.18);background:#dceeff;color:var(--blue)}
+input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+.hint{font-size:10.5px;color:var(--hint);margin-top:7px;line-height:1.5}
+
+.datewrap{position:relative}
+.datewrap input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.date-disp{height:42px;border:1.5px solid var(--binp);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:#fff;color:var(--text)}
+.date-disp.ph{color:var(--hint);font-weight:500}
+.date-disp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bigtext-btn{height:34px;padding:0 12px;background:transparent;border:1.5px solid var(--blue2);border-radius:var(--rs);color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.bigtext-btn.on{background:var(--blue2);color:#fff;box-shadow:0 2px 8px rgba(55,138,221,0.35)}
+.reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
+
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg-btn{height:40px;border:1.5px solid var(--border);border-radius:var(--rs);background:#fff;color:var(--sub);font-size:13px;font-weight:700;cursor:pointer;transition:all .12s}
+.seg-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(24,95,165,0.28)}
+
+/* 표본 낙과수 가로 1행 */
+.samp-line{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end}
+.samp-cell{flex:1;min-width:52px;text-align:center}
+.samp-cell .no{font-size:10px;font-weight:700;color:var(--sub);margin-bottom:3px}
+.samp-cell input{height:42px;padding:0 2px;font-size:15px}
+.samp-total{flex:1;min-width:60px;text-align:center}
+.samp-total .no{font-size:10px;font-weight:700;color:var(--blue);margin-bottom:3px}
+.samp-total .box{height:42px;border:1.5px solid var(--blue);border-radius:var(--rs);background:#eaf2fb;color:var(--blue);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
+
+.grade-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.grade-cell label{font-size:10.5px;text-align:center;display:block;margin-bottom:3px;color:var(--sub);font-weight:700}
+.grade-cell input{height:40px;font-size:14px;padding:0 2px}
+.grade-100 label{color:var(--red)}
+
+.calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 12px}
+.btn-calc{height:48px;border:none;border-radius:12px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-calc.active{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);box-shadow:0 4px 14px rgba(24,95,165,0.35)}
+.btn-edit{height:48px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer}
+.btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(29,158,117,0.3)}
+.locked .section input.inp:not([type=date]),.locked .section select.inp,.locked .seg-btn,.locked .samp-cell input{pointer-events:none;opacity:0.78}
+
+.result-box{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:18px;padding:16px 16px 14px;margin-bottom:10px;color:white;box-shadow:0 8px 28px rgba(24,95,165,0.45),inset 0 1px 0 rgba(255,255,255,0.2)}
+.result-box.pending{background:linear-gradient(135deg,#9a9a9a 0%,#bbb 100%);box-shadow:none}
+.result-box.exempt{background:linear-gradient(135deg,#6b7280 0%,#9aa1ab 100%)}
+.rb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.rb-label{font-size:12px;opacity:0.82;font-weight:600}
+.rb-badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.3)}
+.rb-hero{font-size:40px;font-weight:900;letter-spacing:-0.02em;line-height:1.05}
+.rb-hero small{font-size:18px;font-weight:700;opacity:0.85}
+.rb-sub{font-size:12px;opacity:0.85;margin-top:5px}
+.rb-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+.rb-mini .m{background:rgba(255,255,255,0.13);border-radius:10px;padding:8px 10px}
+.rb-mini .m .k{font-size:10px;opacity:0.8}
+.rb-mini .m .v{font-size:16px;font-weight:800;margin-top:1px}
+.save-btn{width:100%;height:46px;background:#fff;border:1.5px solid var(--blue2);color:var(--blue);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:12px}
+.save-btn:active{background:#eaf2fb}
+.save-btn:disabled{opacity:0.5;cursor:default}
+
+.res-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:10px;overflow:hidden;border:0.5px solid var(--border)}
+.res-table td{padding:9px 10px;border-bottom:1px solid #eee}
+.res-table tr:last-child td{border-bottom:none}
+.res-table td.k{color:var(--sub);font-weight:600;width:54%}
+.res-table td.v{text-align:right;font-weight:800;color:var(--text)}
+.res-table tr.hl td{background:#eaf2fb}
+.res-table tr.hl td.v{color:var(--blue)}
+.res-table .formula{font-size:10px;color:var(--hint);font-weight:500;display:block;margin-top:1px}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:18px 16px;width:100%;max-width:340px;max-height:80vh;display:flex;flex-direction:column}
+.modal h3{font-size:17px;font-weight:800;text-align:center;margin-bottom:6px;color:#333}
+.hist-item{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:400;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center}
+.toast.on{opacity:0.95}
+
+body.big-text input.inp,body.big-text select.inp{height:52px !important;font-size:20px !important;font-weight:700 !important;border-width:2px !important}
+body.big-text .date-disp{height:52px !important;font-size:17px !important;font-weight:800 !important}
+body.big-text .field label{font-size:13px !important}
+body.big-text .samp-cell input{height:50px !important;font-size:18px !important}
+body.big-text .samp-total .box{height:50px !important;font-size:18px !important}
+body.big-text .grade-cell input{height:48px !important;font-size:16px !important}
+body.big-text .seg-btn{height:48px !important;font-size:15px !important}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" href="./index.html">‹</a>
+  <div class="header-icon">☀️</div>
+  <div style="flex:1">
+    <h1>일소피해 피해율 계산기</h1>
+    <div class="header-sub">과수4종 · 적과후 · 낙과(표본)조사</div>
+  </div>
+</div>
+
+<div class="content" id="content">
+
+  <div class="toolbar">
+    <button class="bigtext-btn" id="bigtextBtn" onclick="toggleBigText()">🔍 <span id="bigtextLabel">크게</span></button>
+    <button class="reset-btn" onclick="openReset()">전체 초기화</button>
+  </div>
+
+  <!-- 품목 / 농지번호 / 이전기록 -->
+  <div class="section">
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div class="field" style="flex:1.1">
+        <label>품목</label>
+        <select class="inp" id="crop"><option value="사과" selected>사과</option></select>
+      </div>
+      <div class="field" style="flex:1.2">
+        <label>농지번호 4자리</label>
+        <input type="text" id="farmNo" class="inp" inputmode="numeric" placeholder="농지번호" maxlength="4"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);mark(this);saveState()" autocomplete="off">
+      </div>
+      <div style="flex-shrink:0">
+        <button onclick="openHistory()" title="이전 기록 불러오기"
+          style="width:46px;height:46px;border:1.5px solid var(--blue2);border-radius:var(--rs);background:white;color:var(--blue);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">📋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 조사정보 -->
+  <div class="section">
+    <div class="sec-title">📋 조사정보</div>
+    <div class="g2">
+      <div class="field">
+        <label>조사일자</label>
+        <div class="datewrap">
+          <div class="date-disp ph" id="dateDisp">조사일자</div>
+          <input type="date" id="surveyDate" onchange="syncDate();saveState()" autocomplete="off">
+        </div>
+      </div>
+      <div class="field">
+        <label>조사방식</label>
+        <select class="inp" id="method" onchange="mark(this);saveState()">
+          <option value="표본조사" selected>표본조사</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="subhead">이전 사고가 있었나요?</div>
+    <div class="seg">
+      <button type="button" class="seg-btn" id="segNo" onclick="setPrev(false)">없음 (첫 사고)</button>
+      <button type="button" class="seg-btn on" id="segYes" onclick="setPrev(true)">있음</button>
+    </div>
+    <div class="field" id="prevField" style="display:flex;margin-top:9px">
+      <label>전차 인정피해율 <span class="unit">(%)</span></label>
+      <input class="inp filled" id="prevRate" type="number" inputmode="decimal" placeholder="0" value="1.49" oninput="mark(this);saveState()" style="max-width:140px">
+    </div>
+    <div class="hint">· 이전 사고 없음 → 전차율 0 자동 · 있음 → 직전 조사서·전산의 누적 인정피해율 입력</div>
+  </div>
+
+  <!-- 나무조사 -->
+  <div class="section">
+    <div class="sec-title">🌳 나무조사 <span class="tag">조사대상주수</span></div>
+    <div class="g3">
+      <div class="field">
+        <label>적과후착과수 <span class="unit">(개)</span></label>
+        <input class="inp" id="afterCnt" type="text" inputmode="numeric" placeholder="19,360" oninput="onComma(this);saveState()">
+      </div>
+      <div class="field">
+        <label>가입주수 <span class="unit">(주)</span></label>
+        <input class="inp" id="joinTree" type="number" inputmode="numeric" placeholder="260" oninput="mark(this);saveState()">
+      </div>
+      <div class="field">
+        <label>실제결과주수 <span class="unit">(주)</span></label>
+        <input class="inp" id="realTree" type="number" inputmode="numeric" placeholder="260" oninput="mark(this);saveState()">
+      </div>
+    </div>
+    <div class="subhead">금차 나무조사 <span style="font-weight:500;color:var(--hint)">(제외주수)</span></div>
+    <div class="g3">
+      <div class="field">
+        <label>수확완료 <span class="unit">(주)</span></label>
+        <input class="inp" id="harvestDone" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
+      </div>
+      <div class="field">
+        <label>미보상 고사 <span class="unit">(주)</span></label>
+        <input class="inp" id="deadNC" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
+      </div>
+      <div class="field">
+        <label>미보상 미고사 <span class="unit">(주)</span></label>
+        <input class="inp" id="aliveNC" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
+      </div>
+    </div>
+    <div class="hint">· <b>조사대상주수 = 실제결과주수 − 수확완료 − 미보상고사 − 미보상미고사</b></div>
+  </div>
+
+  <!-- 낙과 표본조사 -->
+  <div class="section">
+    <div class="sec-title">🍎 낙과 표본조사</div>
+    <div class="field" style="margin-bottom:9px">
+      <label>표본주수 <span class="unit">(주)</span></label>
+      <input class="inp" id="sampleN" type="number" inputmode="numeric" value="3" oninput="mark(this);buildSampleRows();saveState()" style="max-width:120px">
+    </div>
+    <div style="font-size:11px;color:var(--sub);font-weight:700;margin-bottom:5px">표본주별 낙과수 (개)</div>
+    <div class="samp-line" id="sampRows"></div>
+  </div>
+
+  <!-- 낙과 피해구성조사 -->
+  <div class="section">
+    <div class="sec-title">📊 낙과 피해구성조사</div>
+    <div class="grade-grid">
+      <div class="grade-cell"><label>정상</label><input class="inp" id="g0" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()"></div>
+      <div class="grade-cell"><label>30%형</label><input class="inp" id="g30" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()"></div>
+      <div class="grade-cell"><label>50%형</label><input class="inp" id="g50" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()"></div>
+      <div class="grade-cell"><label>80%형</label><input class="inp" id="g80" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()"></div>
+      <div class="grade-cell grade-100"><label>100%형</label><input class="inp" id="g100" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()"></div>
+    </div>
+    <div class="hint">· 피해구성비율 = Σ(개수×등급계수) ÷ 합계</div>
+  </div>
+
+  <div class="calc-action-row">
+    <button class="btn-edit" id="btnEdit" onclick="edit()">✏️ 수정하기</button>
+    <button class="btn-calc active" id="btnCalc" onclick="calc()">🧮 계산하기</button>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result-box pending" id="resultBox">
+    <div class="rb-top">
+      <span class="rb-label">금차 인정피해과실수</span>
+      <span class="rb-badge" id="rbBadge">대기중</span>
+    </div>
+    <div class="rb-hero" id="rbHero">—</div>
+    <div class="rb-sub" id="rbSub">값을 입력하고 계산하기를 누르세요</div>
+    <div class="rb-mini" id="rbMini" style="display:none">
+      <div class="m"><div class="k">인정피해율</div><div class="v" id="mRate">—</div></div>
+      <div class="m"><div class="k">낙과피해과실수</div><div class="v" id="mFall">—</div></div>
+    </div>
+  </div>
+  <button class="save-btn" id="saveBtn" onclick="saveImage()" disabled>📷 갤러리 저장 (조사서 기입용)</button>
+  <div id="detailWrap" style="display:none"><table class="res-table" id="resTable"></table></div>
+
+</div>
+
+<!-- 초기화 -->
+<div class="overlay" id="resetOverlay">
+  <div class="modal">
+    <h3>전체 초기화</h3>
+    <p style="text-align:center;color:#666;font-size:13px;margin:8px 0 16px">입력한 모든 값이 지워집니다.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button onclick="closeReset()" style="height:44px;border:1.5px solid #ddd;border-radius:10px;background:#f5f5f5;color:#666;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="doReset()" style="height:44px;border:none;border-radius:10px;background:var(--red);color:#fff;font-weight:700;cursor:pointer">초기화</button>
+    </div>
+  </div>
+</div>
+
+<!-- 이전기록 -->
+<div class="overlay" id="historyOverlay">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">이전 기록</h3>
+      <button onclick="closeHistory()" style="border:none;background:none;font-size:22px;color:#aaa;cursor:pointer">✕</button>
+    </div>
+    <div id="historyList" style="overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- 갤러리 저장용 캡처 템플릿 -->
+<div id="captureBox" style="position:fixed;left:-99999px;top:0;width:720px;background:#fff;padding:0;z-index:-1"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var KEY_STATE='sunburn_state', KEY_HIST='sunburn_history', KEY_BIG='sunburn_bigtext';
+var FIELDS=['crop','farmNo','surveyDate','method','prevRate','afterCnt','joinTree','realTree','harvestDone','deadNC','aliveNC','sampleN','g0','g30','g50','g80','g100'];
+var LAST=null;
+
+function num(id){ var v=(document.getElementById(id).value||'').toString().replace(/,/g,''); var n=parseFloat(v); return isNaN(n)?0:n; }
+function mark(el){ if(el&&el.classList) el.classList.toggle('filled', el.value!==''&&el.value!=='0'); }
+function onComma(el){ var v=el.value.replace(/[^0-9]/g,''); el.value=v?parseInt(v,10).toLocaleString('en-US'):''; mark(el); }
+function fmt(n){ return (Math.round(n)).toLocaleString('en-US'); }
+function fmt1(n){ return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:4}); }
+function vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+function showToast(m){ var t=document.getElementById('toast'); t.innerHTML=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('on');},2000); }
+
+function syncDate(){
+  var inp=document.getElementById('surveyDate'), disp=document.getElementById('dateDisp');
+  if(inp.value){ var d=inp.value.split('-'); disp.textContent=d[0]+'.'+d[1]+'.'+d[2]; disp.classList.remove('ph'); disp.classList.add('filled'); }
+  else { disp.textContent='조사일자'; disp.classList.add('ph'); disp.classList.remove('filled'); }
+}
+
+function setPrev(yes){
+  document.getElementById('segYes').classList.toggle('on', yes);
+  document.getElementById('segNo').classList.toggle('on', !yes);
+  document.getElementById('prevField').style.display = yes?'flex':'none';
+  var pr=document.getElementById('prevRate');
+  if(!yes){ pr.value='0'; pr.classList.remove('filled'); }
+  else { setTimeout(function(){pr.focus();pr.select();},60); }
+  saveState();
+}
+
+/* 표본주별 낙과수 — 가로 1행 + 합계 */
+function buildSampleRows(saved){
+  var n=parseInt(num('sampleN'))||0; if(n>30) n=30;
+  var wrap=document.getElementById('sampRows'), prev={};
+  wrap.querySelectorAll('input').forEach(function(i){ prev[i.dataset.idx]=i.value; });
+  if(saved) prev=saved;
+  var html='';
+  for(var i=1;i<=n;i++){
+    var val=(prev[i]!==undefined)?prev[i]:'';
+    html+='<div class="samp-cell"><div class="no">'+i+'</div>'+
+      '<input class="inp'+(val!==''&&val!=='0'?' filled':'')+'" data-idx="'+i+'" type="number" inputmode="numeric" value="'+val+'" oninput="mark(this);sumSamples();saveState()"></div>';
+  }
+  html+='<div class="samp-total"><div class="no">합계</div><div class="box" id="sampTotalBox">0</div></div>';
+  wrap.innerHTML=html;
+  sumSamples();
+}
+function sumSamples(){
+  var s=0; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ s+=parseFloat((i.value||'').replace(/,/g,''))||0; });
+  var box=document.getElementById('sampTotalBox'); if(box) box.textContent=fmt(s);
+  return s;
+}
+function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
+
+function saveState(){
+  try{
+    var st={samples:getSamples(), prevOn:document.getElementById('segYes').classList.contains('on')};
+    FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el) st[id]=el.value; });
+    localStorage.setItem(KEY_STATE, JSON.stringify(st));
+  }catch(e){}
+}
+function restoreState(){
+  var st=null; try{ st=JSON.parse(localStorage.getItem(KEY_STATE)||'null'); }catch(e){}
+  if(!st) return false;
+  FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el&&st[id]!==undefined) el.value=st[id]; });
+  if(st.prevOn===false){ document.getElementById('segYes').classList.remove('on'); document.getElementById('segNo').classList.add('on'); document.getElementById('prevField').style.display='none'; }
+  buildSampleRows(st.samples||null);
+  syncDate();
+  document.querySelectorAll('.inp').forEach(mark);
+  return true;
+}
+
+function toggleBigText(){
+  var on=document.body.classList.toggle('big-text');
+  document.getElementById('bigtextBtn').classList.toggle('on',on);
+  document.getElementById('bigtextLabel').textContent=on?'작게':'크게';
+  try{ localStorage.setItem(KEY_BIG,on?'1':'0'); }catch(e){}
+}
+
+function openReset(){ document.getElementById('resetOverlay').classList.add('show'); }
+function closeReset(){ document.getElementById('resetOverlay').classList.remove('show'); }
+function doReset(){
+  try{ localStorage.removeItem(KEY_STATE); }catch(e){}
+  FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
+    if(['harvestDone','deadNC','aliveNC','g0','g30','g50','g80','g100','prevRate'].indexOf(id)>=0) el.value='0';
+    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else el.value=''; });
+  setPrev(true); document.getElementById('prevRate').value='0';
+  buildSampleRows({}); syncDate();
+  document.querySelectorAll('.inp').forEach(mark);
+  edit();
+  document.getElementById('resultBox').className='result-box pending';
+  document.getElementById('rbHero').textContent='—'; document.getElementById('rbBadge').textContent='대기중';
+  document.getElementById('rbSub').textContent='값을 입력하고 계산하기를 누르세요';
+  document.getElementById('rbMini').style.display='none';
+  document.getElementById('detailWrap').style.display='none';
+  document.getElementById('saveBtn').disabled=true; LAST=null;
+  closeReset(); showToast('초기화 완료');
+}
+
+function getHistory(){ try{ return JSON.parse(localStorage.getItem(KEY_HIST)||'[]'); }catch(e){ return []; } }
+function saveToHistory(res){
+  var recs=getHistory();
+  recs.unshift({ ts:Date.now(), farmNo:document.getElementById('farmNo').value||'', date:document.getElementById('surveyDate').value||'',
+    admitCnt:res.admitCnt, admitRate:res.admitRate, state:localStorage.getItem(KEY_STATE) });
+  if(recs.length>30) recs=recs.slice(0,30);
+  try{ localStorage.setItem(KEY_HIST, JSON.stringify(recs)); }catch(e){}
+}
+function openHistory(){
+  var recs=getHistory(), wrap=document.getElementById('historyList');
+  if(!recs.length){ wrap.innerHTML='<p style="text-align:center;color:#aaa;font-size:13px;padding:18px 0">저장된 기록이 없습니다</p>'; }
+  else{
+    wrap.innerHTML=recs.map(function(r,i){
+      var d=r.date?r.date.replace(/-/g,'.'):'날짜 미입력';
+      return '<div class="hist-item" onclick="loadHistory('+i+')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+        '<span style="font-size:15px;font-weight:800;color:var(--blue)">'+(r.farmNo?'농지 '+r.farmNo:'농지번호 미입력')+'</span>'+
+        '<button onclick="event.stopPropagation();delHistory('+i+')" style="height:26px;padding:0 10px;border:1px solid #ffb3b3;border-radius:6px;background:#fff;color:#e24b4a;font-size:11px;font-weight:700;cursor:pointer">삭제</button></div>'+
+        '<div style="font-size:11px;color:#888">'+d+' · 인정피해율 '+r.admitRate+'% · 인정과실수 '+fmt(r.admitCnt)+'개</div></div>';
+    }).join('');
+  }
+  document.getElementById('historyOverlay').classList.add('show');
+}
+function closeHistory(){ document.getElementById('historyOverlay').classList.remove('show'); }
+function loadHistory(i){
+  var r=getHistory()[i]; if(!r||!r.state) return;
+  try{ localStorage.setItem(KEY_STATE, r.state); }catch(e){}
+  restoreState(); closeHistory(); edit();
+  document.getElementById('saveBtn').disabled=true; LAST=null;
+  showToast('불러왔습니다');
+}
+function delHistory(i){
+  var recs=getHistory(); recs.splice(i,1);
+  try{ localStorage.setItem(KEY_HIST, JSON.stringify(recs)); }catch(e){}
+  openHistory();
+}
+
+/* 계산 */
+function calc(){
+  var afterCnt=num('afterCnt'), prevRate=num('prevRate'), joinTree=num('joinTree'), realTree=num('realTree');
+  var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
+  var sampleN=num('sampleN'), fallSum=sumSamples();
+  var g0=num('g0'),g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
+
+  if(afterCnt<=0){ showToast('적과후착과수를 입력하세요'); return; }
+  if(realTree<=0){ showToast('실제결과주수를 입력하세요'); return; }
+  if(sampleN<=0){ showToast('표본주수를 입력하세요'); return; }
+
+  var target=realTree-harvestDone-deadNC-aliveNC;
+  if(target<=0){ showToast('조사대상주수가 0 이하입니다'); return; }
+
+  var perTreeCnt=afterCnt/target;
+  var perTreeFall=fallSum/sampleN;
+  var fallDamage=Math.round(perTreeFall*target);
+  var gradeSum=g0+g30+g50+g80+g100;
+  var dmgRatio=gradeSum>0?(g30*0.3+g50*0.5+g80*0.8+g100*1)/gradeSum*100:0;
+  var sixPct=afterCnt*0.06;
+  var covered=fallDamage>sixPct;
+  var admitRate=Math.max(0,dmgRatio-prevRate);
+  var admitCnt=covered?Math.round(fallDamage*admitRate/100):0;
+
+  LAST={ afterCnt:afterCnt, joinTree:joinTree, realTree:realTree, target:target, perTreeCnt:perTreeCnt,
+    sampleN:sampleN, fallSum:fallSum, perTreeFall:perTreeFall, fallDamage:fallDamage, dmgRatio:dmgRatio,
+    sixPct:sixPct, covered:covered, prevRate:prevRate, admitRate:admitRate, admitCnt:admitCnt };
+
+  var box=document.getElementById('resultBox');
+  box.classList.remove('pending'); document.getElementById('rbMini').style.display='grid';
+  if(covered){
+    box.classList.remove('exempt');
+    document.getElementById('rbBadge').textContent='부책 (인정)';
+    document.getElementById('rbHero').innerHTML=fmt(admitCnt)+' <small>개</small>';
+    document.getElementById('rbSub').textContent='낙과 일소피해 인정피해과실수';
+  }else{
+    box.classList.add('exempt');
+    document.getElementById('rbBadge').textContent='면책';
+    document.getElementById('rbHero').innerHTML='0 <small>개</small>';
+    document.getElementById('rbSub').textContent='적과후착과수 6% 이하 → 전부 면책';
+  }
+  document.getElementById('mRate').textContent=admitRate.toFixed(2)+'%';
+  document.getElementById('mFall').textContent=fmt(fallDamage)+'개';
+
+  var rows=[
+    ['조사대상주수 (C)', fmt(target)+' 주', '실제 '+fmt(realTree)+' − 제외 '+fmt(harvestDone+deadNC+aliveNC)],
+    ['표본주수 (B)', fmt(sampleN)+' 주', ''],
+    ['표본낙과수 계 (A)', fmt(fallSum)+' 개', ''],
+    ['1주당 적과후착과수', fmt1(perTreeCnt)+' 개', fmt(afterCnt)+' ÷ '+fmt(target)],
+    ['1주당 낙과수', fmt1(perTreeFall)+' 개', fmt(fallSum)+' ÷ '+fmt(sampleN)],
+    ['낙과피해과실수 (D)', fmt(fallDamage)+' 개', 'A÷B×C'],
+    ['피해구성비율 (E)', dmgRatio.toFixed(2)+' %', '등급 가중'],
+    ['적과후착과수 6%', fmt(Math.floor(sixPct))+' 개', '면/부책 판단기준'],
+    ['면·부책 판정', covered?'부책(인정)':'면책', fmt(fallDamage)+(covered?' > ':' ≤ ')+fmt(Math.floor(sixPct))],
+    ['전차 인정피해율', prevRate.toFixed(2)+' %', '이전 사고 누적'],
+    ['금차 인정피해율', admitRate.toFixed(2)+' %', dmgRatio.toFixed(2)+'% − '+prevRate.toFixed(2)+'%']
+  ];
+  var html='';
+  rows.forEach(function(r){ html+='<tr><td class="k">'+r[0]+(r[2]?'<span class="formula">'+r[2]+'</span>':'')+'</td><td class="v">'+r[1]+'</td></tr>'; });
+  html+='<tr class="hl"><td class="k">금차 인정피해과실수<span class="formula">'+(covered?fmt(fallDamage)+' × '+admitRate.toFixed(2)+'%':'면책 → 0')+'</span></td><td class="v">'+fmt(admitCnt)+' 개</td></tr>';
+  document.getElementById('resTable').innerHTML=html;
+  document.getElementById('detailWrap').style.display='block';
+  document.getElementById('saveBtn').disabled=false;
+
+  document.getElementById('content').classList.add('locked');
+  document.getElementById('btnCalc').classList.remove('active');
+  document.getElementById('btnEdit').classList.add('active');
+  saveState(); saveToHistory({admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
+  vibrate(15);
+  document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function edit(){
+  document.getElementById('content').classList.remove('locked');
+  document.getElementById('btnCalc').classList.add('active');
+  document.getElementById('btnEdit').classList.remove('active');
+}
+
+/* 갤러리 저장 — 조사서 기입용 요약 이미지 */
+function buildCapture(){
+  var L=LAST; if(!L) return '';
+  var farmNo=document.getElementById('farmNo').value||'-';
+  var date=document.getElementById('surveyDate').value; date=date?date.replace(/-/g,'.'):'-';
+  function row(k,v,hl){ return '<tr><td style="padding:11px 16px;border-bottom:1px solid #eee;color:#555;font-size:18px;font-weight:600">'+k+'</td>'+
+    '<td style="padding:11px 16px;border-bottom:1px solid #eee;text-align:right;font-size:19px;font-weight:800;color:'+(hl?'#185FA5':'#1a1a1a')+'">'+v+'</td></tr>'; }
+  function info(k,v){ return '<div style="flex:1;background:#f4f7fb;border-radius:10px;padding:9px 12px"><div style="font-size:13px;color:#888;font-weight:600">'+k+'</div><div style="font-size:18px;font-weight:800;color:#185FA5;margin-top:2px">'+v+'</div></div>'; }
+  var basic='<div style="display:flex;gap:8px;margin-bottom:8px">'+info('적과후착과수', fmt(L.afterCnt)+'개')+info('가입주수', L.joinTree>0?fmt(L.joinTree)+'주':'-')+info('실제결과주수', fmt(L.realTree)+'주')+'</div>';
+
+  return '<div style="padding:26px 24px;font-family:-apple-system,Noto Sans KR,sans-serif">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px">'+
+      '<div style="font-size:26px;font-weight:900;color:#185FA5">☀️ 일소피해 조사결과</div>'+
+      '<div style="font-size:15px;color:#888;font-weight:600">사과 · 낙과(표본)</div></div>'+
+    '<div style="font-size:15px;color:#666;font-weight:600;margin-bottom:16px">농지번호 '+farmNo+'  ·  조사일자 '+date+'</div>'+
+    basic+
+    '<div style="font-size:14px;font-weight:800;color:#185FA5;margin:16px 0 6px">■ 조사서 기입값</div>'+
+    '<table style="width:100%;border-collapse:collapse;border:1px solid #e2e2e2;border-radius:10px;overflow:hidden">'+
+      row('조사대상주수 (C)', fmt(L.target)+' 주')+
+      row('표본주수 (B)', fmt(L.sampleN)+' 주')+
+      row('표본낙과수 계 (A)', fmt(L.fallSum)+' 개')+
+      row('1주당 낙과수', fmt1(L.perTreeFall)+' 개')+
+      row('낙과피해과실수 (D=A÷B×C)', fmt(L.fallDamage)+' 개')+
+      row('피해구성비율 (E)', L.dmgRatio.toFixed(2)+' %')+
+      row('적과후착과수 6% (면부책)', fmt(Math.floor(L.sixPct))+' 개 · '+(L.covered?'부책':'면책'))+
+      row('전차 인정피해율', L.prevRate.toFixed(2)+' %')+
+      row('금차 인정피해율', L.admitRate.toFixed(2)+' %', true)+
+      row('낙과 인정피해과실수', fmt(L.admitCnt)+' 개', true)+
+    '</table>'+
+    '<div style="margin-top:16px;background:#185FA5;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">'+
+      '<span style="font-size:18px;color:#fff;font-weight:700;opacity:0.9">금차 인정피해과실수</span>'+
+      '<span style="font-size:30px;color:#fff;font-weight:900">'+fmt(L.admitCnt)+' 개</span></div>'+
+    '</div>';
+}
+function saveImage(){
+  if(!LAST){ showToast('먼저 계산하세요'); return; }
+  if(typeof html2canvas==='undefined'){ showToast('이미지 모듈을 불러오지 못했습니다<br>(최초 1회는 온라인 필요)'); return; }
+  var box=document.getElementById('captureBox');
+  box.innerHTML=buildCapture();
+  showToast('이미지 만드는 중…');
+  html2canvas(box,{scale:2,backgroundColor:'#ffffff'}).then(function(canvas){
+    var farmNo=(document.getElementById('farmNo').value||'농지').replace(/[^0-9]/g,'')||'농지';
+    var d=new Date(), stamp=d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'_'+('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2);
+    var link=document.createElement('a');
+    link.download='일소피해_'+farmNo+'_'+stamp+'.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    box.innerHTML='';
+    showToast('갤러리에 저장됐어요!');
+  }).catch(function(){ box.innerHTML=''; showToast('저장에 실패했습니다'); });
+}
+
+/* 초기 구동 */
+(function init(){
+  try{ if(localStorage.getItem(KEY_BIG)==='1'){ document.body.classList.add('big-text'); document.getElementById('bigtextBtn').classList.add('on'); document.getElementById('bigtextLabel').textContent='작게'; } }catch(e){}
+  if(!restoreState()){
+    document.getElementById('afterCnt').value='19,360';
+    document.getElementById('joinTree').value='260';
+    document.getElementById('realTree').value='260';
+    document.getElementById('deadNC').value='4';
+    document.getElementById('aliveNC').value='2';
+    document.getElementById('g100').value='20';
+    buildSampleRows({1:'5',2:'5',3:'10'});
+    document.querySelectorAll('.inp').forEach(mark);
+  }
+})();
+</script>
+</body>
+</html>

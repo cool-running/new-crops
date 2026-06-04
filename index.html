@@ -56,12 +56,19 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확량조사</div>
   </div>
 
+  <div class="crop-card test" onclick="go('sunburn')">
+    <span class="badge badge-test">테스트</span>
+    <div class="crop-icon">☀️</div>
+    <div class="crop-name">일소피해</div>
+    <div class="crop-desc">사과 · 낙과조사</div>
+  </div>
 
 </div>
 
 <script>
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
+  if(page==='sunburn')     location.href='./sunburn.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
