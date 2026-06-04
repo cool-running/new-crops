@@ -506,6 +506,7 @@ function saveState(){
   try{
     var st={samples:getSamples()};
     FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el) st[id]=el.value; });
+    st.calcDone=document.getElementById('content').classList.contains('locked');
     localStorage.setItem(KEY_STATE, JSON.stringify(st));
   }catch(e){}
 }
@@ -518,6 +519,7 @@ function restoreState(){
   document.querySelectorAll('.inp').forEach(mark);
   updateGrade();
   refreshPrevUI();
+  if(st.calcDone){ calc(true); }
   return true;
 }
 
@@ -590,19 +592,19 @@ function delHistory(i){
 }
 
 /* 계산 */
-function calc(){
+function calc(silent){
   var afterCnt=num('afterCnt'), joinTree=num('joinTree'), realTree=num('realTree');
   var prevRate=calcPrevRate().rate;
   var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
   var sampleN=num('sampleN'), fallSum=sumSamples();
   var g0=num('g0'),g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
 
-  if(afterCnt<=0){ showToast('적과후착과수를 입력하세요'); return; }
-  if(realTree<=0){ showToast('실제결과주수를 입력하세요'); return; }
-  if(sampleN<=0){ showToast('표본주수를 입력하세요'); return; }
+  if(afterCnt<=0){ if(!silent) showToast('적과후착과수를 입력하세요'); return; }
+  if(realTree<=0){ if(!silent) showToast('실제결과주수를 입력하세요'); return; }
+  if(sampleN<=0){ if(!silent) showToast('표본주수를 입력하세요'); return; }
 
   var target=realTree-harvestDone-deadNC-aliveNC;
-  if(target<=0){ showToast('조사대상주수가 0 이하입니다'); return; }
+  if(target<=0){ if(!silent) showToast('조사대상주수가 0 이하입니다'); return; }
 
   var perTreeCnt=afterCnt/target;
   var perTreeFall=fallSum/sampleN;
@@ -639,14 +641,17 @@ function calc(){
   document.getElementById('content').classList.add('locked');
   document.getElementById('btnCalc').classList.remove('active');
   document.getElementById('btnEdit').classList.add('active');
-  saveState(); saveToHistory({admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
-  vibrate(15);
-  document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
+  if(!silent){
+    saveState(); saveToHistory({admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
+    vibrate(15);
+    document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
+  }
 }
 function edit(){
   document.getElementById('content').classList.remove('locked');
   document.getElementById('btnCalc').classList.add('active');
   document.getElementById('btnEdit').classList.remove('active');
+  saveState();
 }
 
 /* 갤러리 저장 — 조사서 기입용 요약 이미지 */
