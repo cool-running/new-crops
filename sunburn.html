@@ -121,11 +121,8 @@ body.big-text input.auto{height:52px !important;font-size:18px !important;font-w
 .btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(29,158,117,0.3)}
 .locked .section input.inp:not([type=date]),.locked .section select.inp,.locked .seg-btn,.locked .samp-cell input{pointer-events:none;opacity:0.78}
 
-.result-box{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:18px;padding:16px 16px 14px;margin-bottom:10px;color:white;box-shadow:0 8px 28px rgba(24,95,165,0.45),inset 0 1px 0 rgba(255,255,255,0.2)}
+.result-box{background:linear-gradient(135deg,#6b7280 0%,#8a929d 100%);border-radius:18px;padding:16px 16px 14px;margin-bottom:10px;color:white;box-shadow:0 8px 28px rgba(90,98,110,0.4),inset 0 1px 0 rgba(255,255,255,0.2)}
 .result-box.pending{background:linear-gradient(135deg,#9a9a9a 0%,#bbb 100%);box-shadow:none}
-.result-box.exempt{background:linear-gradient(135deg,#6b7280 0%,#9aa1ab 100%)}
-.result-box.over{background:linear-gradient(135deg,#c0392b 0%,#e24b4a 100%);box-shadow:0 8px 28px rgba(226,75,74,0.45),inset 0 1px 0 rgba(255,255,255,0.2)}
-.result-box.over #mRate{color:#fff}
 .rb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .rb-label{font-size:12px;opacity:0.82;font-weight:600}
 .rb-badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.3)}
@@ -136,7 +133,7 @@ body.big-text input.auto{height:52px !important;font-size:18px !important;font-w
 .rb-mini .m{background:rgba(255,255,255,0.13);border-radius:10px;padding:8px 10px}
 .rb-mini .m .k{font-size:10px;opacity:0.8}
 .rb-mini .m .v{font-size:16px;font-weight:800;margin-top:1px}
-.save-btn{height:36px;padding:0 14px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.save-btn{height:36px;padding:0 10px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:12px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
 .save-btn:disabled{opacity:0.45;cursor:default}
 
@@ -365,19 +362,19 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
   </div>
 
   <!-- 결과 -->
-  <div class="result-box pending" id="resultBox" style="padding:0 14px">
-    <div style="display:flex;align-items:center;padding:13px 0;gap:4px">
-      <div style="padding:0 8px;flex:1;min-width:0;text-align:center">
-        <div style="font-size:11px;color:rgba(255,255,255,0.72);font-weight:500;margin-bottom:3px">적착대비 피해율</div>
+  <div class="result-box pending" id="resultBox" style="padding:0 12px">
+    <div style="display:flex;align-items:center;padding:13px 0;gap:2px">
+      <div style="padding:0 6px;flex:1;min-width:0;text-align:center">
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.75);font-weight:500;line-height:1.2;word-break:keep-all;min-height:25px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:3px">적착대비 피해율</div>
         <div id="mRate" style="font-size:21px;font-weight:800;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</div>
       </div>
-      <div style="width:1px;height:36px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
-      <div style="padding:0 8px;flex:1.1;min-width:0;text-align:center">
-        <div style="font-size:11px;color:rgba(255,255,255,0.72);font-weight:500;margin-bottom:3px">금차 인정피해과실수</div>
+      <div style="width:1px;height:40px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding:0 6px;flex:1;min-width:0;text-align:center">
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.75);font-weight:500;line-height:1.2;word-break:keep-all;min-height:25px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:3px">금차 인정피해과실수</div>
         <div id="rbHero" style="font-size:21px;font-weight:900;color:#fff;letter-spacing:-0.02em;line-height:1;white-space:nowrap">—</div>
       </div>
-      <div style="width:1px;height:36px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
-      <div style="padding-left:8px;flex-shrink:0">
+      <div style="width:1px;height:40px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding-left:6px;flex-shrink:0">
         <button class="save-btn" id="saveBtn" onclick="saveImage()" disabled><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
       </div>
     </div>
@@ -625,10 +622,8 @@ function calc(){
   box.classList.remove('pending');
   var pctOfAfter=afterCnt>0?(admitCnt/afterCnt*100):0;
   if(covered){
-    box.classList.add('over');
     document.getElementById('rbHero').innerHTML=fmt(admitCnt)+' <small>개</small>';
   }else{
-    box.classList.remove('over');
     document.getElementById('rbHero').innerHTML='0 <small>개</small>';
   }
   document.getElementById('mRate').textContent=pctOfAfter.toFixed(2)+'%';
