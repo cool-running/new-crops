@@ -67,9 +67,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .subhead{font-size:11px;font-weight:800;color:var(--blue);margin:11px 0 6px;letter-spacing:-0.01em}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;align-items:end}
 .field{display:flex;flex-direction:column;gap:4px;position:relative}
-.field label{font-size:11px;color:var(--sub);font-weight:600}
+.field label{font-size:11px;color:var(--sub);font-weight:600;line-height:1.25}
+/* 기본정보 드롭다운 글자 잘림 방지 (가입상품·적과전사고·재해종류) */
+#product,#prevAcc,#disaster{font-size:12.5px;padding:0 4px;letter-spacing:-0.03em}
+body.big-text #product,body.big-text #prevAcc,body.big-text #disaster{font-size:15px !important;padding:0 4px !important}
 .field .unit{font-size:10px;color:var(--hint);font-weight:500}
 input.inp,select.inp{height:42px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:15px;font-weight:600;background:white;color:var(--text);width:100%;text-align:center;transition:background .15s,border-color .15s;-webkit-appearance:none;appearance:none}
 select.inp{text-align:left;-webkit-appearance:auto;appearance:auto}
@@ -191,6 +194,8 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <select class="inp filled" id="crop" onchange="mark(this);saveState()" style="text-align:center;text-align-last:center">
           <option value="사과" selected>사과</option>
           <option value="배">배</option>
+          <option value="단감">단감</option>
+          <option value="떫은감">떫은감</option>
         </select>
       </div>
       <div class="field" style="width:40%">
@@ -366,13 +371,10 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
       </div>
     </div>
     <div class="rb-hero" id="rbHero">—</div>
-    <div class="rb-sub" id="rbSub">값을 입력하고 계산하기를 누르세요</div>
-    <div class="rb-mini" id="rbMini" style="display:none">
+    <div class="rb-mini" id="rbMini" style="display:none;grid-template-columns:1fr">
       <div class="m"><div class="k">인정피해율</div><div class="v" id="mRate">—</div></div>
-      <div class="m"><div class="k">낙과피해과실수</div><div class="v" id="mFall">—</div></div>
     </div>
   </div>
-  <div id="detailWrap" style="display:none"><table class="res-table" id="resTable"></table></div>
 
 </div>
 
@@ -541,9 +543,7 @@ function doReset(){
   edit();
   document.getElementById('resultBox').className='result-box pending';
   document.getElementById('rbHero').textContent='—'; document.getElementById('rbBadge').textContent='대기중';
-  document.getElementById('rbSub').textContent='값을 입력하고 계산하기를 누르세요';
   document.getElementById('rbMini').style.display='none';
-  document.getElementById('detailWrap').style.display='none';
   document.getElementById('saveBtn').disabled=true; LAST=null;
   closeReset(); showToast('초기화 완료');
 }
@@ -620,15 +620,12 @@ function calc(){
     box.classList.remove('exempt');
     document.getElementById('rbBadge').textContent='부책 (인정)';
     document.getElementById('rbHero').innerHTML=fmt(admitCnt)+' <small>개</small>';
-    document.getElementById('rbSub').textContent='낙과 일소피해 인정피해과실수';
   }else{
     box.classList.add('exempt');
     document.getElementById('rbBadge').textContent='면책';
     document.getElementById('rbHero').innerHTML='0 <small>개</small>';
-    document.getElementById('rbSub').textContent='적과후착과수 6% 이하 → 전부 면책';
   }
   document.getElementById('mRate').textContent=admitRate.toFixed(2)+'%';
-  document.getElementById('mFall').textContent=fmt(fallDamage)+'개';
 
   /* 나무조사 3행 자동칸 + 피해구성 합계/비율 */
   document.getElementById('autoFallDmg').value=fmt(fallDamage);
@@ -636,24 +633,6 @@ function calc(){
   document.getElementById('autoAdmitCnt').value=fmt(admitCnt);
   updateGrade();
 
-  var rows=[
-    ['조사대상주수 (C)', fmt(target)+' 주', '실제 '+fmt(realTree)+' − 제외 '+fmt(harvestDone+deadNC+aliveNC)],
-    ['표본주수 (B)', fmt(sampleN)+' 주', ''],
-    ['표본낙과수 계 (A)', fmt(fallSum)+' 개', ''],
-    ['1주당 적과후착과수', fmt1(perTreeCnt)+' 개', fmt(afterCnt)+' ÷ '+fmt(target)],
-    ['1주당 낙과수', fmt1(perTreeFall)+' 개', fmt(fallSum)+' ÷ '+fmt(sampleN)],
-    ['낙과피해과실수 (D)', fmt(fallDamage)+' 개', 'A÷B×C'],
-    ['피해구성비율 (E)', dmgRatio.toFixed(2)+' %', '등급 가중'],
-    ['전차 인정피해율 (max A)', prevRate.toFixed(2)+' %', prevRate>0?'적과전 착과손해 자동산정':'적과전 사고 없음'],
-    ['적과후착과수 6%', fmt(Math.floor(sixPct))+' 개', '면/부책 판단기준'],
-    ['면·부책 판정', covered?'부책(인정)':'면책', fmt(fallDamage)+(covered?' > ':' ≤ ')+fmt(Math.floor(sixPct))],
-    ['인정피해율', admitRate.toFixed(2)+' %', '피해구성비율 − 전차인정피해율']
-  ];
-  var html='';
-  rows.forEach(function(r){ html+='<tr><td class="k">'+r[0]+(r[2]?'<span class="formula">'+r[2]+'</span>':'')+'</td><td class="v">'+r[1]+'</td></tr>'; });
-  html+='<tr class="hl"><td class="k">금차 인정피해과실수<span class="formula">'+(covered?fmt(fallDamage)+' × '+admitRate.toFixed(2)+'%':'면책 → 0')+'</span></td><td class="v">'+fmt(admitCnt)+' 개</td></tr>';
-  document.getElementById('resTable').innerHTML=html;
-  document.getElementById('detailWrap').style.display='block';
   document.getElementById('saveBtn').disabled=false;
 
   document.getElementById('content').classList.add('locked');
