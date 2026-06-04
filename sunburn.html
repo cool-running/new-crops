@@ -109,6 +109,16 @@ body.big-text input.auto{height:52px !important;font-size:18px !important;font-w
 .samp-total .no{font-size:10px;font-weight:700;color:var(--blue);margin-bottom:3px}
 .samp-total .box{height:42px;border:1.5px solid var(--blue);border-radius:var(--rs);background:#eaf2fb;color:var(--blue);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
 
+/* 표본조사 세로 표: 표본번호·숙기/품종·표본낙과수 */
+.samp-table{width:100%;border-collapse:collapse}
+.samp-table th{font-size:11px;font-weight:700;color:var(--sub);padding:0 4px 7px;text-align:center}
+.samp-table td{padding:3px 3px;vertical-align:middle}
+.samp-table .samp-no{text-align:center;font-size:15px;font-weight:800;color:var(--blue)}
+.samp-table input{height:42px;padding:0 8px;font-size:15px;text-align:center}
+.samp-table input.samp-variety{font-size:13px}
+.samp-total-row .samp-total-label{text-align:right;font-size:12px;font-weight:800;color:var(--blue);padding-right:10px}
+.samp-total-box{height:42px;border:1.5px solid var(--blue);border-radius:var(--rs);background:#eaf2fb;color:var(--blue);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
+
 .grade-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .grade-cell label{font-size:10.5px;text-align:center;display:block;margin-bottom:3px;color:var(--sub);font-weight:700}
 .grade-cell input{height:40px;font-size:14px;padding:0 2px}
@@ -159,6 +169,9 @@ body.big-text .date-disp{height:52px !important;font-size:17px !important;font-w
 body.big-text .field label{font-size:13px !important}
 body.big-text .samp-cell input{height:50px !important;font-size:18px !important}
 body.big-text .samp-total .box{height:50px !important;font-size:18px !important}
+body.big-text .samp-table input{height:50px !important;font-size:18px !important}
+body.big-text .samp-table input.samp-variety{font-size:15px !important}
+body.big-text .samp-total-box{height:50px !important;font-size:18px !important}
 body.big-text .grade-cell input{height:48px !important;font-size:16px !important}
 body.big-text .seg-btn{height:48px !important;font-size:15px !important}
 </style>
@@ -330,8 +343,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
   <div class="section">
     <div class="sec-title">🍎 일소(낙과) 표본조사 <span class="tag">표본주수 3주</span></div>
     <input type="hidden" id="sampleN" value="3">
-    <div style="font-size:11px;color:var(--sub);font-weight:700;margin-bottom:5px">표본주별 낙과수 (개)</div>
-    <div class="samp-line" id="sampRows"></div>
+    <div id="sampRows"></div>
   </div>
 
   <!-- 낙과 피해구성조사 -->
@@ -429,28 +441,42 @@ function syncDate(){
   else { disp.textContent='조사일자'; disp.classList.add('ph'); disp.classList.remove('filled'); }
 }
 
-/* 표본주별 낙과수 — 가로 1행 + 합계 */
-function buildSampleRows(saved){
+/* 표본조사 세로 표 — 표본번호 · 숙기/품종 · 표본낙과수 + 합계 */
+function buildSampleRows(savedFall, savedVar){
   var n=parseInt(num('sampleN'))||0; if(n>30) n=30;
-  var wrap=document.getElementById('sampRows'), prev={};
-  wrap.querySelectorAll('input').forEach(function(i){ prev[i.dataset.idx]=i.value; });
-  if(saved) prev=saved;
-  var html='';
+  var wrap=document.getElementById('sampRows');
+  var prevF={}, prevV={};
+  wrap.querySelectorAll('.samp-fall').forEach(function(i){ prevF[i.dataset.idx]=i.value; });
+  wrap.querySelectorAll('.samp-variety').forEach(function(i){ prevV[i.dataset.idx]=i.value; });
+  if(savedFall) prevF=savedFall;
+  if(savedVar) prevV=savedVar;
+  var rows='';
   for(var i=1;i<=n;i++){
-    var val=(prev[i]!==undefined)?prev[i]:'';
-    html+='<div class="samp-cell"><div class="no">'+i+'</div>'+
-      '<input class="inp'+(val!==''&&val!=='0'?' filled':'')+'" data-idx="'+i+'" type="number" inputmode="numeric" value="'+val+'" oninput="mark(this);sumSamples();saveState()"></div>';
+    var f=(prevF[i]!==undefined)?prevF[i]:'';
+    var v=(prevV[i]!==undefined)?String(prevV[i]):'';
+    var ve=v.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    rows+='<tr>'+
+      '<td class="samp-no">'+i+'</td>'+
+      '<td><input class="inp samp-variety'+(v!==''?' filled':'')+'" data-idx="'+i+'" type="text" value="'+ve+'" placeholder="숙기/품종" oninput="mark(this);saveState()"></td>'+
+      '<td><input class="inp samp-fall'+(f!==''&&f!=='0'?' filled':'')+'" data-idx="'+i+'" type="number" inputmode="numeric" value="'+f+'" oninput="mark(this);sumSamples();saveState()"></td>'+
+    '</tr>';
   }
-  html+='<div class="samp-total"><div class="no">합계</div><div class="box" id="sampTotalBox">0</div></div>';
-  wrap.innerHTML=html;
+  wrap.innerHTML=
+    '<table class="samp-table"><colgroup><col style="width:56px"><col><col style="width:88px"></colgroup>'+
+    '<thead><tr><th>표본번호</th><th>숙기/품종</th><th>표본낙과수</th></tr></thead>'+
+    '<tbody>'+rows+
+    '<tr class="samp-total-row"><td colspan="2" class="samp-total-label">합계 (개)</td>'+
+    '<td><div class="samp-total-box" id="sampTotalBox">0</div></td></tr>'+
+    '</tbody></table>';
   sumSamples();
 }
 function sumSamples(){
-  var s=0; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ s+=parseFloat((i.value||'').replace(/,/g,''))||0; });
+  var s=0; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ s+=parseFloat((i.value||'').replace(/,/g,''))||0; });
   var box=document.getElementById('sampTotalBox'); if(box) box.textContent=fmt(s);
   return s;
 }
-function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
+function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
+function getVarieties(){ var o={}; document.querySelectorAll('#sampRows .samp-variety').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
 
 /* 전차 인정피해율(적과전 사고) 자동 산정 */
 function val(id){ var e=document.getElementById(id); return e?e.value:''; }
@@ -504,7 +530,7 @@ function updateGrade(){
 
 function saveState(){
   try{
-    var st={samples:getSamples()};
+    var st={samples:getSamples(),sampleVars:getVarieties()};
     FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el) st[id]=el.value; });
     st.calcDone=document.getElementById('content').classList.contains('locked');
     localStorage.setItem(KEY_STATE, JSON.stringify(st));
@@ -514,7 +540,7 @@ function restoreState(){
   var st=null; try{ st=JSON.parse(localStorage.getItem(KEY_STATE)||'null'); }catch(e){}
   if(!st) return false;
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el&&st[id]!==undefined) el.value=st[id]; });
-  buildSampleRows(st.samples||null);
+  buildSampleRows(st.samples||null, st.sampleVars||null);
   syncDate();
   document.querySelectorAll('.inp').forEach(mark);
   updateGrade();
@@ -537,7 +563,7 @@ function doReset(){
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
     if(['harvestDone','deadNC','aliveNC','g0','g30','g50','g80','g100'].indexOf(id)>=0) el.value='0';
     else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='product') el.value='normal'; else if(id==='prevAcc') el.value='n'; else el.value=''; });
-  buildSampleRows({}); syncDate();
+  buildSampleRows({},{}); syncDate();
   document.getElementById('autoSetRate').value='-';
   document.getElementById('autoPrevRate').value='0.00';
   refreshPrevUI();
@@ -663,7 +689,7 @@ function buildCapture(){
   var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
   var g0=num('g0'),g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
   var gradeSum=g0+g30+g50+g80+g100;
-  var samps=[]; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ samps.push(parseFloat((i.value||'').replace(/,/g,''))||0); });
+  var samps=[]; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ samps.push(parseFloat((i.value||'').replace(/,/g,''))||0); });
 
   var TH='padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center';
   var THl='padding:7px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center';
@@ -758,7 +784,7 @@ function saveImage(){
     document.getElementById('deadNC').value='4';
     document.getElementById('aliveNC').value='2';
     document.getElementById('g100').value='20';
-    buildSampleRows({1:'5',2:'5',3:'10'});
+    buildSampleRows({1:'5',2:'5',3:'10'}, null);
     document.querySelectorAll('.inp').forEach(mark);
   }
   /* 조사일자는 항상 오늘 날짜로 (마늘 참고) */
