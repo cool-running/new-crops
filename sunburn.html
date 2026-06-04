@@ -205,9 +205,9 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
     </div>
   </div>
 
-  <!-- 조사정보 -->
+  <!-- 기본정보 -->
   <div class="section">
-    <div class="sec-title">📋 조사정보</div>
+    <div class="sec-title">📋 기본정보</div>
     <div class="g2">
       <div class="field">
         <label>조사일자</label>
@@ -220,9 +220,57 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <label>조사방식</label>
         <select class="inp filled" id="method" onchange="mark(this);saveState()">
           <option value="표본조사" selected>표본조사</option>
-          <option value="전수조사">전수조사</option>
         </select>
       </div>
+    </div>
+    <div class="g3" style="margin-top:9px">
+      <div class="field">
+        <label>가입상품</label>
+        <select class="inp filled" id="product" onchange="mark(this);refreshPrevUI();saveState()">
+          <option value="normal" selected>적과전종합Ⅱ</option>
+          <option value="five">5종한정특약</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>적과전 사고</label>
+        <select class="inp filled" id="prevAcc" onchange="mark(this);refreshPrevUI();saveState()">
+          <option value="n" selected>없음</option>
+          <option value="y">있음</option>
+        </select>
+      </div>
+      <div class="field" id="disasterWrap">
+        <label>재해종류</label>
+        <select class="inp" id="disaster" onchange="mark(this);updatePrev();saveState()">
+          <option value="">선택</option>
+          <option value="태풍">태풍(강풍)</option>
+          <option value="우박">우박</option>
+          <option value="호우">집중호우</option>
+          <option value="지진">지진</option>
+          <option value="냉동">냉해·동상해</option>
+          <option value="가뭄">가뭄·폭염</option>
+          <option value="기타">기타 자연재해</option>
+          <option value="조수">조수해</option>
+          <option value="화재">화재</option>
+        </select>
+      </div>
+    </div>
+    <div class="g3" style="margin-top:9px">
+      <div class="field">
+        <label>평년착과수 <span class="unit">(개)</span></label>
+        <input class="inp" id="avgCnt" type="text" inputmode="numeric" placeholder="21,797" oninput="onComma(this);updatePrev();saveState()">
+      </div>
+      <div class="field">
+        <label>착과율 <span class="unit">(%)</span></label>
+        <input class="auto" id="autoSetRate" type="text" readonly value="-">
+      </div>
+      <div class="field">
+        <label>전차 인정피해율 <span class="unit">(%)</span></label>
+        <input class="auto" id="autoPrevRate" type="text" readonly value="0.00">
+      </div>
+    </div>
+    <div class="field" id="manualWrap" style="display:none;margin-top:9px">
+      <label>전차 인정피해율 직접입력 <span class="unit">(%)</span></label>
+      <input class="inp" id="prevManual" type="number" inputmode="decimal" placeholder="유과타박률 등 별도 조사값" oninput="mark(this);updatePrev();saveState()">
     </div>
   </div>
 
@@ -271,34 +319,6 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="auto" id="autoAdmitCnt" type="text" readonly value="-">
       </div>
     </div>
-  </div>
-
-  <!-- 전차 인정피해율 (적과전 착과손해) -->
-  <div class="section">
-    <div class="sec-title">☁️ 전차 인정피해율 <span class="tag">적과전 착과손해 자동</span></div>
-    <div class="field" style="margin-bottom:10px">
-      <label>적과종료 이전 자연재해(우박 제외) 사고</label>
-      <div class="seg">
-        <button type="button" class="seg-btn on" id="prevAccBtnN" onclick="setPrevAcc('n')">없음</button>
-        <button type="button" class="seg-btn" id="prevAccBtnY" onclick="setPrevAcc('y')">있음</button>
-      </div>
-      <input type="hidden" id="prevAcc" value="n">
-    </div>
-    <div class="g3">
-      <div class="field">
-        <label>평년착과수 <span class="unit">(개)</span></label>
-        <input class="inp" id="avgCnt" type="text" inputmode="numeric" placeholder="21,797" oninput="onComma(this);updatePrev();saveState()">
-      </div>
-      <div class="field">
-        <label>착과율 <span class="unit">(%)</span></label>
-        <input class="auto" id="autoSetRate" type="text" readonly value="-">
-      </div>
-      <div class="field">
-        <label>전차 인정피해율 <span class="unit">(%)</span></label>
-        <input class="auto" id="autoPrevRate" type="text" readonly value="0.00">
-      </div>
-    </div>
-    <div class="hint" id="prevHint">기사고내역에 적과전 사고가 없으면 <b>없음</b>(전차 인정피해율 0%). 적과전 자연재해(우박 제외)가 있으면 <b>있음</b>으로 두면 평년착과수·적과후착과수로 착과손해 인정피해율을 자동 산정합니다. (착과율 60%↑: 5%×(100%−착과율)÷40% · 60%↓: 5%)</div>
   </div>
 
   <!-- 낙과 표본조사 -->
@@ -386,7 +406,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
 
 <script>
 var KEY_STATE='sunburn_state', KEY_HIST='sunburn_history', KEY_BIG='sunburn_bigtext';
-var FIELDS=['crop','farmNo','surveyDate','method','afterCnt','avgCnt','prevAcc','joinTree','realTree','harvestDone','deadNC','aliveNC','sampleN','g0','g30','g50','g80','g100'];
+var FIELDS=['crop','farmNo','surveyDate','method','afterCnt','avgCnt','product','prevAcc','disaster','prevManual','joinTree','realTree','harvestDone','deadNC','aliveNC','sampleN','g0','g30','g50','g80','g100'];
 var LAST=null;
 
 function num(id){ var v=(document.getElementById(id).value||'').toString().replace(/,/g,''); var n=parseFloat(v); return isNaN(n)?0:n; }
@@ -426,29 +446,45 @@ function sumSamples(){
 }
 function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
 
-/* 전차 인정피해율(적과전 착과손해) 자동 산정 */
-function setPrevAcc(v){
-  document.getElementById('prevAcc').value=v;
-  document.getElementById('prevAccBtnN').classList.toggle('on',v==='n');
-  document.getElementById('prevAccBtnY').classList.toggle('on',v==='y');
-  updatePrev(); saveState();
-}
+/* 전차 인정피해율(적과전 사고) 자동 산정 */
+function val(id){ var e=document.getElementById(id); return e?e.value:''; }
 function calcPrevRate(){
-  var prevAcc=document.getElementById('prevAcc').value;
-  var avgCnt=num('avgCnt'), afterCnt=num('afterCnt');
-  if(prevAcc!=='y'||avgCnt<=0||afterCnt<=0) return {rate:0, setRate:null};
-  var setRate=Math.round(afterCnt/avgCnt*10000)/10000;   // 착과율 (소수4자리)
-  var dec;
-  if(setRate>=1) dec=0;                                  // 착과율 100%↑ → 착과손해 없음
-  else if(setRate<0.6) dec=0.05;                         // 착과율 60% 미만 → 5%
-  else dec=Math.round(0.05*(1-setRate)/0.4*10000)/10000; // 60%↑ → 5%×(100%−착과율)÷40%
-  return {rate:dec*100, setRate:setRate};
+  if(val('prevAcc')!=='y') return {rate:0, setRate:null, note:''};
+  var dis=val('disaster');
+  if(!dis) return {rate:0, setRate:null, note:'재해종류를 선택하세요.'};
+  // 조수해·화재는 적과종료 후 착과손해(추가감수량) 대상이 아님
+  if(dis==='조수'||dis==='화재') return {rate:0, setRate:null, note:'조수해·화재는 착과손해(추가감수량) 대상이 아니라 전차 인정피해율 0%.'};
+
+  if(val('product')==='normal'){
+    // 보통약관 + 적과전 자연재해 → 착과손해 자동산정(착과율 기반)
+    var avgCnt=num('avgCnt'), afterCnt=num('afterCnt');
+    if(avgCnt<=0||afterCnt<=0) return {rate:0, setRate:null, note:'평년착과수·적과후착과수를 입력하면 자동 산정됩니다.'};
+    var setRate=Math.round(afterCnt/avgCnt*10000)/10000;   // 착과율 (소수4자리)
+    var dec;
+    if(setRate>=1){ dec=0; }                               // 착과율 100%↑ → 착과손해 없음
+    else if(setRate<0.6){ dec=0.05; }                      // 60% 미만 → 5%
+    else { dec=Math.round(0.05*(1-setRate)/0.4*10000)/10000; } // 60%↑ → 5%×(100%−착과율)÷40%
+    var nt = dec>0 ? '보통약관 적과전 자연재해 → 착과손해 자동산정.' : '착과율 100% 이상 → 착과손해 없음(0%).';
+    return {rate:dec*100, setRate:setRate, note:nt};
+  } else {
+    // 5종 한정특약 → 추가감수량(착과손해) 미적용. 적과전 사고 인정피해율은 별도 조사(유과타박률·나무피해율·낙엽률) → 직접입력
+    var m=parseFloat(val('prevManual'));
+    if(!isNaN(m)&&m>0) return {rate:m, setRate:null, note:'5종 특약: 직접입력한 인정피해율 적용.'};
+    return {rate:0, setRate:null, note:'5종 특약은 착과손해 미적용. 적과전 우박 등은 유과타박률·나무피해율 등 별도 조사값을 직접입력하세요.'};
+  }
 }
 function updatePrev(){
   var r=calcPrevRate();
   var sr=document.getElementById('autoSetRate'), pr=document.getElementById('autoPrevRate');
   if(sr) sr.value=(r.setRate!==null)?(r.setRate*100).toFixed(2):'-';
   if(pr) pr.value=r.rate.toFixed(2);
+}
+function refreshPrevUI(){
+  var acc=val('prevAcc')==='y';
+  var ds=document.getElementById('disaster');
+  if(ds){ ds.disabled=!acc; ds.style.opacity=acc?'1':'0.45'; if(!acc&&ds.value!==''){ ds.value=''; mark(ds); } }
+  var mw=document.getElementById('manualWrap'); if(mw) mw.style.display=(acc&&val('product')==='five')?'flex':'none';
+  updatePrev();
 }
 
 /* 합계·피해구성비율 실시간 갱신 */
@@ -475,10 +511,7 @@ function restoreState(){
   syncDate();
   document.querySelectorAll('.inp').forEach(mark);
   updateGrade();
-  var _pv=(document.getElementById('prevAcc').value)||'n';
-  document.getElementById('prevAccBtnN').classList.toggle('on',_pv==='n');
-  document.getElementById('prevAccBtnY').classList.toggle('on',_pv==='y');
-  updatePrev();
+  refreshPrevUI();
   return true;
 }
 
@@ -495,11 +528,11 @@ function doReset(){
   try{ localStorage.removeItem(KEY_STATE); }catch(e){}
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
     if(['harvestDone','deadNC','aliveNC','g0','g30','g50','g80','g100'].indexOf(id)>=0) el.value='0';
-    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='prevAcc') el.value='n'; else el.value=''; });
+    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='product') el.value='normal'; else if(id==='prevAcc') el.value='n'; else el.value=''; });
   buildSampleRows({}); syncDate();
-  setPrevAcc('n');
   document.getElementById('autoSetRate').value='-';
   document.getElementById('autoPrevRate').value='0.00';
+  refreshPrevUI();
   document.querySelectorAll('.inp').forEach(mark);
   document.getElementById('autoFallDmg').value='-';
   document.getElementById('autoAdmitRate').value='-';
@@ -750,7 +783,7 @@ function saveImage(){
   /* 품목 기본값(사과) 완료색 보장 */
   mark(document.getElementById('crop'));
   updateGrade();
-  updatePrev();
+  refreshPrevUI();
 })();
 </script>
 </body>
