@@ -232,7 +232,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
     <div class="g3">
       <div class="field">
         <label>적과후착과수 <span class="unit">(개)</span></label>
-        <input class="inp" id="afterCnt" type="text" inputmode="numeric" placeholder="19,360" oninput="onComma(this);saveState()">
+        <input class="inp" id="afterCnt" type="text" inputmode="numeric" placeholder="19,360" oninput="onComma(this);updatePrev();saveState()">
       </div>
       <div class="field">
         <label>가입주수 <span class="unit">(주)</span></label>
@@ -271,6 +271,34 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="auto" id="autoAdmitCnt" type="text" readonly value="-">
       </div>
     </div>
+  </div>
+
+  <!-- 전차 인정피해율 (적과전 착과손해) -->
+  <div class="section">
+    <div class="sec-title">☁️ 전차 인정피해율 <span class="tag">적과전 착과손해 자동</span></div>
+    <div class="field" style="margin-bottom:10px">
+      <label>적과종료 이전 자연재해(우박 제외) 사고</label>
+      <div class="seg">
+        <button type="button" class="seg-btn on" id="prevAccBtnN" onclick="setPrevAcc('n')">없음</button>
+        <button type="button" class="seg-btn" id="prevAccBtnY" onclick="setPrevAcc('y')">있음</button>
+      </div>
+      <input type="hidden" id="prevAcc" value="n">
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>평년착과수 <span class="unit">(개)</span></label>
+        <input class="inp" id="avgCnt" type="text" inputmode="numeric" placeholder="21,797" oninput="onComma(this);updatePrev();saveState()">
+      </div>
+      <div class="field">
+        <label>착과율 <span class="unit">(%)</span></label>
+        <input class="auto" id="autoSetRate" type="text" readonly value="-">
+      </div>
+      <div class="field">
+        <label>전차 인정피해율 <span class="unit">(%)</span></label>
+        <input class="auto" id="autoPrevRate" type="text" readonly value="0.00">
+      </div>
+    </div>
+    <div class="hint" id="prevHint">기사고내역에 적과전 사고가 없으면 <b>없음</b>(전차 인정피해율 0%). 적과전 자연재해(우박 제외)가 있으면 <b>있음</b>으로 두면 평년착과수·적과후착과수로 착과손해 인정피해율을 자동 산정합니다. (착과율 60%↑: 5%×(100%−착과율)÷40% · 60%↓: 5%)</div>
   </div>
 
   <!-- 낙과 표본조사 -->
@@ -358,7 +386,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
 
 <script>
 var KEY_STATE='sunburn_state', KEY_HIST='sunburn_history', KEY_BIG='sunburn_bigtext';
-var FIELDS=['crop','farmNo','surveyDate','method','afterCnt','joinTree','realTree','harvestDone','deadNC','aliveNC','sampleN','g0','g30','g50','g80','g100'];
+var FIELDS=['crop','farmNo','surveyDate','method','afterCnt','avgCnt','prevAcc','joinTree','realTree','harvestDone','deadNC','aliveNC','sampleN','g0','g30','g50','g80','g100'];
 var LAST=null;
 
 function num(id){ var v=(document.getElementById(id).value||'').toString().replace(/,/g,''); var n=parseFloat(v); return isNaN(n)?0:n; }
@@ -398,6 +426,31 @@ function sumSamples(){
 }
 function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-cell input').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
 
+/* 전차 인정피해율(적과전 착과손해) 자동 산정 */
+function setPrevAcc(v){
+  document.getElementById('prevAcc').value=v;
+  document.getElementById('prevAccBtnN').classList.toggle('on',v==='n');
+  document.getElementById('prevAccBtnY').classList.toggle('on',v==='y');
+  updatePrev(); saveState();
+}
+function calcPrevRate(){
+  var prevAcc=document.getElementById('prevAcc').value;
+  var avgCnt=num('avgCnt'), afterCnt=num('afterCnt');
+  if(prevAcc!=='y'||avgCnt<=0||afterCnt<=0) return {rate:0, setRate:null};
+  var setRate=Math.round(afterCnt/avgCnt*10000)/10000;   // 착과율 (소수4자리)
+  var dec;
+  if(setRate>=1) dec=0;                                  // 착과율 100%↑ → 착과손해 없음
+  else if(setRate<0.6) dec=0.05;                         // 착과율 60% 미만 → 5%
+  else dec=Math.round(0.05*(1-setRate)/0.4*10000)/10000; // 60%↑ → 5%×(100%−착과율)÷40%
+  return {rate:dec*100, setRate:setRate};
+}
+function updatePrev(){
+  var r=calcPrevRate();
+  var sr=document.getElementById('autoSetRate'), pr=document.getElementById('autoPrevRate');
+  if(sr) sr.value=(r.setRate!==null)?(r.setRate*100).toFixed(2):'-';
+  if(pr) pr.value=r.rate.toFixed(2);
+}
+
 /* 합계·피해구성비율 실시간 갱신 */
 function updateGrade(){
   var g0=num('g0'),g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
@@ -422,6 +475,10 @@ function restoreState(){
   syncDate();
   document.querySelectorAll('.inp').forEach(mark);
   updateGrade();
+  var _pv=(document.getElementById('prevAcc').value)||'n';
+  document.getElementById('prevAccBtnN').classList.toggle('on',_pv==='n');
+  document.getElementById('prevAccBtnY').classList.toggle('on',_pv==='y');
+  updatePrev();
   return true;
 }
 
@@ -438,8 +495,11 @@ function doReset(){
   try{ localStorage.removeItem(KEY_STATE); }catch(e){}
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
     if(['harvestDone','deadNC','aliveNC','g0','g30','g50','g80','g100'].indexOf(id)>=0) el.value='0';
-    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else el.value=''; });
+    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='prevAcc') el.value='n'; else el.value=''; });
   buildSampleRows({}); syncDate();
+  setPrevAcc('n');
+  document.getElementById('autoSetRate').value='-';
+  document.getElementById('autoPrevRate').value='0.00';
   document.querySelectorAll('.inp').forEach(mark);
   document.getElementById('autoFallDmg').value='-';
   document.getElementById('autoAdmitRate').value='-';
@@ -494,7 +554,8 @@ function delHistory(i){
 
 /* 계산 */
 function calc(){
-  var afterCnt=num('afterCnt'), prevRate=0, joinTree=num('joinTree'), realTree=num('realTree');
+  var afterCnt=num('afterCnt'), joinTree=num('joinTree'), realTree=num('realTree');
+  var prevRate=calcPrevRate().rate;
   var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
   var sampleN=num('sampleN'), fallSum=sumSamples();
   var g0=num('g0'),g30=num('g30'),g50=num('g50'),g80=num('g80'),g100=num('g100');
@@ -550,9 +611,10 @@ function calc(){
     ['1주당 낙과수', fmt1(perTreeFall)+' 개', fmt(fallSum)+' ÷ '+fmt(sampleN)],
     ['낙과피해과실수 (D)', fmt(fallDamage)+' 개', 'A÷B×C'],
     ['피해구성비율 (E)', dmgRatio.toFixed(2)+' %', '등급 가중'],
+    ['전차 인정피해율 (max A)', prevRate.toFixed(2)+' %', prevRate>0?'적과전 착과손해 자동산정':'적과전 사고 없음'],
     ['적과후착과수 6%', fmt(Math.floor(sixPct))+' 개', '면/부책 판단기준'],
     ['면·부책 판정', covered?'부책(인정)':'면책', fmt(fallDamage)+(covered?' > ':' ≤ ')+fmt(Math.floor(sixPct))],
-    ['인정피해율', admitRate.toFixed(2)+' %', '피해구성비율 (E)']
+    ['인정피해율', admitRate.toFixed(2)+' %', '피해구성비율 − 전차인정피해율']
   ];
   var html='';
   rows.forEach(function(r){ html+='<tr><td class="k">'+r[0]+(r[2]?'<span class="formula">'+r[2]+'</span>':'')+'</td><td class="v">'+r[1]+'</td></tr>'; });
@@ -632,9 +694,9 @@ function buildCapture(){
 
   // 5. 결과
   var c5=card('5. 결과',
-    tbl('<colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup>'+
-      '<thead><tr><th style="'+TH+'">면·부책</th><th style="'+TH+'">인정피해율</th><th style="'+THl+'">낙과인정피해과실수</th></tr></thead>'+
-      '<tbody><tr><td style="'+TD+'">'+(L.covered?'부책(인정)':'면책')+'</td><td style="'+TG+'">'+L.admitRate.toFixed(2)+' %</td><td style="'+TGl+'">'+fmt(L.admitCnt)+' 개</td></tr></tbody>')+
+    tbl('<colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>'+
+      '<thead><tr><th style="'+TH+'">면·부책</th><th style="'+TH+'">전차인정피해율</th><th style="'+TH+'">인정피해율</th><th style="'+THl+'">낙과인정피해과실수</th></tr></thead>'+
+      '<tbody><tr><td style="'+TD+'">'+(L.covered?'부책(인정)':'면책')+'</td><td style="'+TD+'">'+(L.prevRate||0).toFixed(2)+' %</td><td style="'+TG+'">'+L.admitRate.toFixed(2)+' %</td><td style="'+TGl+'">'+fmt(L.admitCnt)+' 개</td></tr></tbody>')+
     '<div style="margin-top:12px;background:#185FA5;border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center">'+
       '<span style="font-size:15px;color:#fff;font-weight:700;opacity:0.92">낙과 인정피해과실수</span>'+
       '<span style="font-size:26px;color:#fff;font-weight:900">'+fmt(L.admitCnt)+' 개</span></div>');
@@ -688,6 +750,7 @@ function saveImage(){
   /* 품목 기본값(사과) 완료색 보장 */
   mark(document.getElementById('crop'));
   updateGrade();
+  updatePrev();
 })();
 </script>
 </body>
