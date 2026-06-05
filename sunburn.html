@@ -151,10 +151,7 @@ body.big-text input.auto{height:52px !important;font-size:18px !important;font-w
 .grade-cell input{height:40px;font-size:14px;padding:0 2px}
 .grade-100 label{color:var(--red)}
 
-.calc-action-row{display:grid;grid-template-columns:1fr 2fr 2fr;gap:8px;margin:6px 0 12px}
-.lock-state{height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid var(--border);background:#f4f6f8;transition:all .15s;user-select:none}
-.lock-state.unlocked{background:#eafaf2;border-color:#a9e3c9}
-.lock-state.locked{background:#fdeceb;border-color:#eab6b4}
+.calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 12px}
 .btn-calc{height:48px;border:none;border-radius:12px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
 .btn-calc.active{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);box-shadow:0 4px 14px rgba(24,95,165,0.35)}
 .btn-edit{height:48px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer}
@@ -415,7 +412,6 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
   </div>
 
   <div class="calc-action-row">
-    <div class="lock-state unlocked" id="lockState" aria-hidden="true">🔓</div>
     <button class="btn-edit" id="btnEdit" onclick="edit()">✏️ 수정하기</button>
     <button class="btn-calc active" id="btnCalc" onclick="calc()">🧮 계산하기</button>
   </div>
@@ -849,8 +845,6 @@ function edit(silent){
   saveState();
 }
 function setLockUI(locked){
-  var ls=document.getElementById('lockState');
-  if(ls){ ls.textContent=locked?'🔒':'🔓'; ls.className='lock-state '+(locked?'locked':'unlocked'); }
   var hs=document.getElementById('hdrState');
   if(hs){ hs.textContent=locked?'🔒 잠금':'🔓 수정 중'; hs.className='hdr-state '+(locked?'locked':'unlocked'); }
 }
