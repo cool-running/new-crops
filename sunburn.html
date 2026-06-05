@@ -119,6 +119,10 @@ body.big-text input.auto{height:52px !important;font-size:18px !important;font-w
 .samp-table .samp-no{text-align:center;font-size:15px;font-weight:800;color:var(--blue)}
 .samp-table input{height:42px;padding:0 8px;font-size:15px;text-align:center}
 .samp-table input.samp-variety{font-size:13px}
+.samp-table .samp-cell{display:flex;flex-direction:row;gap:5px;align-items:center}
+.samp-table select.samp-sukgi{flex:0 0 62px;height:42px;font-size:12px;padding:0 2px;text-align:center;text-align-last:center}
+.samp-table .pj-wrap{flex:1;min-width:0;display:block}
+.samp-table select.samp-pumjong-sel,.samp-table input.samp-pumjong-txt{width:100%;height:42px;font-size:12px;padding:0 4px;text-align:center;text-align-last:center}
 .samp-total-row .samp-total-label{text-align:right;font-size:12px;font-weight:800;color:var(--blue);padding-right:10px}
 .samp-total-box{height:42px;border:1.5px solid var(--blue);border-radius:var(--rs);background:#eaf2fb;color:var(--blue);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
 
@@ -177,6 +181,7 @@ body.big-text .samp-cell input{height:50px !important;font-size:18px !important}
 body.big-text .samp-total .box{height:50px !important;font-size:18px !important}
 body.big-text .samp-table input{height:50px !important;font-size:18px !important}
 body.big-text .samp-table input.samp-variety{font-size:15px !important}
+body.big-text .samp-table select.samp-sukgi,body.big-text .samp-table select.samp-pumjong-sel,body.big-text .samp-table input.samp-pumjong-txt{height:46px !important;font-size:13px !important}
 body.big-text .samp-total-box{height:50px !important;font-size:18px !important}
 body.big-text .grade-cell input{height:48px !important;font-size:16px !important}
 body.big-text .seg-btn{height:48px !important;font-size:15px !important}
@@ -210,7 +215,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
     <div style="display:flex;gap:8px;align-items:flex-end">
       <div class="field" style="width:40%">
         <label>품목</label>
-        <select class="inp filled" id="crop" onchange="mark(this);saveState()" style="text-align:center;text-align-last:center">
+        <select class="inp filled" id="crop" onchange="mark(this);updatePumjongList();saveState()" style="text-align:center;text-align-last:center">
           <option value="사과" selected>사과</option>
           <option value="배">배</option>
           <option value="단감">단감</option>
@@ -220,7 +225,8 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
       <div class="field" style="width:40%">
         <label>농지번호 4자리</label>
         <input type="text" id="farmNo" class="inp" inputmode="numeric" placeholder="농지번호 4자리" maxlength="4"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);mark(this);saveState()" autocomplete="off">
+          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);mark(this);saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
       </div>
       <div style="width:20%;flex-shrink:0">
         <button onclick="openHistory()" title="이전 기록 불러오기"
@@ -466,17 +472,25 @@ function buildSampleRows(savedFall, savedVar){
   var wrap=document.getElementById('sampRows');
   var prevF={}, prevV={};
   wrap.querySelectorAll('.samp-fall').forEach(function(i){ prevF[i.dataset.idx]=i.value; });
-  wrap.querySelectorAll('.samp-variety').forEach(function(i){ prevV[i.dataset.idx]=i.value; });
+  wrap.querySelectorAll('.samp-sukgi').forEach(function(s){ var idx=s.dataset.idx; prevV[idx]=joinVar(s.value||'', readPumjong(idx)); });
   if(savedFall) prevF=savedFall;
   if(savedVar) prevV=savedVar;
   var rows='';
   for(var i=1;i<=n;i++){
     var f=(prevF[i]!==undefined)?prevF[i]:'';
     var v=(prevV[i]!==undefined)?String(prevV[i]):'';
-    var ve=v.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    var sv=splitVar(v); var su=sv.su, pj=sv.pj;
     rows+='<tr>'+
       '<td class="samp-no">'+i+'</td>'+
-      '<td><input class="inp samp-variety'+(v!==''?' filled':'')+'" data-idx="'+i+'" type="text" value="'+ve+'" placeholder="숙기/품종" oninput="mark(this);saveState()"></td>'+
+      '<td><div class="samp-cell">'+
+        '<select class="inp samp-sukgi'+(su!==''?' filled':'')+'" data-idx="'+i+'" onchange="mark(this);saveState()">'+
+          '<option value=""'+(su===''?' selected':'')+'>숙기</option>'+
+          '<option'+(su==='조생'?' selected':'')+'>조생</option>'+
+          '<option'+(su==='중생'?' selected':'')+'>중생</option>'+
+          '<option'+(su==='만생'?' selected':'')+'>만생</option>'+
+        '</select>'+
+        pumjongCell(i, pj)+
+      '</div></td>'+
       '<td><input class="inp samp-fall'+(f!==''&&f!=='0'?' filled':'')+'" data-idx="'+i+'" type="number" inputmode="numeric" value="'+f+'" oninput="mark(this);sumSamples();saveState()"></td>'+
     '</tr>';
   }
@@ -495,7 +509,66 @@ function sumSamples(){
   return s;
 }
 function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
-function getVarieties(){ var o={}; document.querySelectorAll('#sampRows .samp-variety').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
+
+/* 품목별 품종 목록 (목록에 없으면 '직접입력' 선택 후 입력) */
+var PUMJONG={
+  '사과':['후지','홍로','쓰가루','감홍','양광','시나노골드','아리수','홍옥'],
+  '배':['신고','원황','화산','추황배','황금배','만풍배','신화'],
+  '단감':['부유','차랑','태추','서촌조생','로망'],
+  '떫은감':['대봉','청도반시','둥시','상주둥시','갑주백목','고종시']
+};
+function cropList(){ var crop=(document.getElementById('crop')||{}).value||'사과'; return PUMJONG[crop]||[]; }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+/* 품종 칸: 드롭다운(목록+직접입력) ↔ 직접입력 텍스트 토글 */
+function pumjongCell(idx, pj){
+  var list=cropList();
+  var isCustom=(pj!=='' && list.indexOf(pj)<0);
+  var sel='<select class="inp samp-pumjong-sel'+(pj!==''?' filled':'')+'" data-idx="'+idx+'" onchange="onPumjongSel(this)" style="'+(isCustom?'display:none':'')+'">'+
+    '<option value=""'+(pj===''?' selected':'')+'>품종</option>'+
+    list.map(function(v){ return '<option'+(v===pj?' selected':'')+'>'+v+'</option>'; }).join('')+
+    '<option value="__custom__"'+(isCustom?' selected':'')+'>직접입력</option>'+
+  '</select>';
+  var txt='<input class="inp samp-pumjong-txt'+(isCustom?' filled':'')+'" data-idx="'+idx+'" type="text" placeholder="품종 입력" value="'+(isCustom?esc(pj):'')+'" style="'+(isCustom?'':'display:none')+'" oninput="mark(this);saveState()" onblur="onPumjongBlur(this)" autocomplete="off">';
+  return '<span class="pj-wrap" data-idx="'+idx+'">'+sel+txt+'</span>';
+}
+function onPumjongSel(sel){
+  var wrap=sel.parentNode, txt=wrap.querySelector('.samp-pumjong-txt');
+  if(sel.value==='__custom__'){ sel.style.display='none'; txt.style.display=''; txt.value=''; mark(txt); txt.focus(); }
+  else{ mark(sel); if(txt){ txt.style.display='none'; txt.value=''; mark(txt); } }
+  saveState();
+}
+function onPumjongBlur(txt){
+  if((txt.value||'').trim()===''){
+    var wrap=txt.parentNode, sel=wrap.querySelector('.samp-pumjong-sel');
+    txt.style.display='none'; if(sel){ sel.style.display=''; sel.value=''; mark(sel); }
+    saveState();
+  }
+}
+/* idx의 현재 품종 값 읽기 (텍스트 우선) */
+function readPumjong(idx){
+  var wrap=document.querySelector('#sampRows .pj-wrap[data-idx="'+idx+'"]'); if(!wrap) return '';
+  var txt=wrap.querySelector('.samp-pumjong-txt'), sel=wrap.querySelector('.samp-pumjong-sel');
+  if(txt && txt.style.display!=='none') return (txt.value||'').trim();
+  if(sel) return (sel.value==='__custom__'?'':(sel.value||''));
+  return '';
+}
+/* 숙기 + 품종 → "숙기/품종" 한 문자열 */
+function joinVar(su, pj){ su=(su||'').trim(); pj=(pj||'').trim(); return (su&&pj)?(su+'/'+pj):(su||pj); }
+function getVarieties(){ var o={};
+  document.querySelectorAll('#sampRows .samp-sukgi').forEach(function(s){ var idx=s.dataset.idx; o[idx]=joinVar(s.value||'', readPumjong(idx)); });
+  return o;
+}
+/* 저장된 "숙기/품종" 문자열을 분리 (옛 자유입력 호환) */
+function splitVar(s){
+  s=(s||'').trim(); var SU=['조생','중생','만생'];
+  var i=s.indexOf('/');
+  if(i>=0){ var a=s.slice(0,i).trim(), b=s.slice(i+1).trim(); if(SU.indexOf(a)>=0) return {su:a,pj:b}; return {su:'',pj:s}; }
+  if(SU.indexOf(s)>=0) return {su:s,pj:''};
+  return {su:'',pj:s};
+}
+/* 품목 변경 시 품종 목록 갱신 (값 보존하며 표 재생성) */
+function updatePumjongList(){ buildSampleRows(); }
 
 /* 전차 인정피해율(적과전 사고) 자동 산정 */
 function val(id){ var e=document.getElementById(id); return e?e.value:''; }
@@ -559,6 +632,7 @@ function liveUpdate(){
   var prevRate=calcPrevRate().rate;
   var target=realTree-harvestDone-deadNC-aliveNC;
   var fd=document.getElementById('autoFallDmg'), ar=document.getElementById('autoAdmitRate'), ac=document.getElementById('autoAdmitCnt');
+  var box=document.getElementById('resultBox'), mR=document.getElementById('mRate'), rH=document.getElementById('rbHero');
   if(afterCnt>0 && realTree>0 && sampleN>0 && target>0){
     var fallDamage=Math.round((fallSum/sampleN)*target);
     var covered=fallDamage>afterCnt*0.06;
@@ -567,8 +641,16 @@ function liveUpdate(){
     if(fd) fd.value=fmt(fallDamage);
     if(ar) ar.value=admitRate.toFixed(2);
     if(ac) ac.value=fmt(admitCnt);
+    /* 결과박스 실시간 표시 (계산하기 전에도) */
+    var pctOfAfter=afterCnt>0?(admitCnt/afterCnt*100):0;
+    if(mR) mR.textContent=pctOfAfter.toFixed(2)+'%';
+    if(rH) rH.innerHTML=fmt(admitCnt)+' <small>개</small>';
+    if(box) box.classList.remove('pending');
   }else{
     if(fd) fd.value='-'; if(ar) ar.value='-'; if(ac) ac.value='-';
+    if(mR) mR.textContent='- -';
+    if(rH) rH.innerHTML='—';
+    if(box) box.classList.add('pending');
   }
 }
 
@@ -738,7 +820,7 @@ function buildCapture(){
   var g0=num('g0'),g50=num('g50'),g80=num('g80'),g100=num('g100');
   var gradeSum=g0+g50+g80+g100;
   var samps=[]; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ samps.push(parseFloat((i.value||'').replace(/,/g,''))||0); });
-  var varis=[]; document.querySelectorAll('#sampRows .samp-variety').forEach(function(i){ varis.push((i.value||'').trim()); });
+  var varis=[]; var _vm=getVarieties(); document.querySelectorAll('#sampRows .samp-sukgi').forEach(function(s){ varis.push((_vm[s.dataset.idx]||'').trim()); });
 
   // 표본 셀 스타일
   var TH='padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #cfd6dd;border-bottom:1px solid #cfd6dd;font-size:11px;font-weight:700;text-align:center';
@@ -756,7 +838,7 @@ function buildCapture(){
   var nTGl='padding:6px 2px;text-align:center;background:#e8faf3;font-weight:800;font-size:10.5px';
 
   function card(title,inner){ return '<div style="background:#fff;border-radius:16px;padding:13px;box-shadow:0 6px 18px rgba(0,0,0,0.05)"><div style="font-size:14px;font-weight:900;color:#111;margin-bottom:9px">'+title+'</div>'+inner+'</div>'; }
-  function tbl(inner){ return '<table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #cfd6dd;border-radius:10px;overflow:hidden;table-layout:fixed">'+inner+'</table>'; }
+  function tbl(inner){ return '<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #cfd6dd;table-layout:fixed">'+inner+'</table>'; }
 
   // 품종(숙기) 그룹화 — 입력 순서 유지
   var order=[], grp={};
@@ -802,9 +884,17 @@ function buildCapture(){
     tbl('<colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>'+
       '<thead><tr><th style="'+nTH+'">면·부책</th><th style="'+nTH+'">전차인정피해율</th><th style="'+nTH+'">인정피해율</th><th style="'+nTHl+'">낙과인정피해과실수</th></tr></thead>'+
       '<tbody><tr><td style="'+nTD+'">'+(L.covered?'부책(인정)':'면책')+'</td><td style="'+nTD+'">'+(L.prevRate||0).toFixed(2)+' %</td><td style="'+nTG+'">'+L.admitRate.toFixed(2)+' %</td><td style="'+nTGl+'">'+fmt(L.admitCnt)+' 개</td></tr></tbody>')+
-    '<div style="margin-top:11px;background:#185FA5;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">'+
-      '<span style="font-size:14px;color:#fff;font-weight:700;opacity:0.92">낙과 인정피해과실수</span>'+
-      '<span style="font-size:25px;color:#fff;font-weight:900">'+fmt(L.admitCnt)+' 개</span></div>');
+    '<div style="margin-top:11px;background:#185FA5;border-radius:12px;padding:12px 14px;display:flex;align-items:center">'+
+      '<div style="flex:1;text-align:center">'+
+        '<div style="font-size:12px;color:#fff;opacity:0.85;font-weight:600;margin-bottom:4px">적착대비 피해율</div>'+
+        '<div style="font-size:23px;color:#FFD0D0;font-weight:900">'+(L.afterCnt>0?(L.admitCnt/L.afterCnt*100):0).toFixed(2)+' %</div>'+
+      '</div>'+
+      '<div style="width:1px;align-self:stretch;background:rgba(255,255,255,0.3);margin:0 8px"></div>'+
+      '<div style="flex:1;text-align:center">'+
+        '<div style="font-size:12px;color:#fff;opacity:0.85;font-weight:600;margin-bottom:4px">낙과 인정피해과실수</div>'+
+        '<div style="font-size:23px;color:#fff;font-weight:900">'+fmt(L.admitCnt)+' 개</div>'+
+      '</div>'+
+    '</div>');
 
   var foot=multi?'<div style="font-size:9.5px;color:#888;margin-top:2px;line-height:1.45">※ 품종 2종 이상: 금차품종별착과수·품종별낙과수는 표본주수 비율 안분 추정치이며, 피해구성비율은 전체 1세트 기준입니다.</div>':'';
 
@@ -856,6 +946,7 @@ function saveImage(){
   syncDate();
   /* 품목 기본값(사과) 완료색 보장 */
   mark(document.getElementById('crop'));
+  updatePumjongList();
   updateGrade();
   refreshPrevUI();
   liveUpdate();
