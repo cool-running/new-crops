@@ -745,7 +745,10 @@ function doReset(){
 function getHistory(){ try{ return JSON.parse(localStorage.getItem(KEY_HIST)||'[]'); }catch(e){ return []; } }
 function saveToHistory(res){
   var recs=getHistory();
-  recs.unshift({ ts:Date.now(), farmNo:document.getElementById('farmNo').value||'', date:document.getElementById('surveyDate').value||'',
+  var farmNo=document.getElementById('farmNo').value||'';
+  // 동일 농지번호 기존 기록은 같은 내용이므로 제거 후 최신으로 다시 추가 (덮어쓰기·맨 위로)
+  if(farmNo){ recs=recs.filter(function(r){ return r.farmNo!==farmNo; }); }
+  recs.unshift({ ts:Date.now(), farmNo:farmNo, date:document.getElementById('surveyDate').value||'',
     admitCnt:res.admitCnt, admitRate:res.admitRate, state:localStorage.getItem(KEY_STATE) });
   if(recs.length>30) recs=recs.slice(0,30);
   try{ localStorage.setItem(KEY_HIST, JSON.stringify(recs)); }catch(e){}
