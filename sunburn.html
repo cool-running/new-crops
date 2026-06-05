@@ -21,6 +21,9 @@ function bindMobileFocusHandlers(){
     var isSelect=el.tagName==='SELECT';
     var isDate=el.type==='date';
     if(!isSelect && !isDate){
+      el.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+    }
+    if(!isSelect && !isDate){
       var _tsx=0,_tsy=0,_scrolling=false;
       el.addEventListener('touchstart',function(e){ _tsx=e.touches[0].clientX; _tsy=e.touches[0].clientY; _scrolling=false; },{passive:true});
       el.addEventListener('touchmove',function(e){ if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6) _scrolling=true; },{passive:true});
@@ -116,7 +119,7 @@ body.big-text input.auto{height:52px !important;font-size:18px !important;font-w
 .samp-table{width:100%;border-collapse:collapse}
 .samp-table th{font-size:11px;font-weight:700;color:var(--sub);padding:0 4px 7px;text-align:center}
 .samp-table td{padding:3px 3px;vertical-align:middle}
-.samp-table .samp-no{text-align:center;font-size:15px;font-weight:800;color:var(--blue)}
+.samp-table .samp-no{text-align:center;font-size:14px;font-weight:800;color:var(--blue);padding:3px 1px}
 .samp-table input{height:42px;padding:0 8px;font-size:15px;text-align:center}
 .samp-table input.samp-variety{font-size:13px}
 .samp-table .samp-cell{display:flex;flex-direction:row;gap:5px;align-items:center}
@@ -327,6 +330,16 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="inp" id="harvestDone" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
       </div>
       <div class="field">
+        <label>수확불능 <span class="unit">(주)</span></label>
+        <input class="inp" id="harvestImposs" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
+      </div>
+      <div class="field">
+        <label>고사 <span class="unit">(주)</span></label>
+        <input class="inp" id="deadTree" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
+      </div>
+    </div>
+    <div class="g2" style="margin-top:7px">
+      <div class="field">
         <label>미보상 고사 <span class="unit">(주)</span></label>
         <input class="inp" id="deadNC" type="number" inputmode="numeric" value="0" oninput="mark(this);saveState()">
       </div>
@@ -349,7 +362,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="auto" id="autoAdmitCnt" type="text" readonly value="-">
       </div>
     </div>
-    <div class="hint">※ 수확완료 · 미보상(고사 · 미고사) 주수는 <b>금차 + 과거</b> 누계로 입력합니다.</div>
+    <div class="hint" style="color:#374151;font-weight:700;font-size:11.5px;word-break:keep-all">※ 제외주수는 금차+과거 <b style="color:#c0392b">누계</b>로 입력합니다.</div>
   </div>
 
   <!-- 낙과 표본조사 -->
@@ -445,7 +458,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
 
 <script>
 var KEY_STATE='sunburn_state', KEY_HIST='sunburn_history', KEY_BIG='sunburn_bigtext';
-var FIELDS=['crop','farmNo','surveyDate','method','afterCnt','avgCnt','product','prevAcc','disaster','prevManual','joinTree','realTree','harvestDone','deadNC','aliveNC','sampleN','g0','g50','g80','g100'];
+var FIELDS=['crop','farmNo','surveyDate','method','afterCnt','avgCnt','product','prevAcc','disaster','prevManual','joinTree','realTree','harvestDone','harvestImposs','deadTree','deadNC','aliveNC','sampleN','g0','g50','g80','g100'];
 var LAST=null;
 
 function num(id){ var v=(document.getElementById(id).value||'').toString().replace(/,/g,''); var n=parseFloat(v); return isNaN(n)?0:n; }
@@ -495,8 +508,8 @@ function buildSampleRows(savedFall, savedVar){
     '</tr>';
   }
   wrap.innerHTML=
-    '<table class="samp-table"><colgroup><col style="width:56px"><col><col style="width:88px"></colgroup>'+
-    '<thead><tr><th>표본번호</th><th>숙기/품종</th><th>표본낙과수</th></tr></thead>'+
+    '<table class="samp-table"><colgroup><col style="width:40px"><col><col style="width:84px"></colgroup>'+
+    '<thead><tr><th>표본</th><th>숙기/품종</th><th>표본낙과수</th></tr></thead>'+
     '<tbody>'+rows+
     '<tr class="samp-total-row"><td colspan="2" class="samp-total-label">합계 (개)</td>'+
     '<td><div class="samp-total-box" id="sampTotalBox">0</div></td></tr>'+
@@ -624,13 +637,13 @@ function updateGrade(){
 function liveUpdate(){
   updateGrade(); updatePrev();
   var afterCnt=num('afterCnt'), realTree=num('realTree');
-  var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
+  var harvestDone=num('harvestDone'), harvestImposs=num('harvestImposs'), deadTree=num('deadTree'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
   var sampleN=num('sampleN'), fallSum=sumSamples();
   var g50=num('g50'),g80=num('g80'),g100=num('g100');
   var gradeSum=num('g0')+g50+g80+g100;
   var dmgRatio=gradeSum>0?(g50*0.5+g80*0.8+g100*1)/gradeSum*100:0;
   var prevRate=calcPrevRate().rate;
-  var target=realTree-harvestDone-deadNC-aliveNC;
+  var target=realTree-harvestDone-harvestImposs-deadTree-deadNC-aliveNC;
   var fd=document.getElementById('autoFallDmg'), ar=document.getElementById('autoAdmitRate'), ac=document.getElementById('autoAdmitCnt');
   var box=document.getElementById('resultBox'), mR=document.getElementById('mRate'), rH=document.getElementById('rbHero');
   if(afterCnt>0 && realTree>0 && sampleN>0 && target>0){
@@ -688,7 +701,7 @@ function closeReset(){ document.getElementById('resetOverlay').classList.remove(
 function doReset(){
   try{ localStorage.removeItem(KEY_STATE); }catch(e){}
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
-    if(['harvestDone','deadNC','aliveNC','g0','g50','g80','g100'].indexOf(id)>=0) el.value='0';
+    if(['harvestDone','harvestImposs','deadTree','deadNC','aliveNC','g0','g50','g80','g100'].indexOf(id)>=0) el.value='0';
     else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='product') el.value='normal'; else if(id==='prevAcc') el.value='n';
     else if(id==='surveyDate') el.value=todayStr();
     else el.value=''; });
@@ -752,7 +765,7 @@ function delHistory(i){
 function calc(silent){
   var afterCnt=num('afterCnt'), joinTree=num('joinTree'), realTree=num('realTree');
   var prevRate=calcPrevRate().rate;
-  var harvestDone=num('harvestDone'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
+  var harvestDone=num('harvestDone'), harvestImposs=num('harvestImposs'), deadTree=num('deadTree'), deadNC=num('deadNC'), aliveNC=num('aliveNC');
   var sampleN=num('sampleN'), fallSum=sumSamples();
   var g0=num('g0'),g50=num('g50'),g80=num('g80'),g100=num('g100');
 
@@ -760,7 +773,7 @@ function calc(silent){
   if(realTree<=0){ if(!silent) showToast('실제결과주수를 입력하세요'); return; }
   if(sampleN<=0){ if(!silent) showToast('표본주수를 입력하세요'); return; }
 
-  var target=realTree-harvestDone-deadNC-aliveNC;
+  var target=realTree-harvestDone-harvestImposs-deadTree-deadNC-aliveNC;
   if(target<=0){ if(!silent) showToast('조사대상주수가 0 이하입니다'); return; }
 
   var perTreeCnt=afterCnt/target;
