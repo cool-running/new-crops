@@ -340,18 +340,12 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="auto" id="autoAdmitCnt" type="text" readonly value="-">
       </div>
     </div>
-    <div class="hint" style="color:#374151;font-weight:700;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">※ 수확완료·미보상(고사·미고사)는 금차+과거 <b style="color:#c0392b">누계</b> 입력</div>
+    <div class="hint">※ 수확완료 · 미보상(고사 · 미고사) 주수는 <b>금차 + 과거</b> 누계로 입력합니다.</div>
   </div>
 
   <!-- 낙과 표본조사 -->
   <div class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div class="sec-title" style="margin:0">🍎 일소(낙과) 표본조사 <span class="tag" id="sampTag">표본주수 3주</span></div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button id="sampMinus" onclick="sampleMinus()" style="width:30px;height:30px;border:1.5px solid #e24b4a;border-radius:7px;background:#fff;font-size:18px;color:#e24b4a;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0">－</button>
-        <button id="sampPlus" onclick="samplePlus()" style="width:30px;height:30px;border:1.5px solid #9cc0e8;border-radius:7px;background:#fff;font-size:18px;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0">＋</button>
-      </div>
-    </div>
+    <div class="sec-title">🍎 일소(낙과) 표본조사 <span class="tag">표본주수 3주</span></div>
     <input type="hidden" id="sampleN" value="3">
     <div id="sampRows"></div>
   </div>
@@ -401,15 +395,6 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
     </div>
   </div>
 
-</div>
-
-<!-- 표본 최소 삭제불가 -->
-<div class="overlay" id="sampMinOverlay">
-  <div class="save-modal">
-    <div style="font-size:17px;font-weight:800;color:#333;margin-bottom:8px">삭제 불가</div>
-    <p style="color:#666;font-weight:500">표본주수는 최소 <b style="color:#185FA5">3주</b>입니다.</p>
-    <button class="btn-ok" onclick="document.getElementById('sampMinOverlay').classList.remove('show')">확인</button>
-  </div>
 </div>
 
 <!-- 이미지 저장 완료 -->
@@ -462,6 +447,10 @@ function fmt1(n){ return n.toLocaleString('en-US',{minimumFractionDigits:0,maxim
 function vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
 function showToast(m){ var t=document.getElementById('toast'); t.innerHTML=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('on');},2000); }
 
+function todayStr(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 function syncDate(){
   var inp=document.getElementById('surveyDate'), disp=document.getElementById('dateDisp');
   if(inp.value){ var d=inp.value.split('-'); disp.textContent=d[0]+'.'+d[1]+'.'+d[2]; disp.classList.remove('ph'); disp.classList.add('filled'); }
@@ -504,20 +493,6 @@ function sumSamples(){
 }
 function getSamples(){ var o={}; document.querySelectorAll('#sampRows .samp-fall').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
 function getVarieties(){ var o={}; document.querySelectorAll('#sampRows .samp-variety').forEach(function(i){ o[i.dataset.idx]=i.value; }); return o; }
-function updateSampTag(){ var n=parseInt(num('sampleN'))||0; var t=document.getElementById('sampTag'); if(t) t.textContent='표본주수 '+n+'주'; }
-function samplePlus(){
-  if(document.getElementById('content').classList.contains('locked')) return;
-  var n=parseInt(num('sampleN'))||0; if(n>=30) return;
-  document.getElementById('sampleN').value=n+1;
-  buildSampleRows(); updateSampTag(); saveState(); liveUpdate();
-}
-function sampleMinus(){
-  if(document.getElementById('content').classList.contains('locked')) return;
-  var n=parseInt(num('sampleN'))||0;
-  if(n<=3){ document.getElementById('sampMinOverlay').classList.add('show'); return; }
-  document.getElementById('sampleN').value=n-1;
-  buildSampleRows(); updateSampTag(); saveState(); liveUpdate();
-}
 
 /* 전차 인정피해율(적과전 사고) 자동 산정 */
 function val(id){ var e=document.getElementById(id); return e?e.value:''; }
@@ -607,7 +582,6 @@ function restoreState(){
   if(!st) return false;
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el&&st[id]!==undefined) el.value=st[id]; });
   buildSampleRows(st.samples||null, st.sampleVars||null);
-  updateSampTag();
   syncDate();
   document.querySelectorAll('.inp').forEach(mark);
   updateGrade();
@@ -630,8 +604,12 @@ function doReset(){
   try{ localStorage.removeItem(KEY_STATE); }catch(e){}
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
     if(['harvestDone','deadNC','aliveNC','g0','g50','g80','g100'].indexOf(id)>=0) el.value='0';
-    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='product') el.value='normal'; else if(id==='prevAcc') el.value='n'; else el.value=''; });
-  buildSampleRows({},{}); syncDate(); updateSampTag();
+    else if(id==='sampleN') el.value='3'; else if(id==='crop') el.value='사과'; else if(id==='method') el.value='표본조사'; else if(id==='product') el.value='normal'; else if(id==='prevAcc') el.value='n';
+    else if(id==='surveyDate') el.value=todayStr();
+    else el.value=''; });
+  /* 착과수·주수 칸 확실히 비우기 (콤마/포맷 잔여 방지) */
+  ['avgCnt','afterCnt','joinTree','realTree','prevManual'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  buildSampleRows({},{}); syncDate();
   document.getElementById('autoSetRate').value='-';
   document.getElementById('autoPrevRate').value='0.00';
   refreshPrevUI();
@@ -737,7 +715,7 @@ function calc(silent){
   document.getElementById('btnEdit').classList.add('active');
   if(!silent){
     saveState(); saveToHistory({admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
-    vibrate([30,40,60]);
+    vibrate(15);
     document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
   }
 }
@@ -821,15 +799,9 @@ function buildCapture(){
     tbl('<colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>'+
       '<thead><tr><th style="'+nTH+'">면·부책</th><th style="'+nTH+'">전차인정피해율</th><th style="'+nTH+'">인정피해율</th><th style="'+nTHl+'">낙과인정피해과실수</th></tr></thead>'+
       '<tbody><tr><td style="'+nTD+'">'+(L.covered?'부책(인정)':'면책')+'</td><td style="'+nTD+'">'+(L.prevRate||0).toFixed(2)+' %</td><td style="'+nTG+'">'+L.admitRate.toFixed(2)+' %</td><td style="'+nTGl+'">'+fmt(L.admitCnt)+' 개</td></tr></tbody>')+
-    '<div style="margin-top:11px;background:#185FA5;border-radius:12px;padding:12px 8px;display:flex;align-items:center">'+
-      '<div style="flex:1;width:50%;text-align:center">'+
-        '<div style="font-size:12px;color:#fff;opacity:0.9;font-weight:600;margin-bottom:3px">적착대비 피해율</div>'+
-        '<div style="font-size:22px;color:#FFD0D0;font-weight:900">'+(L.afterCnt>0?(L.admitCnt/L.afterCnt*100):0).toFixed(2)+'%</div></div>'+
-      '<div style="width:1px;height:38px;background:rgba(255,255,255,0.32);flex-shrink:0"></div>'+
-      '<div style="flex:1;width:50%;text-align:center">'+
-        '<div style="font-size:12px;color:#fff;opacity:0.9;font-weight:600;margin-bottom:3px">낙과 인정피해과실수</div>'+
-        '<div style="font-size:22px;color:#fff;font-weight:900">'+fmt(L.admitCnt)+' 개</div></div>'+
-    '</div>');
+    '<div style="margin-top:11px;background:#185FA5;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">'+
+      '<span style="font-size:14px;color:#fff;font-weight:700;opacity:0.92">낙과 인정피해과실수</span>'+
+      '<span style="font-size:25px;color:#fff;font-weight:900">'+fmt(L.admitCnt)+' 개</span></div>');
 
   var foot=multi?'<div style="font-size:9.5px;color:#888;margin-top:2px;line-height:1.45">※ 품종 2종 이상: 금차품종별착과수·품종별낙과수는 표본주수 비율 안분 추정치이며, 피해구성비율은 전체 1세트 기준입니다.</div>':'';
 
@@ -874,12 +846,10 @@ function saveImage(){
     document.getElementById('aliveNC').value='2';
     document.getElementById('g100').value='20';
     buildSampleRows({1:'5',2:'5',3:'10'}, null);
-    updateSampTag();
     document.querySelectorAll('.inp').forEach(mark);
   }
   /* 조사일자는 항상 오늘 날짜로 (마늘 참고) */
-  var _d=new Date();
-  document.getElementById('surveyDate').value=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
+  document.getElementById('surveyDate').value=todayStr();
   syncDate();
   /* 품목 기본값(사과) 완료색 보장 */
   mark(document.getElementById('crop'));
