@@ -749,6 +749,7 @@ function saveToHistory(res){
   // 동일 농지번호 기존 기록은 같은 내용이므로 제거 후 최신으로 다시 추가 (덮어쓰기·맨 위로)
   if(farmNo){ recs=recs.filter(function(r){ return r.farmNo!==farmNo; }); }
   recs.unshift({ ts:Date.now(), farmNo:farmNo, date:document.getElementById('surveyDate').value||'',
+    crop:res.crop, fallDamage:res.fallDamage, fallRate:res.fallRate,
     admitCnt:res.admitCnt, admitRate:res.admitRate, state:localStorage.getItem(KEY_STATE) });
   if(recs.length>30) recs=recs.slice(0,30);
   try{ localStorage.setItem(KEY_HIST, JSON.stringify(recs)); }catch(e){}
@@ -759,11 +760,26 @@ function openHistory(){
   else{
     wrap.innerHTML=recs.map(function(r,i){
       var d=r.date?r.date.replace(/-/g,'.'):'날짜 미입력';
+      var savedAt=r.ts?new Date(r.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/ /g,''):'';
+      var crop=r.crop; if(!crop){ try{ crop=JSON.parse(r.state).crop; }catch(e){} } crop=crop||'-';
+      var fd=(r.fallDamage!=null&&r.fallDamage!=='')?fmt(r.fallDamage)+'개':'-';
+      var fr=(r.fallRate!=null&&r.fallRate!=='')?r.fallRate+'%':'-';
       return '<div class="hist-item" onclick="loadHistory('+i+')">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
-        '<span style="font-size:15px;font-weight:800;color:var(--blue)">'+(r.farmNo?'농지 '+r.farmNo:'농지번호 미입력')+'</span>'+
-        '<button onclick="event.stopPropagation();delHistory('+i+')" style="height:26px;padding:0 10px;border:1px solid #ffb3b3;border-radius:6px;background:#fff;color:#e24b4a;font-size:11px;font-weight:700;cursor:pointer">삭제</button></div>'+
-        '<div style="font-size:11px;color:#888">'+d+' · 인정피해율 '+r.admitRate+'% · 인정과실수 '+fmt(r.admitCnt)+'개</div></div>';
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<span style="font-size:15px;font-weight:800;color:var(--blue)">'+(r.farmNo?'농지 '+r.farmNo:'농지번호 미입력')+'</span>'+
+          '<span style="font-size:11px;color:#aaa">'+savedAt+'</span>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px 10px;flex-wrap:wrap">'+
+          '<span style="font-size:12px;color:#555">🍎 '+crop+'</span>'+
+          '<span style="font-size:12px;color:#555">🗓 조사일 '+d+'</span>'+
+          '<span style="font-size:12px;color:#555">🍂 낙과피해과실수 '+fd+'</span>'+
+          '<span style="font-size:12px;color:#555">📉 낙과율 '+fr+'</span>'+
+        '</div>'+
+        '<div style="margin-top:8px;display:flex;justify-content:flex-end;gap:6px">'+
+          '<button onclick="event.stopPropagation();delHistory('+i+')" style="height:26px;padding:0 10px;border:1px solid #ffb3b3;border-radius:6px;background:#fff;color:#e24b4a;font-size:11px;font-weight:700;cursor:pointer">삭제</button>'+
+          '<button onclick="event.stopPropagation();loadHistory('+i+')" style="height:26px;padding:0 10px;border:none;border-radius:6px;background:var(--blue);color:#fff;font-size:11px;font-weight:700;cursor:pointer">불러오기</button>'+
+        '</div>'+
+      '</div>';
     }).join('');
   }
   document.getElementById('historyOverlay').classList.add('show');
@@ -834,7 +850,7 @@ function calc(silent){
   document.getElementById('btnEdit').classList.add('active');
   setLockUI(true);
   if(!silent){
-    saveState(); saveToHistory({admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
+    saveState(); saveToHistory({crop:document.getElementById('crop').value, fallDamage:fallDamage, fallRate:(afterCnt>0?(fallDamage/afterCnt*100):0).toFixed(2), admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
     vibrate([30, 40, 60]);
     document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
   }
