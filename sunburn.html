@@ -73,10 +73,10 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;align-items:end}
 .field{display:flex;flex-direction:column;gap:4px;position:relative}
 .field label{font-size:11px;color:var(--sub);font-weight:600;line-height:1.25}
-/* 기본정보 드롭다운 글자 잘림 방지 (가입상품·적과전사고·재해종류) */
-#product,#prevAcc,#disaster{font-size:12.5px;padding:0 4px;letter-spacing:-0.03em}
+/* 기본정보 드롭다운 글자 잘림 방지 (조사방식·가입상품·적과전사고·재해종류) */
+#method,#product,#prevAcc,#disaster{font-size:12.5px;padding:0 4px;letter-spacing:-0.03em}
 #method,#product,#prevAcc,#disaster{text-align:center;text-align-last:center}
-body.big-text #product,body.big-text #prevAcc,body.big-text #disaster{font-size:15px !important;padding:0 4px !important}
+body.big-text #method,body.big-text #product,body.big-text #prevAcc,body.big-text #disaster{font-size:15px !important;padding:0 4px !important}
 .field .unit{font-size:10px;color:var(--hint);font-weight:500}
 input.inp,select.inp{height:42px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:15px;font-weight:600;background:white;color:var(--text);width:100%;text-align:center;transition:background .15s,border-color .15s;-webkit-appearance:none;appearance:none}
 select.inp{text-align:left;-webkit-appearance:auto;appearance:auto}
@@ -882,7 +882,7 @@ function buildCapture(){
   t2+='<tr><td style="'+nTG+'">합계</td><td style="'+nTG+'">'+fmt(L.afterCnt)+'</td><td style="'+nTG+'">'+fmt(L.fallSum)+'</td><td style="'+nTG+'">'+fmt(L.sampleN)+'</td><td style="'+nTG+'">'+fmt(L.target)+'</td><td style="'+nTG+'">'+fmt(L.fallDamage)+'</td><td style="'+nTGl+'">'+L.dmgRatio.toFixed(2)+'</td></tr>';
   var c2=card('품종별 집계',
     tbl('<colgroup><col style="width:15%"><col style="width:18%"><col style="width:14%"><col style="width:13%"><col style="width:13%"><col style="width:14%"><col style="width:13%"></colgroup>'+
-      '<thead><tr><th style="'+nTH+'">숙기/품종</th><th style="'+nTH+'">금차품종별착과수</th><th style="'+nTH+'">표본낙과수계</th><th style="'+nTH+'">조사표본주수</th><th style="'+nTH+'">조사대상주수</th><th style="'+nTH+'">품종별낙과수</th><th style="'+nTHl+'">피해구성비율</th></tr></thead><tbody>'+t2+'</tbody>'));
+      '<thead><tr><th style="'+nTH+'">숙기/품종</th><th style="'+nTH+'">금차<br>품종별착과수</th><th style="'+nTH+'">표본<br>낙과수계</th><th style="'+nTH+'">조사<br>표본주수</th><th style="'+nTH+'">조사<br>대상주수</th><th style="'+nTH+'">품종별<br>낙과수</th><th style="'+nTHl+'">피해<br>구성비율</th></tr></thead><tbody>'+t2+'</tbody>'));
 
   // 3) 과실피해구성비율 (피해구성 1세트)
   var lab3=multi?'전체':(order[0]||'-');
