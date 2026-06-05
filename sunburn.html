@@ -738,7 +738,7 @@ function doReset(){
   document.getElementById('autoAdmitRate').value='-';
   document.getElementById('autoAdmitCnt').value='-';
   updateGrade();
-  edit();
+  edit(true);
   document.getElementById('resultBox').className='result-box pending';
   document.getElementById('rbHero').textContent='—';
   document.getElementById('mRate').textContent='- -';
@@ -773,7 +773,7 @@ function closeHistory(){ document.getElementById('historyOverlay').classList.rem
 function loadHistory(i){
   var r=getHistory()[i]; if(!r||!r.state) return;
   try{ localStorage.setItem(KEY_STATE, r.state); }catch(e){}
-  restoreState(); closeHistory(); edit();
+  restoreState(); closeHistory(); edit(true);
   document.getElementById('saveBtn').disabled=true; LAST=null;
   showToast('불러왔습니다');
 }
@@ -836,15 +836,16 @@ function calc(silent){
   setLockUI(true);
   if(!silent){
     saveState(); saveToHistory({admitCnt:admitCnt, admitRate:admitRate.toFixed(2)});
-    vibrate(15);
+    vibrate([30, 40, 60]);
     document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
   }
 }
-function edit(){
+function edit(silent){
   document.getElementById('content').classList.remove('locked');
   document.getElementById('btnCalc').classList.add('active');
   document.getElementById('btnEdit').classList.remove('active');
   setLockUI(false);
+  if(!silent) vibrate([12]);
   saveState();
 }
 function setLockUI(locked){
