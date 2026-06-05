@@ -362,7 +362,7 @@ body.big-text .seg-btn{height:48px !important;font-size:15px !important}
         <input class="auto" id="autoAdmitCnt" type="text" readonly value="-">
       </div>
     </div>
-    <div class="hint" style="color:#374151;font-weight:700;font-size:11.5px;word-break:keep-all">※ 제외주수는 금차+과거 <b style="color:#c0392b">누계</b>로 입력합니다.</div>
+    <div class="hint" style="color:#374151;font-weight:700;font-size:11.5px;word-break:keep-all;line-height:1.5">※ 수확완료 · 수확불능 · 고사 · 미보상주수는 금차+과거 <b style="color:#c0392b">누계</b>로 입력</div>
   </div>
 
   <!-- 낙과 표본조사 -->
@@ -877,12 +877,12 @@ function buildCapture(){
     var gT=multi?Math.round(L.target*gC/L.sampleN):L.target;
     var gA=multi?Math.round(L.afterCnt*gC/L.sampleN):L.afterCnt;
     var gFD=gC>0?Math.round((gF/gC)*gT):0;
-    t2+='<tr><td style="'+nTD+'">'+key+'</td><td style="'+nTD+'">'+fmt(gA)+'</td><td style="'+nTD+'">'+fmt(gF)+'</td><td style="'+nTD+'">'+fmt(gC)+'</td><td style="'+nTD+'">'+fmt(gFD)+'</td><td style="'+nTDl+'">'+L.dmgRatio.toFixed(2)+'</td></tr>';
+    t2+='<tr><td style="'+nTD+'">'+key+'</td><td style="'+nTD+'">'+fmt(gA)+'</td><td style="'+nTD+'">'+fmt(gF)+'</td><td style="'+nTD+'">'+fmt(gC)+'</td><td style="'+nTD+'">'+fmt(gT)+'</td><td style="'+nTD+'">'+fmt(gFD)+'</td><td style="'+nTDl+'">'+L.dmgRatio.toFixed(2)+'</td></tr>';
   });
-  t2+='<tr><td style="'+nTG+'">합계</td><td style="'+nTG+'">'+fmt(L.afterCnt)+'</td><td style="'+nTG+'">'+fmt(L.fallSum)+'</td><td style="'+nTG+'">'+fmt(L.sampleN)+'</td><td style="'+nTG+'">'+fmt(L.fallDamage)+'</td><td style="'+nTGl+'">'+L.dmgRatio.toFixed(2)+'</td></tr>';
+  t2+='<tr><td style="'+nTG+'">합계</td><td style="'+nTG+'">'+fmt(L.afterCnt)+'</td><td style="'+nTG+'">'+fmt(L.fallSum)+'</td><td style="'+nTG+'">'+fmt(L.sampleN)+'</td><td style="'+nTG+'">'+fmt(L.target)+'</td><td style="'+nTG+'">'+fmt(L.fallDamage)+'</td><td style="'+nTGl+'">'+L.dmgRatio.toFixed(2)+'</td></tr>';
   var c2=card('품종별 집계',
-    tbl('<colgroup><col style="width:17%"><col style="width:21%"><col style="width:16%"><col style="width:15%"><col style="width:16%"><col style="width:15%"></colgroup>'+
-      '<thead><tr><th style="'+nTH+'">숙기/품종</th><th style="'+nTH+'">금차품종별착과수</th><th style="'+nTH+'">표본낙과수계</th><th style="'+nTH+'">조사표본주수</th><th style="'+nTH+'">품종별낙과수</th><th style="'+nTHl+'">피해구성비율</th></tr></thead><tbody>'+t2+'</tbody>'));
+    tbl('<colgroup><col style="width:15%"><col style="width:18%"><col style="width:14%"><col style="width:13%"><col style="width:13%"><col style="width:14%"><col style="width:13%"></colgroup>'+
+      '<thead><tr><th style="'+nTH+'">숙기/품종</th><th style="'+nTH+'">금차품종별착과수</th><th style="'+nTH+'">표본낙과수계</th><th style="'+nTH+'">조사표본주수</th><th style="'+nTH+'">조사대상주수</th><th style="'+nTH+'">품종별낙과수</th><th style="'+nTHl+'">피해구성비율</th></tr></thead><tbody>'+t2+'</tbody>'));
 
   // 3) 과실피해구성비율 (피해구성 1세트)
   var lab3=multi?'전체':(order[0]||'-');
