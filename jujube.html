@@ -306,7 +306,7 @@ let _locked=false;
 const $=id=>document.getElementById(id);
 
 function newVariety(){
-  return {cat:'',age:'',reg:'',actual:'',unins:'',dead:'',
+  return {group:'',cat:'',age:'',reg:'',actual:'',unins:'',dead:'',
     trees:['','',''],normal:'',p50:'',p80:'',p100:'',fcount:'',fweight:''};
 }
 
@@ -334,11 +334,21 @@ function showToast(m){const t=$('toast');t.textContent=m;t.classList.add('show')
 function renderVarieties(){
   const wrap=$('variety-list'); wrap.innerHTML='';
   varieties.forEach((v,i)=>{
-    const ap=isApple(v.cat);
+    const group=v.cat?(isApple(v.cat)?'ap':'jc'):(v.group||'');
+    const ap = v.cat ? isApple(v.cat) : (group==='ap');
     const card=document.createElement('div'); card.className='vcard';
-    let opts='<option value="">품종 선택</option>';
-    for(const k in CATS)opts+=`<option value="${k}" ${v.cat===k?'selected':''}>${CATS[k].label}</option>`;
-    const typeBadge=v.cat?`<span class="vtype ${ap?'ap':'jc'}">${CATS[v.cat].type}</span>`:'';
+    const gopts=`<option value="">구분 선택</option>`
+      +`<option value="jc" ${group==='jc'?'selected':''}>복조·재래</option>`
+      +`<option value="ap" ${group==='ap'?'selected':''}>사과대추</option>`;
+    const SUBS = group==='jc'
+      ? {A:'보은·옥천·영동 (비가림)',B:'보은·옥천·영동 (노지)',C:'기타지역'}
+      : group==='ap'
+      ? {D:'황실',E:'천황',F:'대능 (하우스)',G:'대능 (노지)',H:'기타품종'} : {};
+    const subPh = group==='jc'?'지역 선택':group==='ap'?'품종 선택':'구분 먼저 선택';
+    let sopts=`<option value="">${subPh}</option>`;
+    for(const k in SUBS)sopts+=`<option value="${k}" ${v.cat===k?'selected':''}>${SUBS[k]}</option>`;
+    const subLabel=group==='ap'?'품종':'지역';
+    const typeBadge=group?`<span class="vtype ${group==='ap'?'ap':'jc'}">${group==='ap'?'사과대추':'재래'}</span>`:'';
     let treeHtml='';
     v.trees.forEach((t,ti)=>{
       treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" value="${t}" placeholder="${ti+1}" oninput="onTree(${i},${ti},this)"><div class="tree-no">표본${ti+1}</div></div>`;
@@ -350,7 +360,10 @@ function renderVarieties(){
         <div class="vbadge">${i+1}</div>${typeBadge}
         <button class="del-v" onclick="delVariety(${i})">✕</button>
       </div>
-      <select class="inp ${v.cat?'filled':''}" style="margin-bottom:8px" onchange="onCat(${i},this)">${opts}</select>
+      <div class="g2" style="margin-bottom:8px">
+        <div class="field"><label>구분</label><select class="inp ${group?'filled':''}" onchange="onGroup(${i},this)">${gopts}</select></div>
+        <div class="field"><label>${subLabel}</label><select class="inp ${v.cat?'filled':''}" ${group?'':'disabled'} onchange="onSub(${i},this)">${sopts}</select></div>
+      </div>
       <div class="g3">
         <div class="field"><label>수령</label><span class="unit-badge">년</span><input class="inp ${v.age!==''?'filled':''}" inputmode="numeric" value="${v.age}" oninput="onF(${i},'age',this)"></div>
         <div class="field"><label>가입주수</label><input class="inp ${v.reg!==''?'filled':''}" inputmode="numeric" value="${v.reg}" oninput="onF(${i},'reg',this)"></div>
@@ -400,7 +413,8 @@ function renderVarieties(){
   if(_locked)lockInputs(true);
 }
 
-function onCat(i,el){varieties[i].cat=el.value;renderVarieties();calc();saveState();}
+function onGroup(i,el){varieties[i].group=el.value;varieties[i].cat='';renderVarieties();calc();saveState();}
+function onSub(i,el){varieties[i].cat=el.value;renderVarieties();calc();saveState();}
 function onF(i,key,el){varieties[i][key]=el.value;markFilled(el);calc();}
 function onTree(i,ti,el){varieties[i].trees[ti]=el.value;markFilled(el);calc();}
 function addVariety(){if(_locked)return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
