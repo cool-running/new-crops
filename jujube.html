@@ -157,8 +157,8 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .btn-calc{background:#fff;border-color:var(--main);color:var(--main)}
 .btn-calc.active{background:var(--main);color:#fff}
 
-.result-box{background:var(--card);border-radius:18px;padding:0 12px;margin-bottom:10px;color:var(--text);border:0.5px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,0.06)}
-.result-box.pending{background:#f1f0ec;box-shadow:none}
+.result-box{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(91,126,63,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
+.result-box.pending{background:#f1f0ec;box-shadow:none;border:0.5px solid var(--border)}
 .save-btn{background:var(--main);border:none;color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .rdetail{background:var(--card);border-radius:var(--r);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;display:none}
 .drow{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid #eee}
@@ -186,7 +186,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .cmp-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12px;background:#fff}
 .cmp-table th,.cmp-table td{border:0.5px solid var(--border);padding:7px 3px;text-align:center;white-space:nowrap;overflow:hidden}
 .cmp-table thead th{background:var(--main);color:#fff;font-weight:700}
-.cmp-table thead th.corner{position:sticky;left:0;z-index:3;background:var(--main-d);width:56px}
+.cmp-table thead th.corner{position:sticky;left:0;z-index:3;background:var(--main-d);width:70px}
 .cmp-table thead th.sumcol{background:var(--main-d);width:70px}
 .cmp-table .rowlabel{background:var(--main-l);color:var(--main-d);font-weight:700;text-align:center;position:sticky;left:0;z-index:2;white-space:normal;word-break:keep-all;line-height:1.2}
 .cmp-table td.sumcol{background:var(--auto);font-weight:800;color:var(--main-d)}
@@ -203,7 +203,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
   <div class="header-icon">🍯</div>
   <div style="flex:1">
     <h1>대추 피해율계산기</h1>
-    <div class="header-sub">비가림과수 · 수확량조사</div>
+    <div class="header-sub">수확개시전 수확량조사</div>
   </div>
   <div class="hdr-state unlocked" id="hdrState">🔓 수정 중</div>
 </div>
@@ -298,13 +298,13 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
   <div class="result-box pending" id="result-section">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
-        <span style="font-size:13px;color:var(--blue);font-weight:700;letter-spacing:0.04em">피해율</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.8);font-weight:500;letter-spacing:0.04em">피해율</span>
       </div>
-      <div style="width:1px;height:34px;background:var(--border)"></div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.3)"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
-        <span id="result-pct" style="font-size:26px;font-weight:700;color:var(--sub);line-height:1;white-space:nowrap">- -</span>
+        <span id="result-pct" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
       </div>
-      <div style="width:1px;height:34px;background:var(--border)"></div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.3)"></div>
       <div style="padding-left:12px;flex-shrink:0">
         <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
       </div>
@@ -908,8 +908,8 @@ function calc(){
 
   box.className='result-box';
   pctEl.textContent=R.rate.toFixed(2)+'%';
-  pctEl.style.color=R.rate<0?'var(--green)':'var(--red)';
-  if(R.anyShort)pctEl.style.color='var(--orange)';
+  pctEl.style.color='#FFD0D0';
+  if(R.anyShort)pctEl.style.color='#FFD0D0';
   saveState();
 }
 
@@ -1087,11 +1087,11 @@ function buildCapture(){
       <td class="cap-td">${vType(v)}</td>
       <td class="cap-td">${v.age||'-'}</td>
       <td class="cap-td">${r.reg?r.reg.toLocaleString():'-'}</td>
-      <td class="cap-td">${r.actual?r.actual.toLocaleString():'-'}</td>
-      <td class="cap-td">${dead||0}</td>
-      <td class="cap-td">${un||0}</td>
+      <td class="cap-td" style="background:#EEF2F0">${r.actual?r.actual.toLocaleString():'-'}</td>
+      <td class="cap-td" style="background:#EEF2F0">${dead||0}</td>
+      <td class="cap-td" style="background:#EEF2F0">${un||0}</td>
       <td class="cap-td">${c.proper||'-'}</td>
-      <td class="cap-td">${c.sampleCnt||'-'}</td></tr>`;
+      <td class="cap-td" style="background:#EEF2F0">${c.sampleCnt||'-'}</td></tr>`;
   });
   treeRows+=`<tr style="font-weight:800;background:#EEF2F0">
     <td class="cap-td">합계</td><td class="cap-td">-</td>
@@ -1112,8 +1112,8 @@ function buildCapture(){
         <td class="cap-td">${jn}</td>
         <td class="cap-td">${vType(v)}</td>
         <td class="cap-td">${v.age||'-'}</td>
-        <td class="cap-td">${g.toLocaleString()}</td>
-        <td class="cap-td">${Math.round(g*(1-c.dmg)).toLocaleString()}</td></tr>`;
+        <td class="cap-td" style="background:#EEF2F0">${g.toLocaleString()}</td>
+        <td class="cap-td" style="background:#EEF2F0">${Math.round(g*(1-c.dmg)).toLocaleString()}</td></tr>`;
     });
   });
   if(!jjRows)jjRows=`<tr><td class="cap-td" colspan="5" style="color:#999">해당 없음</td></tr>`;
@@ -1132,11 +1132,11 @@ function buildCapture(){
         <td class="cap-td">${an}</td>
         <td class="cap-td">${vType(v)}</td>
         <td class="cap-td">${v.age||'-'}</td>
-        <td class="cap-td">${cnt.toLocaleString()}</td>
-        <td class="cap-td">-</td>
-        <td class="cap-td">${recogN.toLocaleString()}</td>
-        <td class="cap-td">${c.weight?fmtN(c.weight):'-'}</td>
-        <td class="cap-td">${recogW.toLocaleString()}</td></tr>`;
+        <td class="cap-td" style="background:#EEF2F0">${cnt.toLocaleString()}</td>
+        <td class="cap-td" style="background:#EEF2F0">-</td>
+        <td class="cap-td" style="background:#EEF2F0">${recogN.toLocaleString()}</td>
+        <td class="cap-td" style="background:#EEF2F0">${c.weight?fmtN(c.weight):'-'}</td>
+        <td class="cap-td" style="background:#EEF2F0">${recogW.toLocaleString()}</td></tr>`;
     });
   });
   if(!apRows)apRows=`<tr><td class="cap-td" colspan="8" style="color:#999">해당 없음</td></tr>`;
@@ -1149,9 +1149,9 @@ function buildCapture(){
     if(!fc&&!fw)return;
     wRows+=`<tr>
       <td class="cap-td">${vType(v)}</td>
-      <td class="cap-td">${fc?fc.toLocaleString():'-'}</td>
-      <td class="cap-td">${fw?fw.toLocaleString():'-'}</td>
-      <td class="cap-td">${c.weight?fmtN(c.weight):'-'}</td></tr>`;
+      <td class="cap-td" style="background:#EEF2F0">${fc?fc.toLocaleString():'-'}</td>
+      <td class="cap-td" style="background:#EEF2F0">${fw?fw.toLocaleString():'-'}</td>
+      <td class="cap-td" style="background:#EEF2F0">${c.weight?fmtN(c.weight):'-'}</td></tr>`;
   });
   if(!wRows)wRows=`<tr><td class="cap-td" colspan="4" style="color:#999">해당 없음</td></tr>`;
 
@@ -1162,7 +1162,6 @@ function buildCapture(){
     <div style="background:#5B7E3F;color:#fff;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start">
       <div>
         <div style="font-size:17px;font-weight:800">🍯 대추 수확개시전 수확량조사</div>
-        <div style="font-size:12px;opacity:.9;margin-top:3px">${R.contractChange?'계약변경 대상':'이상무'}</div>
       </div>
       <div style="text-align:right;font-size:12px;line-height:1.6;flex-shrink:0">
         <div>농지번호 <b>${farm}</b></div>
@@ -1173,56 +1172,73 @@ function buildCapture(){
     ${secTitle('기본정보')}
     <table style="width:100%;border-collapse:collapse">
       <tbody>
-        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">평년수확량</td><td class="cap-td">${R.avgYield?fmt(R.avgYield)+' kg':'-'}</td>
-            <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td></tr>
-        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">가입주수</td><td class="cap-td">${R.totalReg?R.totalReg.toLocaleString()+' 주':'-'}</td>
-            <td class="cap-td" style="background:#EEF2F0;font-weight:700">실제결과주수</td><td class="cap-td">${R.totalActual?R.totalActual.toLocaleString()+' 주':'-'}</td></tr>
+        <tr>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">평년수확량</td><td class="cap-td">${R.avgYield?fmt(R.avgYield)+' kg':'-'}</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">가입주수</td><td class="cap-td">${R.totalReg?R.totalReg.toLocaleString()+' 주':'-'}</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">실제결과주수</td><td class="cap-td">${R.totalActual?R.totalActual.toLocaleString()+' 주':'-'}</td>
+        </tr>
       </tbody>
     </table>
 
     ${secTitle('1. 나무조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">가입<br>주수</th><th class="cap-th">실제결과<br>주수</th>
-        <th class="cap-th">고사<br>주수</th><th class="cap-th">미보상<br>주수</th><th class="cap-th">적정<br>표본수</th><th class="cap-th">표본<br>주수</th>
+        <th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">가입<br>주수</th>
+        <th class="cap-th">실제결과<br>주수</th>
+        <th class="cap-th">고사<br>주수</th>
+        <th class="cap-th">미보상<br>주수</th>
+        <th class="cap-th">적정<br>표본수</th>
+        <th class="cap-th">표본<br>주수</th>
       </tr></thead><tbody>${treeRows}</tbody>
     </table>
 
     ${secTitle('2. 재래종 표본조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">착과량<br>(g)</th><th class="cap-th">인정착과량<br>(g)</th>
+        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th>
+        <th class="cap-th">착과량<br>(g)</th>
+        <th class="cap-th">인정착과량<br>(g)</th>
       </tr></thead><tbody>${jjRows}</tbody>
     </table>
 
     ${secTitle('3. 사과대추 표본조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">착과수</th>
-        <th class="cap-th">낙과수</th><th class="cap-th">인정<br>착과수</th><th class="cap-th">개당<br>과중(g)</th><th class="cap-th">인정착과량<br>(g)</th>
+        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th>
+        <th class="cap-th">착과수</th>
+        <th class="cap-th">낙과수</th>
+        <th class="cap-th">인정<br>착과수</th>
+        <th class="cap-th">개당<br>과중(g)</th>
+        <th class="cap-th">인정착과량<br>(g)</th>
       </tr></thead><tbody>${apRows}</tbody>
     </table>
 
     ${secTitle('4. 사과대추 과중조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">품종</th><th class="cap-th">표본 과실수<br>(개)</th><th class="cap-th">표본과실 무게<br>(g)</th><th class="cap-th">개당과중<br>(g)</th>
+        <th class="cap-th">품종</th>
+        <th class="cap-th">표본 과실수<br>(개)</th>
+        <th class="cap-th">표본과실 무게<br>(g)</th>
+        <th class="cap-th">개당과중<br>(g)</th>
       </tr></thead><tbody>${wRows}</tbody>
     </table>
 
     ${secTitle('5. 조사결과')}
     <table style="width:100%;border-collapse:collapse">
       <tbody>
-        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">적용 평년수확량</td><td class="cap-td">${fmt(R.totalApplied)} kg</td>
-            <td class="cap-td" style="background:#EEF2F0;font-weight:700">조사수확량</td><td class="cap-td">${fmt(R.totalYield)} kg</td></tr>
-        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td>
-            <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상감수량</td><td class="cap-td">${fmt(R.totalUninsLoss)} kg</td></tr>
-        <tr><td class="cap-td" style="background:#5B7E3F;color:#fff;font-weight:800">피해율</td>
-            <td class="cap-td" colspan="3" style="font-weight:800;color:#e24b4a;font-size:16px">${R.rate.toFixed(2)} %</td></tr>
+        <tr>
+          <td class="cap-td" style="background:#5B7E3F;color:#fff;font-weight:800">피해율</td>
+          <td class="cap-td" style="font-weight:800;color:#e24b4a;font-size:16px">${R.rate.toFixed(2)} %</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">적용 평년수확량</td><td class="cap-td">${fmt(R.totalApplied)} kg</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">조사수확량</td><td class="cap-td">${fmt(R.totalYield)} kg</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상감수량</td><td class="cap-td">${fmt(R.totalUninsLoss)} kg</td>
+        </tr>
       </tbody>
     </table>
 
-    <div style="font-size:10px;color:#9aa;margin-top:12px;text-align:right">대추 피해율계산기 · 비가림과수 수확량조사 · 피해율=(평년-수확량-미보상감수량)÷평년</div>
+    <div style="margin-top:12px"></div>
   </div>`;
 }
 async function saveImage(){
