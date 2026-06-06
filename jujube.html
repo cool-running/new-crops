@@ -36,7 +36,7 @@
 body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-user-select:none;user-select:none}
 input,textarea,select{-webkit-user-select:text;user-select:text}
 
-.header{background:var(--blue);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
+.header{background:var(--main);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
 .back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .header h1{font-size:16px;font-weight:600}
@@ -64,18 +64,18 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
 
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s;text-align:center}
 select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:13px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s;text-align:center;text-align-last:center}
-input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(91,126,63,0.18)}
+input.inp:focus,select.inp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 select.inp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
-input.inp.filled:focus,select.inp.filled:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(91,126,63,0.18);background:var(--main-l);color:var(--main-d)}
+input.inp.filled:focus,select.inp.filled:focus{border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 
 .datewrap{position:relative;width:100%}
 .datewrap .date-disp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
 .datewrap.filled .date-disp{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 .datewrap .date-disp.ph{color:var(--hint);font-weight:400}
 .datewrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;margin:0;padding:0;cursor:pointer;z-index:2}
-.datewrap:focus-within .date-disp{border-color:var(--blue);box-shadow:0 0 0 3px rgba(91,126,63,0.18);background:var(--main-l);color:var(--main-d)}
+.datewrap:focus-within .date-disp{border-color:#185FA5;box-shadow:0 0 0 3px rgba(55,138,221,0.18);background:#dceeff;color:#185FA5}
 body.big-text .datewrap .date-disp{height:52px;font-size:16px;font-weight:800}
 
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:13px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
@@ -109,7 +109,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .tree-mini-btn.plus{border-color:var(--accent);color:var(--main-d)}
 .tree-mini-btn.minus{border-color:var(--red);color:var(--red)}
 .tinp{height:38px;border:1.5px solid var(--binp);border-radius:7px;text-align:center;font-size:13px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
-.tinp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(91,126,63,0.18);background:var(--main-l);color:var(--main-d)}
+.tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 .tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 .tree-no{font-size:9px;color:var(--hint);text-align:center;margin-top:1px}
 .sample-btn-row{display:flex;gap:8px;margin-top:8px}
@@ -412,11 +412,11 @@ function renderVarieties(){
       <div class="g3">
         <div class="field"><label>수령</label><span class="unit-badge">년</span><input class="inp ${v.age!==''?'filled':''}" inputmode="numeric" value="${v.age}" oninput="onF(${i},'age',this)"></div>
         <div class="field"><label>가입주수</label><input class="inp ${v.reg!==''?'filled':''}" inputmode="numeric" value="${v.reg}" oninput="onF(${i},'reg',this)"></div>
-        <div class="field"><label>실제결과주</label><input class="inp ${v.actual!==''?'filled':''}" inputmode="numeric" value="${v.actual}" oninput="onF(${i},'actual',this)"></div>
+        <div class="field"><label>실제결과주</label><input class="inp ${v.actual!==''?'filled':''}" inputmode="numeric" value="${v.actual}" oninput="onFsoft(${i},'actual',this)" onblur="syncSamples()"></div>
       </div>
       <div class="g3">
-        <div class="field"><label>미보상주</label><input class="inp ${v.unins!==''?'filled':''}" inputmode="numeric" value="${v.unins}" oninput="onF(${i},'unins',this)"></div>
-        <div class="field"><label>고사주</label><input class="inp ${v.dead!==''?'filled':''}" inputmode="numeric" value="${v.dead}" oninput="onF(${i},'dead',this)"></div>
+        <div class="field"><label>미보상주</label><input class="inp ${v.unins!==''?'filled':''}" inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="syncSamples()"></div>
+        <div class="field"><label>고사주</label><input class="inp ${v.dead!==''?'filled':''}" inputmode="numeric" value="${v.dead}" oninput="onFsoft(${i},'dead',this)" onblur="syncSamples()"></div>
         <div class="field"><label style="color:var(--sub)">조사대상주</label><input class="auto" id="v-survey-${i}" readonly></div>
       </div>
       <div class="auto-strip">
@@ -497,29 +497,39 @@ function toggleDmg(i){
 function onF(i,key,el){
   varieties[i][key]=el.value;
   markFilled(el);
-  // 실제결과주·미보상주·고사주 변경 시 → 적정표본주수만큼 표본칸 자동생성
-  if(key==='actual'||key==='unins'||key==='dead'){
-    const totalSurvey=varieties.reduce((s,v)=>{
-      const a=parseFloat(v.actual)||0,u=parseFloat(v.unins)||0,d=parseFloat(v.dead)||0;
-      return s+Math.max(0,a-u-d);
-    },0);
-    const sampN=totalSampleN(totalSurvey);
-    varieties.forEach(v=>{
-      const a=parseFloat(v.actual)||0,u=parseFloat(v.unins)||0,d=parseFloat(v.dead)||0;
-      const sv=Math.max(0,a-u-d);
-      const proper=sv>0&&totalSurvey>0?Math.ceil(sampN*sv/totalSurvey):0;
-      if(proper>0){
-        while(v.trees.length<proper)v.trees.push('');
-        while(v.trees.length>proper){
-          const emptyIdx=v.trees.map((t,ti)=>t===''?ti:-1).filter(ti=>ti>=0).pop();
-          if(emptyIdx!==undefined&&emptyIdx>=0)v.trees.splice(emptyIdx,1);
-          else v.trees.pop();
-        }
-      }else if(v.trees.length===0){ v.trees.push(''); }
-    });
-    renderVarieties();calc();saveState();return;
-  }
   calc();
+}
+// 타이핑 중: 값만 저장하고 계산 갱신 (리렌더 안 함 → 포커스 유지)
+function onFsoft(i,key,el){
+  varieties[i][key]=el.value;
+  markFilled(el);
+  // 조사대상주만 실시간 갱신 (칸 다시 안 그림)
+  const a=parseFloat(varieties[i].actual)||0,u=parseFloat(varieties[i].unins)||0,d=parseFloat(varieties[i].dead)||0;
+  const sv=Math.max(0,a-u-d);
+  const se=$(`v-survey-${i}`); if(se) se.value=sv>0?sv.toLocaleString():'';
+  saveState();
+}
+// 칸 벗어날 때: 적정표본주수만큼 표본칸 자동생성
+function syncSamples(){
+  const totalSurvey=varieties.reduce((s,v)=>{
+    const a=parseFloat(v.actual)||0,u=parseFloat(v.unins)||0,d=parseFloat(v.dead)||0;
+    return s+Math.max(0,a-u-d);
+  },0);
+  const sampN=totalSampleN(totalSurvey);
+  varieties.forEach(v=>{
+    const a=parseFloat(v.actual)||0,u=parseFloat(v.unins)||0,d=parseFloat(v.dead)||0;
+    const sv=Math.max(0,a-u-d);
+    const proper=sv>0&&totalSurvey>0?Math.ceil(sampN*sv/totalSurvey):0;
+    if(proper>0){
+      while(v.trees.length<proper)v.trees.push('');
+      while(v.trees.length>proper){
+        const emptyIdx=v.trees.map((t,ti)=>t===''?ti:-1).filter(ti=>ti>=0).pop();
+        if(emptyIdx!==undefined&&emptyIdx>=0)v.trees.splice(emptyIdx,1);
+        else v.trees.pop();
+      }
+    }else if(v.trees.length===0){ v.trees.push(''); }
+  });
+  renderVarieties();calc();saveState();
 }
 function onTree(i,ti,el){varieties[i].trees[ti]=el.value;markFilled(el);calc();}
 function addVariety(){if(_locked)return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
