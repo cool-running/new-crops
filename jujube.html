@@ -100,6 +100,14 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .dmg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
 .dmg-grid .field label{font-size:10px;text-align:center}
 .subtitle{font-size:11px;font-weight:700;color:var(--blue);margin:10px 0 4px}
+.dmg-box{background:#FFF8F0;border:1.5px solid #F0D8B8;border-radius:10px;padding:10px;margin-top:8px}
+.dmg-box-title{font-size:11px;font-weight:700;color:#b5650a;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.dmg-rate-badge{font-size:13px;font-weight:800;color:#b5650a;background:#FFE9CC;padding:3px 9px;border-radius:8px;white-space:nowrap}
+.dmg-rate-badge.zero{color:var(--hint);background:var(--auto);font-weight:600}
+.dmg-box.drop{background:#F0F5FF;border-color:#BDD0EE}
+.dmg-box.drop .dmg-box-title{color:#185FA5}
+.dmg-box.drop .dmg-rate-badge{color:#185FA5;background:#D8EAFF}
+.dmg-box.drop .dmg-rate-badge.zero{color:var(--hint);background:var(--auto)}
 .warn{font-size:11px;color:var(--red);font-weight:700;margin-top:4px;display:none}
 .add-v-btn{width:100%;height:42px;border:1.5px dashed var(--blue);background:#EBF4FF;border-radius:var(--rs);font-size:14px;color:var(--blue);font-weight:700;cursor:pointer;margin-top:4px}
 
@@ -307,7 +315,8 @@ const $=id=>document.getElementById(id);
 
 function newVariety(){
   return {group:'',cat:'',age:'',reg:'',actual:'',unins:'',dead:'',
-    trees:['','',''],normal:'',p50:'',p80:'',p100:'',fcount:'',fweight:''};
+    trees:['','',''],normal:'',p50:'',p80:'',p100:'',fcount:'',fweight:'',
+    dn:'',dp50:'',dp80:'',dp100:''};
 }
 
 /* ───────── 공통 유틸 ───────── */
@@ -394,12 +403,29 @@ function renderVarieties(){
           <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" value="${v.fweight}" oninput="onF(${i},'fweight',this)"></div>
           <div class="field"><label style="color:#4a7aad">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
         </div>`:''}
-      <div class="subtitle">착과피해 구성 ${ap?'(개수)':'(무게 g)'}</div>
-      <div class="dmg-grid">
-        <div class="field"><label>정상</label><input class="tinp ${v.normal!==''?'filled':''}" inputmode="decimal" value="${v.normal}" oninput="onF(${i},'normal',this)"></div>
-        <div class="field"><label>50%형</label><input class="tinp ${v.p50!==''?'filled':''}" inputmode="decimal" value="${v.p50}" oninput="onF(${i},'p50',this)"></div>
-        <div class="field"><label>80%형</label><input class="tinp ${v.p80!==''?'filled':''}" inputmode="decimal" value="${v.p80}" oninput="onF(${i},'p80',this)"></div>
-        <div class="field"><label>100%형</label><input class="tinp ${v.p100!==''?'filled':''}" inputmode="decimal" value="${v.p100}" oninput="onF(${i},'p100',this)"></div>
+      <div class="dmg-box">
+        <div class="dmg-box-title">
+          <span>🍂 착과피해 구성 ${ap?'(개수)':'(무게 g)'}</span>
+          <span class="dmg-rate-badge zero" id="v-dmg-badge-${i}">피해구성률 -</span>
+        </div>
+        <div class="dmg-grid">
+          <div class="field"><label>정상</label><input class="tinp ${v.normal!==''?'filled':''}" inputmode="decimal" value="${v.normal}" oninput="onF(${i},'normal',this)"></div>
+          <div class="field"><label>50%형</label><input class="tinp ${v.p50!==''?'filled':''}" inputmode="decimal" value="${v.p50}" oninput="onF(${i},'p50',this)"></div>
+          <div class="field"><label>80%형</label><input class="tinp ${v.p80!==''?'filled':''}" inputmode="decimal" value="${v.p80}" oninput="onF(${i},'p80',this)"></div>
+          <div class="field"><label>100%형</label><input class="tinp ${v.p100!==''?'filled':''}" inputmode="decimal" value="${v.p100}" oninput="onF(${i},'p100',this)"></div>
+        </div>
+      </div>
+      <div class="dmg-box drop">
+        <div class="dmg-box-title">
+          <span>🌧 낙과피해 구성 ${ap?'(개수)':'(무게 g)'}</span>
+          <span class="dmg-rate-badge zero" id="v-ddmg-badge-${i}">피해구성률 -</span>
+        </div>
+        <div class="dmg-grid">
+          <div class="field"><label>정상</label><input class="tinp ${(v.dn||'')!==''?'filled':''}" inputmode="decimal" value="${v.dn||''}" oninput="onF(${i},'dn',this)"></div>
+          <div class="field"><label>50%형</label><input class="tinp ${(v.dp50||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp50||''}" oninput="onF(${i},'dp50',this)"></div>
+          <div class="field"><label>80%형</label><input class="tinp ${(v.dp80||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp80||''}" oninput="onF(${i},'dp80',this)"></div>
+          <div class="field"><label>100%형</label><input class="tinp ${(v.dp100||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp100||''}" oninput="onF(${i},'dp100',this)"></div>
+        </div>
       </div>
       <div class="auto-strip" style="margin-top:8px">
         <div class="g2" style="margin-bottom:0">
@@ -452,6 +478,8 @@ function computeAll(){
     const per=tv.length?r4(tv.reduce((a,b)=>a+b,0)/tv.length):0;
     const nm=parseFloat(v.normal)||0,d5=parseFloat(v.p50)||0,d8=parseFloat(v.p80)||0,d10=parseFloat(v.p100)||0;
     const denom=nm+d5+d8+d10, dmg=denom>0?(d5*0.5+d8*0.8+d10)/denom:0;
+    const dn=parseFloat(v.dn)||0,dp5=parseFloat(v.dp50)||0,dp8=parseFloat(v.dp80)||0,dp10=parseFloat(v.dp100)||0;
+    const ddenom=dn+dp5+dp8+dp10, ddmg=ddenom>0?(dp5*0.5+dp8*0.8+dp10)/ddenom:0;
     const fc=parseFloat(v.fcount)||0,fw=parseFloat(v.fweight)||0;
     const weight=r.ap?(fc>0?r4(fw/fc):0):1;
 
@@ -463,7 +491,7 @@ function computeAll(){
     totalApplied+=F; totalYield+=yld; totalUninsLoss+=uninsLoss;
     if(proper>0&&tv.length>0&&tv.length<proper)anyShort=true;
 
-    r.calc={proper,F,N,per,dmg,weight,yld,uninsLoss,sampleCnt:tv.length};
+    r.calc={proper,F,N,per,dmg,ddmg,weight,yld,uninsLoss,sampleCnt:tv.length};
   });
 
   totalApplied=r4(totalApplied);
@@ -493,6 +521,12 @@ function calc(){
     set(`v-pavg-${i}`,c.F?fmt(c.F)+'kg':'');
     set(`v-yield-${i}`,(R.avgYield&&c.sampleCnt>0)?fmt(c.yld)+'kg':'');
     const w=$(`v-warn-${i}`); if(w)w.style.display=(c.proper>0&&c.sampleCnt>0&&c.sampleCnt<c.proper)?'block':'none';
+    // 착과피해 뱃지
+    const cb=$(`v-dmg-badge-${i}`);
+    if(cb){const hasCdmg=parseFloat(v.normal)||parseFloat(v.p50)||parseFloat(v.p80)||parseFloat(v.p100);if(hasCdmg){cb.textContent=`착과피해 ${(c.dmg*100).toFixed(1)}%`;cb.className='dmg-rate-badge'+(c.dmg>0?'':' zero');}else{cb.textContent='피해구성률 -';cb.className='dmg-rate-badge zero';}}
+    // 낙과피해 뱃지
+    const db=$(`v-ddmg-badge-${i}`);
+    if(db){const hasDdmg=parseFloat(v.dn)||parseFloat(v.dp50)||parseFloat(v.dp80)||parseFloat(v.dp100);if(hasDdmg){db.textContent=`낙과피해 ${(c.ddmg*100).toFixed(1)}%`;db.className='dmg-rate-badge drop'+(c.ddmg>0?'':' zero');}else{db.textContent='피해구성률 -';db.className='dmg-rate-badge zero';}}
   });
 
   const box=$('result-section'),pctEl=$('result-pct'),detail=$('result-detail');
@@ -659,6 +693,7 @@ function buildCapture(){
       <td class="cap-td">${c.sampleCnt}/${c.proper}</td>
       <td class="cap-td">${r.ap?fmt(c.per):fmt(c.per)+'g'}</td>
       <td class="cap-td">${(c.dmg*100).toFixed(1)}%</td>
+      <td class="cap-td">${(c.ddmg*100).toFixed(1)}%</td>
       <td class="cap-td">${fmt(c.F)}</td>
       <td class="cap-td">${fmt(c.yld)}</td></tr>`;
   });
@@ -678,7 +713,7 @@ function buildCapture(){
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
         <th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">조사대상</th><th class="cap-th">표본/적정</th>
-        <th class="cap-th">주당착과</th><th class="cap-th">피해율</th><th class="cap-th">평년수확</th><th class="cap-th">수확량</th>
+        <th class="cap-th">주당착과</th><th class="cap-th">착과피해</th><th class="cap-th">낙과피해</th><th class="cap-th">평년수확</th><th class="cap-th">수확량</th>
       </tr></thead><tbody>${rowHtml}</tbody>
     </table>
     <div style="font-size:10px;color:#9aa;margin-top:10px;text-align:right">대추 피해율계산기 · 비가림과수 수확량조사 · 피해율=(평년-수확량-미보상감수량)÷평년</div>
