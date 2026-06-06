@@ -63,12 +63,20 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확개시 전</div>
   </div>
 
+  <div class="crop-card done" onclick="go('jujube')">
+    <span class="badge badge-done">완성</span>
+    <div class="crop-icon">🫐</div>
+    <div class="crop-name">대추</div>
+    <div class="crop-desc">비가림과수 · 수확량조사</div>
+  </div>
+
 </div>
 
 <script>
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
   if(page==='chestnut')    location.href='./chestnut.html';
+  if(page==='jujube')      location.href='./jujube.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
