@@ -112,9 +112,12 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 .tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 .tree-no{font-size:9px;color:var(--hint);text-align:center;margin-top:1px}
-.tree-locked{margin-top:10px;padding:14px 12px;background:var(--auto);border:1.5px dashed var(--border);border-radius:10px;color:var(--sub);font-size:12px;text-align:center;line-height:1.7}
-.tree-locked b{color:var(--main-d);font-weight:800}
 .warn.over{color:var(--sub)!important;font-weight:600}
+.btn-finish-tree{width:100%;height:52px;border:none;border-radius:var(--rs);background:var(--main);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(91,126,63,0.30)}
+.phase-hint{font-size:11px;color:var(--sub);text-align:center;line-height:1.6;margin-top:8px;padding:0 8px}
+.btn-edit-tree{width:100%;height:42px;border:1.5px dashed var(--green);background:#fff;color:var(--green);border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer}
+.tree-field:disabled,select.tree-field:disabled{background:#f1f0ec!important;color:#555!important;-webkit-text-fill-color:#555;opacity:1}
+.phase-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;background:var(--main-l);color:var(--main);margin-left:6px}
 .sample-btn-row{display:flex;gap:8px;margin-top:8px}
 .add-btn{flex:1;height:34px;border:1.5px dashed var(--accent);background:var(--main-l);border-radius:var(--rs);font-size:12px;color:var(--main-d);font-weight:600;cursor:pointer}
 .del-sample-btn{flex:1;height:34px;border:1.5px solid var(--red);background:#FFF5F5;border-radius:var(--rs);font-size:12px;color:var(--red);font-weight:600;cursor:pointer}
@@ -227,12 +230,15 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title" style="margin-bottom:0">품종별 나무·착과 조사 <span id="vcount" style="color:var(--main);font-weight:700"></span></div>
+      <div class="sec-title" style="margin-bottom:0">품종별 나무·착과 조사 <span id="vcount" style="color:var(--main);font-weight:700"></span><span class="phase-tag" id="phase-tag"></span></div>
     </div>
     <div id="variety-list"></div>
-    <div style="display:flex;gap:8px">
+    <div id="tree-add-row" style="display:flex;gap:8px">
       <button class="add-v-btn" onclick="addVariety()" style="flex:1">＋ 품종 추가</button>
       <button class="del-v-btn" onclick="delVariety(varieties.length-1)" style="flex:1">－ 품종 삭제</button>
+    </div>
+    <div id="edit-tree-row" style="display:none">
+      <button class="btn-edit-tree" onclick="backToTreeSurvey()">✏️ 나무조사 수정 (주수 변경)</button>
     </div>
     <div class="auto-strip" style="margin-top:10px">
       <div class="g3" style="margin-bottom:0">
@@ -243,6 +249,12 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
     </div>
   </div>
 
+  <div id="phase-tree-actions">
+    <button class="btn-finish-tree" onclick="finishTreeSurvey()">✅ 나무조사 완료 &nbsp;›&nbsp; 표본 착과조사 시작</button>
+    <div class="phase-hint">모든 품종의 주수를 입력한 뒤 누르세요. 적정표본수가 확정되고 표본 착과칸이 생성됩니다.</div>
+  </div>
+
+  <div id="phase-fruit-block" style="display:none">
   <div class="calc-action-row">
     <button class="btn-edit active" id="btn-edit" onclick="setEditMode()">✏️ 수정하기</button>
     <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🔒 계산하기</button>
@@ -271,6 +283,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
     <div class="drow"><span class="dl">미보상감수량</span><span class="dv" id="d-unins">-</span></div>
     <div class="drow"><span class="dl">계약변경</span><span class="dv" id="d-contract">-</span></div>
     <div class="drow"><span class="dl">피해율</span><span class="dv" id="d-rate" style="color:var(--red)">-</span></div>
+  </div>
   </div>
 
 </div>
@@ -351,6 +364,7 @@ const fmt=v=>{const r=Math.round(v*10000)/10000;return r.toLocaleString('ko-KR',
 /* ───────── 상태 ───────── */
 let varieties=[];
 let _locked=false;
+let _phase='tree';   // 'tree' = 나무조사 입력, 'fruit' = 표본 착과조사 입력
 const $=id=>document.getElementById(id);
 
 function newVariety(){
@@ -382,6 +396,7 @@ function showToast(m){const t=$('toast');t.textContent=m;t.classList.add('show')
 /* ───────── 품종 카드 렌더 ───────── */
 function renderVarieties(){
   const wrap=$('variety-list'); wrap.innerHTML='';
+  const fruit=(_phase==='fruit');        // 표본 착과조사 단계 여부
   varieties.forEach((v,i)=>{
     const group=v.cat?(isApple(v.cat)?'ap':'jc'):(v.group||'');
     const ap = v.cat ? isApple(v.cat) : (group==='ap');
@@ -398,16 +413,28 @@ function renderVarieties(){
     for(const k in SUBS)sopts+=`<option value="${k}" ${v.cat===k?'selected':''}>${SUBS[k]}</option>`;
     const subLabel=group==='ap'?'품종':'지역';
     const typeBadge=group?`<span class="vtype ${group==='ap'?'ap':'jc'}">${group==='ap'?'사과대추':'재래'}</span>`:'';
-    let treeHtml='';
-    v.trees.forEach((t,ti)=>{
-      treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" value="${t}" placeholder="${ti+1}" oninput="onTree(${i},${ti},this)"><div class="tree-no">표본${ti+1}</div></div>`;
-    });
     const treeLabel=ap?'표본주별 착과수 (개)':'표본주별 착과량 (g)';
     const perLabel=ap?'주당착과수':'주당착과량(g)';
-    const _sv=Math.max(0,(parseFloat(v.actual)||0)-(parseFloat(v.unins)||0)-(parseFloat(v.dead)||0));
-    const _hasTree=v.trees.some(t=>String(t).trim()!=='');
-    const _ready=_sv>0||_hasTree;   // 조사대상주(주수)가 있어야 표본 입력칸 노출
-    const sampleBlock=_ready?`
+    // 나무조사 단계에서는 입력 허용, 표본단계에서는 잠금(disabled)
+    const dis = fruit?'disabled':'';
+
+    // ── 적정표본 미리보기/확정 스트립 ──
+    const properStrip = fruit
+      ? `<div class="auto-strip"><div class="g3" style="margin-bottom:0">
+          <div class="field"><label style="color:var(--sub)">적정표본</label><input class="auto" id="v-proper-${i}" readonly></div>
+          <div class="field"><label style="color:var(--sub)">${perLabel}</label><input class="auto" id="v-per-${i}" readonly></div>
+          <div class="field"><label style="color:var(--sub)">피해구성률</label><input class="auto" id="v-dmg-${i}" readonly></div>
+        </div></div>`
+      : `<div class="auto-strip"><div class="field" style="margin:0"><label style="color:var(--sub)">적정표본 (예상)</label><input class="auto" id="v-proper-${i}" readonly></div></div>`;
+
+    // ── 표본 착과조사 (표본단계에서만) ──
+    let fruitHtml='';
+    if(fruit){
+      let treeHtml='';
+      v.trees.forEach((t,ti)=>{
+        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" value="${t}" placeholder="${ti+1}" oninput="onTree(${i},${ti},this)"><div class="tree-no">표본${ti+1}</div></div>`;
+      });
+      fruitHtml=`
       <div class="tree-head">
         <div class="subtitle" style="margin:0">${treeLabel}</div>
         <div class="tree-btns">
@@ -422,34 +449,7 @@ function renderVarieties(){
           <div class="field"><label>표본 과실수</label><span class="unit-badge">개</span><input class="inp ${v.fcount!==''?'filled':''}" inputmode="numeric" value="${v.fcount}" oninput="onF(${i},'fcount',this)"></div>
           <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" value="${v.fweight}" oninput="onF(${i},'fweight',this)"></div>
           <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
-        </div>`:''}`
-    :`<div class="tree-locked">🔒 먼저 <b>주수</b>(실제결과주 등)를 입력하세요<br>주수를 넣으면 적정표본 칸이 자동으로 만들어집니다</div>`;
-    card.innerHTML=`
-      <div class="vcard-head">
-        <div class="vbadge">${i+1}</div>${typeBadge}
-      </div>
-      <div class="g2" style="margin-bottom:8px">
-        <div class="field"><label>구분</label><select class="inp ${group?'filled':''}" onchange="onGroup(${i},this)">${gopts}</select></div>
-        <div class="field"><label>${subLabel}</label><select class="inp ${v.cat?'filled':''}" ${group?'':'disabled'} onchange="onSub(${i},this)">${sopts}</select></div>
-      </div>
-      <div class="g3">
-        <div class="field"><label>수령</label><span class="unit-badge">년</span><input class="inp ${v.age!==''?'filled':''}" inputmode="numeric" value="${v.age}" oninput="onF(${i},'age',this)"></div>
-        <div class="field"><label>가입주수</label><input class="inp ${v.reg!==''?'filled':''}" inputmode="numeric" value="${v.reg}" oninput="onF(${i},'reg',this)"></div>
-        <div class="field"><label>실제결과주</label><input class="inp ${v.actual!==''?'filled':''}" inputmode="numeric" value="${v.actual}" oninput="onFsoft(${i},'actual',this)" onblur="syncSamples()"></div>
-      </div>
-      <div class="g3">
-        <div class="field"><label>미보상주</label><input class="inp ${v.unins!==''?'filled':''}" inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="syncSamples()"></div>
-        <div class="field"><label>고사주</label><input class="inp ${v.dead!==''?'filled':''}" inputmode="numeric" value="${v.dead}" oninput="onFsoft(${i},'dead',this)" onblur="syncSamples()"></div>
-        <div class="field"><label style="color:var(--sub)">조사대상주</label><input class="auto" id="v-survey-${i}" readonly></div>
-      </div>
-      <div class="auto-strip">
-        <div class="g3" style="margin-bottom:0">
-          <div class="field"><label style="color:var(--sub)">적정표본</label><input class="auto" id="v-proper-${i}" readonly></div>
-          <div class="field"><label style="color:var(--sub)">${perLabel}</label><input class="auto" id="v-per-${i}" readonly></div>
-          <div class="field"><label style="color:var(--sub)">피해구성률</label><input class="auto" id="v-dmg-${i}" readonly></div>
-        </div>
-      </div>
-      ${sampleBlock}
+        </div>`:''}
       <div class="dmg-toggle-row ${v.dmgOpen?'on':''}" onclick="toggleDmg(${i})">
         <label class="sw" onclick="event.stopPropagation()">
           <input type="checkbox" ${v.dmgOpen?'checked':''} onchange="toggleDmg(${i})">
@@ -488,10 +488,32 @@ function renderVarieties(){
           <div class="field"><label style="color:var(--main)">품종 수확량</label><input class="auto" id="v-yield-${i}" readonly></div>
         </div>
       </div>`;
+    }
+
+    card.innerHTML=`
+      <div class="vcard-head">
+        <div class="vbadge">${i+1}</div>${typeBadge}
+      </div>
+      <div class="g2" style="margin-bottom:8px">
+        <div class="field"><label>구분</label><select class="inp tree-field ${group?'filled':''}" ${dis} onchange="onGroup(${i},this)">${gopts}</select></div>
+        <div class="field"><label>${subLabel}</label><select class="inp tree-field ${v.cat?'filled':''}" ${(group&&!fruit)?'':'disabled'} onchange="onSub(${i},this)">${sopts}</select></div>
+      </div>
+      <div class="g3">
+        <div class="field"><label>수령</label><span class="unit-badge">년</span><input class="inp tree-field ${v.age!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.age}" oninput="onF(${i},'age',this)"></div>
+        <div class="field"><label>가입주수</label><input class="inp tree-field ${v.reg!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.reg}" oninput="onF(${i},'reg',this)"></div>
+        <div class="field"><label>실제결과주</label><input class="inp tree-field ${v.actual!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.actual}" oninput="onFsoft(${i},'actual',this)" onblur="onTreeBlur()"></div>
+      </div>
+      <div class="g3">
+        <div class="field"><label>미보상주</label><input class="inp tree-field ${v.unins!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="onTreeBlur()"></div>
+        <div class="field"><label>고사주</label><input class="inp tree-field ${v.dead!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.dead}" oninput="onFsoft(${i},'dead',this)" onblur="onTreeBlur()"></div>
+        <div class="field"><label style="color:var(--sub)">조사대상주</label><input class="auto" id="v-survey-${i}" readonly></div>
+      </div>
+      ${properStrip}
+      ${fruitHtml}`;
     wrap.appendChild(card);
   });
   $('vcount').textContent=varieties.length?`(${varieties.length}품종)`:'';
-  if(_locked)lockInputs(true);
+  lockInputs(_locked);
 }
 
 function onGroup(i,el){varieties[i].group=el.value;varieties[i].cat='';renderVarieties();calc();saveState();}
@@ -518,8 +540,8 @@ function onFsoft(i,key,el){
   const se=$(`v-survey-${i}`); if(se) se.value=sv>0?sv.toLocaleString():'';
   saveState();
 }
-// 칸 벗어날 때: 적정표본주수만큼 표본칸 자동생성
-function syncSamples(){
+// 적정표본수만큼 표본칸 배정 (입력값 보존 — 빈 칸만 정리)
+function allocateSamples(){
   const totalSurvey=varieties.reduce((s,v)=>{
     const a=parseFloat(v.actual)||0,u=parseFloat(v.unins)||0,d=parseFloat(v.dead)||0;
     return s+Math.max(0,a-u-d);
@@ -531,9 +553,7 @@ function syncSamples(){
     const proper=sv>0&&totalSurvey>0?Math.ceil(sampN*sv/totalSurvey):0;
     const filled=v.trees.filter(t=>String(t).trim()!=='').length;
     if(proper>0){
-      // 부족하면 빈 칸 추가
       while(v.trees.length<proper)v.trees.push('');
-      // 초과 시 '빈 칸'만 제거 — 이미 입력한 표본값은 절대 삭제하지 않음
       while(v.trees.length>proper && v.trees.length>filled && v.trees.length>1){
         const emptyIdx=v.trees.map((t,ti)=>String(t).trim()===''?ti:-1).filter(ti=>ti>=0).pop();
         if(emptyIdx===undefined)break;
@@ -541,11 +561,52 @@ function syncSamples(){
       }
     }else if(v.trees.length===0){ v.trees.push(''); }
   });
-  renderVarieties();calc();saveState();
+}
+function syncSamples(){ allocateSamples(); renderVarieties(); calc(); saveState(); }
+
+// 나무조사 단계에서 주수 칸을 벗어날 때: 표본칸은 만들지 않고 미리보기만 갱신
+function onTreeBlur(){
+  if(_phase==='tree'){ calc(); saveState(); }
+  else { syncSamples(); }
+}
+
+// 단계별 화면 토글
+function setPhaseUI(){
+  const tree=(_phase==='tree');
+  $('tree-add-row').style.display   = tree?'flex':'none';
+  $('edit-tree-row').style.display  = tree?'none':'block';
+  $('phase-tree-actions').style.display = tree?'block':'none';
+  $('phase-fruit-block').style.display  = tree?'none':'block';
+  const tag=$('phase-tag'); if(tag)tag.textContent=tree?'1단계 · 나무조사':'2단계 · 표본 착과';
+}
+
+// ① 나무조사 완료 → 적정표본 확정 + 표본칸 생성 → 표본단계
+function finishTreeSurvey(){
+  vibrate(30);
+  const miss=[];
+  if(!varieties.every(v=>v.cat)) miss.push('구분·지역');
+  if(!varieties.every(v=>(parseFloat(v.actual)||0)>0)) miss.push('실제결과주');
+  const totalSurvey=varieties.reduce((s,v)=>s+Math.max(0,(parseFloat(v.actual)||0)-(parseFloat(v.unins)||0)-(parseFloat(v.dead)||0)),0);
+  if(totalSurvey<=0 && !miss.includes('실제결과주')) miss.push('주수');
+  if(miss.length){ showToast('나무조사 미입력: '+[...new Set(miss)].join(', ')); return; }
+  allocateSamples();           // 적정표본수만큼 표본칸 확정
+  _phase='fruit';
+  renderVarieties(); setPhaseUI(); calc(); saveState();
+  showToast('나무조사 완료 — 표본 착과조사를 입력하세요');
+  const first=$('tree-grid-0'); if(first&&first.scrollIntoView)first.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ② 나무조사 수정 → 표본단계 해제 (입력한 표본값은 보존, 칸만 접힘)
+function backToTreeSurvey(){
+  vibrate(30);
+  if(_locked) setEditMode(true);
+  _phase='tree';
+  renderVarieties(); setPhaseUI(); calc(); saveState();
+  showToast('나무조사 수정 — 주수를 변경할 수 있습니다');
 }
 function onTree(i,ti,el){varieties[i].trees[ti]=el.value;markFilled(el);calc();}
-function addVariety(){if(_locked)return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
-function delVariety(i){if(_locked)return;if(varieties.length<=1){showToast('최소 1개 품종이 필요합니다');return;}varieties.splice(i,1);renderVarieties();calc();saveState();}
+function addVariety(){if(_locked||_phase!=='tree')return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
+function delVariety(i){if(_locked||_phase!=='tree')return;if(varieties.length<=1){showToast('최소 1개 품종이 필요합니다');return;}varieties.splice(i,1);renderVarieties();calc();saveState();}
 function addTree(i){if(_locked)return;if(varieties[i].trees.length>=16){showToast('표본주는 최대 16개');return;}varieties[i].trees.push('');renderVarieties();calc();}
 function delTree(i){if(_locked)return;if(varieties[i].trees.length<=1)return;varieties[i].trees.pop();renderVarieties();calc();}
 
@@ -689,7 +750,10 @@ function setEditMode(silent){
 function lockInputs(lock){
   document.querySelectorAll('.content input, .content select').forEach(el=>{
     if(el.classList.contains('auto'))return;
-    el.disabled=lock;el.style.opacity=lock?'0.85':'1';
+    let dis=lock;
+    // 표본 착과조사 단계에서는 나무조사 칸을 항상 잠금 (적정표본 흔들림 방지)
+    if(_phase==='fruit'&&el.classList.contains('tree-field'))dis=true;
+    el.disabled=dis;el.style.opacity=dis?'0.85':'1';
   });
 }
 
@@ -708,8 +772,10 @@ function confirmReset(){
   closeResetModal();
   ['farm_no','avg_yield','unins_rate'].forEach(id=>{$(id).value='';$(id).classList.remove('filled');});
   $('survey_date').value=new Date().toLocaleDateString('en-CA');syncDate($('survey_date'));
-  varieties=[newVariety()];renderVarieties();
-  if(_locked)setEditMode(true);
+  varieties=[newVariety()];
+  _locked=false;_phase='tree';
+  renderVarieties();setPhaseUI();
+  setEditMode(true);
   calc();showToast('초기화되었습니다');
 }
 
@@ -718,7 +784,7 @@ function saveState(){
   try{
     localStorage.setItem('jujube_state',JSON.stringify({
       farm:$('farm_no').value,date:$('survey_date').value,
-      avg:$('avg_yield').value,unins:$('unins_rate').value,varieties,locked:_locked}));
+      avg:$('avg_yield').value,unins:$('unins_rate').value,varieties,locked:_locked,phase:_phase}));
   }catch(e){}
 }
 function loadState(){
@@ -730,6 +796,7 @@ function loadState(){
       $('unins_rate').value=s.unins||'';markFilled($('unins_rate'));
       $('survey_date').value=s.date||'';syncDate($('survey_date'));
       varieties=s.varieties.map(v=>Object.assign(newVariety(),v));
+      _phase=s.phase==='fruit'?'fruit':'tree';
       return true;
     }
   }catch(e){}
@@ -788,7 +855,9 @@ function loadHistory(idx){
   $('survey_date').value=r.date||'';syncDate($('survey_date'));
   varieties=(r.varieties||[newVariety()]).map(v=>Object.assign(newVariety(),v));
   if(_locked)setEditMode(true);
-  renderVarieties();calc();closeHistoryModal();showToast('불러왔습니다');
+  // 불러온 기록은 표본 착과조사까지 끝난 상태로 본다
+  _phase=varieties.some(v=>v.trees&&v.trees.some(t=>String(t).trim()!==''))?'fruit':'tree';
+  renderVarieties();setPhaseUI();calc();closeHistoryModal();showToast('불러왔습니다');
 }
 function deleteHistory(idx){
   let recs=[];try{recs=JSON.parse(localStorage.getItem('jujube_history')||'[]');}catch(e){}
@@ -852,7 +921,7 @@ async function saveImage(){
 document.addEventListener('DOMContentLoaded',()=>{
   if(!loadState())varieties=[newVariety()];
   if(!$('survey_date').value){$('survey_date').value=new Date().toLocaleDateString('en-CA');syncDate($('survey_date'));}
-  renderVarieties();calc();
+  renderVarieties();setPhaseUI();calc();
 });
 </script>
 </body>
