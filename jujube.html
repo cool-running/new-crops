@@ -177,6 +177,15 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .mb-cancel{background:#eee;color:var(--sub)}
 .mb-ok{background:var(--red);color:#fff}
 .hist-list{overflow-y:auto;flex:1;margin:4px 0 12px}
+/* 이미지 미리보기 모달 */
+.preview-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:600;padding:16px;flex-direction:column;gap:12px}
+.preview-modal-bg.show{display:flex}
+.preview-img-wrap{background:#fff;border-radius:12px;overflow:hidden;max-width:100%;max-height:70vh;display:flex;align-items:center;justify-content:center}
+.preview-img-wrap img{max-width:100%;max-height:70vh;display:block}
+.preview-btns{display:flex;gap:10px;width:100%;max-width:480px}
+.preview-btns button{flex:1;height:48px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none}
+.pbtn-cancel{background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.4)!important}
+.pbtn-save{background:var(--main);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.4)}
 
 .cap-th{background:var(--main);color:#fff;font-size:12px;font-weight:700;padding:7px 4px;border:1px solid #cfd8e0;text-align:center}
 .cap-td{font-size:12px;padding:6px 4px;border:1px solid #cfd8e0;text-align:center;background:#fff;color:#111}
@@ -186,8 +195,8 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .cmp-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12px;background:#fff}
 .cmp-table th,.cmp-table td{border:0.5px solid var(--border);padding:7px 3px;text-align:center;white-space:nowrap;overflow:hidden}
 .cmp-table thead th{background:var(--main);color:#fff;font-weight:700}
-.cmp-table thead th.corner{position:sticky;left:0;z-index:3;background:var(--main-d);width:70px}
-.cmp-table thead th.sumcol{background:var(--main-d);width:70px}
+.cmp-table thead th.corner{position:sticky;left:0;z-index:3;background:var(--main-d);width:56px}
+.cmp-table thead th.sumcol{background:var(--main-d);width:56px}
 .cmp-table .rowlabel{background:var(--main-l);color:var(--main-d);font-weight:700;text-align:center;position:sticky;left:0;z-index:2;white-space:normal;word-break:keep-all;line-height:1.2}
 .cmp-table td.sumcol{background:var(--auto);font-weight:800;color:var(--main-d)}
 .cmp-table tbody tr:nth-child(even) td:not(.rowlabel):not(.sumcol){background:#FAFAF7}
@@ -316,6 +325,17 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- 이미지 미리보기 팝업 -->
+<div class="preview-modal-bg" id="previewModal" onclick="closePreview(event)">
+  <div class="preview-img-wrap" id="previewImgWrap">
+    <img id="previewImg" src="" alt="미리보기">
+  </div>
+  <div class="preview-btns">
+    <button class="pbtn-cancel" onclick="closePreviewModal()">✕ 닫기</button>
+    <button class="pbtn-save" id="previewSaveBtn" onclick="doSaveImage()">💾 저장</button>
+  </div>
+</div>
 
 <div class="modal-bg" id="resetModal">
   <div class="modal">
@@ -1225,15 +1245,19 @@ function buildCapture(){
     </table>
 
     ${secTitle('5. 조사결과')}
-    <table style="width:100%;border-collapse:collapse">
+    <table style="width:100%;border-collapse:collapse;table-layout:fixed">
       <tbody>
-        <tr>
-          <td class="cap-td" style="background:#5B7E3F;color:#fff;font-weight:800">피해율</td>
-          <td class="cap-td" style="font-weight:800;color:#e24b4a;font-size:16px">${R.rate.toFixed(2)} %</td>
-          <td class="cap-td" style="background:#EEF2F0;font-weight:700">적용 평년수확량</td><td class="cap-td">${fmt(R.totalApplied)} kg</td>
-          <td class="cap-td" style="background:#EEF2F0;font-weight:700">조사수확량</td><td class="cap-td">${fmt(R.totalYield)} kg</td>
-          <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td>
-          <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상감수량</td><td class="cap-td">${fmt(R.totalUninsLoss)} kg</td>
+        <tr style="font-size:11px">
+          <td class="cap-td" style="background:#5B7E3F;color:#fff;font-weight:800;white-space:nowrap;width:10%">피해율</td>
+          <td class="cap-td" style="font-weight:800;color:#e24b4a;font-size:14px;white-space:nowrap;width:10%">${R.rate.toFixed(2)}%</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700;white-space:nowrap;width:12%">평년수확량</td>
+          <td class="cap-td" style="white-space:nowrap;width:12%">${Math.round(R.totalApplied).toLocaleString()}kg</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700;white-space:nowrap;width:12%">조사수확량</td>
+          <td class="cap-td" style="white-space:nowrap;width:12%">${Math.round(R.totalYield).toLocaleString()}kg</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700;white-space:nowrap;width:10%">미보상률</td>
+          <td class="cap-td" style="white-space:nowrap;width:8%">${(R.uninsRate*100).toFixed(0)}%</td>
+          <td class="cap-td" style="background:#EEF2F0;font-weight:700;white-space:nowrap;width:12%">미보상감수량</td>
+          <td class="cap-td" style="white-space:nowrap;width:12%">${Math.round(R.totalUninsLoss).toLocaleString()}kg</td>
         </tr>
       </tbody>
     </table>
@@ -1241,17 +1265,29 @@ function buildCapture(){
     <div style="margin-top:12px"></div>
   </div>`;
 }
+let _previewDataUrl='';
+let _previewFilename='';
 async function saveImage(){
   if($('result-section').classList.contains('pending')){showToast('먼저 계산하기를 눌러주세요');return;}
   buildCapture();showToast('이미지 생성 중...');
   try{
     const canvas=await html2canvas($('capture-template').firstElementChild,{scale:2,backgroundColor:'#fff',useCORS:true});
     const stamp=new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
-    const link=document.createElement('a');
-    link.download=`대추피해율_${$('farm_no').value||'농지'}_${stamp}.png`;
-    link.href=canvas.toDataURL('image/png');link.click();
-    showToast('갤러리에 저장되었습니다');
+    _previewFilename=`대추피해율_${$('farm_no').value||'농지'}_${stamp}.png`;
+    _previewDataUrl=canvas.toDataURL('image/png');
+    $('previewImg').src=_previewDataUrl;
+    $('previewModal').classList.add('show');
   }catch(e){showToast('저장 실패: '+e.message);}
+}
+function closePreview(e){if(e.target===$('previewModal'))closePreviewModal();}
+function closePreviewModal(){$('previewModal').classList.remove('show');}
+function doSaveImage(){
+  const link=document.createElement('a');
+  link.download=_previewFilename;
+  link.href=_previewDataUrl;
+  link.click();
+  showToast('갤러리에 저장되었습니다');
+  closePreviewModal();
 }
 
 /* ───────── 시작 ───────── */
