@@ -74,7 +74,8 @@ input.inp.filled:focus,select.inp.filled:focus{border-color:#185FA5!important;bo
 .datewrap .date-disp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
 .datewrap.filled .date-disp{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 .datewrap .date-disp.ph{color:var(--hint);font-weight:400}
-.datewrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;margin:0;padding:0;cursor:pointer;z-index:2}
+.datewrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;margin:0;padding:0;cursor:pointer;z-index:2;-webkit-appearance:none;appearance:none;color:transparent;background:transparent}
+.datewrap input[type=date]:disabled{opacity:0;color:transparent;background:transparent}
 .datewrap:focus-within .date-disp{border-color:#185FA5;box-shadow:0 0 0 3px rgba(55,138,221,0.18);background:#dceeff;color:#185FA5}
 body.big-text .datewrap .date-disp{height:52px;font-size:16px;font-weight:800}
 
@@ -92,23 +93,25 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 
 .unit-badge{position:absolute;right:6px;top:0;font-size:10px;font-weight:600;color:var(--sub);background:var(--bg);border-radius:4px;padding:1px 4px;line-height:1.4;pointer-events:none;z-index:1}
 
-.vcard{border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px;background:#fcfcfb}
+.vcard{border:2px solid var(--blue);border-radius:var(--r);padding:12px;margin-bottom:12px;background:#fbfdff;box-shadow:0 1px 4px rgba(24,95,165,0.06)}
 .vcard-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.vhead-txt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.vhead-sub{font-size:13px;font-weight:700;color:var(--main-d)}
 .vbadge{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.vtype{font-size:10px;font-weight:700;padding:3px 7px;border-radius:10px;white-space:nowrap}
+.vtype{background:var(--blue);color:#fff;font-size:13px;font-weight:800;padding:5px 12px;border-radius:14px;white-space:nowrap}
 .vtype.jc{background:var(--main-l);color:var(--main)}
 .vtype.ap{background:#EFEAE2;color:#7a6a52}
 .del-v{margin-left:auto;width:28px;height:28px;border:1.5px solid var(--red);background:#FFF5F5;color:var(--red);border-radius:7px;font-size:15px;cursor:pointer;flex-shrink:0}
 .auto-strip{background:var(--auto);border-radius:10px;padding:8px;margin:6px 0}
 .auto-strip input.auto{background:#fff;border-color:var(--border)}
 .auto-strip .g2,.auto-strip .g3{margin-bottom:0}
-.tree-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+.tree-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
 .tree-head{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0}
 .tree-btns{display:flex;align-items:center;gap:6px}
 .tree-mini-btn{width:30px;height:30px;border-radius:7px;background:transparent;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--border)}
 .tree-mini-btn.plus{border-color:var(--accent);color:var(--main-d)}
 .tree-mini-btn.minus{border-color:var(--red);color:var(--red)}
-.tinp{height:38px;border:1.5px solid var(--binp);border-radius:7px;text-align:center;font-size:13px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
+.tinp{height:46px;border:1.5px solid var(--binp);border-radius:7px;text-align:center;font-size:15px;font-weight:600;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 .tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 .tree-no{font-size:9px;color:var(--hint);text-align:center;margin-top:1px}
@@ -343,6 +346,19 @@ const CATS={
 };
 const CIDX={A:0,B:1,C:2,D:3,E:4,F:5,G:6,H:7};
 function isApple(cat){return ['D','E','F','G','H'].includes(cat);}
+function vLabel(v){
+  let g=v.group||''; if(g==='jc')g='bj';
+  if(v.cat) g = isApple(v.cat)?'ap':(g==='jr'?'jr':'bj');
+  const base = g==='ap'?'사과대추':g==='jr'?'재래':'복조';
+  if(!v.cat) return base;
+  const det = CATS[v.cat]?CATS[v.cat].label.replace(/^복조·재래\s*/,'').replace(/^사과대추\s*/,''):'';
+  return (base+' '+det).trim();
+}
+function vBase(v){
+  let g=v.group||''; if(g==='jc')g='bj';
+  if(v.cat) g = isApple(v.cat)?'ap':(g==='jr'?'jr':'bj');
+  return g==='ap'?'사과대추':g==='jr'?'재래':g==='bj'?'복조':'';
+}
 function stdYield(cat,age){
   if(!cat||!CIDX.hasOwnProperty(cat))return 0;
   let a=Math.round(age)||0; if(a<4)return 0; if(a>30)a=30;
@@ -360,6 +376,7 @@ function totalSampleN(s){
 const r4=v=>Math.round((v+Number.EPSILON)*10000)/10000;
 const rdown4=v=>Math.floor((v+Number.EPSILON)*10000)/10000;
 const fmt=v=>{const r=Math.round(v*10000)/10000;return r.toLocaleString('ko-KR',{maximumFractionDigits:4});};
+const pf=x=>parseFloat(String(x==null?'':x).replace(/,/g,''))||0;   // 콤마 무시 숫자 파싱
 
 /* ───────── 상태 ───────── */
 let varieties=[];
@@ -376,13 +393,16 @@ function newVariety(){
 /* ───────── 공통 유틸 ───────── */
 function vibrate(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 function toNum(el){return parseFloat((el.value||'').replace(/,/g,''))||0;}
-function onComma(el){
+function commaFmt(el){
   let v=el.value.replace(/[^0-9.]/g,'');
   const parts=v.split('.');
   if(parts.length>2)v=parts[0]+'.'+parts.slice(1).join('');
   const n=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
-  el.value=parts.length>1?n+'.'+parts[1]:n; markFilled(el);
+  el.value=parts.length>1?n+'.'+parts[1]:n;
 }
+function onComma(el){ commaFmt(el); markFilled(el); }
+function onTreeC(i,ti,el){ commaFmt(el); varieties[i].trees[ti]=el.value; markFilled(el); calc(); }
+function onFWeight(i,el){ commaFmt(el); varieties[i].fweight=el.value; markFilled(el); calc(); }
 function markFilled(el){if((el.value||'').trim()!=='')el.classList.add('filled');else el.classList.remove('filled');}
 function syncDate(el){
   const wrap=el.closest('.datewrap'); if(!wrap)return;
@@ -398,21 +418,25 @@ function renderVarieties(){
   const wrap=$('variety-list'); wrap.innerHTML='';
   const fruit=(_phase==='fruit');        // 표본 착과조사 단계 여부
   varieties.forEach((v,i)=>{
-    const group=v.cat?(isApple(v.cat)?'ap':'jc'):(v.group||'');
+    let group=v.group||''; if(group==='jc')group='bj';          // 레거시 호환
+    if(v.cat) group = isApple(v.cat)?'ap':(group==='jr'?'jr':'bj');
     const ap = v.cat ? isApple(v.cat) : (group==='ap');
+    const isJ = (group==='bj'||group==='jr');                    // 복조 또는 재래
+    const pname = group==='ap'?'사과대추':group==='jr'?'재래':group==='bj'?'복조':'';
     const card=document.createElement('div'); card.className='vcard';
-    const gopts=`<option value="">구분 선택</option>`
-      +`<option value="jc" ${group==='jc'?'selected':''}>복조·재래</option>`
+    const gopts=`<option value="">품종 선택</option>`
+      +`<option value="bj" ${group==='bj'?'selected':''}>복조</option>`
+      +`<option value="jr" ${group==='jr'?'selected':''}>재래</option>`
       +`<option value="ap" ${group==='ap'?'selected':''}>사과대추</option>`;
-    const SUBS = group==='jc'
+    const SUBS = isJ
       ? {A:'보은·옥천·영동 (비가림)',B:'보은·옥천·영동 (노지)',C:'기타지역'}
       : group==='ap'
       ? {D:'황실',E:'천황',F:'대능 (하우스)',G:'대능 (노지)',H:'기타품종'} : {};
-    const subPh = group==='jc'?'지역 선택':group==='ap'?'품종 선택':'구분 먼저 선택';
+    const subPh = isJ?'지역 선택':group==='ap'?'세부품종 선택':'품종 먼저 선택';
     let sopts=`<option value="">${subPh}</option>`;
     for(const k in SUBS)sopts+=`<option value="${k}" ${v.cat===k?'selected':''}>${SUBS[k]}</option>`;
-    const subLabel=group==='ap'?'품종':'지역';
-    const typeBadge=group?`<span class="vtype ${group==='ap'?'ap':'jc'}">${group==='ap'?'사과대추':'재래'}</span>`:'';
+    const subLabel=group==='ap'?'세부품종':'지역';
+    const typeBadge=`<div class="vhead-txt"><span class="vtype" id="v-name-${i}">${pname||'품종 선택'}</span><span class="vhead-sub" id="v-headsub-${i}"></span></div>`;
     const treeLabel=ap?'표본주별 착과수 (개)':'표본주별 착과량 (g)';
     const perLabel=ap?'주당착과수':'주당착과량(g)';
     // 나무조사 단계에서는 입력 허용, 표본단계에서는 잠금(disabled)
@@ -432,7 +456,7 @@ function renderVarieties(){
     if(fruit){
       let treeHtml='';
       v.trees.forEach((t,ti)=>{
-        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" value="${t}" placeholder="${ti+1}" oninput="onTree(${i},${ti},this)"><div class="tree-no">표본${ti+1}</div></div>`;
+        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${t}" placeholder="${ti+1}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"><div class="tree-no">표본${ti+1}</div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -446,8 +470,8 @@ function renderVarieties(){
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
       ${ap?`<div class="subtitle">과중조사 (품종 60개 이상)</div>
         <div class="g3">
-          <div class="field"><label>표본 과실수</label><span class="unit-badge">개</span><input class="inp ${v.fcount!==''?'filled':''}" inputmode="numeric" value="${v.fcount}" oninput="onF(${i},'fcount',this)"></div>
-          <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" value="${v.fweight}" oninput="onF(${i},'fweight',this)"></div>
+          <div class="field"><label>표본 과실수</label><span class="unit-badge">개</span><input class="inp ${v.fcount!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcount}" oninput="onF(${i},'fcount',this)" onkeydown="navKey(event,this)"></div>
+          <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${v.fweight}" oninput="onFWeight(${i},this)" onkeydown="navKey(event,this)"></div>
           <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
         </div>`:''}
       <div class="dmg-toggle-row ${v.dmgOpen?'on':''}" onclick="toggleDmg(${i})">
@@ -495,7 +519,7 @@ function renderVarieties(){
         <div class="vbadge">${i+1}</div>${typeBadge}
       </div>
       <div class="g2" style="margin-bottom:8px">
-        <div class="field"><label>구분</label><select class="inp tree-field ${group?'filled':''}" ${dis} onchange="onGroup(${i},this)">${gopts}</select></div>
+        <div class="field"><label>품종</label><select class="inp tree-field ${group?'filled':''}" ${dis} onchange="onGroup(${i},this)">${gopts}</select></div>
         <div class="field"><label>${subLabel}</label><select class="inp tree-field ${v.cat?'filled':''}" ${(group&&!fruit)?'':'disabled'} onchange="onSub(${i},this)">${sopts}</select></div>
       </div>
       <div class="g3">
@@ -605,6 +629,15 @@ function backToTreeSurvey(){
   showToast('나무조사 수정 — 주수를 변경할 수 있습니다');
 }
 function onTree(i,ti,el){varieties[i].trees[ti]=el.value;markFilled(el);calc();}
+// 키보드 '다음/Enter' 로 다음 입력칸 이동
+function focusNextInput(el){
+  const all=[...document.querySelectorAll('.content input:not([readonly]):not([disabled]), .content select:not([disabled])')]
+    .filter(x=>x.type!=='date' && x.offsetParent!==null);
+  const i=all.indexOf(el);
+  if(i>=0&&i+1<all.length){ const n=all[i+1]; n.focus(); try{n.select&&n.select();}catch(e){} }
+  else { el.blur(); }
+}
+function navKey(e,el){ if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){ e.preventDefault(); focusNextInput(el); } }
 function addVariety(){if(_locked||_phase!=='tree')return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
 function delVariety(i){if(_locked||_phase!=='tree')return;if(varieties.length<=1){showToast('최소 1개 품종이 필요합니다');return;}varieties.splice(i,1);renderVarieties();calc();saveState();}
 function addTree(i){if(_locked)return;if(varieties[i].trees.length>=16){showToast('표본주는 최대 16개');return;}varieties[i].trees.push('');renderVarieties();calc();}
@@ -636,13 +669,13 @@ function computeAll(){
     const F=contractChange?O:N;                            // 적용 품종평년
     const Zper=r.reg>0?r4(N/r.reg):0;                      // 주당평년(미보상주 환산)
 
-    const tv=v.trees.map(t=>parseFloat(t)).filter(x=>!isNaN(x));
+    const tv=v.trees.map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
     const per=tv.length?r4(tv.reduce((a,b)=>a+b,0)/tv.length):0;
-    const nm=parseFloat(v.normal)||0,d5=parseFloat(v.p50)||0,d8=parseFloat(v.p80)||0,d10=parseFloat(v.p100)||0;
+    const nm=pf(v.normal),d5=pf(v.p50),d8=pf(v.p80),d10=pf(v.p100);
     const denom=nm+d5+d8+d10, dmg=denom>0?(d5*0.5+d8*0.8+d10)/denom:0;
-    const dn=parseFloat(v.dn)||0,dp5=parseFloat(v.dp50)||0,dp8=parseFloat(v.dp80)||0,dp10=parseFloat(v.dp100)||0;
+    const dn=pf(v.dn),dp5=pf(v.dp50),dp8=pf(v.dp80),dp10=pf(v.dp100);
     const ddenom=dn+dp5+dp8+dp10, ddmg=ddenom>0?(dp5*0.5+dp8*0.8+dp10)/ddenom:0;
-    const fc=parseFloat(v.fcount)||0,fw=parseFloat(v.fweight)||0;
+    const fc=pf(v.fcount),fw=pf(v.fweight);
     const weight=r.ap?(fc>0?r4(fw/fc):0):1;
 
     const yld=r.ap
@@ -676,6 +709,13 @@ function calc(){
     const c=r.calc,v=r.v,ap=r.ap;
     const set=(id,val)=>{const e=$(id);if(e)e.value=val;};
     set(`v-survey-${i}`,r.survey?r.survey.toLocaleString():'');
+    const nm=$(`v-name-${i}`);
+    if(nm){ const base=vBase(v); const ageT=(v.age!==''&&v.age!=null)?` ${v.age}년`:''; nm.textContent=(base||'품종 선택')+ageT; }
+    const hs=$(`v-headsub-${i}`);
+    if(hs){
+      const det = v.cat&&CATS[v.cat]?CATS[v.cat].label.replace(/^복조·재래\s*/,'').replace(/^사과대추\s*/,''):'';
+      hs.textContent=det;
+    }
     set(`v-proper-${i}`,c.proper?c.proper+'주':'');
     set(`v-per-${i}`,c.sampleCnt>0?(ap?fmt(c.per):fmt(c.per)+'g'):'');
     set(`v-dmg-${i}`,(parseFloat(v.normal)||parseFloat(v.p50)||parseFloat(v.p80)||parseFloat(v.p100))?(c.dmg*100).toFixed(1)+'%':'');
@@ -684,8 +724,8 @@ function calc(){
     set(`v-yield-${i}`,(R.avgYield&&c.sampleCnt>0)?fmt(c.yld)+'kg':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(c.proper>0&&c.sampleCnt>0&&c.sampleCnt<c.proper){
-        w.textContent=`⚠ 표본주가 적정표본수(${c.proper}주)보다 부족합니다`;
+      if(ap&&c.sampleCnt>0&&!c.weight){
+        w.textContent=`⚠ 사과대추는 과중조사(개당과중)를 입력해야 수확량이 계산됩니다`;
         w.className='warn';w.style.display='block';
       }else if(c.proper>0&&c.sampleCnt>c.proper){
         w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
@@ -753,7 +793,9 @@ function lockInputs(lock){
     let dis=lock;
     // 표본 착과조사 단계에서는 나무조사 칸을 항상 잠금 (적정표본 흔들림 방지)
     if(_phase==='fruit'&&el.classList.contains('tree-field'))dis=true;
-    el.disabled=dis;el.style.opacity=dis?'0.85':'1';
+    el.disabled=dis;
+    if(el.type==='date'){ el.style.opacity='0'; }   // 네이티브 날짜칸은 항상 투명 (date-disp가 표시)
+    else { el.style.opacity=dis?'0.85':'1'; }
   });
 }
 
@@ -872,7 +914,7 @@ function buildCapture(){
   R.rows.forEach(r=>{
     const v=r.v,c=r.calc;
     rowHtml+=`<tr>
-      <td class="cap-td">${v.cat?CATS[v.cat].label:'-'}</td>
+      <td class="cap-td">${v.cat?vLabel(v):'-'}</td>
       <td class="cap-td">${v.age||'-'}</td>
       <td class="cap-td">${r.survey.toLocaleString()}</td>
       <td class="cap-td">${c.sampleCnt}/${c.proper}</td>
@@ -922,6 +964,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!loadState())varieties=[newVariety()];
   if(!$('survey_date').value){$('survey_date').value=new Date().toLocaleDateString('en-CA');syncDate($('survey_date'));}
   renderVarieties();setPhaseUI();calc();
+  // 입력칸을 누르면 기존 값 전체선택 → 바로 덮어쓰기
+  document.addEventListener('focusin',e=>{
+    const t=e.target;
+    if(t&&t.tagName==='INPUT'&&t.type!=='date'&&(t.classList.contains('inp')||t.classList.contains('tinp'))){
+      setTimeout(()=>{try{t.select();}catch(_){}} ,0);
+    }
+  });
 });
 </script>
 </body>
