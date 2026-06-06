@@ -102,8 +102,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .vtype.jc{background:var(--main-l);color:var(--main)}
 .vtype.ap{background:#EFEAE2;color:#7a6a52}
 .del-v{margin-left:auto;width:28px;height:28px;border:1.5px solid var(--red);background:#FFF5F5;color:var(--red);border-radius:7px;font-size:15px;cursor:pointer;flex-shrink:0}
-.auto-strip{background:var(--auto);border-radius:10px;padding:8px;margin:6px 0}
-.auto-strip input.auto{background:#fff;border-color:var(--border)}
+.auto-strip{background:transparent;border-radius:0;padding:0;margin:8px 0}
 .auto-strip .g2,.auto-strip .g3{margin-bottom:0}
 .tree-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
 .tree-head{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0}
@@ -136,7 +135,9 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .sw-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .sw input:checked + .sw-slider{background:var(--main)}
 .sw input:checked + .sw-slider:before{transform:translateX(20px)}
-.dmg-box{background:#F0F5F2;border:1.5px solid #D3E0D8;border-radius:10px;padding:10px;margin-top:0;display:none}
+.dmg-wrap{display:none}
+.dmg-wrap.open{display:block}
+.dmg-box{background:#F0F5F2;border:1.5px solid #D3E0D8;border-radius:10px;padding:10px;margin-top:0;display:block}
 .dmg-box.open{display:block}
 .dmg-box-title{font-size:11px;font-weight:700;color:var(--main-d);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:6px}
 .dmg-rate-badge{font-size:12px;font-weight:700;color:var(--main-d);background:#DCEAE1;padding:3px 9px;border-radius:8px;white-space:nowrap}
@@ -179,6 +180,20 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 
 .cap-th{background:var(--main);color:#fff;font-size:12px;font-weight:700;padding:7px 4px;border:1px solid #cfd8e0;text-align:center}
 .cap-td{font-size:12px;padding:6px 4px;border:1px solid #cfd8e0;text-align:center;background:#fff;color:#111}
+
+/* 품종별 비교 요약표 */
+.cmp-wrap{overflow:hidden;border-radius:10px;border:0.5px solid var(--border)}
+.cmp-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12px;background:#fff}
+.cmp-table th,.cmp-table td{border:0.5px solid var(--border);padding:7px 3px;text-align:center;white-space:nowrap;overflow:hidden}
+.cmp-table thead th{background:var(--main);color:#fff;font-weight:700}
+.cmp-table thead th.corner{position:sticky;left:0;z-index:3;background:var(--main-d);width:56px}
+.cmp-table thead th.sumcol{background:var(--main-d);width:70px}
+.cmp-table .rowlabel{background:var(--main-l);color:var(--main-d);font-weight:700;text-align:center;position:sticky;left:0;z-index:2;white-space:normal;word-break:keep-all;line-height:1.2}
+.cmp-table td.sumcol{background:var(--auto);font-weight:800;color:var(--main-d)}
+.cmp-table tbody tr:nth-child(even) td:not(.rowlabel):not(.sumcol){background:#FAFAF7}
+.cmp-table td.neg{color:var(--red)}
+.cmp-table .vname td{font-weight:800;color:var(--text);white-space:normal;word-break:break-word;overflow-wrap:anywhere;line-height:1.2}
+.cmp-hint{font-size:11px;color:var(--hint);margin-top:6px;text-align:right}
 </style>
 </head>
 <body>
@@ -203,7 +218,10 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
+        <button class="bigtext-btn" id="expand-btn" onclick="toggleExpand()">🗂 <span id="expand-label">전체보기</span></button>
+      </div>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
     <div style="display:flex;gap:8px;align-items:flex-end">
@@ -219,7 +237,11 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
         <button class="hist-btn" onclick="openHistoryModal()" title="이전 기록 불러오기">📋</button>
       </div>
     </div>
-    <div class="g2" style="margin-top:8px;margin-bottom:0">
+  </div>
+
+  <div class="section">
+    <div class="sec-title">기본정보</div>
+    <div class="g2" style="margin-top:0;margin-bottom:8px">
       <div class="field">
         <label>평년수확량</label><span class="unit-badge">kg</span>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal" oninput="onComma(this)" onblur="calc()" autocomplete="off">
@@ -227,6 +249,17 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
       <div class="field">
         <label>미보상비율</label><span class="unit-badge">%</span>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()" autocomplete="off">
+      </div>
+    </div>
+    <div class="auto-strip" style="margin:0">
+      <div class="g3" style="margin-bottom:8px">
+        <div class="field"><label style="color:var(--sub)">총 조사대상주</label><input class="auto" id="t-survey" readonly></div>
+        <div class="field"><label style="color:var(--sub)">전체 표본주수</label><input class="auto" id="t-sampleN" readonly></div>
+        <div class="field"><label style="color:var(--sub)">계약변경</label><input class="auto" id="t-contract" readonly></div>
+      </div>
+      <div class="g2" style="margin-bottom:0">
+        <div class="field"><label style="color:var(--main)">품종평년수확량</label><input class="auto" id="t-applied" readonly></div>
+        <div class="field"><label style="color:var(--main)">품종수확량</label><input class="auto" id="t-yield" readonly></div>
       </div>
     </div>
   </div>
@@ -243,13 +276,6 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
     <div id="edit-tree-row" style="display:none">
       <button class="btn-edit-tree" onclick="backToTreeSurvey()">✏️ 나무조사 수정 (주수 변경)</button>
     </div>
-    <div class="auto-strip" style="margin-top:10px">
-      <div class="g3" style="margin-bottom:0">
-        <div class="field"><label style="color:var(--sub)">총 조사대상주</label><input class="auto" id="t-survey" readonly></div>
-        <div class="field"><label style="color:var(--sub)">전체 표본주수</label><input class="auto" id="t-sampleN" readonly></div>
-        <div class="field"><label style="color:var(--sub)">계약변경</label><input class="auto" id="t-contract" readonly></div>
-      </div>
-    </div>
   </div>
 
   <div id="phase-tree-actions">
@@ -261,6 +287,12 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
   <div class="calc-action-row">
     <button class="btn-edit active" id="btn-edit" onclick="setEditMode()">✏️ 수정하기</button>
     <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🔒 계산하기</button>
+  </div>
+
+  <div class="section cmp-section" id="compare-section" style="display:none">
+    <div class="sec-title">품종별 요약 비교</div>
+    <div class="cmp-wrap"><table class="cmp-table" id="compare-table"></table></div>
+    <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
   </div>
 
   <div class="result-box pending" id="result-section">
@@ -315,6 +347,41 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 </div>
 
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:820px;background:#eef2f6;padding:0;z-index:-1"></div>
+
+<div class="modal-bg" id="treeDelModal">
+  <div class="modal">
+    <div style="font-size:26px;text-align:center;margin-bottom:4px">🗑️</div>
+    <h3 style="text-align:center">표본주 삭제</h3>
+    <p style="text-align:center">현재 <b id="treeDelNum">0</b>주 중 마지막 표본주를 삭제할까요?<br><span style="color:var(--red);font-weight:700">입력된 값도 함께 삭제됩니다.</span></p>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="$('treeDelModal').style.display='none'">취소</button>
+      <button class="mb-ok" onclick="doDelTree()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="treeDelBlockModal">
+  <div class="modal">
+    <div style="font-size:26px;text-align:center;margin-bottom:4px">🚫</div>
+    <h3 style="text-align:center">삭제 불가</h3>
+    <p style="text-align:center">적정표본수 <b style="color:var(--main)"><span id="treeDelProper">0</span>주</b>로<br>더 이상 삭제할 수 없습니다.</p>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="$('treeDelBlockModal').style.display='none'" style="flex:none;width:100%">확인</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="treeAddModal">
+  <div class="modal">
+    <div style="font-size:26px;text-align:center;margin-bottom:4px">⚠️</div>
+    <h3 style="text-align:center">표본주 추가</h3>
+    <p style="text-align:center">적정표본수 <b style="color:var(--main)"><span id="treeAddProper">0</span>주</b>를 이미 충족했습니다.<br><span style="color:var(--red);font-weight:700">그래도 추가하시겠어요?</span></p>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="$('treeAddModal').style.display='none'">취소</button>
+      <button class="mb-ok" style="background:var(--main)" onclick="doAddTree()">추가</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ───────── 표준수확량 표 (지역구분 A~H × 수령 4~30+) ───────── */
@@ -382,6 +449,7 @@ const pf=x=>parseFloat(String(x==null?'':x).replace(/,/g,''))||0;   // 콤마 �
 let varieties=[];
 let _locked=false;
 let _phase='tree';   // 'tree' = 나무조사 입력, 'fruit' = 표본 착과조사 입력
+let _expandAll=false; // 전체보기: 나무조사+표본착과를 한 화면에 펼침
 const $=id=>document.getElementById(id);
 
 function newVariety(){
@@ -417,6 +485,8 @@ function showToast(m){const t=$('toast');t.textContent=m;t.classList.add('show')
 function renderVarieties(){
   const wrap=$('variety-list'); wrap.innerHTML='';
   const fruit=(_phase==='fruit');        // 표본 착과조사 단계 여부
+  const showFruit=fruit||_expandAll;      // 전체보기면 표본칸도 항상 표시
+  const treeLocked=fruit&&!_expandAll;    // 표본단계에서만 나무조사칸 잠금 (전체보기는 편집 허용)
   varieties.forEach((v,i)=>{
     let group=v.group||''; if(group==='jc')group='bj';          // 레거시 호환
     if(v.cat) group = isApple(v.cat)?'ap':(group==='jr'?'jr':'bj');
@@ -439,11 +509,11 @@ function renderVarieties(){
     const typeBadge=`<div class="vhead-txt"><span class="vtype" id="v-name-${i}">${pname||'품종 선택'}</span><span class="vhead-sub" id="v-headsub-${i}"></span></div>`;
     const treeLabel=ap?'표본주별 착과수 (개)':'표본주별 착과량 (g)';
     const perLabel=ap?'주당착과수':'주당착과량(g)';
-    // 나무조사 단계에서는 입력 허용, 표본단계에서는 잠금(disabled)
-    const dis = fruit?'disabled':'';
+    // 나무조사 단계에서는 입력 허용, 표본단계에서는 잠금(disabled) — 전체보기는 항상 편집
+    const dis = treeLocked?'disabled':'';
 
     // ── 적정표본 미리보기/확정 스트립 ──
-    const properStrip = fruit
+    const properStrip = showFruit
       ? `<div class="auto-strip"><div class="g3" style="margin-bottom:0">
           <div class="field"><label style="color:var(--sub)">적정표본</label><input class="auto" id="v-proper-${i}" readonly></div>
           <div class="field"><label style="color:var(--sub)">${perLabel}</label><input class="auto" id="v-per-${i}" readonly></div>
@@ -451,16 +521,16 @@ function renderVarieties(){
         </div></div>`
       : `<div class="auto-strip"><div class="field" style="margin:0"><label style="color:var(--sub)">적정표본 (예상)</label><input class="auto" id="v-proper-${i}" readonly></div></div>`;
 
-    // ── 표본 착과조사 (표본단계에서만) ──
+    // ── 표본 착과조사 (표본단계 또는 전체보기에서 표시) ──
     let fruitHtml='';
-    if(fruit){
+    if(showFruit){
       let treeHtml='';
       v.trees.forEach((t,ti)=>{
-        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${t}" placeholder="${ti+1}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"><div class="tree-no">표본${ti+1}</div></div>`;
+        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${t}" placeholder="${ti+1}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
-        <div class="subtitle" style="margin:0">${treeLabel}</div>
+        <div class="subtitle" style="margin:0;color:var(--red);font-weight:800">${treeLabel}</div>
         <div class="tree-btns">
           <button class="tree-mini-btn minus" onclick="delTree(${i})">－</button>
           <button class="tree-mini-btn plus" onclick="addTree(${i})">＋</button>
@@ -482,7 +552,8 @@ function renderVarieties(){
         <span class="dmg-toggle-lbl">피해구성 조사</span>
         <span class="dmg-rate-badge zero" id="v-dmg-badge-${i}">${v.dmgOpen?'입력 대기':'미실시'}</span>
       </div>
-      <div class="dmg-box ${v.dmgOpen?'open':''}">
+      <div class="dmg-wrap ${v.dmgOpen?'open':''}">
+      <div class="dmg-box">
         <div class="dmg-box-title">
           <span>착과피해 구성 ${ap?'(개수)':'(무게 g)'}</span>
           <span class="dmg-rate-badge zero" id="v-cdmg-badge-${i}">-</span>
@@ -493,24 +564,19 @@ function renderVarieties(){
           <div class="field"><label>80%형</label><input class="tinp ${v.p80!==''?'filled':''}" inputmode="decimal" value="${v.p80}" oninput="onF(${i},'p80',this)"></div>
           <div class="field"><label>100%형</label><input class="tinp ${v.p100!==''?'filled':''}" inputmode="decimal" value="${v.p100}" oninput="onF(${i},'p100',this)"></div>
         </div>
-        <div class="dmg-box drop">
-          <div class="dmg-box-title">
-            <span>낙과피해 구성 ${ap?'(개수)':'(무게 g)'}</span>
-            <span class="dmg-rate-badge zero" id="v-ddmg-badge-${i}">-</span>
-          </div>
-          <div class="dmg-grid">
-            <div class="field"><label>정상</label><input class="tinp ${(v.dn||'')!==''?'filled':''}" inputmode="decimal" value="${v.dn||''}" oninput="onF(${i},'dn',this)"></div>
-            <div class="field"><label>50%형</label><input class="tinp ${(v.dp50||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp50||''}" oninput="onF(${i},'dp50',this)"></div>
-            <div class="field"><label>80%형</label><input class="tinp ${(v.dp80||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp80||''}" oninput="onF(${i},'dp80',this)"></div>
-            <div class="field"><label>100%형</label><input class="tinp ${(v.dp100||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp100||''}" oninput="onF(${i},'dp100',this)"></div>
-          </div>
+      </div>
+      <div class="dmg-box drop">
+        <div class="dmg-box-title">
+          <span>낙과피해 구성 ${ap?'(개수)':'(무게 g)'}</span>
+          <span class="dmg-rate-badge zero" id="v-ddmg-badge-${i}">-</span>
+        </div>
+        <div class="dmg-grid">
+          <div class="field"><label>정상</label><input class="tinp ${(v.dn||'')!==''?'filled':''}" inputmode="decimal" value="${v.dn||''}" oninput="onF(${i},'dn',this)"></div>
+          <div class="field"><label>50%형</label><input class="tinp ${(v.dp50||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp50||''}" oninput="onF(${i},'dp50',this)"></div>
+          <div class="field"><label>80%형</label><input class="tinp ${(v.dp80||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp80||''}" oninput="onF(${i},'dp80',this)"></div>
+          <div class="field"><label>100%형</label><input class="tinp ${(v.dp100||'')!==''?'filled':''}" inputmode="decimal" value="${v.dp100||''}" oninput="onF(${i},'dp100',this)"></div>
         </div>
       </div>
-      <div class="auto-strip" style="margin-top:8px">
-        <div class="g2" style="margin-bottom:0">
-          <div class="field"><label style="color:var(--main)">품종 평년수확량</label><input class="auto" id="v-pavg-${i}" readonly></div>
-          <div class="field"><label style="color:var(--main)">품종 수확량</label><input class="auto" id="v-yield-${i}" readonly></div>
-        </div>
       </div>`;
     }
 
@@ -520,7 +586,7 @@ function renderVarieties(){
       </div>
       <div class="g2" style="margin-bottom:8px">
         <div class="field"><label>품종</label><select class="inp tree-field ${group?'filled':''}" ${dis} onchange="onGroup(${i},this)">${gopts}</select></div>
-        <div class="field"><label>${subLabel}</label><select class="inp tree-field ${v.cat?'filled':''}" ${(group&&!fruit)?'':'disabled'} onchange="onSub(${i},this)">${sopts}</select></div>
+        <div class="field"><label>${subLabel}</label><select class="inp tree-field ${v.cat?'filled':''}" ${(group&&!treeLocked)?'':'disabled'} onchange="onSub(${i},this)">${sopts}</select></div>
       </div>
       <div class="g3">
         <div class="field"><label>수령</label><span class="unit-badge">년</span><input class="inp tree-field ${v.age!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.age}" oninput="onF(${i},'age',this)"></div>
@@ -528,8 +594,8 @@ function renderVarieties(){
         <div class="field"><label>실제결과주</label><input class="inp tree-field ${v.actual!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.actual}" oninput="onFsoft(${i},'actual',this)" onblur="onTreeBlur()"></div>
       </div>
       <div class="g3">
-        <div class="field"><label>미보상주</label><input class="inp tree-field ${v.unins!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="onTreeBlur()"></div>
         <div class="field"><label>고사주</label><input class="inp tree-field ${v.dead!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.dead}" oninput="onFsoft(${i},'dead',this)" onblur="onTreeBlur()"></div>
+        <div class="field"><label>미보상주</label><input class="inp tree-field ${v.unins!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="onTreeBlur()"></div>
         <div class="field"><label style="color:var(--sub)">조사대상주</label><input class="auto" id="v-survey-${i}" readonly></div>
       </div>
       ${properStrip}
@@ -590,6 +656,7 @@ function syncSamples(){ allocateSamples(); renderVarieties(); calc(); saveState(
 
 // 나무조사 단계에서 주수 칸을 벗어날 때: 표본칸은 만들지 않고 미리보기만 갱신
 function onTreeBlur(){
+  if(_expandAll){ syncSamples(); return; }   // 전체보기: 주수 바뀌면 표본칸 즉시 재배분
   if(_phase==='tree'){ calc(); saveState(); }
   else { syncSamples(); }
 }
@@ -597,11 +664,12 @@ function onTreeBlur(){
 // 단계별 화면 토글
 function setPhaseUI(){
   const tree=(_phase==='tree');
-  $('tree-add-row').style.display   = tree?'flex':'none';
-  $('edit-tree-row').style.display  = tree?'none':'block';
-  $('phase-tree-actions').style.display = tree?'block':'none';
-  $('phase-fruit-block').style.display  = tree?'none':'block';
-  const tag=$('phase-tag'); if(tag)tag.textContent=tree?'1단계 · 나무조사':'2단계 · 표본 착과';
+  const expand=_expandAll;
+  $('tree-add-row').style.display   = (tree||expand)?'flex':'none';
+  $('edit-tree-row').style.display  = (!tree&&!expand)?'block':'none';
+  $('phase-tree-actions').style.display = (tree&&!expand)?'block':'none';
+  $('phase-fruit-block').style.display  = (!tree||expand)?'block':'none';
+  const tag=$('phase-tag'); if(tag)tag.textContent=expand?'전체보기':(tree?'1단계 · 나무조사':'2단계 · 표본 착과');
 }
 
 // ① 나무조사 완료 → 적정표본 확정 + 표본칸 생성 → 표본단계
@@ -638,10 +706,48 @@ function focusNextInput(el){
   else { el.blur(); }
 }
 function navKey(e,el){ if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){ e.preventDefault(); focusNextInput(el); } }
-function addVariety(){if(_locked||_phase!=='tree')return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
-function delVariety(i){if(_locked||_phase!=='tree')return;if(varieties.length<=1){showToast('최소 1개 품종이 필요합니다');return;}varieties.splice(i,1);renderVarieties();calc();saveState();}
-function addTree(i){if(_locked)return;if(varieties[i].trees.length>=16){showToast('표본주는 최대 16개');return;}varieties[i].trees.push('');renderVarieties();calc();}
-function delTree(i){if(_locked)return;if(varieties[i].trees.length<=1)return;varieties[i].trees.pop();renderVarieties();calc();}
+function addVariety(){if(_locked||(_phase!=='tree'&&!_expandAll))return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
+function delVariety(i){if(_locked||(_phase!=='tree'&&!_expandAll))return;if(varieties.length<=1){showToast('최소 1개 품종이 필요합니다');return;}varieties.splice(i,1);renderVarieties();calc();saveState();}
+let _treeI=-1;
+function properOf(i){ const R=computeAll(); return R.rows[i]?R.rows[i].calc.proper:0; }
+function addTree(i){
+  if(_locked)return;
+  if(varieties[i].trees.length>=16){showToast('표본주는 최대 16개');return;}
+  _treeI=i;
+  const proper=properOf(i);
+  if(proper>0 && varieties[i].trees.length>=proper){
+    $('treeAddProper').textContent=proper;
+    $('treeAddModal').style.display='flex';
+    return;
+  }
+  doAddTree();
+}
+function doAddTree(){
+  $('treeAddModal').style.display='none';
+  const i=_treeI; if(i<0||!varieties[i])return;
+  vibrate(20);
+  varieties[i].trees.push('');
+  renderVarieties();calc();_treeI=-1;
+}
+function delTree(i){
+  if(_locked)return;
+  const proper=Math.max(1,properOf(i));
+  if(varieties[i].trees.length<=proper){
+    $('treeDelProper').textContent=proper;
+    $('treeDelBlockModal').style.display='flex';
+    return;
+  }
+  _treeI=i;
+  $('treeDelNum').textContent=varieties[i].trees.length;
+  $('treeDelModal').style.display='flex';
+}
+function doDelTree(){
+  $('treeDelModal').style.display='none';
+  const i=_treeI; if(i<0||!varieties[i])return;
+  vibrate(20);
+  varieties[i].trees.pop();
+  renderVarieties();calc();_treeI=-1;
+}
 
 /* ───────── 계산 (엑셀 원장변경·품종별 미보상 반영) ───────── */
 function computeAll(){
@@ -697,9 +803,64 @@ function computeAll(){
   return {avgYield,uninsRate,rows,totalSurvey,sampN,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort};
 }
 
+/* ───────── 품종별 비교 요약표 ───────── */
+function renderCompare(R){
+  const sec=$('compare-section'), tbl=$('compare-table');
+  if(!varieties.some(v=>v.cat)){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  const circ=['①','②','③','④','⑤','⑥'];
+  const rows=R.rows;
+  const n=rows.length;
+  const showSum = n<=4;                 // 품종 5개 이상이면 합계열 숨겨 칸 확보(스크롤 방지)
+  const k1=v=>{const r=Math.round(v*10)/10;return r.toLocaleString('ko-KR',{maximumFractionDigits:1});};
+
+  let head='<tr><th class="corner">항목</th>';
+  rows.forEach((r,i)=>{ head+=`<th>${circ[i]||(i+1)}</th>`; });
+  if(showSum) head+='<th class="sumcol">합계</th>';
+  head+='</tr>';
+
+  const line=(label,vals,sumTxt='-')=>{
+    let h=`<tr><td class="rowlabel">${label}</td>`;
+    vals.forEach(v=>h+=`<td>${v}</td>`);
+    if(showSum) h+=`<td class="sumcol">${sumTxt}</td>`;
+    return h+'</tr>';
+  };
+  const names =rows.map(r=>r.v.cat?vLabel(r.v):'-');
+  const ages  =rows.map(r=>r.age?r.age+'년':'-');
+  const surv  =rows.map(r=>r.survey?r.survey.toLocaleString():'-');
+  const samp  =rows.map(r=>{const c=r.calc;return (c.proper||c.sampleCnt)?`${c.sampleCnt}/${c.proper}`:'-';});
+  const pers  =rows.map(r=>{const c=r.calc;return c.sampleCnt>0?(r.ap?Math.round(c.per).toLocaleString():k1(c.per)+'g'):'-';});
+  const cdmg  =rows.map(r=>{const v=r.v;return (pf(v.normal)||pf(v.p50)||pf(v.p80)||pf(v.p100))?(r.calc.dmg*100).toFixed(1)+'%':'-';});
+  const ddmg  =rows.map(r=>{const v=r.v;return (pf(v.dn)||pf(v.dp50)||pf(v.dp80)||pf(v.dp100))?(r.calc.ddmg*100).toFixed(1)+'%':'-';});
+  const appl  =rows.map(r=>r.calc.F?k1(r.calc.F):'-');
+  const ylds  =rows.map(r=>(R.avgYield&&r.calc.sampleCnt>0)?k1(r.calc.yld):'-');
+
+  let body=`<tr class="vname"><td class="rowlabel">품종</td>${names.map(x=>`<td>${x}</td>`).join('')}${showSum?'<td class="sumcol">-</td>':''}</tr>`;
+  body+=line('수령',ages);
+  body+=line('조사대상주',surv,R.totalSurvey?R.totalSurvey.toLocaleString():'-');
+  body+=line('표본/적정',samp,R.sampN?R.sampN+'주':'-');
+  body+=line('주당착과',pers);
+  body+=line('착과피해',cdmg);
+  body+=line('낙과피해',ddmg);
+  body+=line('적용평년(kg)',appl,R.totalApplied?k1(R.totalApplied):'-');
+  body+=line('수확량(kg)',ylds,R.avgYield?k1(R.totalYield):'-');
+
+  tbl.innerHTML='<thead>'+head+'</thead><tbody>'+body+'</tbody>';
+
+  // 항상 화면 폭에 맞춰 채움(가로 스크롤 없음). 품종이 많을수록 글자만 살짝 축소.
+  const base = n>=5?10:n>=3?11:12;
+  const big = document.body.classList.contains('big-text');
+  tbl.style.fontSize = (big?base+4:base)+'px';
+  const noteSum = n>4 ? ' · 합계는 결과 요약 참고' : '';
+  const hint=sec.querySelector('.cmp-hint');
+  if(hint) hint.textContent = '품종 수에 맞춰 칸 자동 분할'+noteSum;
+}
+
 function calc(){
   const R=computeAll();
   $('t-survey').value=R.totalSurvey?R.totalSurvey.toLocaleString():'';
+  $('t-applied').value=R.totalApplied>0?fmt(R.totalApplied)+' kg':'';
+  $('t-yield').value=(R.avgYield&&R.totalYield>0)?fmt(R.totalYield)+' kg':'';
   $('t-sampleN').value=R.sampN?R.sampN+'주':'';
   const hasReg=R.rows.some(r=>r.reg>0&&r.actual>0);
   $('t-contract').value=hasReg?(R.contractChange?'변경':'이상무'):'';
@@ -720,8 +881,6 @@ function calc(){
     set(`v-per-${i}`,c.sampleCnt>0?(ap?fmt(c.per):fmt(c.per)+'g'):'');
     set(`v-dmg-${i}`,(parseFloat(v.normal)||parseFloat(v.p50)||parseFloat(v.p80)||parseFloat(v.p100))?(c.dmg*100).toFixed(1)+'%':'');
     if(ap)set(`v-w-${i}`,c.weight?fmt(c.weight)+'g':'');
-    set(`v-pavg-${i}`,c.F?fmt(c.F)+'kg':'');
-    set(`v-yield-${i}`,(R.avgYield&&c.sampleCnt>0)?fmt(c.yld)+'kg':'');
     const w=$(`v-warn-${i}`);
     if(w){
       if(ap&&c.sampleCnt>0&&!c.weight){
@@ -745,6 +904,8 @@ function calc(){
     const db=$(`v-ddmg-badge-${i}`);
     if(db){const hd=parseFloat(v.dn)||parseFloat(v.dp50)||parseFloat(v.dp80)||parseFloat(v.dp100);db.textContent=hd?(c.ddmg*100).toFixed(1)+'%':'-';db.className='dmg-rate-badge'+(c.ddmg>0?'':' zero');}
   });
+
+  renderCompare(R);
 
   const box=$('result-section'),pctEl=$('result-pct'),detail=$('result-detail');
   const hasData=R.avgYield>0&&R.totalSurvey>0&&varieties.some(v=>v.trees.some(t=>t!==''));
@@ -792,7 +953,7 @@ function lockInputs(lock){
     if(el.classList.contains('auto'))return;
     let dis=lock;
     // 표본 착과조사 단계에서는 나무조사 칸을 항상 잠금 (적정표본 흔들림 방지)
-    if(_phase==='fruit'&&el.classList.contains('tree-field'))dis=true;
+    if(_phase==='fruit'&&!_expandAll&&el.classList.contains('tree-field'))dis=true;
     el.disabled=dis;
     if(el.type==='date'){ el.style.opacity='0'; }   // 네이티브 날짜칸은 항상 투명 (date-disp가 표시)
     else { el.style.opacity=dis?'0.85':'1'; }
@@ -805,6 +966,21 @@ function toggleBigText(){
   const on=document.body.classList.contains('big-text');
   $('bigtext-btn').classList.toggle('on',on);
   $('bigtext-label').textContent=on?'작게':'크게';
+  calc();   // 비교표 폭 재배분
+}
+
+/* ───────── 전체보기 (나무조사+표본착과 한 화면) ───────── */
+function refreshExpandBtn(){
+  const b=$('expand-btn'); if(!b)return;
+  b.classList.toggle('on',_expandAll);
+  $('expand-label').textContent=_expandAll?'단계별':'전체보기';
+}
+function toggleExpand(){
+  vibrate(20);
+  _expandAll=!_expandAll;
+  if(_expandAll && _phase==='tree') allocateSamples();  // 입력된 주수로 표본칸 미리 배정
+  refreshExpandBtn();
+  renderVarieties(); setPhaseUI(); calc(); saveState();
 }
 
 /* ───────── 초기화 ───────── */
@@ -826,7 +1002,7 @@ function saveState(){
   try{
     localStorage.setItem('jujube_state',JSON.stringify({
       farm:$('farm_no').value,date:$('survey_date').value,
-      avg:$('avg_yield').value,unins:$('unins_rate').value,varieties,locked:_locked,phase:_phase}));
+      avg:$('avg_yield').value,unins:$('unins_rate').value,varieties,locked:_locked,phase:_phase,expand:_expandAll}));
   }catch(e){}
 }
 function loadState(){
@@ -839,6 +1015,7 @@ function loadState(){
       $('survey_date').value=s.date||'';syncDate($('survey_date'));
       varieties=s.varieties.map(v=>Object.assign(newVariety(),v));
       _phase=s.phase==='fruit'?'fruit':'tree';
+      _expandAll=!!s.expand;
       return true;
     }
   }catch(e){}
@@ -963,14 +1140,25 @@ async function saveImage(){
 document.addEventListener('DOMContentLoaded',()=>{
   if(!loadState())varieties=[newVariety()];
   if(!$('survey_date').value){$('survey_date').value=new Date().toLocaleDateString('en-CA');syncDate($('survey_date'));}
+  refreshExpandBtn();
   renderVarieties();setPhaseUI();calc();
-  // 입력칸을 누르면 기존 값 전체선택 → 바로 덮어쓰기
+  window.addEventListener('resize',()=>{try{calc();}catch(e){}});
+  // 입력칸 커서 대면 전체 선택 → 바로 타이핑하면 덮어쓰기 (값은 지우지 않음)
+  function selectAllSoon(t){
+    const sel=()=>{ try{ t.select(); if(t.setSelectionRange) t.setSelectionRange(0,(t.value||'').length); }catch(_){} };
+    sel(); setTimeout(sel,0); requestAnimationFrame(sel);
+  }
   document.addEventListener('focusin',e=>{
     const t=e.target;
-    if(t&&t.tagName==='INPUT'&&t.type!=='date'&&(t.classList.contains('inp')||t.classList.contains('tinp'))){
-      setTimeout(()=>{try{t.select();}catch(_){}} ,0);
-    }
+    if(!t||t.tagName!=='INPUT'||t.type==='date')return;
+    if(t.classList.contains('tinp')||t.classList.contains('inp')){ t._sel=true; selectAllSoon(t); }
   });
+  // 모바일: 포커스 직후 탭 업이 선택을 풀지 않도록 1회 방지
+  document.addEventListener('mouseup',e=>{
+    const t=e.target;
+    if(t&&t.tagName==='INPUT'&&t._sel){ e.preventDefault(); t._sel=false; }
+  });
+  document.addEventListener('focusout',e=>{ if(e.target)e.target._sel=false; });
 });
 </script>
 </body>
