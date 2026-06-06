@@ -157,9 +157,9 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .btn-calc{background:#fff;border-color:var(--main);color:var(--main)}
 .btn-calc.active{background:var(--main);color:#fff}
 
-.result-box{background:var(--main);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.18);box-shadow:0 6px 20px rgba(91,126,63,0.30)}
-.result-box.pending{background:#9a9f9b;box-shadow:none}
-.save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
+.result-box{background:var(--card);border-radius:18px;padding:0 12px;margin-bottom:10px;color:var(--text);border:0.5px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+.result-box.pending{background:#f1f0ec;box-shadow:none}
+.save-btn{background:var(--main);border:none;color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .rdetail{background:var(--card);border-radius:var(--r);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;display:none}
 .drow{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid #eee}
 .drow:last-child{border-bottom:none}
@@ -252,14 +252,14 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
       </div>
     </div>
     <div class="auto-strip" style="margin:0">
-      <div class="g3" style="margin-bottom:8px">
-        <div class="field"><label style="color:var(--sub)">총 조사대상주</label><input class="auto" id="t-survey" readonly></div>
-        <div class="field"><label style="color:var(--sub)">전체 표본주수</label><input class="auto" id="t-sampleN" readonly></div>
-        <div class="field"><label style="color:var(--sub)">계약변경</label><input class="auto" id="t-contract" readonly></div>
+      <div class="g2" style="margin-bottom:8px">
+        <div class="field"><label style="color:var(--sub)">가입주수</label><input class="auto" id="t-reg" readonly></div>
+        <div class="field"><label style="color:var(--sub)">실제결과주수</label><input class="auto" id="t-actual" readonly></div>
       </div>
-      <div class="g2" style="margin-bottom:0">
-        <div class="field"><label style="color:var(--main)">품종평년수확량</label><input class="auto" id="t-applied" readonly></div>
-        <div class="field"><label style="color:var(--main)">품종수확량</label><input class="auto" id="t-yield" readonly></div>
+      <div class="g3" style="margin-bottom:0">
+        <div class="field"><label style="color:var(--sub)">조사대상주수</label><input class="auto" id="t-survey" readonly></div>
+        <div class="field"><label style="color:var(--sub)">표본주수</label><input class="auto" id="t-sampleN" readonly></div>
+        <div class="field"><label style="color:var(--sub)">계약변경</label><input class="auto" id="t-contract" readonly></div>
       </div>
     </div>
   </div>
@@ -298,27 +298,19 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
   <div class="result-box pending" id="result-section">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
-        <span style="font-size:13px;color:rgba(255,255,255,0.75);font-weight:500;letter-spacing:0.04em">피해율</span>
+        <span style="font-size:13px;color:var(--blue);font-weight:700;letter-spacing:0.04em">피해율</span>
       </div>
-      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28)"></div>
+      <div style="width:1px;height:34px;background:var(--border)"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
-        <span id="result-pct" style="font-size:26px;font-weight:700;color:#fff;line-height:1;white-space:nowrap">- -</span>
+        <span id="result-pct" style="font-size:26px;font-weight:700;color:var(--sub);line-height:1;white-space:nowrap">- -</span>
       </div>
-      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28)"></div>
+      <div style="width:1px;height:34px;background:var(--border)"></div>
       <div style="padding-left:12px;flex-shrink:0">
         <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
       </div>
     </div>
   </div>
 
-  <div class="rdetail" id="result-detail">
-    <div class="sec-title">계산 상세</div>
-    <div class="drow"><span class="dl">적용 평년수확량</span><span class="dv" id="d-avg">-</span></div>
-    <div class="drow"><span class="dl">조사수확량</span><span class="dv" id="d-yield" style="color:var(--blue)">-</span></div>
-    <div class="drow"><span class="dl">미보상감수량</span><span class="dv" id="d-unins">-</span></div>
-    <div class="drow"><span class="dl">계약변경</span><span class="dv" id="d-contract">-</span></div>
-    <div class="drow"><span class="dl">피해율</span><span class="dv" id="d-rate" style="color:var(--red)">-</span></div>
-  </div>
   </div>
 
 </div>
@@ -507,7 +499,7 @@ function renderVarieties(){
     for(const k in SUBS)sopts+=`<option value="${k}" ${v.cat===k?'selected':''}>${SUBS[k]}</option>`;
     const subLabel=group==='ap'?'세부품종':'지역';
     const typeBadge=`<div class="vhead-txt"><span class="vtype" id="v-name-${i}">${pname||'품종 선택'}</span><span class="vhead-sub" id="v-headsub-${i}"></span></div>`;
-    const treeLabel=ap?'표본주별 착과수 (개)':'표본주별 착과량 (g)';
+    const treeLabelKey=ap?'착과수 (개)':'착과량 (g)';
     const perLabel=ap?'주당착과수':'주당착과량(g)';
     // 나무조사 단계에서는 입력 허용, 표본단계에서는 잠금(disabled) — 전체보기는 항상 편집
     const dis = treeLocked?'disabled':'';
@@ -526,11 +518,11 @@ function renderVarieties(){
     if(showFruit){
       let treeHtml='';
       v.trees.forEach((t,ti)=>{
-        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${t}" placeholder="${ti+1}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div>`;
+        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${t}" placeholder="표본${ti+1} (${ap?'개':'g'})" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
-        <div class="subtitle" style="margin:0;color:var(--red);font-weight:800">${treeLabel}</div>
+        <div class="subtitle" style="margin:0;font-weight:800">표본주별 <span style="color:var(--red)">${treeLabelKey}</span></div>
         <div class="tree-btns">
           <button class="tree-mini-btn minus" onclick="delTree(${i})">－</button>
           <button class="tree-mini-btn plus" onclick="addTree(${i})">＋</button>
@@ -754,13 +746,13 @@ function computeAll(){
   const avgYield=toNum($('avg_yield'));
   const uninsRate=(parseFloat($('unins_rate').value)||0)/100;
 
-  let totalSurvey=0,totalL=0,contractChange=false;
+  let totalSurvey=0,totalL=0,totalReg=0,totalActual=0,contractChange=false;
   const rows=varieties.map(v=>{
     const reg=parseFloat(v.reg)||0,actual=parseFloat(v.actual)||0;
     const unins=parseFloat(v.unins)||0,dead=parseFloat(v.dead)||0,age=parseFloat(v.age)||0;
     const survey=Math.max(0,actual-unins-dead);
     const std=stdYield(v.cat,age)*reg;                   // 표준수확량 = 주당표준 × 가입주수
-    totalSurvey+=survey; totalL+=std;
+    totalSurvey+=survey; totalL+=std; totalReg+=reg; totalActual+=actual;
     if(reg>0&&actual>0&&Math.abs((actual-reg)/reg)>=0.05)contractChange=true;
     return {v,reg,actual,unins,dead,age,survey,std,L:std,ap:isApple(v.cat)};
   });
@@ -800,7 +792,7 @@ function computeAll(){
   totalUninsLoss=r4(totalUninsLoss);
   const rate=totalApplied>0?r4((totalApplied-totalYield-totalUninsLoss)/totalApplied)*100:0;
 
-  return {avgYield,uninsRate,rows,totalSurvey,sampN,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort};
+  return {avgYield,uninsRate,rows,totalSurvey,sampN,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort,totalReg,totalActual};
 }
 
 /* ───────── 품종별 비교 요약표 ───────── */
@@ -825,25 +817,25 @@ function renderCompare(R){
     if(showSum) h+=`<td class="sumcol">${sumTxt}</td>`;
     return h+'</tr>';
   };
-  const names =rows.map(r=>r.v.cat?vLabel(r.v):'-');
+  const regionShort = c=>({A:'보은~해가림',B:'보은~노지',C:'기타지역',D:'황실',E:'천황',F:'대능~하우스',G:'대능~노지',H:'기타품종'}[c]||'-');
+  const vBase = v=>{let g=v.group||'';if(g==='jc')g='bj';if(v.cat)g=isApple(v.cat)?'ap':(g==='jr'?'jr':'bj');return g==='ap'?'사과대추':g==='jr'?'재래':'복조';};
+  const names =rows.map(r=>r.v.cat?vBase(r.v):'-');
   const ages  =rows.map(r=>r.age?r.age+'년':'-');
+  const regs  =rows.map(r=>r.v.cat?regionShort(r.v.cat):'-');
+  const regV  =rows.map(r=>r.reg?r.reg.toLocaleString():'-');
+  const actV  =rows.map(r=>r.actual?r.actual.toLocaleString():'-');
   const surv  =rows.map(r=>r.survey?r.survey.toLocaleString():'-');
-  const samp  =rows.map(r=>{const c=r.calc;return (c.proper||c.sampleCnt)?`${c.sampleCnt}/${c.proper}`:'-';});
-  const pers  =rows.map(r=>{const c=r.calc;return c.sampleCnt>0?(r.ap?Math.round(c.per).toLocaleString():k1(c.per)+'g'):'-';});
-  const cdmg  =rows.map(r=>{const v=r.v;return (pf(v.normal)||pf(v.p50)||pf(v.p80)||pf(v.p100))?(r.calc.dmg*100).toFixed(1)+'%':'-';});
-  const ddmg  =rows.map(r=>{const v=r.v;return (pf(v.dn)||pf(v.dp50)||pf(v.dp80)||pf(v.dp100))?(r.calc.ddmg*100).toFixed(1)+'%':'-';});
-  const appl  =rows.map(r=>r.calc.F?k1(r.calc.F):'-');
-  const ylds  =rows.map(r=>(R.avgYield&&r.calc.sampleCnt>0)?k1(r.calc.yld):'-');
+  const samp  =rows.map(r=>r.calc.proper?r.calc.proper+'주':'-');
+  const intv  =rows.map(r=>{const c=r.calc;return (r.survey>0&&c.proper>0)?Math.floor(r.survey/c.proper).toLocaleString():'-';});
 
   let body=`<tr class="vname"><td class="rowlabel">품종</td>${names.map(x=>`<td>${x}</td>`).join('')}${showSum?'<td class="sumcol">-</td>':''}</tr>`;
   body+=line('수령',ages);
+  body+=line('지역',regs);
+  body+=line('가입주수',regV,R.totalReg?R.totalReg.toLocaleString():'-');
+  body+=line('실제결과주',actV,R.totalActual?R.totalActual.toLocaleString():'-');
   body+=line('조사대상주',surv,R.totalSurvey?R.totalSurvey.toLocaleString():'-');
-  body+=line('표본/적정',samp,R.sampN?R.sampN+'주':'-');
-  body+=line('주당착과',pers);
-  body+=line('착과피해',cdmg);
-  body+=line('낙과피해',ddmg);
-  body+=line('적용평년(kg)',appl,R.totalApplied?k1(R.totalApplied):'-');
-  body+=line('수확량(kg)',ylds,R.avgYield?k1(R.totalYield):'-');
+  body+=line('표본주',samp,R.sampN?R.sampN+'주':'-');
+  body+=line('<span style="color:var(--red);font-weight:700">표본간격</span>',intv);
 
   tbl.innerHTML='<thead>'+head+'</thead><tbody>'+body+'</tbody>';
 
@@ -859,9 +851,9 @@ function renderCompare(R){
 function calc(){
   const R=computeAll();
   $('t-survey').value=R.totalSurvey?R.totalSurvey.toLocaleString():'';
-  $('t-applied').value=R.totalApplied>0?fmt(R.totalApplied)+' kg':'';
-  $('t-yield').value=(R.avgYield&&R.totalYield>0)?fmt(R.totalYield)+' kg':'';
   $('t-sampleN').value=R.sampN?R.sampN+'주':'';
+  $('t-reg').value=R.totalReg?R.totalReg.toLocaleString()+'주':'';
+  $('t-actual').value=R.totalActual?R.totalActual.toLocaleString()+'주':'';
   const hasReg=R.rows.some(r=>r.reg>0&&r.actual>0);
   $('t-contract').value=hasReg?(R.contractChange?'변경':'이상무'):'';
   $('t-contract').style.color=R.contractChange?'var(--red)':'var(--main)';
@@ -907,24 +899,17 @@ function calc(){
 
   renderCompare(R);
 
-  const box=$('result-section'),pctEl=$('result-pct'),detail=$('result-detail');
+  const box=$('result-section'),pctEl=$('result-pct');
   const hasData=R.avgYield>0&&R.totalSurvey>0&&varieties.some(v=>v.trees.some(t=>t!==''));
   if(!hasData){
-    box.className='result-box pending';pctEl.textContent='- -';pctEl.style.color='#fff';
-    detail.style.display='none';saveState();return;
+    box.className='result-box pending';pctEl.textContent='- -';pctEl.style.color='var(--sub)';
+    saveState();return;
   }
-  $('d-avg').textContent=fmt(R.totalApplied)+' kg';
-  $('d-yield').textContent=fmt(R.totalYield)+' kg';
-  $('d-unins').textContent=fmt(R.totalUninsLoss)+' kg';
-  $('d-contract').textContent=R.contractChange?'변경':'이상무';
-  $('d-contract').style.color=R.contractChange?'var(--red)':'var(--green)';
-  $('d-rate').textContent=R.rate.toFixed(2)+' %';
-  detail.style.display='block';
 
   box.className='result-box';
   pctEl.textContent=R.rate.toFixed(2)+'%';
-  pctEl.style.color=R.rate<0?'#BFE3CF':'#fff';
-  if(R.anyShort)pctEl.style.color='#FFE082';
+  pctEl.style.color=R.rate<0?'var(--green)':'var(--red)';
+  if(R.anyShort)pctEl.style.color='var(--orange)';
   saveState();
 }
 
