@@ -338,7 +338,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
   </div>
 </div>
 
-<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:820px;background:#eef2f6;padding:0;z-index:-1"></div>
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:640px;background:#fff;padding:0;z-index:-1"></div>
 
 <div class="modal-bg" id="treeDelModal">
   <div class="modal">
@@ -1072,40 +1072,157 @@ function deleteHistory(idx){
 /* ───────── 이미지 저장 ───────── */
 function buildCapture(){
   const R=computeAll();
-  let rowHtml='';
-  R.rows.forEach(r=>{
-    const v=r.v,c=r.calc;
-    rowHtml+=`<tr>
-      <td class="cap-td">${v.cat?vLabel(v):'-'}</td>
-      <td class="cap-td">${v.age||'-'}</td>
-      <td class="cap-td">${r.survey.toLocaleString()}</td>
-      <td class="cap-td">${c.sampleCnt}/${c.proper}</td>
-      <td class="cap-td">${r.ap?fmt(c.per):fmt(c.per)+'g'}</td>
-      <td class="cap-td">${(c.dmg*100).toFixed(1)}%</td>
-      <td class="cap-td">${(c.ddmg*100).toFixed(1)}%</td>
-      <td class="cap-td">${fmt(c.F)}</td>
-      <td class="cap-td">${fmt(c.yld)}</td></tr>`;
-  });
+  const fmtN=x=>Math.round(x).toLocaleString();
+  const vType=v=>{let g=v.group||'';if(g==='jc')g='bj';if(v.cat)g=isApple(v.cat)?'ap':(g==='jr'?'jr':'bj');return g==='ap'?'사과대추':g==='jr'?'재래':'복조';};
   const farm=$('farm_no').value||'-',date=$('survey_date').value||'-';
+
+  // ── 1. 나무조사 ──
+  let treeRows='';
+  let sReg=0,sAct=0,sDead=0,sUn=0,sProp=0,sSamp=0;
+  R.rows.forEach(r=>{
+    if(!r.v.cat)return;
+    const c=r.calc,v=r.v,dead=pf(v.dead),un=pf(v.unins);
+    sReg+=r.reg;sAct+=r.actual;sDead+=dead;sUn+=un;sProp+=c.proper;sSamp+=c.sampleCnt;
+    treeRows+=`<tr>
+      <td class="cap-td">${vType(v)}</td>
+      <td class="cap-td">${v.age||'-'}</td>
+      <td class="cap-td">${r.reg?r.reg.toLocaleString():'-'}</td>
+      <td class="cap-td">${r.actual?r.actual.toLocaleString():'-'}</td>
+      <td class="cap-td">${dead||0}</td>
+      <td class="cap-td">${un||0}</td>
+      <td class="cap-td">${c.proper||'-'}</td>
+      <td class="cap-td">${c.sampleCnt||'-'}</td></tr>`;
+  });
+  treeRows+=`<tr style="font-weight:800;background:#EEF2F0">
+    <td class="cap-td">합계</td><td class="cap-td">-</td>
+    <td class="cap-td">${sReg.toLocaleString()}</td><td class="cap-td">${sAct.toLocaleString()}</td>
+    <td class="cap-td">${sDead}</td><td class="cap-td">${sUn}</td>
+    <td class="cap-td">${sProp}</td><td class="cap-td">${sSamp}</td></tr>`;
+
+  // ── 2. 재래종 표본조사 ──
+  let jjRows='';let jn=0;
+  R.rows.forEach(r=>{
+    if(!r.v.cat||r.ap)return;
+    const v=r.v,c=r.calc;
+    v.trees.forEach(t=>{
+      const g=parseFloat(String(t).replace(/,/g,''));
+      if(isNaN(g))return;
+      jn++;
+      jjRows+=`<tr>
+        <td class="cap-td">${jn}</td>
+        <td class="cap-td">${vType(v)}</td>
+        <td class="cap-td">${v.age||'-'}</td>
+        <td class="cap-td">${g.toLocaleString()}</td>
+        <td class="cap-td">${Math.round(g*(1-c.dmg)).toLocaleString()}</td></tr>`;
+    });
+  });
+  if(!jjRows)jjRows=`<tr><td class="cap-td" colspan="5" style="color:#999">해당 없음</td></tr>`;
+
+  // ── 3. 사과대추 표본조사 ──
+  let apRows='';let an=0;
+  R.rows.forEach(r=>{
+    if(!r.v.cat||!r.ap)return;
+    const v=r.v,c=r.calc;
+    v.trees.forEach(t=>{
+      const cnt=parseFloat(String(t).replace(/,/g,''));
+      if(isNaN(cnt))return;
+      an++;
+      const recogN=Math.round(cnt*(1-c.dmg)), recogW=Math.round(recogN*c.weight);
+      apRows+=`<tr>
+        <td class="cap-td">${an}</td>
+        <td class="cap-td">${vType(v)}</td>
+        <td class="cap-td">${v.age||'-'}</td>
+        <td class="cap-td">${cnt.toLocaleString()}</td>
+        <td class="cap-td">-</td>
+        <td class="cap-td">${recogN.toLocaleString()}</td>
+        <td class="cap-td">${c.weight?fmtN(c.weight):'-'}</td>
+        <td class="cap-td">${recogW.toLocaleString()}</td></tr>`;
+    });
+  });
+  if(!apRows)apRows=`<tr><td class="cap-td" colspan="8" style="color:#999">해당 없음</td></tr>`;
+
+  // ── 4. 사과대추 과중조사 ──
+  let wRows='';
+  R.rows.forEach(r=>{
+    if(!r.v.cat||!r.ap)return;
+    const v=r.v,c=r.calc,fc=pf(v.fcount),fw=pf(v.fweight);
+    if(!fc&&!fw)return;
+    wRows+=`<tr>
+      <td class="cap-td">${vType(v)}</td>
+      <td class="cap-td">${fc?fc.toLocaleString():'-'}</td>
+      <td class="cap-td">${fw?fw.toLocaleString():'-'}</td>
+      <td class="cap-td">${c.weight?fmtN(c.weight):'-'}</td></tr>`;
+  });
+  if(!wRows)wRows=`<tr><td class="cap-td" colspan="4" style="color:#999">해당 없음</td></tr>`;
+
+  const secTitle=t=>`<div style="font-size:14px;font-weight:800;color:#2d5016;margin:16px 0 6px;border-left:4px solid #5B7E3F;padding-left:8px">${t}</div>`;
+
   $('capture-template').innerHTML=`
-  <div style="background:#fff;padding:22px;font-family:-apple-system,'Noto Sans KR',sans-serif">
-    <div style="background:#5B7E3F;color:#fff;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:18px;font-weight:800">🍯 대추 피해율 조사결과</div>
-      <div style="font-size:12px;opacity:.9">농지 ${farm} · ${date} · ${R.contractChange?'계약변경':'이상무'}</div>
+  <div style="background:#fff;padding:20px;font-family:-apple-system,'Noto Sans KR',sans-serif;width:100%">
+    <div style="background:#5B7E3F;color:#fff;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:17px;font-weight:800">🍯 대추 수확개시전 수확량조사</div>
+        <div style="font-size:12px;opacity:.9;margin-top:3px">${R.contractChange?'계약변경 대상':'이상무'}</div>
+      </div>
+      <div style="text-align:right;font-size:12px;line-height:1.6;flex-shrink:0">
+        <div>농지번호 <b>${farm}</b></div>
+        <div>조사일자 <b>${date}</b></div>
+      </div>
     </div>
-    <div style="display:flex;gap:10px;margin:14px 0">
-      <div style="flex:1;background:#EEF2F0;border-radius:10px;padding:12px;text-align:center"><div style="font-size:12px;color:#5a6b62">적용 평년수확량</div><div style="font-size:18px;font-weight:800;margin-top:4px">${fmt(R.totalApplied)} kg</div></div>
-      <div style="flex:1;background:#EEF2F0;border-radius:10px;padding:12px;text-align:center"><div style="font-size:12px;color:#5a6b62">조사수확량</div><div style="font-size:18px;font-weight:800;margin-top:4px">${fmt(R.totalYield)} kg</div></div>
-      <div style="flex:1;background:#EEF2F0;border-radius:10px;padding:12px;text-align:center"><div style="font-size:12px;color:#5a6b62">미보상감수량</div><div style="font-size:18px;font-weight:800;margin-top:4px">${fmt(R.totalUninsLoss)} kg</div></div>
-      <div style="flex:1;background:#5B7E3F;border-radius:10px;padding:12px;text-align:center"><div style="font-size:12px;color:#cfe2d5">피해율</div><div style="font-size:20px;font-weight:800;margin-top:4px;color:#FFE082">${R.rate.toFixed(2)}%</div></div>
-    </div>
+
+    ${secTitle('기본정보')}
+    <table style="width:100%;border-collapse:collapse">
+      <tbody>
+        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">평년수확량</td><td class="cap-td">${R.avgYield?fmt(R.avgYield)+' kg':'-'}</td>
+            <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td></tr>
+        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">가입주수</td><td class="cap-td">${R.totalReg?R.totalReg.toLocaleString()+' 주':'-'}</td>
+            <td class="cap-td" style="background:#EEF2F0;font-weight:700">실제결과주수</td><td class="cap-td">${R.totalActual?R.totalActual.toLocaleString()+' 주':'-'}</td></tr>
+      </tbody>
+    </table>
+
+    ${secTitle('1. 나무조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">조사대상</th><th class="cap-th">표본/적정</th>
-        <th class="cap-th">주당착과</th><th class="cap-th">착과피해</th><th class="cap-th">낙과피해</th><th class="cap-th">평년수확</th><th class="cap-th">수확량</th>
-      </tr></thead><tbody>${rowHtml}</tbody>
+        <th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">가입<br>주수</th><th class="cap-th">실제결과<br>주수</th>
+        <th class="cap-th">고사<br>주수</th><th class="cap-th">미보상<br>주수</th><th class="cap-th">적정<br>표본수</th><th class="cap-th">표본<br>주수</th>
+      </tr></thead><tbody>${treeRows}</tbody>
     </table>
-    <div style="font-size:10px;color:#9aa;margin-top:10px;text-align:right">대추 피해율계산기 · 비가림과수 수확량조사 · 피해율=(평년-수확량-미보상감수량)÷평년</div>
+
+    ${secTitle('2. 재래종 표본조사')}
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">착과량<br>(g)</th><th class="cap-th">인정착과량<br>(g)</th>
+      </tr></thead><tbody>${jjRows}</tbody>
+    </table>
+
+    ${secTitle('3. 사과대추 표본조사')}
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">착과수</th>
+        <th class="cap-th">낙과수</th><th class="cap-th">인정<br>착과수</th><th class="cap-th">개당<br>과중(g)</th><th class="cap-th">인정착과량<br>(g)</th>
+      </tr></thead><tbody>${apRows}</tbody>
+    </table>
+
+    ${secTitle('4. 사과대추 과중조사')}
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th class="cap-th">품종</th><th class="cap-th">표본 과실수<br>(개)</th><th class="cap-th">표본과실 무게<br>(g)</th><th class="cap-th">개당과중<br>(g)</th>
+      </tr></thead><tbody>${wRows}</tbody>
+    </table>
+
+    ${secTitle('5. 조사결과')}
+    <table style="width:100%;border-collapse:collapse">
+      <tbody>
+        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">적용 평년수확량</td><td class="cap-td">${fmt(R.totalApplied)} kg</td>
+            <td class="cap-td" style="background:#EEF2F0;font-weight:700">조사수확량</td><td class="cap-td">${fmt(R.totalYield)} kg</td></tr>
+        <tr><td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상비율</td><td class="cap-td">${(R.uninsRate*100).toFixed(0)} %</td>
+            <td class="cap-td" style="background:#EEF2F0;font-weight:700">미보상감수량</td><td class="cap-td">${fmt(R.totalUninsLoss)} kg</td></tr>
+        <tr><td class="cap-td" style="background:#5B7E3F;color:#fff;font-weight:800">피해율</td>
+            <td class="cap-td" colspan="3" style="font-weight:800;color:#e24b4a;font-size:16px">${R.rate.toFixed(2)} %</td></tr>
+      </tbody>
+    </table>
+
+    <div style="font-size:10px;color:#9aa;margin-top:12px;text-align:right">대추 피해율계산기 · 비가림과수 수확량조사 · 피해율=(평년-수확량-미보상감수량)÷평년</div>
   </div>`;
 }
 async function saveImage(){
