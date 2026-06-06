@@ -112,6 +112,9 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 .tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 .tree-no{font-size:9px;color:var(--hint);text-align:center;margin-top:1px}
+.tree-locked{margin-top:10px;padding:14px 12px;background:var(--auto);border:1.5px dashed var(--border);border-radius:10px;color:var(--sub);font-size:12px;text-align:center;line-height:1.7}
+.tree-locked b{color:var(--main-d);font-weight:800}
+.warn.over{color:var(--sub)!important;font-weight:600}
 .sample-btn-row{display:flex;gap:8px;margin-top:8px}
 .add-btn{flex:1;height:34px;border:1.5px dashed var(--accent);background:var(--main-l);border-radius:var(--rs);font-size:12px;color:var(--main-d);font-weight:600;cursor:pointer}
 .del-sample-btn{flex:1;height:34px;border:1.5px solid var(--red);background:#FFF5F5;border-radius:var(--rs);font-size:12px;color:var(--red);font-weight:600;cursor:pointer}
@@ -401,6 +404,26 @@ function renderVarieties(){
     });
     const treeLabel=ap?'표본주별 착과수 (개)':'표본주별 착과량 (g)';
     const perLabel=ap?'주당착과수':'주당착과량(g)';
+    const _sv=Math.max(0,(parseFloat(v.actual)||0)-(parseFloat(v.unins)||0)-(parseFloat(v.dead)||0));
+    const _hasTree=v.trees.some(t=>String(t).trim()!=='');
+    const _ready=_sv>0||_hasTree;   // 조사대상주(주수)가 있어야 표본 입력칸 노출
+    const sampleBlock=_ready?`
+      <div class="tree-head">
+        <div class="subtitle" style="margin:0">${treeLabel}</div>
+        <div class="tree-btns">
+          <button class="tree-mini-btn minus" onclick="delTree(${i})">－</button>
+          <button class="tree-mini-btn plus" onclick="addTree(${i})">＋</button>
+        </div>
+      </div>
+      <div class="tree-grid" id="tree-grid-${i}">${treeHtml}</div>
+      <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
+      ${ap?`<div class="subtitle">과중조사 (품종 60개 이상)</div>
+        <div class="g3">
+          <div class="field"><label>표본 과실수</label><span class="unit-badge">개</span><input class="inp ${v.fcount!==''?'filled':''}" inputmode="numeric" value="${v.fcount}" oninput="onF(${i},'fcount',this)"></div>
+          <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" value="${v.fweight}" oninput="onF(${i},'fweight',this)"></div>
+          <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
+        </div>`:''}`
+    :`<div class="tree-locked">🔒 먼저 <b>주수</b>(실제결과주 등)를 입력하세요<br>주수를 넣으면 적정표본 칸이 자동으로 만들어집니다</div>`;
     card.innerHTML=`
       <div class="vcard-head">
         <div class="vbadge">${i+1}</div>${typeBadge}
@@ -426,21 +449,7 @@ function renderVarieties(){
           <div class="field"><label style="color:var(--sub)">피해구성률</label><input class="auto" id="v-dmg-${i}" readonly></div>
         </div>
       </div>
-      <div class="tree-head">
-        <div class="subtitle" style="margin:0">${treeLabel}</div>
-        <div class="tree-btns">
-          <button class="tree-mini-btn minus" onclick="delTree(${i})">－</button>
-          <button class="tree-mini-btn plus" onclick="addTree(${i})">＋</button>
-        </div>
-      </div>
-      <div class="tree-grid" id="tree-grid-${i}">${treeHtml}</div>
-      <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
-      ${ap?`<div class="subtitle">과중조사 (품종 60개 이상)</div>
-        <div class="g3">
-          <div class="field"><label>표본 과실수</label><span class="unit-badge">개</span><input class="inp ${v.fcount!==''?'filled':''}" inputmode="numeric" value="${v.fcount}" oninput="onF(${i},'fcount',this)"></div>
-          <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" value="${v.fweight}" oninput="onF(${i},'fweight',this)"></div>
-          <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
-        </div>`:''}
+      ${sampleBlock}
       <div class="dmg-toggle-row ${v.dmgOpen?'on':''}" onclick="toggleDmg(${i})">
         <label class="sw" onclick="event.stopPropagation()">
           <input type="checkbox" ${v.dmgOpen?'checked':''} onchange="toggleDmg(${i})">
@@ -520,12 +529,15 @@ function syncSamples(){
     const a=parseFloat(v.actual)||0,u=parseFloat(v.unins)||0,d=parseFloat(v.dead)||0;
     const sv=Math.max(0,a-u-d);
     const proper=sv>0&&totalSurvey>0?Math.ceil(sampN*sv/totalSurvey):0;
+    const filled=v.trees.filter(t=>String(t).trim()!=='').length;
     if(proper>0){
+      // 부족하면 빈 칸 추가
       while(v.trees.length<proper)v.trees.push('');
-      while(v.trees.length>proper){
-        const emptyIdx=v.trees.map((t,ti)=>t===''?ti:-1).filter(ti=>ti>=0).pop();
-        if(emptyIdx!==undefined&&emptyIdx>=0)v.trees.splice(emptyIdx,1);
-        else v.trees.pop();
+      // 초과 시 '빈 칸'만 제거 — 이미 입력한 표본값은 절대 삭제하지 않음
+      while(v.trees.length>proper && v.trees.length>filled && v.trees.length>1){
+        const emptyIdx=v.trees.map((t,ti)=>String(t).trim()===''?ti:-1).filter(ti=>ti>=0).pop();
+        if(emptyIdx===undefined)break;
+        v.trees.splice(emptyIdx,1);
       }
     }else if(v.trees.length===0){ v.trees.push(''); }
   });
@@ -609,7 +621,16 @@ function calc(){
     if(ap)set(`v-w-${i}`,c.weight?fmt(c.weight)+'g':'');
     set(`v-pavg-${i}`,c.F?fmt(c.F)+'kg':'');
     set(`v-yield-${i}`,(R.avgYield&&c.sampleCnt>0)?fmt(c.yld)+'kg':'');
-    const w=$(`v-warn-${i}`); if(w)w.style.display=(c.proper>0&&c.sampleCnt>0&&c.sampleCnt<c.proper)?'block':'none';
+    const w=$(`v-warn-${i}`);
+    if(w){
+      if(c.proper>0&&c.sampleCnt>0&&c.sampleCnt<c.proper){
+        w.textContent=`⚠ 표본주가 적정표본수(${c.proper}주)보다 부족합니다`;
+        w.className='warn';w.style.display='block';
+      }else if(c.proper>0&&c.sampleCnt>c.proper){
+        w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
+        w.className='warn over';w.style.display='block';
+      }else{w.style.display='none';}
+    }
     // 토글 행 배지
     const tb=$(`v-dmg-badge-${i}`);
     if(tb){const hasDmg=parseFloat(v.normal)||parseFloat(v.p50)||parseFloat(v.p80)||parseFloat(v.p100)||parseFloat(v.dn)||parseFloat(v.dp50)||parseFloat(v.dp80)||parseFloat(v.dp100);
