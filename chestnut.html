@@ -107,7 +107,7 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 .tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
 /* 표본주 입력셀 (고추 scell 방식) */
-.scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:6px;text-align:center;position:relative;height:42px}
+.scell{background:#f6f7f3;border:1.5px solid var(--binp);border-radius:6px;text-align:center;position:relative;height:42px}
 .scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#bbb;font-weight:600;pointer-events:none}
 .scell .ci{position:absolute;top:0;left:0;right:0;height:100%;border:none;background:transparent;text-align:center;font-size:14px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
 .scell .ci::placeholder{color:transparent}
@@ -572,16 +572,16 @@ function renderVarieties(){
           <button class="tree-mini-btn plus" onclick="addTree(${i})">＋</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-top:6px" id="tree-grid-${i}">${chakHtml}</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px" id="tree-grid-${i}">${chakHtml}</div>
       <div class="subtitle" style="margin-top:8px;font-weight:800">표본주별 <span style="color:var(--red)">낙과수</span> (개/송이)</div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-top:4px">${nakHtml}</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px">${nakHtml}</div>
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
 
       <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 소과(30mm이하)=무게×0.8</span></div>
       <div class="g4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:0">
-        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onF(${i},'fcnt',this)" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp ${(v.wN||'')!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${v.wN||''}" oninput="onF(${i},'wN',this)" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>소과 무게</label><span class="unit-badge">g</span><input class="inp ${(v.wS||'')!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${v.wS||''}" oninput="onF(${i},'wS',this)" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>소과 무게</label><span class="unit-badge">g</span><input class="inp ${(v.wS||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wS?Number(String(v.wS).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wS',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
         <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
       </div>
 
@@ -679,6 +679,13 @@ function toggleDmg(i){
     ['normal','p50','p80','p100','dn','dp50','dp80','dp100'].forEach(k=>varieties[i][k]='');
   }
   renderVarieties();calc();saveState();
+}
+function onCommaF(i,key,el){
+  const raw=el.value.replace(/,/g,'').replace(/[^0-9]/g,'');
+  varieties[i][key]=raw;
+  el.value=raw?Number(raw).toLocaleString('ko-KR'):'';
+  markFilled(el);
+  calc();
 }
 function onF(i,key,el){varieties[i][key]=el.value;markFilled(el);calc();}
 function onFsoft(i,key,el){
