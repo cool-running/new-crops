@@ -812,10 +812,11 @@ function computeAll(){
     const reg=parseFloat(v.reg)||0,actual=parseFloat(v.actual)||0;
     const unins=parseFloat(v.unins)||0,dead=parseFloat(v.dead)||0,age=parseFloat(v.age)||0;
     const survey=Math.max(0,actual-unins-dead);
-    const std=stdYield(v.cat,age)*reg;
+    const stdUnit=stdYield(v.cat,age);
+    const std=stdUnit*reg;
     totalSurvey+=survey;totalL+=std;totalReg+=reg;totalActual+=actual;
     if(reg>0&&actual>0&&Math.abs((actual-reg)/reg)>=0.05)contractChange=true;
-    return {v,reg,actual,unins,dead,age,survey,std,L:std};
+    return {v,reg,actual,unins,dead,age,survey,std,stdUnit,L:std};
   });
   const sampN=totalSampleN(totalSurvey);
 
@@ -824,9 +825,11 @@ function computeAll(){
     const v=r.v;
     const proper=r.survey>0&&totalSurvey>0?Math.ceil(sampN*r.survey/totalSurvey):0;
     const N=totalL>0?r4(avgYield*r.L/totalL):0;
-    const O=r.reg>0?r4((N/r.reg)*r.actual):0;
+    /* 원장변경 재산정: 적용평년 = 평년 × (주당표준×실결) ÷ 가입표준합계
+       — 가입주수 0인 신규 품종(수령 추가)도 실결 기준으로 평년이 배분됨 */
+    const O=totalL>0?r4(avgYield*r.stdUnit*r.actual/totalL):0;
     const F=contractChange?O:N;
-    const Zper=r.reg>0?r4(N/r.reg):0;
+    const Zper=r.reg>0?r4(N/r.reg):(r.actual>0?r4(F/r.actual):0);
 
     /* 착과수 (개/주) */
     const tv=v.trees.map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
@@ -1072,7 +1075,7 @@ function saveToHistory(){
     varieties:JSON.parse(JSON.stringify(varieties)),pct,
     saved_at:new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\s/g,'')};
   let recs=[];try{recs=JSON.parse(localStorage.getItem('chestnut_history_v2')||'[]');}catch(e){}
-  const ei=farm?recs.findIndex(r=>r.farm===farm&&r.date===date):-1;
+  const ei=farm?recs.findIndex(r=>r.farm===farm):-1;   // 농지번호 같으면 조사일자 달라도 덮어쓰기
   if(ei>=0)recs[ei]=rec;else recs.push(rec);
   if(recs.length>30)recs=recs.slice(-30);
   try{localStorage.setItem('chestnut_history_v2',JSON.stringify(recs));}catch(e){}
