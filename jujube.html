@@ -89,7 +89,6 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 body.big-text input.inp,body.big-text select.inp{height:52px !important;font-size:19px !important;font-weight:700 !important;border-width:2px !important}
 body.big-text input.auto{height:50px !important;font-size:17px !important;font-weight:600 !important}
 body.big-text .field label{font-size:13px !important}
-body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight:700 !important}
 
 .unit-badge{position:absolute;right:6px;top:0;font-size:10px;font-weight:600;color:var(--sub);background:var(--bg);border-radius:4px;padding:1px 4px;line-height:1.4;pointer-events:none;z-index:1}
 
@@ -104,16 +103,30 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .del-v{margin-left:auto;width:28px;height:28px;border:1.5px solid var(--red);background:#FFF5F5;color:var(--red);border-radius:7px;font-size:15px;cursor:pointer;flex-shrink:0}
 .auto-strip{background:transparent;border-radius:0;padding:0;margin:8px 0}
 .auto-strip .g2,.auto-strip .g3{margin-bottom:0}
-.tree-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.tree-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px}
+.scell{background:#f6f7f3;border:1.5px solid var(--binp);border-radius:6px;text-align:center;position:relative;height:42px}
+.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#bbb;font-weight:600;pointer-events:none}
+.scell .ci{position:absolute;top:0;left:0;right:0;height:100%;border:none;background:transparent;text-align:center;font-size:14px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
+.scell .ci::placeholder{color:transparent}
+.scell.has .cl{opacity:0}
+.scell.has .ci{color:#555}
+.scell.has{background:var(--done-bg);border:1.5px solid var(--done-bd)}
+.scell-badge{display:none;position:absolute;top:3px;right:4px;font-size:9px;font-weight:700;color:var(--done-bd);line-height:1;pointer-events:none;z-index:2}
+.scell.has .scell-badge{display:block}
+.scell:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
+.scell:focus-within .cl{opacity:0}
+.scell:focus-within .ci{color:var(--blue)}
 .tree-head{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0}
 .tree-btns{display:flex;align-items:center;gap:6px}
 .tree-mini-btn{width:30px;height:30px;border-radius:7px;background:transparent;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--border)}
 .tree-mini-btn.plus{border-color:var(--accent);color:var(--main-d)}
 .tree-mini-btn.minus{border-color:var(--red);color:var(--red)}
-.tinp{height:46px;border:1.5px solid var(--binp);border-radius:7px;text-align:center;font-size:15px;font-weight:600;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
+body.big-text .scell{height:52px!important}
+body.big-text .scell .ci{font-size:18px!important}
+/* 피해구성 소형 입력칸 */
+.tinp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);text-align:center;font-size:14px;font-weight:600;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
-.tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
-.tree-no{font-size:9px;color:var(--hint);text-align:center;margin-top:1px}
+.tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#555;font-weight:700}
 .warn.over{color:var(--sub)!important;font-weight:600}
 .btn-finish-tree{width:100%;height:52px;border:none;border-radius:var(--rs);background:var(--main);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(91,126,63,0.30)}
 .phase-hint{font-size:11px;color:var(--sub);text-align:center;line-height:1.6;margin-top:8px;padding:0 8px}
@@ -481,7 +494,7 @@ function commaFmt(el){
   el.value=parts.length>1?n+'.'+parts[1]:n;
 }
 function onComma(el){ commaFmt(el); markFilled(el); }
-function onTreeC(i,ti,el){ commaFmt(el); varieties[i].trees[ti]=el.value; markFilled(el); calc(); }
+function onTreeC(i,ti,el){ commaFmt(el); varieties[i].trees[ti]=el.value; el.closest('.scell')?.classList.toggle('has',el.value!==''); calc(); }
 function onFWeight(i,el){ commaFmt(el); varieties[i].fweight=el.value; markFilled(el); calc(); }
 function markFilled(el){if((el.value||'').trim()!=='')el.classList.add('filled');else el.classList.remove('filled');}
 function syncDate(el){
@@ -538,7 +551,7 @@ function renderVarieties(){
     if(showFruit){
       let treeHtml='';
       v.trees.forEach((t,ti)=>{
-        treeHtml+=`<div><input class="tinp ${t!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${t}" placeholder="표본${ti+1} (${ap?'개':'g'})" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div>`;
+        treeHtml+=`<div class="scell ${t!==''?'has':''}"><span class="scell-badge">${ti+1}</span><span class="cl">표본${ti+1}${ap?'(개)':'(g)'}</span><input class="ci" inputmode="decimal" enterkeyhint="next" value="${t}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -1305,7 +1318,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.addEventListener('focusin',e=>{
     const t=e.target;
     if(!t||t.tagName!=='INPUT'||t.type==='date')return;
-    if(t.classList.contains('tinp')||t.classList.contains('inp')){ t._sel=true; selectAllSoon(t); }
+    if(t.classList.contains('tinp')||t.classList.contains('inp')||t.classList.contains('ci')){ t._sel=true; selectAllSoon(t); }
   });
   // 모바일: 포커스 직후 탭 업이 선택을 풀지 않도록 1회 방지
   document.addEventListener('mouseup',e=>{
