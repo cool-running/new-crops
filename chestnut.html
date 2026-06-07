@@ -515,14 +515,12 @@ function renderVarieties(){
       B:['단택','유마','이평','축파'],
       C:['병고','산목','은기','미산적구']
     };
-    const varManual=v.varManual||false;
     const varList=cat&&VAR_BY_CAT[cat]?VAR_BY_CAT[cat]:[];
-    /* 기타 선택 시 직접입력칸 함께 표시 */
-    const showManualInput=!varManual&&v.varName==='기타';
-    const varNameHtml=varManual
+    const isDirect=v.varName==='__direct__';
+    const varNameHtml=isDirect
       ?`<div class="field">
           <label>품종명</label>
-          <input class="inp ${v.varName&&v.varName!=='기타'?'filled':''}" value="${(v.varName==='기타'?'':v.varName)||''}" placeholder="직접 입력" oninput="onF(${i},'varName',this)" onfocus="this.select()">
+          <input class="inp filled" value="${v.varCustom||''}" placeholder="품종명 입력 (재선택은 길게 터치)" onfocus="this.select()" oninput="onVarCustom(${i},this)" ondblclick="onVarBack(${i})" oncontextmenu="event.preventDefault();onVarBack(${i})">
         </div>`
       :`<div class="field">
           <label>품종명</label>
@@ -530,11 +528,11 @@ function renderVarieties(){
             <option value="">${cat?'선택':'숙기 먼저'}</option>
             ${varList.map(n=>`<option value="${n}" ${v.varName===n?'selected':''}>${n}</option>`).join('')}
             ${cat?`<option value="기타" ${v.varName==='기타'?'selected':''}>기타</option>`:''}
+            ${cat?`<option value="__direct__">직접입력</option>`:''}
           </select>
-          ${showManualInput?`<input class="inp filled" style="margin-top:4px" value="${v.varCustom||''}" placeholder="품종명 직접 입력" oninput="onF(${i},'varCustom',this)" onfocus="this.select()">`:''}
         </div>`;
 
-    const displayName=v.varName==='기타'?(v.varCustom||'기타'):v.varName;
+    const displayName=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):v.varName;
     const headLabel=`${cat&&CATS[cat]?CATS[cat].label:''}${displayName?' '+displayName:''}${v.age?' '+v.age+'년':''}`.trim()||'품종 선택';
     const typeBadge=`<div class="vhead-txt"><span class="vtype" id="v-name-${i}">${headLabel}</span></div>`;
 
@@ -649,10 +647,10 @@ function renderVarieties(){
       </div>
       <div class="g3" style="margin-bottom:8px">
         <div class="field"><label>고사주</label>
-          <input class="inp tree-field ${v.dead!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.dead}" oninput="onFsoft(${i},'dead',this)" onblur="onTreeBlur()">
+          <input class="inp tree-field ${v.dead!==''?'filled':''}" inputmode="numeric" value="${v.dead}" oninput="onFsoft(${i},'dead',this)" onblur="onTreeBlur()">
         </div>
         <div class="field"><label>미보상주</label>
-          <input class="inp tree-field ${v.unins!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="onTreeBlur()">
+          <input class="inp tree-field ${v.unins!==''?'filled':''}" inputmode="numeric" value="${v.unins}" oninput="onFsoft(${i},'unins',this)" onblur="onTreeBlur()">
         </div>
         <div class="field"><label style="color:var(--sub)">적정표본</label>
           <input class="auto" id="v-proper-${i}" readonly>
@@ -667,7 +665,13 @@ function renderVarieties(){
 }
 
 function onCat(i,el){varieties[i].cat=el.value;varieties[i].varName='';varieties[i].varManual=false;renderVarieties();calc();saveState();}
-function onVarName(i,el){varieties[i].varName=el.value;renderVarieties();calc();saveState();}
+function onVarName(i,el){
+  varieties[i].varName=el.value;
+  if(el.value!=='__direct__')varieties[i].varCustom='';
+  renderVarieties();calc();saveState();
+}
+function onVarCustom(i,el){varieties[i].varCustom=el.value;calc();saveState();}
+function onVarBack(i){varieties[i].varName='';varieties[i].varCustom='';renderVarieties();calc();saveState();}
 function toggleVarMode(i){varieties[i].varManual=!varieties[i].varManual;varieties[i].varName='';renderVarieties();saveState();}
 function toggleDmg(i){
   varieties[i].dmgOpen=!varieties[i].dmgOpen;
@@ -745,7 +749,6 @@ function setPhaseUI(){
 function finishTreeSurvey(){
   vibrate(30);
   const miss=[];
-  if(!varieties.every(v=>v.cat))miss.push('품종');
   if(!varieties.every(v=>(parseFloat(v.actual)||0)>0))miss.push('실제결과주');
   const totalSurvey=varieties.reduce((s,v)=>s+Math.max(0,(parseFloat(v.actual)||0)-(parseFloat(v.unins)||0)-(parseFloat(v.dead)||0)),0);
   if(totalSurvey<=0&&!miss.includes('실제결과주'))miss.push('주수');
@@ -910,7 +913,7 @@ function calc(){
     const nm=$(`v-name-${i}`);
     if(nm){
       const catL=v.cat&&CATS[v.cat]?CATS[v.cat].label:'';
-      const dispN=v.varName==='기타'?(v.varCustom||'기타'):v.varName;
+      const dispN=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):v.varName;
       const ageT=v.age?` ${v.age}년`:'';
       nm.textContent=([catL,dispN].filter(Boolean).join(' ')+ageT).trim()||'품종 선택';
     }
