@@ -792,6 +792,15 @@ function computeAll(){
   });
   const sampN=totalSampleN(totalSurvey);
 
+  /* 사과대추 개당과중은 전산상 '품종별' 값 — 같은 품종(수령만 다름)이면
+     한 번만 입력해도 동일 품종 전체에 공유 적용 (예: 5년 입력 → 4년도 동일 과중) */
+  const fruitWeightByCat={};
+  rows.forEach(r=>{
+    if(!r.ap)return;
+    const fc=pf(r.v.fcount),fw=pf(r.v.fweight);
+    if(fc>0&&fruitWeightByCat[r.v.cat]===undefined)fruitWeightByCat[r.v.cat]=r2(fw/fc);
+  });
+
   let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false;
   rows.forEach(r=>{
     const v=r.v;
@@ -808,7 +817,7 @@ function computeAll(){
     const dn=pf(v.dn),dp5=pf(v.dp50),dp8=pf(v.dp80),dp10=pf(v.dp100);
     const ddenom=dn+dp5+dp8+dp10, ddmg=ddenom>0?(dp5*0.5+dp8*0.8+dp10)/ddenom:0;
     const fc=pf(v.fcount),fw=pf(v.fweight);
-    const weight=r.ap?(fc>0?r2(fw/fc):0):1;
+    const weight=r.ap?(fc>0?r2(fw/fc):(fruitWeightByCat[v.cat]||0)):1;
 
     const yld=r.ap
       ? r4(r.survey*per*weight*(1-dmg)/1000 + r.unins*Zper)
@@ -1197,6 +1206,10 @@ function buildCapture(){
         <div>조사일자 <b>${date}</b></div>
       </div>
     </div>
+
+    ${R.contractChange
+      ? `<div style="margin:10px 0 0;display:inline-block;background:#fdecea;color:#c0392b;border:1.5px solid #e24b4a;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:800">⚠ 계약변경 유 · 가입주수와 실제결과주수 5% 이상 상이 (평년수확량 환산 적용)</div>`
+      : `<div style="margin:10px 0 0;display:inline-block;background:#eef2f0;color:#5B7E3F;border:1.5px solid #cdd8c8;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700">계약변경 무</div>`}
 
     ${secTitle('기본정보')}
     <table style="width:100%;border-collapse:collapse">
