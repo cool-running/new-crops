@@ -105,7 +105,7 @@ body.big-text .field label{font-size:13px !important}
 .auto-strip .g2,.auto-strip .g3{margin-bottom:0}
 .tree-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px}
 .scell{background:#f6f7f3;border:1.5px solid var(--binp);border-radius:6px;text-align:center;position:relative;height:42px}
-.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#bbb;font-weight:600;pointer-events:none}
+.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#bbb;font-weight:600;pointer-events:none}
 .scell .ci{position:absolute;top:0;left:0;right:0;height:100%;border:none;background:transparent;text-align:center;font-size:14px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
 .scell .ci::placeholder{color:transparent}
 .scell.has .cl{opacity:0}
@@ -306,15 +306,15 @@ body.big-text .scell .ci{font-size:18px!important}
   </div>
 
   <div id="phase-fruit-block" style="display:none">
-  <div class="calc-action-row">
-    <button class="btn-edit active" id="btn-edit" onclick="setEditMode()">✏️ 수정하기</button>
-    <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🔒 계산하기</button>
-  </div>
-
   <div class="section cmp-section" id="compare-section" style="display:none">
     <div class="sec-title">품종별 요약 비교</div>
     <div class="cmp-wrap"><table class="cmp-table" id="compare-table"></table></div>
     <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
+  </div>
+
+  <div class="calc-action-row">
+    <button class="btn-edit active" id="btn-edit" onclick="setEditMode()">✏️ 수정하기</button>
+    <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🔒 계산하기</button>
   </div>
 
   <div class="result-box pending" id="result-section">
@@ -909,10 +909,7 @@ function calc(){
     if(ap)set(`v-w-${i}`,c.weight?fmt(c.weight)+'g':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(ap&&c.sampleCnt>0&&!c.weight){
-        w.textContent=`⚠ 사과대추는 과중조사(개당과중)를 입력해야 수확량이 계산됩니다`;
-        w.className='warn';w.style.display='block';
-      }else if(c.proper>0&&c.sampleCnt>c.proper){
+      if(c.proper>0&&c.sampleCnt>c.proper){
         w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
         w.className='warn over';w.style.display='block';
       }else{w.style.display='none';}
