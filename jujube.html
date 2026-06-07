@@ -171,7 +171,7 @@ body.big-text .scell .ci{font-size:18px!important}
 .btn-calc.active{background:var(--main);color:#fff}
 
 .result-box{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(91,126,63,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
-.result-box.pending{background:#f1f0ec;box-shadow:none;border:0.5px solid var(--border)}
+.result-box.pending{opacity:0.92}
 .save-btn{background:var(--main);border:none;color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .rdetail{background:var(--card);border-radius:var(--r);border:0.5px solid var(--border);padding:14px;margin-bottom:10px;display:none}
 .drow{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid #eee}
@@ -935,15 +935,13 @@ function calc(){
   const box=$('result-section'),pctEl=$('result-pct');
   const hasData=R.avgYield>0&&R.totalSurvey>0&&varieties.some(v=>v.trees.some(t=>t!==''));
   if(!hasData){
-    box.className='result-box pending';pctEl.textContent='- -';pctEl.style.color='var(--sub)';
+    box.className='result-box pending';pctEl.textContent='- -';pctEl.style.color='rgba(255,255,255,0.7)';
     saveState();return;
   }
 
   box.className='result-box';
   pctEl.textContent=R.rate.toFixed(2)+'%';
-  pctEl.style.color='#FFD0D0';
-  if(R.anyShort)pctEl.style.color='#FFD0D0';
-  saveState();
+  pctEl.style.color='#FFD0D0';  saveState();
 }
 
 /* ───────── 모드 ───────── */
