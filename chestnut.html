@@ -448,6 +448,7 @@ function totalSampleN(s){
 
 const r4=v=>Math.round((v+Number.EPSILON)*10000)/10000;
 const rdown4=v=>Math.floor((v+Number.EPSILON)*10000)/10000;
+const r2=v=>Math.round((v+Number.EPSILON)*100)/100;   /* 개당과중: 소수점 둘째 자리(전산 기준) */
 const fmt=v=>{const r=Math.round(v*10000)/10000;return r.toLocaleString('ko-KR',{maximumFractionDigits:4});};
 const pf=x=>parseFloat(String(x==null?'':x).replace(/,/g,''))||0;
 
@@ -837,7 +838,7 @@ function computeAll(){
 
     /* 개당과중: (정상무게 + 소과무게×0.8) ÷ 표본과실수 */
     const wN=pf(v.wN),wS=pf(v.wS),fcnt=pf(v.fcnt);
-    const weight=fcnt>0?r4((wN+wS*0.8)/fcnt):0;
+    const weight=fcnt>0?r2((wN+wS*0.8)/fcnt):0;
 
     /* 피해구성 */
     const nm=pf(v.normal),d5=pf(v.p50),d8=pf(v.p80),d10=pf(v.p100);
