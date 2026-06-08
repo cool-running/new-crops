@@ -219,6 +219,14 @@ body.big-text .scell .ci{font-size:18px!important}
 .cmp-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:0!important;user-select:none}
 .cmp-toggle #cmp-arrow{font-size:12px;color:var(--sub);font-weight:700}
 #compare-body{margin-top:12px}
+.cmp-table.tcmp th,.cmp-table.tcmp td{white-space:normal;line-height:1.15;padding:6px 2px;word-break:keep-all}
+.cmp-table.tcmp thead th.corner{width:auto}
+.cmp-table.tcmp .rowlabel{text-align:left;padding:6px 7px;white-space:normal}
+.cmp-table.tcmp .vlab .vn{font-weight:800;color:var(--text)}
+.cmp-table.tcmp .vlab .vsub{font-size:0.82em;color:var(--main-d);font-weight:600;margin-top:1px}
+.cmp-table.tcmp td.intv{color:var(--red);font-weight:800}
+.cmp-table.tcmp tr.sumrow td{background:var(--auto);font-weight:800;color:var(--main-d)}
+.cmp-table.tcmp tr.sumrow .rowlabel{background:var(--auto)}
 </style>
 </head>
 <body>
@@ -297,9 +305,6 @@ body.big-text .scell .ci{font-size:18px!important}
       <button class="add-v-btn" onclick="addVariety()" style="flex:1">＋ 품종 추가</button>
       <button class="del-v-btn" onclick="delVariety(varieties.length-1)" style="flex:1">－ 품종 삭제</button>
     </div>
-    <div id="edit-tree-row" style="display:none">
-      <button class="btn-edit-tree" onclick="backToTreeSurvey()">✏️ 나무조사 수정 (주수 변경)</button>
-    </div>
   </div>
 
   <div id="phase-tree-actions">
@@ -311,7 +316,7 @@ body.big-text .scell .ci{font-size:18px!important}
   <div class="section cmp-section" id="compare-section" style="display:none">
     <div class="sec-title cmp-toggle" onclick="toggleCompare()"><span>품종별 요약 비교</span><span id="cmp-arrow">▾</span></div>
     <div id="compare-body" style="display:none">
-      <div class="cmp-wrap"><table class="cmp-table" id="compare-table"></table></div>
+      <div class="cmp-wrap"><table class="cmp-table tcmp" id="compare-table"></table></div>
       <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
     </div>
   </div>
@@ -696,7 +701,6 @@ function setPhaseUI(){
   const tree=(_phase==='tree');
   const expand=_expandAll;
   $('tree-add-row').style.display   = (tree||expand)?'flex':'none';
-  $('edit-tree-row').style.display  = (!tree&&!expand)?'block':'none';
   $('phase-tree-actions').style.display = (tree&&!expand)?'block':'none';
   $('phase-fruit-block').style.display  = (!tree||expand)?'block':'none';
   const tag=$('phase-tag'); if(tag)tag.textContent=expand?'전체보기':(tree?'1단계 · 나무조사':'2단계 · 표본 착과');
@@ -719,13 +723,6 @@ function finishTreeSurvey(){
 }
 
 // ② 나무조사 수정 → 표본단계 해제 (입력한 표본값은 보존, 칸만 접힘)
-function backToTreeSurvey(){
-  vibrate(30);
-  if(_locked) setEditMode(true);
-  _phase='tree';
-  renderVarieties(); setPhaseUI(); calc(); saveState();
-  showToast('나무조사 수정 — 주수를 변경할 수 있습니다');
-}
 function onTree(i,ti,el){varieties[i].trees[ti]=el.value;markFilled(el);calc();}
 // 키보드 '다음/Enter' 로 다음 입력칸 이동
 function focusNextInput(el){
@@ -855,49 +852,37 @@ function renderCompare(R){
   const circ=['①','②','③','④','⑤','⑥'];
   const rows=R.rows;
   const n=rows.length;
-  const showSum = n<=4;                 // 품종 5개 이상이면 합계열 숨겨 칸 확보(스크롤 방지)
-  const k1=v=>{const r=Math.round(v*10)/10;return r.toLocaleString('ko-KR',{maximumFractionDigits:1});};
-
-  let head='<tr><th class="corner">항목</th>';
-  rows.forEach((r,i)=>{ head+=`<th>${circ[i]||(i+1)}</th>`; });
-  if(showSum) head+='<th class="sumcol">합계</th>';
-  head+='</tr>';
-
-  const line=(label,vals,sumTxt='-')=>{
-    let h=`<tr><td class="rowlabel">${label}</td>`;
-    vals.forEach(v=>h+=`<td>${v}</td>`);
-    if(showSum) h+=`<td class="sumcol">${sumTxt}</td>`;
-    return h+'</tr>';
-  };
   const regionShort = c=>({A:'보은~해가림',B:'보은~노지',C:'기타지역',D:'황실',E:'천황',F:'대능~하우스',G:'대능~노지',H:'기타품종'}[c]||'-');
   const vBase = v=>{let g=v.group||'';if(g==='jc')g='bj';if(v.cat)g=isApple(v.cat)?'ap':(g==='jr'?'jr':'bj');return g==='ap'?'사과대추':g==='jr'?'재래':'복조';};
-  const names =rows.map(r=>r.v.cat?vBase(r.v):'-');
-  const ages  =rows.map(r=>r.age?r.age+'년':'-');
-  const regs  =rows.map(r=>r.v.cat?regionShort(r.v.cat):'-');
-  const regV  =rows.map(r=>r.reg?r.reg.toLocaleString():'-');
-  const actV  =rows.map(r=>r.actual?r.actual.toLocaleString():'-');
-  const surv  =rows.map(r=>r.survey?r.survey.toLocaleString():'-');
-  const samp  =rows.map(r=>r.calc.proper?r.calc.proper+'주':'-');
-  const intv  =rows.map(r=>{const c=r.calc;return (r.survey>0&&c.proper>0)?Math.floor(r.survey/c.proper).toLocaleString():'-';});
 
-  let body=`<tr class="vname"><td class="rowlabel">품종</td>${names.map(x=>`<td>${x}</td>`).join('')}${showSum?'<td class="sumcol">-</td>':''}</tr>`;
-  body+=line('수령',ages);
-  body+=line('지역',regs);
-  body+=line('가입주수',regV,R.totalReg?R.totalReg.toLocaleString():'-');
-  body+=line('실제결과주',actV,R.totalActual?R.totalActual.toLocaleString():'-');
-  body+=line('조사대상주',surv,R.totalSurvey?R.totalSurvey.toLocaleString():'-');
-  body+=line('표본주',samp,R.sampN?R.sampN+'주':'-');
-  body+=line('<span style="color:var(--red);font-weight:700">표본간격</span>',intv);
+  // 가로세로 전환: 품종 = 행, 항목 = 열, 좌측 라벨 = 품종·수령(+지역)
+  const cols='<colgroup><col style="width:27%"><col><col><col><col><col></colgroup>';
+  const head='<tr><th class="corner">품종·수령</th><th>가입<br>주수</th><th>실제<br>결과주</th><th>조사<br>대상주</th><th>표본주</th><th>표본<br>간격</th></tr>';
 
-  tbl.innerHTML='<thead>'+head+'</thead><tbody>'+body+'</tbody>';
+  let body='';
+  rows.forEach((r,i)=>{
+    const v=r.v, has=!!v.cat;
+    const nm=has?vBase(v):(circ[i]||String(i+1));
+    const ageT=r.age?` ${r.age}년`:'';
+    const rgn=has?regionShort(v.cat):'';
+    const regN=r.reg?r.reg.toLocaleString():'-';
+    const actN=r.actual?r.actual.toLocaleString():'-';
+    const surN=r.survey?r.survey.toLocaleString():'-';
+    const spN =r.calc.proper?r.calc.proper+'주':'-';
+    const ivN =(r.survey>0&&r.calc.proper>0)?Math.floor(r.survey/r.calc.proper).toLocaleString():'-';
+    const label=`<div class="vn">${nm}${ageT}</div>`+(rgn&&rgn!=='-'?`<div class="vsub">${rgn}</div>`:'');
+    body+=`<tr><td class="rowlabel vlab">${label}</td><td>${regN}</td><td>${actN}</td><td>${surN}</td><td>${spN}</td><td class="intv">${ivN}</td></tr>`;
+  });
+  if(n>1){
+    body+=`<tr class="sumrow"><td class="rowlabel">합계</td><td>${R.totalReg?R.totalReg.toLocaleString():'-'}</td><td>${R.totalActual?R.totalActual.toLocaleString():'-'}</td><td>${R.totalSurvey?R.totalSurvey.toLocaleString():'-'}</td><td>${R.sampN?R.sampN+'주':'-'}</td><td>-</td></tr>`;
+  }
 
-  // 항상 화면 폭에 맞춰 채움(가로 스크롤 없음). 품종이 많을수록 글자만 살짝 축소.
-  const base = n>=5?10:n>=3?11:12;
+  tbl.innerHTML=cols+'<thead>'+head+'</thead><tbody>'+body+'</tbody>';
+
   const big = document.body.classList.contains('big-text');
-  tbl.style.fontSize = (big?base+4:base)+'px';
-  const noteSum = n>4 ? ' · 합계는 결과 요약 참고' : '';
+  tbl.style.fontSize = (big?15:11)+'px';
   const hint=sec.querySelector('.cmp-hint');
-  if(hint) hint.textContent = '품종 수에 맞춰 칸 자동 분할'+noteSum;
+  if(hint) hint.textContent = '표본간격 = 조사대상주 ÷ 표본주 (내림)';
 }
 
 function calc(){
@@ -976,9 +961,13 @@ function setCalcMode(silent){
 }
 function setEditMode(silent){
   if(!silent)vibrate(30);
-  _locked=false;lockInputs(false);
+  _locked=false;
+  if(!silent) _phase='tree';   // 수정하기 → 나무조사 편집 단계로 복귀 ('나무조사 수정' 통합)
   $('btn-edit').classList.add('active');$('btn-calc').classList.remove('active');
   $('hdrState').className='hdr-state unlocked';$('hdrState').textContent='🔓 수정 중';
+  if(!silent){ renderVarieties(); setPhaseUI(); }
+  lockInputs(false);
+  if(!silent){ calc(); saveState(); showToast('수정 모드 — 나무조사부터 다시 편집할 수 있습니다'); }
 }
 function lockInputs(lock){
   document.querySelectorAll('.content input, .content select').forEach(el=>{
