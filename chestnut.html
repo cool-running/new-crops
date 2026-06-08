@@ -106,26 +106,22 @@ body.big-text .tinp{height:46px !important;font-size:17px !important;font-weight
 .tinp{height:46px;border:1.5px solid var(--binp);border-radius:7px;text-align:center;font-size:15px;font-weight:600;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
 .tinp.filled{background:var(--done-bg);border-color:var(--done-bd);color:#000;font-weight:700}
-/* 표본주 입력셀 (고추 scell 방식) */
-.scell{background:#f6f7f3;border:1.5px solid var(--binp);border-radius:6px;text-align:center;position:relative;height:42px}
-.scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#bbb;font-weight:600;pointer-events:none}
-.scell .ci{position:absolute;top:0;left:0;right:0;height:100%;border:none;background:transparent;text-align:center;font-size:14px;font-weight:800;color:transparent;-webkit-appearance:none;padding:0}
-.scell .ci::placeholder{color:transparent}
-.scell.has .cl{opacity:0}
-.scell.has .ci{color:#1a1a1a}
-.scell.has{background:var(--done-bg);border:1.5px solid var(--done-bd)}
-.scell-badge{display:none;position:absolute;top:3px;right:4px;font-size:9px;font-weight:700;color:var(--done-bd);line-height:1;pointer-events:none;z-index:2}
-.scell.has .scell-badge{display:block}
-.scell:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
-.scell:focus-within .cl{opacity:0}
+/* 표본주 입력셀 */
+.tree-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 6px;margin-top:8px}
+.scell-outer{display:flex;flex-direction:column;align-items:center;gap:3px}
+.snum{font-size:11px;color:#aaa;font-weight:600;line-height:1}
+.scell{width:100%;height:50px;border:2px solid var(--binp);border-radius:10px;background:white;position:relative;box-sizing:border-box}
+.scell .ci{width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:800;color:var(--hint);-webkit-appearance:none;padding:0}
+.scell.has{background:var(--done-bg);border:2px solid var(--done-bd)}
+.scell.has .ci{color:var(--text)}
+.scell:focus-within{background:#dceeff;border:2px solid var(--blue)}
 .scell:focus-within .ci{color:var(--blue)}
 /* 낙과수 셀 */
-.scell.nak.has{background:var(--done-bg);border:1.5px solid var(--done-bd)}
-.scell.nak.has .scell-badge{color:var(--red)}
-.scell.nak:focus-within{background:#dceeff;border:1.5px solid var(--blue)}
+.scell.nak.has{background:var(--done-bg);border:2px solid var(--done-bd)}
+.scell.nak:focus-within{background:#dceeff;border:2px solid var(--blue)}
 .scell.nak:focus-within .ci{color:var(--blue)}
-body.big-text .scell{height:52px!important}
-body.big-text .scell .ci{font-size:18px!important}
+body.big-text .scell{height:62px!important}
+body.big-text .scell .ci{font-size:20px!important}
 .warn{font-size:11px;color:var(--red);font-weight:700;margin-top:4px;display:none}
 .warn.over{color:var(--sub)!important;font-weight:600}
 .btn-finish-tree{width:100%;height:52px;border:none;border-radius:var(--rs);background:var(--main);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(91,126,63,0.30)}
@@ -376,6 +372,17 @@ body.big-text .scell .ci{font-size:18px!important}
   </div>
 </div>
 
+<div class="modal-bg" id="overwriteModal" style="display:none">
+  <div class="modal" style="max-width:300px">
+    <div style="font-size:15px;font-weight:800;color:var(--main-d);margin-bottom:8px">기존 기록 덮어쓰기</div>
+    <div style="font-size:13px;color:#555;margin-bottom:18px;line-height:1.5"><b id="ow-farm-name"></b> 기록이 이미 있습니다.<br>덮어쓰겠습니까?</div>
+    <div style="display:flex;gap:8px">
+      <button style="flex:1;height:40px;border:1.5px solid #ddd;border-radius:8px;background:white;color:#555;font-size:14px;font-weight:600;cursor:pointer" onclick="cancelOverwrite()">취소</button>
+      <button style="flex:1;height:40px;border:none;border-radius:8px;background:var(--main);color:white;font-size:14px;font-weight:700;cursor:pointer" onclick="confirmOverwrite()">덮어쓰기</button>
+    </div>
+  </div>
+</div>
+
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:640px;background:#fff;padding:0;z-index:-1"></div>
 
 <div class="modal-bg" id="treeDelModal">
@@ -555,15 +562,16 @@ function renderVarieties(){
 
     let fruitHtml='';
     if(showFruit){
-      /* 착과수 그리드 */
+      /* 착과수 그리드 — 연속 번호(offset) */
       let chakHtml='';
+      const offset=varieties.slice(0,i).reduce((s,vv)=>s+(vv.trees?vv.trees.length:0),0);
       v.trees.forEach((t,ti)=>{
         const raw=String(t).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        chakHtml+=`<div class="scell ${has?'has':''}"><span class="scell-badge">${ti+1}</span><span class="cl">${ti+1}</span><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div>`;
+        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div></div>`;
       });
-      /* 낙과수 그리드 */
+      /* 낙과수 그리드 — 착과수와 같은 번호 */
       const naks=v.naks||[];
       while(naks.length<v.trees.length)naks.push('');
       let nakHtml='';
@@ -571,7 +579,7 @@ function renderVarieties(){
         const raw=String(n).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        nakHtml+=`<div class="scell nak ${has?'has':''}"><span class="scell-badge">${ti+1}</span><span class="cl">${ti+1}</span><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div>`;
+        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -581,9 +589,9 @@ function renderVarieties(){
           <button class="tree-mini-btn plus" onclick="addTree(${i})">＋</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px" id="tree-grid-${i}">${chakHtml}</div>
+      <div class="tree-grid" id="tree-grid-${i}">${chakHtml}</div>
       <div class="subtitle" style="margin-top:8px;font-weight:800">표본주별 <span style="color:var(--red)">낙과수</span> (개/송이)</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px">${nakHtml}</div>
+      <div class="tree-grid" id="nak-grid-${i}">${nakHtml}</div>
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
 
       <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 소과(30mm이하)=무게×0.8</span></div>
@@ -772,10 +780,22 @@ function finishTreeSurvey(){
   _phase='fruit';
   renderVarieties();setPhaseUI();calc();saveState();
   showToast('나무조사 완료 — 표본 착과조사를 입력하세요');
-  const first=$('tree-grid-0');if(first&&first.scrollIntoView)first.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{ const fc=document.querySelector('#tree-grid-0 .ci'); if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();try{fc.select();}catch(e){}} },80);
 }
 function navKey(e,el){if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){e.preventDefault();focusNextInput(el);}}
 function focusNextInput(el){
+  // 표본 착과수(.ci) + 해당 tree-grid 마지막 칸 → 다음 품종 첫 착과수 칸으로 이동
+  if(el.classList.contains('ci')){
+    const grid=el.closest('.tree-grid');
+    if(grid){
+      const allCi=[...grid.querySelectorAll('.ci')];
+      if(allCi[allCi.length-1]===el){
+        const m=(grid.id||'').match(/tree-grid-(\d+)/);
+        if(m){const ng=$('tree-grid-'+(+m[1]+1));if(ng){const fc=ng.querySelector('.ci');if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();try{fc.select();}catch(e){}return;}}}
+        el.blur();return;
+      }
+    }
+  }
   const all=[...document.querySelectorAll('.content input:not([readonly]):not([disabled]),.content select:not([disabled])')].filter(x=>x.type!=='date'&&x.offsetParent!==null);
   const i=all.indexOf(el);
   if(i>=0&&i+1<all.length){const n=all[i+1];n.focus();try{n.select&&n.select();}catch(e){}}else{el.blur();}
@@ -1054,6 +1074,16 @@ function loadState(){
 }
 
 /* ───────── 이력 ───────── */
+/* ───────── 이력 ───────── */
+let _pendingRec=null,_pendingEi=-1;
+function _varType(v){if(!v.cat)return null;return CATS[v.cat]?CATS[v.cat].label:null;}
+function _doSaveHistory(rec,ei){
+  let recs=[];try{recs=JSON.parse(localStorage.getItem('chestnut_history_v2')||'[]');}catch(e){}
+  if(ei>=0)recs.splice(ei,1);   // 기존 위치 제거 후 맨뒤(최신)에 추가
+  recs.push(rec);
+  if(recs.length>30)recs=recs.slice(-30);
+  try{localStorage.setItem('chestnut_history_v2',JSON.stringify(recs));}catch(e){}
+}
 function saveToHistory(){
   const farm=($('farm_no').value||'').trim();
   const date=$('survey_date').value||'';
@@ -1063,31 +1093,33 @@ function saveToHistory(){
     varieties:JSON.parse(JSON.stringify(varieties)),pct,
     saved_at:new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\s/g,'')};
   let recs=[];try{recs=JSON.parse(localStorage.getItem('chestnut_history_v2')||'[]');}catch(e){}
-  const ei=farm?recs.findIndex(r=>r.farm===farm):-1;   // 농지번호 같으면 조사일자 달라도 덮어쓰기
-  if(ei>=0)recs[ei]=rec;else recs.push(rec);
-  if(recs.length>30)recs=recs.slice(-30);
-  try{localStorage.setItem('chestnut_history_v2',JSON.stringify(recs));}catch(e){}
+  const ei=farm?recs.findIndex(r=>r.farm===farm):-1;
+  if(ei>=0){
+    _pendingRec=rec;_pendingEi=ei;
+    $('ow-farm-name').textContent=farm?'농지 '+farm:'(번호 없음)';
+    $('overwriteModal').style.display='flex';
+  } else {
+    _doSaveHistory(rec,-1);
+  }
 }
+function confirmOverwrite(){$('overwriteModal').style.display='none';if(_pendingRec)_doSaveHistory(_pendingRec,_pendingEi);_pendingRec=null;_pendingEi=-1;}
+function cancelOverwrite(){$('overwriteModal').style.display='none';_pendingRec=null;_pendingEi=-1;}
 function openHistoryModal(){
   let recs=[];try{recs=JSON.parse(localStorage.getItem('chestnut_history_v2')||'[]');}catch(e){}
   const list=$('history-list');
   if(!recs.length){list.innerHTML='<div style="text-align:center;color:#aaa;padding:30px 0;font-size:14px">저장된 기록이 없습니다</div>';}
   else{
-    list.innerHTML=recs.slice().reverse().map((r,i)=>{
+    const rev=recs.slice().reverse();
+    list.innerHTML=rev.map((r,i)=>{
       const idx=recs.length-1-i;
-      const cats=(r.varieties||[]).map(v=>v.cat&&CATS[v.cat]?CATS[v.cat].label:'').filter(Boolean);
-      const ctxt=[...new Set(cats)].join('·')||'-';
-      return `<div style="border:1.5px solid #e8ddd0;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer" onclick="loadHistory(${idx})">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:15px;font-weight:800;color:var(--main-d)">${r.farm?'농지 '+r.farm:'농지 미입력'}</span>
-          <span style="font-size:11px;color:#aaa">${r.saved_at||''}</span>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <span style="font-size:12px;color:#555">🌰 ${ctxt}</span>
-          <span style="font-size:12px;color:#555">📊 ${r.pct!=null?r.pct+'%':'-'}</span>
-          <span style="font-size:12px;color:#555">🗓 ${r.date||'-'}</span>
-        </div>
-        <div style="margin-top:6px;display:flex;justify-content:flex-end;gap:6px">
+      const vtypes=[...new Set((r.varieties||[]).map(_varType).filter(Boolean))];
+      const vtext=vtypes.join(' ')||'-';
+      const pctText=r.pct!=null?r.pct+'%':'-';
+      return `<div style="border:1.5px solid #e8ddd0;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;background:white" onclick="loadHistory(${idx})">
+        <div style="font-size:15px;font-weight:800;color:var(--main-d);margin-bottom:4px">${r.farm?'농지 '+r.farm:'농지 미입력'}</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:3px;font-weight:600">${vtext} &nbsp;·&nbsp; 피해율 ${pctText}</div>
+        <div style="font-size:11px;color:#aaa">조사일자 ${r.date||'-'} &nbsp;·&nbsp; 저장 ${r.saved_at||''}</div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end;gap:6px">
           <button onclick="event.stopPropagation();deleteHistory(${idx})" style="height:26px;padding:0 10px;border:1px solid #ffb3b3;border-radius:6px;background:white;color:#e24b4a;font-size:11px;font-weight:700;cursor:pointer">삭제</button>
           <button onclick="event.stopPropagation();loadHistory(${idx})" style="height:26px;padding:0 10px;border:none;border-radius:6px;background:var(--main);color:white;font-size:11px;font-weight:700;cursor:pointer">불러오기</button>
         </div></div>`;
