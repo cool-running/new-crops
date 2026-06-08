@@ -980,9 +980,11 @@ function renderSampleSummary(R){
   const hasJ=allTrees.some(t=>t.val!==null&&!t.ap);
   const unitLabel=hasAp&&hasJ?'개/g':hasAp?'개':'g';
 
-  // ── 1~15번: 3열(1~5 / 6~10 / 11~15) × 5행 고정 레이아웃 ──
-  const base=allTrees.slice(0,15);
-  while(base.length<15) base.push({num:base.length+1,val:null,ap:false});
+  // ── 동적 행수: rows=ceil(n/3), 3열(1~rows / rows+1~2*rows / 2*rows+1~3*rows) ──
+  const n=allTrees.length;
+  const rows=Math.ceil(n/3);
+  const base=allTrees.slice(0,rows*3);
+  while(base.length<rows*3) base.push({num:base.length+1,val:null,ap:false});
 
   const numCell=item=>`<td class="cap-td" style="background:var(--main-l);color:var(--main-d);font-weight:800;font-size:12px;width:26px">${item.num}</td>`;
   const valCell=item=>item.val===null
@@ -999,21 +1001,9 @@ function renderSampleSummary(R){
   </tr>`;
 
   let tbody='';
-  for(let r=0;r<5;r++){
-    const a=base[r], b=base[r+5], c=base[r+10];
+  for(let r=0;r<rows;r++){
+    const a=base[r], b=base[r+rows], c=base[r+rows*2];
     tbody+=`<tr>${numCell(a)}${valCell(a)}${numCell(b)}${valCell(b)}${numCell(c)}${valCell(c)}</tr>`;
-  }
-
-  // ── 16번 이상: 한 행에 6칸(번호+값 × 3) 추가 ──
-  const extra=allTrees.slice(15);
-  for(let i=0;i<extra.length;i+=3){
-    const cells=[];
-    for(let j=0;j<3;j++){
-      const item=extra[i+j]||null;
-      if(item){ cells.push(numCell(item)+valCell(item)); }
-      else { cells.push(`<td class="cap-td" style="background:var(--main-l)"> </td><td class="cap-td"></td>`); }
-    }
-    tbody+=`<tr>${cells.join('')}</tr>`;
   }
 
   const tbl=sec.querySelector('#sample-summary-table');
@@ -1416,17 +1406,13 @@ function buildCapture(){
       const ul=hasAp&&hasJ?'개/g':hasAp?'개':'g';
       const nc=item=>`<td class="cap-td" style="background:#EEF2F0;font-weight:800;font-size:11px;width:22px">${item.num}</td>`;
       const vc=item=>item.val===null?`<td class="cap-td" style="color:#bbb">-</td>`:`<td class="cap-td" style="font-weight:700">${item.val.toLocaleString('ko-KR')} <span style="font-size:9px;color:#666">${item.ap?'개':'g'}</span></td>`;
-      const base=allTrees.slice(0,15);
-      while(base.length<15)base.push({num:base.length+1,val:null,ap:false});
+      const cn=allTrees.length;
+      const crows=Math.ceil(cn/3);
+      const base=allTrees.slice(0,crows*3);
+      while(base.length<crows*3)base.push({num:base.length+1,val:null,ap:false});
       let th=`<tr><th class="cap-th" style="background:#2d5016;width:22px;font-size:10px">번호</th><th class="cap-th" style="font-size:11px">착과수/량(${ul})</th><th class="cap-th" style="background:#2d5016;width:22px;font-size:10px">번호</th><th class="cap-th" style="font-size:11px">착과수/량(${ul})</th><th class="cap-th" style="background:#2d5016;width:22px;font-size:10px">번호</th><th class="cap-th" style="font-size:11px">착과수/량(${ul})</th></tr>`;
       let tb='';
-      for(let r=0;r<5;r++){const a=base[r],b=base[r+5],c=base[r+10];tb+=`<tr>${nc(a)}${vc(a)}${nc(b)}${vc(b)}${nc(c)}${vc(c)}</tr>`;}
-      const extra=allTrees.slice(15);
-      for(let i=0;i<extra.length;i+=3){
-        const cells=[];
-        for(let j=0;j<3;j++){const item=extra[i+j]||null;cells.push(item?nc(item)+vc(item):`<td class="cap-td" style="background:#EEF2F0"></td><td class="cap-td"></td>`);}
-        tb+=`<tr>${cells.join('')}</tr>`;
-      }
+      for(let r=0;r<crows;r++){const a=base[r],b=base[r+crows],c=base[r+crows*2];tb+=`<tr>${nc(a)}${vc(a)}${nc(b)}${vc(b)}${nc(c)}${vc(c)}</tr>`;}
       return `<table style="width:100%;border-collapse:collapse"><thead>${th}</thead><tbody>${tb}</tbody></table>`;
     })()}
 
