@@ -893,9 +893,9 @@ function computeAll(){
   });
 
   totalApplied=r4(totalApplied);
-  totalYield=Math.floor(totalYield);
   totalUninsLoss=Math.round((totalApplied-totalYield)*uninsRate);
   const rate=totalApplied>0?(totalApplied-totalYield-totalUninsLoss)/totalApplied*100:0;
+  totalYield=Math.floor(totalYield);
 
   return {avgYield,uninsRate,rows,totalSurvey,sampN,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort,totalReg,totalActual};
 }
