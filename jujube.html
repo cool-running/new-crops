@@ -982,26 +982,24 @@ function setCalcMode(silent){
   if(miss.length){showToast('미입력: '+miss.join(', '));return;}
   _locked=true;lockInputs(true);
   $('btn-edit').classList.remove('active');$('btn-calc').classList.add('active');
-  $('hdrState').className='hdr-state locked';$('hdrState').textContent='🔒 계산 완료';
+  $('hdrState').className='hdr-state locked';$('hdrState').textContent='🔒 잠금';
   calc(); saveToHistory();
   $('result-section').scrollIntoView({behavior:'smooth',block:'center'});
 }
 function setEditMode(silent){
   if(!silent)vibrate(30);
   _locked=false;
-  if(!silent) _phase='tree';   // 수정하기 → 나무조사 편집 단계로 복귀 ('나무조사 수정' 통합)
+  // _phase 유지 — 수정하기는 현재 단계 그대로, 나무조사 완료 재진행 불필요
   $('btn-edit').classList.add('active');$('btn-calc').classList.remove('active');
   $('hdrState').className='hdr-state unlocked';$('hdrState').textContent='🔓 수정 중';
   if(!silent){ renderVarieties(); setPhaseUI(); }
   lockInputs(false);
-  if(!silent){ calc(); saveState(); showToast('수정 모드 — 나무조사부터 다시 편집할 수 있습니다'); }
+  if(!silent){ calc(); saveState(); showToast('수정 모드 — 모든 항목을 수정할 수 있습니다'); }
 }
 function lockInputs(lock){
   document.querySelectorAll('.content input, .content select').forEach(el=>{
     if(el.classList.contains('auto'))return;
     let dis=lock;
-    // 표본 착과조사 단계에서는 나무조사 칸을 항상 잠금 (적정표본 흔들림 방지)
-    if(_phase==='fruit'&&!_expandAll&&el.classList.contains('tree-field'))dis=true;
     el.disabled=dis;
     if(el.type==='date'){ el.style.opacity='0'; }   // 네이티브 날짜칸은 항상 투명 (date-disp가 표시)
     else { el.style.opacity=dis?'0.85':'1'; }
