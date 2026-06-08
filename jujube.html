@@ -107,7 +107,7 @@ body.big-text .field label{font-size:13px !important}
 .scell-outer{display:flex;flex-direction:column;align-items:center;gap:3px}
 .snum{font-size:11px;color:#aaa;font-weight:600;line-height:1}
 .scell{width:100%;height:50px;border:2px solid var(--binp);border-radius:10px;background:white;position:relative;box-sizing:border-box}
-.scell .ci{width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:800;color:var(--hint);-webkit-appearance:none;padding:0}
+.scell .ci{width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:14px;font-weight:700;color:var(--hint);-webkit-appearance:none;padding:0}
 .scell.has{background:var(--done-bg);border:2px solid var(--done-bd)}
 .scell.has .ci{color:var(--text)}
 .scell:focus-within{background:#dceeff;border:2px solid var(--blue)}
@@ -118,7 +118,7 @@ body.big-text .field label{font-size:13px !important}
 .tree-mini-btn.plus{border-color:var(--accent);color:var(--main-d)}
 .tree-mini-btn.minus{border-color:var(--red);color:var(--red)}
 body.big-text .scell{height:62px!important}
-body.big-text .scell .ci{font-size:20px!important}
+body.big-text .scell .ci{font-size:19px!important}
 /* 피해구성 소형 입력칸 */
 .tinp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);text-align:center;font-size:14px;font-weight:600;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background .15s,border-color .15s}
 .tinp:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.18)!important;background:#dceeff!important;color:#185FA5!important}
@@ -570,7 +570,7 @@ function renderVarieties(){
       let treeHtml='';
       const offset=varieties.slice(0,i).reduce((s,vv)=>s+(vv.trees?vv.trees.length:0),0);
       v.trees.forEach((t,ti)=>{
-        treeHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${t!==''?'has':''}"><input class="ci" inputmode="decimal" enterkeyhint="next" value="${t}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
+        treeHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${t!==''?'has':''}"><input class="ci" inputmode="decimal" enterkeyhint="next" value="${t}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -1358,7 +1358,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.addEventListener('focusin',e=>{
     const t=e.target;
     if(!t||t.tagName!=='INPUT'||t.type==='date')return;
-    if(t.classList.contains('tinp')||t.classList.contains('inp')){ t._sel=true; selectAllSoon(t); }
+    if(t.classList.contains('tinp')||t.classList.contains('inp')||t.classList.contains('ci')){ t._sel=true; selectAllSoon(t); }
   });
   // 모바일: 포커스 직후 탭 업이 선택을 풀지 않도록 1회 방지
   document.addEventListener('mouseup',e=>{
