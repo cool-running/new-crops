@@ -103,7 +103,7 @@ body.big-text .field label{font-size:13px !important}
 .del-v{margin-left:auto;width:28px;height:28px;border:1.5px solid var(--red);background:#FFF5F5;color:var(--red);border-radius:7px;font-size:15px;cursor:pointer;flex-shrink:0}
 .auto-strip{background:transparent;border-radius:0;padding:0;margin:8px 0}
 .auto-strip .g2,.auto-strip .g3{margin-bottom:0}
-.tree-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 6px;margin-top:8px}
+.tree-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px 6px;margin-top:8px}
 .scell-outer{display:flex;flex-direction:column;align-items:center;gap:3px}
 .snum{font-size:11px;color:#aaa;font-weight:600;line-height:1}
 .scell{width:100%;height:50px;border:2px solid var(--binp);border-radius:10px;background:white;position:relative;box-sizing:border-box}
@@ -570,7 +570,7 @@ function renderVarieties(){
       let treeHtml='';
       const offset=varieties.slice(0,i).reduce((s,vv)=>s+(vv.trees?vv.trees.length:0),0);
       v.trees.forEach((t,ti)=>{
-        treeHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${t!==''?'has':''}"><input class="ci" inputmode="decimal" enterkeyhint="next" value="${t}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div></div>`;
+        treeHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${t!==''?'has':''}"><input class="ci" inputmode="decimal" enterkeyhint="next" value="${t}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -1050,6 +1050,7 @@ function loadState(){
       $('survey_date').value=s.date||'';syncDate($('survey_date'));
       varieties=s.varieties.map(v=>Object.assign(newVariety(),v));
       _phase=s.phase==='fruit'?'fruit':'tree';
+      _locked=!!s.locked;
       _expandAll=false;   // 전체보기 제거 — 항상 단계별
       return true;
     }
@@ -1343,6 +1344,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!$('survey_date').value){$('survey_date').value=new Date().toLocaleDateString('en-CA');syncDate($('survey_date'));}
   refreshExpandBtn();
   renderVarieties();setPhaseUI();calc();
+  // 새로고침 후 잠금/수정 상태 헤더 복원
+  if(_locked){
+    $('btn-edit').classList.remove('active');$('btn-calc').classList.add('active');
+    $('hdrState').className='hdr-state locked';$('hdrState').textContent='🔒 잠금';
+  }
   window.addEventListener('resize',()=>{try{calc();}catch(e){}});
   // 입력칸 커서 대면 전체 선택 → 바로 타이핑하면 덮어쓰기 (값은 지우지 않음)
   function selectAllSoon(t){
@@ -1352,7 +1358,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.addEventListener('focusin',e=>{
     const t=e.target;
     if(!t||t.tagName!=='INPUT'||t.type==='date')return;
-    if(t.classList.contains('tinp')||t.classList.contains('inp')||t.classList.contains('ci')){ t._sel=true; selectAllSoon(t); }
+    if(t.classList.contains('tinp')||t.classList.contains('inp')){ t._sel=true; selectAllSoon(t); }
   });
   // 모바일: 포커스 직후 탭 업이 선택을 풀지 않도록 1회 방지
   document.addEventListener('mouseup',e=>{
