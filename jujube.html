@@ -533,6 +533,7 @@ function renderVarieties(){
     let group=v.group||''; if(group==='jc')group='bj';          // 레거시 호환
     if(v.cat) group = isApple(v.cat)?'ap':(group==='jr'?'jr':'bj');
     const ap = v.cat ? isApple(v.cat) : (group==='ap');
+    const prevAp = ap && varieties.slice(0,i).some(vv=>isApple(vv.cat));  // 앞에 사과대추 품종 존재 여부
     const isJ = (group==='bj'||group==='jr');                    // 복조 또는 재래
     const pname = group==='ap'?'사과대추':group==='jr'?'재래':group==='bj'?'복조':'';
     const card=document.createElement('div'); card.className='vcard';
@@ -581,12 +582,19 @@ function renderVarieties(){
       </div>
       <div class="tree-grid" id="tree-grid-${i}">${treeHtml}</div>
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
-      ${ap?`<div class="subtitle">과중조사 (품종 60개 이상)</div>
+      ${ap&&!prevAp?`<div class="subtitle">과중조사 (품종 60개 이상)</div>
         <div class="g3">
           <div class="field"><label>표본 과실수</label><span class="unit-badge">개</span><input class="inp ${v.fcount!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcount}" oninput="onF(${i},'fcount',this)" onkeydown="navKey(event,this)"></div>
           <div class="field"><label>총 무게</label><span class="unit-badge">g</span><input class="inp ${v.fweight!==''?'filled':''}" inputmode="decimal" enterkeyhint="next" value="${v.fweight}" oninput="onFWeight(${i},this)" onkeydown="navKey(event,this)"></div>
           <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
-        </div>`:''}
+        </div>`
+      :ap&&prevAp?`<div class="subtitle" style="display:flex;align-items:center;gap:6px">
+          <span>개당과중</span><span style="font-size:11px;color:var(--main-d);background:var(--main-l);padding:2px 8px;border-radius:8px;font-weight:700">사과대추 ①번 품종 공유</span>
+        </div>
+        <div style="max-width:140px">
+          <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w-${i}" readonly></div>
+        </div>`
+      :''}
       <div class="dmg-toggle-row ${v.dmgOpen?'on':''}" onclick="toggleDmg(${i})">
         <label class="sw" onclick="event.stopPropagation()">
           <input type="checkbox" ${v.dmgOpen?'checked':''} onchange="toggleDmg(${i})">
@@ -813,13 +821,13 @@ function computeAll(){
   });
   const sampN=totalSampleN(totalSurvey);
 
-  /* 사과대추 개당과중은 전산상 '품종별' 값 — 같은 품종(수령만 다름)이면
-     한 번만 입력해도 동일 품종 전체에 공유 적용 (예: 5년 입력 → 4년도 동일 과중) */
+  /* 사과대추 개당과중: 품종·수령과 무관하게 단일 값으로 공유
+     — UI에서 첫 번째 사과대추 품종에만 입력칸을 표시하고, 나머지는 이 값을 자동 사용 */
   const fruitWeightByCat={};
   rows.forEach(r=>{
     if(!r.ap)return;
     const fc=pf(r.v.fcount),fw=pf(r.v.fweight);
-    if(fc>0&&fruitWeightByCat[r.v.cat]===undefined)fruitWeightByCat[r.v.cat]=r2(fw/fc);
+    if(fc>0&&fruitWeightByCat['ap']===undefined)fruitWeightByCat['ap']=r2(fw/fc);
   });
 
   let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false;
@@ -840,7 +848,7 @@ function computeAll(){
     const dn=pf(v.dn),dp5=pf(v.dp50),dp8=pf(v.dp80),dp10=pf(v.dp100);
     const ddenom=dn+dp5+dp8+dp10, ddmg=ddenom>0?(dp5*0.5+dp8*0.8+dp10)/ddenom:0;
     const fc=pf(v.fcount),fw=pf(v.fweight);
-    const weight=r.ap?(fc>0?r2(fw/fc):(fruitWeightByCat[v.cat]||0)):1;
+    const weight=r.ap?(fruitWeightByCat['ap']||0):1;
 
     const yld=r.ap
       ? r4(r.survey*per*weight*(1-dmg)/1000 + r.unins*Zper)
