@@ -569,7 +569,7 @@ function renderVarieties(){
         const raw=String(t).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div></div>`;
+        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       /* 낙과수 그리드 — 착과수와 같은 번호 */
       const naks=v.naks||[];
@@ -579,7 +579,7 @@ function renderVarieties(){
         const raw=String(n).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onkeydown="navKey(event,this)" onfocus="this.select()"></div></div>`;
+        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -596,9 +596,9 @@ function renderVarieties(){
 
       <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 소과(30mm이하)=무게×0.8</span></div>
       <div class="g4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:0">
-        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>소과 무게</label><span class="unit-badge">g</span><input class="inp ${(v.wS||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wS?Number(String(v.wS).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wS',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>소과 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wS||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wS?Number(String(v.wS).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wS',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
         <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
       </div>
 
@@ -784,14 +784,35 @@ function finishTreeSurvey(){
 }
 function navKey(e,el){if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){e.preventDefault();focusNextInput(el);}}
 function focusNextInput(el){
-  // 표본 착과수(.ci) + 해당 tree-grid 마지막 칸 → 다음 품종 첫 착과수 칸으로 이동
   if(el.classList.contains('ci')){
     const grid=el.closest('.tree-grid');
     if(grid){
       const allCi=[...grid.querySelectorAll('.ci')];
       if(allCi[allCi.length-1]===el){
-        const m=(grid.id||'').match(/tree-grid-(\d+)/);
-        if(m){const ng=$('tree-grid-'+(+m[1]+1));if(ng){const fc=ng.querySelector('.ci');if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();try{fc.select();}catch(e){}return;}}}
+        const gid=grid.id||'';
+        // 착과수(tree-grid-N) 마지막 → 같은 품종 낙과수(nak-grid-N)
+        const tm=gid.match(/^tree-grid-(\d+)$/);
+        if(tm){const ng=$('nak-grid-'+tm[1]);if(ng){const fc=ng.querySelector('.ci');if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();return;}}}
+        // 낙과수(nak-grid-N) 마지막 → 과중조사(wt-inp) → 없으면 다음 품종 착과수
+        const nm=gid.match(/^nak-grid-(\d+)$/);
+        if(nm){
+          const card=grid.closest('.vcard');
+          const wts=card?[...card.querySelectorAll('.wt-inp:not([disabled]):not([readonly])')]:[];
+          if(wts.length){wts[0].scrollIntoView({behavior:'smooth',block:'center'});wts[0].focus();try{wts[0].select();}catch(e){}return;}
+          const ng=$('tree-grid-'+(+nm[1]+1));if(ng){const fc=ng.querySelector('.ci');if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();return;}}
+        }
+        el.blur();return;
+      }
+    }
+  }
+  // 과중조사 마지막 칸(wt-inp 중 소과무게) → 다음 품종 착과수
+  if(el.classList.contains('wt-inp')){
+    const card=el.closest('.vcard');
+    if(card){
+      const wts=[...card.querySelectorAll('.wt-inp:not([disabled]):not([readonly])')];
+      if(wts[wts.length-1]===el){
+        const grid=card.querySelector('.tree-grid[id^="tree-grid-"]');
+        if(grid){const m=(grid.id||'').match(/tree-grid-(\d+)/);if(m){const ng=$('tree-grid-'+(+m[1]+1));if(ng){const fc=ng.querySelector('.ci');if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();return;}}}}
         el.blur();return;
       }
     }
