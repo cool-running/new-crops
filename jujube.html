@@ -1069,7 +1069,7 @@ function calc(){
   }
 
   box.className='result-box';
-  pctEl.textContent=R.rate.toFixed(2)+'%';
+  pctEl.textContent=(Math.floor(R.rate*100)/100).toFixed(2)+'%';
   pctEl.style.color='#FFD0D0';  saveState();
 }
 
@@ -1421,7 +1421,7 @@ function buildCapture(){
       <tbody>
         <tr style="font-size:11px">
           <td class="cap-td" style="background:#5B7E3F;color:#fff;font-weight:800;white-space:nowrap;width:10%">피해율</td>
-          <td class="cap-td" style="font-weight:800;color:#e24b4a;font-size:14px;white-space:nowrap;width:10%">${R.rate.toFixed(2)}%</td>
+          <td class="cap-td" style="font-weight:800;color:#e24b4a;font-size:14px;white-space:nowrap;width:10%">${(Math.floor(R.rate*100)/100).toFixed(2)}%</td>
           <td class="cap-td" style="background:#EEF2F0;font-weight:700;white-space:nowrap;width:12%">평년수확량</td>
           <td class="cap-td" style="white-space:nowrap;width:12%">${Math.round(R.totalApplied).toLocaleString()}kg</td>
           <td class="cap-td" style="background:#EEF2F0;font-weight:700;white-space:nowrap;width:12%">조사수확량</td>
