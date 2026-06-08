@@ -213,6 +213,9 @@ body.big-text .scell .ci{font-size:18px!important}
 .cmp-table td.sumcol{background:var(--auto);font-weight:800;color:var(--main-d)}
 .cmp-table tbody tr:nth-child(even) td:not(.rowlabel):not(.sumcol){background:#FDFBF8}
 .cmp-hint{font-size:11px;color:var(--hint);margin-top:6px;text-align:right}
+.cmp-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:0!important;user-select:none}
+.cmp-toggle #cmp-arrow{font-size:12px;color:var(--sub);font-weight:700}
+#compare-body{margin-top:12px}
 .cmp-section{display:none}
 </style>
 </head>
@@ -240,7 +243,6 @@ body.big-text .scell .ci{font-size:18px!important}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:8px">
         <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
-        <button class="bigtext-btn" id="expand-btn" onclick="toggleExpand()">🗂 <span id="expand-label">전체보기</span></button>
       </div>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
@@ -305,9 +307,11 @@ body.big-text .scell .ci{font-size:18px!important}
 
   <div id="phase-fruit-block" style="display:none">
   <div class="section cmp-section" id="compare-section">
-    <div class="sec-title">품종별 요약 비교</div>
-    <div class="cmp-wrap"><table class="cmp-table" id="compare-table"></table></div>
-    <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
+    <div class="sec-title cmp-toggle" onclick="toggleCompare()"><span>품종별 요약 비교</span><span id="cmp-arrow">▾</span></div>
+    <div id="compare-body" style="display:none">
+      <div class="cmp-wrap"><table class="cmp-table" id="compare-table"></table></div>
+      <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
+    </div>
   </div>
 
   <div class="calc-action-row">
@@ -869,6 +873,8 @@ function computeAll(){
 }
 
 /* ───────── 품종별 비교 요약표 ───────── */
+let _cmpOpen=false;
+function toggleCompare(){ _cmpOpen=!_cmpOpen; const b=$('compare-body'),a=$('cmp-arrow'); if(b)b.style.display=_cmpOpen?'block':'none'; if(a)a.textContent=_cmpOpen?'▴':'▾'; }
 function renderCompare(R){
   const sec=$('compare-section'),tbl=$('compare-table');
   if(!varieties.some(v=>v.cat)){sec.style.display='none';return;}
@@ -1013,18 +1019,7 @@ function toggleBigText(){
 }
 
 /* ───────── 전체보기 ───────── */
-function refreshExpandBtn(){
-  const b=$('expand-btn');if(!b)return;
-  b.classList.toggle('on',_expandAll);
-  $('expand-label').textContent=_expandAll?'단계별':'전체보기';
-}
-function toggleExpand(){
-  vibrate(20);
-  _expandAll=!_expandAll;
-  if(_expandAll&&_phase==='tree')allocateSamples();
-  refreshExpandBtn();
-  renderVarieties();setPhaseUI();calc();saveState();
-}
+function refreshExpandBtn(){ /* 전체보기 토글 제거됨 — 항상 단계별 */ }
 
 /* ───────── 초기화 ───────── */
 function openResetModal(){$('resetModal').style.display='flex';}
@@ -1058,7 +1053,7 @@ function loadState(){
       $('survey_date').value=s.date||'';syncDate($('survey_date'));
       varieties=s.varieties.map(v=>Object.assign(newVariety(),v));
       _phase=s.phase==='fruit'?'fruit':'tree';
-      _expandAll=!!s.expand;
+      _expandAll=false;   // 전체보기 제거 — 항상 단계별
       return true;
     }
   }catch(e){}
