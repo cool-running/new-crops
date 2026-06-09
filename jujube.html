@@ -895,9 +895,9 @@ function computeAll(){
   totalApplied=r4(totalApplied);
   // 미보상감수량: 피해율 계산에는 반올림 전 원시값(소수점 유지) 사용 — 전산과 동일
   const rawUninsLoss=(totalApplied-totalYield)*uninsRate;            // 예: (1105-96.8)*0.2 = 201.64
-  // 피해율: 원시 수확량·원시 미보상감수량으로 계산 후 소수점 첫째 자리 반올림(전산 기준)
-  const rawRate=totalApplied>0?(totalApplied-totalYield-rawUninsLoss)/totalApplied*100:0; // 예: 72.99
-  const rate=Math.round(rawRate*10)/10;                              // 전산 표기: 73.0
+  // 피해율: 원시 수확량·원시 미보상감수량으로 계산 후 소수점 둘째 자리 반올림(전산 기준)
+  const rawRate=totalApplied>0?(totalApplied-totalYield-rawUninsLoss)/totalApplied*100:0; // 예: 68.0799
+  const rate=Math.round(rawRate*100)/100;                            // 전산 표기: 68.08
   totalUninsLoss=Math.round(rawUninsLoss);                           // 화면 표시는 정수 kg 반올림(202)
   totalYield=Math.floor(totalYield);                                 // 화면 표시는 정수 kg 버림(96)
 
