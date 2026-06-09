@@ -881,9 +881,9 @@ function computeAll(){
     const fc=pf(v.fcount),fw=pf(v.fweight);
     const weight=r.ap?(fruitWeightByCat['ap']||0):1;
 
-    const yld=r.ap
-      ? r4(r.survey*per*weight*(1-dmg)/1000 + r.unins*Zper)
-      : r4(r.survey*per*(1-dmg)/1000 + r.unins*Zper);
+    // 주당착과량(g): 전산은 품종별로 정수 그램으로 반올림 후 사용 (재래종=착과량평균, 사과대추=착과수×개당과중)
+    const perG=r.ap?Math.round(per*weight):Math.round(per);
+    const yld=r4(r.survey*perG*(1-dmg)/1000 + r.unins*Zper);
     const uninsLoss=r4((F-yld)*uninsRate);
 
     totalApplied+=F; totalYield+=yld; totalUninsLoss+=uninsLoss;
