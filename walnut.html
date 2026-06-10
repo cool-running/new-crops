@@ -865,7 +865,7 @@ function computeAll(){
     const unins=parseFloat(v.unins)||0,dead=parseFloat(v.dead)||0,age=parseFloat(v.age)||0;
     const survey=Math.max(0,actual-unins-dead);
     const stdUnit=stdYield(v.cat,age);
-    const std=stdUnit*reg;
+    const std=stdUnit*actual;   /* 이론서: 품종·수령별 표준수확량 = 주당표준 × 실제결과주수 */
     totalSurvey+=survey;totalL+=std;totalReg+=reg;totalActual+=actual;
     if(reg>0&&actual>0&&Math.abs((actual-reg)/reg)>=0.05)contractChange=true;
     return {v,reg,actual,unins,dead,age,survey,std,stdUnit,L:std};
@@ -877,11 +877,10 @@ function computeAll(){
     const v=r.v;
     const proper=r.survey>0&&totalSurvey>0?Math.ceil(sampN*r.survey/totalSurvey):0;
     const N=totalL>0?r4(avgYield*r.L/totalL):0;
-    /* 원장변경 재산정: 적용평년 = 평년 × (주당표준×실결) ÷ 가입표준합계
-       — 가입주수 0인 신규 품종(수령 추가)도 실결 기준으로 평년이 배분됨 */
-    const O=totalL>0?r4(avgYield*r.stdUnit*r.actual/totalL):0;
-    const F=contractChange?O:N;
-    const Zper=r.reg>0?r4(N/r.reg):(r.actual>0?r4(F/r.actual):0);
+    /* 이론서: 품종·수령별 평년 = 평년 × (주당표준 × 실제결과주수) ÷ 표준수확량(=Σ 주당표준×실결)
+       — 실결 기반이라 원장변경(가입≠실결)·신규 수령(가입0) 모두 자동 반영 */
+    const F=N;
+    const Zper=r.actual>0?r4(N/r.actual):0;   /* 주당평년 = 품종별평년 ÷ 실제결과주수 */
 
     /* 착과수 (개/주) */
     const tv=v.trees.map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
