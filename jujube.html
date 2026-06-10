@@ -313,15 +313,14 @@ body.big-text .scell .ci{font-size:19px!important}
     <div class="sec-title cmp-toggle" onclick="toggleCompare()"><span>나무조사 요약</span><span id="cmp-arrow">▾</span></div>
     <div id="compare-body" style="display:none">
       <div class="cmp-wrap"><table class="cmp-table tcmp" id="compare-table"></table></div>
-      <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
     </div>
   </div>
 
   <div class="section" id="sample-summary-section" style="display:none">
     <div class="sec-title cmp-toggle" onclick="toggleSampleSummary()"><span>표본주별 착과수 및 착과량 요약</span><span id="smp-arrow">▾</span></div>
     <div id="sample-summary-body" style="display:none">
-      <div style="overflow-x:auto;margin-top:10px">
-        <table id="sample-summary-table" style="width:100%;border-collapse:collapse;min-width:320px"></table>
+      <div style="overflow:hidden;margin-top:10px;border-radius:10px;border:0.5px solid var(--border)">
+        <table id="sample-summary-table" style="width:100%;border-collapse:collapse;table-layout:fixed"></table>
       </div>
       <div style="font-size:10px;color:var(--hint);margin-top:5px;text-align:right">입력한 착과수(사과대추: 개) 또는 착과량(재래·복조: g) 확인용</div>
     </div>
@@ -948,8 +947,6 @@ function renderCompare(R){
 
   const big = document.body.classList.contains('big-text');
   tbl.style.fontSize = (big?15:11)+'px';
-  const hint=sec.querySelector('.cmp-hint');
-  if(hint) hint.textContent = '표본간격 = 조사대상주 ÷ 표본주 (내림)';
 }
 
 /* ───────── 표본주별 착과수 및 착과량 요약표 ───────── */
