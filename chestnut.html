@@ -216,7 +216,7 @@ body.big-text .scell .ci{font-size:19px!important}
 .cmp-table.tcmp thead th.corner{width:auto}
 .cmp-table.tcmp .rowlabel{text-align:left;padding:6px 7px;white-space:normal}
 .cmp-table.tcmp .vlab .vn{font-weight:800;color:var(--text)}
-.cmp-table.tcmp td.intv{color:var(--red);font-weight:800}
+.cmp-table.tcmp td.intv{color:#111;font-weight:800}
 .cmp-table.tcmp tr.sumrow td{background:var(--auto);font-weight:800;color:var(--main-d)}
 .cmp-table.tcmp tr.sumrow .rowlabel{background:var(--auto)}
 .cmp-section{display:none}
@@ -310,7 +310,16 @@ body.big-text .scell .ci{font-size:19px!important}
     <div class="sec-title cmp-toggle" onclick="toggleCompare()"><span>품종별 요약 비교</span><span id="cmp-arrow">▾</span></div>
     <div id="compare-body" style="display:none">
       <div class="cmp-wrap"><table class="cmp-table tcmp" id="compare-table"></table></div>
-      <div class="cmp-hint">품종 수에 맞춰 칸 자동 분할</div>
+    </div>
+  </div>
+
+  <div class="section" id="sample-summary-section" style="display:none">
+    <div class="sec-title cmp-toggle" onclick="toggleSampleSummary()"><span>표본주별 착과수·낙과수 요약</span><span id="smp-arrow">▾</span></div>
+    <div id="sample-summary-body" style="display:none">
+      <div style="overflow:hidden;margin-top:10px;border-radius:10px;border:0.5px solid var(--border)">
+        <table id="sample-summary-table" style="width:100%;border-collapse:collapse;table-layout:fixed"></table>
+      </div>
+      <div style="font-size:10px;color:var(--hint);margin-top:5px;text-align:right">표본주별 입력한 착과수·낙과수 확인용</div>
     </div>
   </div>
 
@@ -940,7 +949,71 @@ function renderCompare(R){
   tbl.innerHTML=cols+'<thead>'+head+'</thead><tbody>'+body+'</tbody>';
   const big=document.body.classList.contains('big-text');
   tbl.style.fontSize=(big?15:11)+'px';
-  const hint=sec.querySelector('.cmp-hint'); if(hint) hint.textContent='표본간격 = 조사대상주 ÷ 표본주 (내림)';
+}
+
+/* ───────── 표본주별 착과수·낙과수 요약표 ───────── */
+let _smpOpen=false;
+function toggleSampleSummary(){
+  _smpOpen=!_smpOpen;
+  const b=$('sample-summary-body'),a=$('smp-arrow');
+  if(b)b.style.display=_smpOpen?'block':'none';
+  if(a)a.textContent=_smpOpen?'▴':'▾';
+}
+function renderSampleSummary(R){
+  const sec=$('sample-summary-section');
+  if(!sec)return;
+  const tbl=sec.querySelector('#sample-summary-table');
+  if(!tbl)return;
+
+  /* 모든 품종 표본값 수집 — 착과수(trees)·낙과수(naks), 번호 연속 */
+  const num=x=>{ if(x===''||x==null)return null; const f=parseFloat(String(x).replace(/,/g,'')); return isNaN(f)?null:f; };
+  let items=[];
+  R.rows.forEach(r=>{
+    const tr=r.v.trees||[], nk=r.v.naks||[];
+    tr.forEach((t,k)=>{ items.push({ no: items.length+1, chak: num(t), nak: num(nk[k]) }); });
+  });
+
+  const hasAny=items.some(it=>it.chak!==null||it.nak!==null);
+  sec.style.display=hasAny?'block':'none';
+  if(!hasAny)return;
+
+  /* 2그룹 분할 (왼쪽: 앞 절반, 오른쪽: 뒤 절반) */
+  const n=items.length;
+  const half=Math.ceil(n/2);
+  const pad=items.slice();
+  while(pad.length<half*2) pad.push(null);
+
+  const big=document.body.classList.contains('big-text');
+  const fz=big?13:11;
+  const thS=`border:0.5px solid var(--border);padding:6px 2px;text-align:center;background:var(--main);color:#fff;font-weight:700;font-size:${big?11:10}px;line-height:1.2`;
+  const thN=`border:0.5px solid var(--border);padding:6px 2px;text-align:center;background:var(--main-d);color:#fff;font-weight:700;font-size:${big?11:10}px`;
+  const tdN=`border:0.5px solid var(--border);padding:6px 2px;text-align:center;background:var(--main-l);color:var(--main-d);font-weight:800;font-size:${fz}px`;
+  const tdV=`border:0.5px solid var(--border);padding:6px 2px;text-align:center;background:#fff;color:#111;font-size:${fz}px`;
+  const tdE=`border:0.5px solid var(--border);padding:6px 2px;background:#fafaf7`;
+
+  const vCell=val=> val===null
+    ? `<td style="${tdV};color:#ccc">-</td>`
+    : `<td style="${tdV};font-weight:700">${val.toLocaleString('ko-KR')}<span style="font-size:9px;color:var(--sub);font-weight:600"> 개</span></td>`;
+  const grp=it=> it===null
+    ? `<td style="${tdE}"></td><td style="${tdE}"></td><td style="${tdE}"></td>`
+    : `<td style="${tdN}">${it.no}</td>${vCell(it.chak)}${vCell(it.nak)}`;
+
+  const colg='<colgroup><col style="width:9%"><col style="width:20.5%"><col style="width:20.5%"><col style="width:9%"><col style="width:20.5%"><col style="width:20.5%"></colgroup>';
+  const thead=`<tr>
+    <th style="${thN}">번호</th>
+    <th style="${thS}">착과수</th>
+    <th style="${thS}">낙과수</th>
+    <th style="${thN}">번호</th>
+    <th style="${thS}">착과수</th>
+    <th style="${thS}">낙과수</th>
+  </tr>`;
+
+  let tbody='';
+  for(let r=0;r<half;r++){ tbody+=`<tr>${grp(pad[r])}${grp(pad[r+half])}</tr>`; }
+
+  tbl.innerHTML=colg+'<thead>'+thead+'</thead><tbody>'+tbody+'</tbody>';
+  const body=$('sample-summary-body');
+  if(body) body.style.display=_smpOpen?'block':'none';
 }
 
 function calc(){
@@ -996,6 +1069,7 @@ function calc(){
   });
 
   renderCompare(R);
+  renderSampleSummary(R);
 
   const box=$('result-section'),pctEl=$('result-pct');
   const hasData=R.avgYield>0&&R.totalSurvey>0&&varieties.some(v=>v.trees.some(t=>t!==''));
