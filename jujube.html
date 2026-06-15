@@ -863,10 +863,11 @@ function computeAll(){
     if(fc>0&&fruitWeightByCat['ap']===undefined)fruitWeightByCat['ap']=r2(fw/fc);
   });
 
-  let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false;
+  let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false,totalProper=0;
   rows.forEach(r=>{
     const v=r.v;
     const proper=r.survey>0&&totalSurvey>0?Math.ceil(sampN*r.survey/totalSurvey):0;
+    totalProper+=proper;   // 품종별 올림 배분 합계(=전산 전체 표본주수). 별표 기준값 sampN과 다를 수 있음
     const N=totalL>0?r4(avgYield*r.L/totalL):0;            // 정상분배 평년
     /* 원장변경 재산정: 적용평년 = 평년 × (주당표준×실결) ÷ 가입표준합계
        — 가입주수 0인 신규 품종(수령 추가)도 실결 기준으로 평년이 배분됨 */
@@ -908,7 +909,7 @@ function computeAll(){
   totalUninsLoss=Math.round(rawUninsLoss);                           // 화면 표시는 정수 kg 반올림(202)
   totalYield=Math.floor(totalYield);                                 // 화면 표시는 정수 kg 버림(96)
 
-  return {avgYield,uninsRate,rows,totalSurvey,sampN,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort,totalReg,totalActual};
+  return {avgYield,uninsRate,rows,totalSurvey,sampN,totalProper,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort,totalReg,totalActual};
 }
 
 /* ───────── 품종별 비교 요약표 ───────── */
@@ -943,7 +944,7 @@ function renderCompare(R){
     body+=`<tr><td class="rowlabel vlab">${label}</td><td>${regN}</td><td>${actN}</td><td>${surN}</td><td>${spN}</td><td class="intv">${ivN}</td></tr>`;
   });
   if(n>1){
-    body+=`<tr class="sumrow"><td class="rowlabel">합계</td><td>${R.totalReg?R.totalReg.toLocaleString():'-'}</td><td>${R.totalActual?R.totalActual.toLocaleString():'-'}</td><td>${R.totalSurvey?R.totalSurvey.toLocaleString():'-'}</td><td>${R.sampN?R.sampN+'주':'-'}</td><td>-</td></tr>`;
+    body+=`<tr class="sumrow"><td class="rowlabel">합계</td><td>${R.totalReg?R.totalReg.toLocaleString():'-'}</td><td>${R.totalActual?R.totalActual.toLocaleString():'-'}</td><td>${R.totalSurvey?R.totalSurvey.toLocaleString():'-'}</td><td>${R.totalProper?R.totalProper+'주':'-'}</td><td>-</td></tr>`;
   }
 
   tbl.innerHTML=cols+'<thead>'+head+'</thead><tbody>'+body+'</tbody>';
@@ -1024,7 +1025,7 @@ function renderSampleSummary(R){
 function calc(){
   const R=computeAll();
   $('t-survey').value=R.totalSurvey?R.totalSurvey.toLocaleString():'';
-  $('t-sampleN').value=R.sampN?R.sampN+'주':'';
+  $('t-sampleN').value=R.totalProper?R.totalProper+'주':'';
   $('t-reg').value=R.totalReg?R.totalReg.toLocaleString()+'주':'';
   $('t-actual').value=R.totalActual?R.totalActual.toLocaleString()+'주':'';
   const hasReg=R.rows.some(r=>r.reg>0&&r.actual>0);
