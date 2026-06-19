@@ -893,7 +893,7 @@ function computeAll(){
 
     /* 개당과중: (정상무게 + 소과무게×0.8) ÷ 표본과실수 */
     const wN=pf(v.wN),wS=pf(v.wS),fcnt=pf(v.fcnt);
-    const weight=fcnt>0?r2((wN+wS*0.8)/fcnt):0;
+    const weight=fcnt>0?(wN+wS*0.8)/fcnt:0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리). r2로 끊으면 수확량 1kg 오차 */
 
     /* 피해구성 */
     const nm=pf(v.normal),d5=pf(v.p50),d8=pf(v.p80),d10=pf(v.p100);
