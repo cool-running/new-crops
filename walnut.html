@@ -914,7 +914,10 @@ function computeAll(){
   totalApplied=r4(totalApplied);
   totalYield=rdown4(totalYield);
   totalUninsLoss=r4(totalUninsLoss);
-  const rate=totalApplied>0?r4((totalApplied-totalYield-totalUninsLoss)/totalApplied)*100:0;
+  /* 피해율: 전산은 소수점 2자리 '올림' 처리(노재하·이경배·조규호 등 실측 확인).
+     FP 잡음 제거 위해 비율을 6자리 반올림 후 2자리 올림. */
+  const _ratio=totalApplied>0?(totalApplied-totalYield-totalUninsLoss)/totalApplied:0;
+  const rate=totalApplied>0?Math.ceil(Math.round(_ratio*1e6)/1e6*10000)/100:0;
 
   return {avgYield,uninsRate,rows,totalSurvey,sampN,contractChange,totalApplied,totalYield,totalUninsLoss,rate,anyShort,totalReg,totalActual};
 }
