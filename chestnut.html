@@ -578,7 +578,7 @@ function renderVarieties(){
         const raw=String(t).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
+        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div></div>`;
       });
       /* 낙과수 그리드 — 착과수와 같은 번호 */
       const naks=v.naks||[];
@@ -588,7 +588,7 @@ function renderVarieties(){
         const raw=String(n).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
+        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
