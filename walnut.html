@@ -478,6 +478,22 @@ const r2=v=>Math.round((v+Number.EPSILON)*100)/100;   /* 개당과중: 소수점
 const fmt=v=>{const r=Math.round(v*10000)/10000;return r.toLocaleString('ko-KR',{maximumFractionDigits:4});};
 const pf=x=>parseFloat(String(x==null?'':x).replace(/,/g,''))||0;
 
+/* ───────── 과중조사 품종 단위 공유 ─────────
+   개당과중은 '품종별'로 산출(이론서). 같은 품종이면 수령이 달라도 공유,
+   품종이 다르면 별도 조사. 품종 키 = 숙기 + 품종명(직접입력은 입력값) */
+function pkey(v){
+  if(!v||!v.cat)return '';
+  const nm = v.varName==='__direct__' ? ('직접:'+(v.varCustom||'')) : (v.varName||'');
+  return nm ? (v.cat+'|'+nm) : '';
+}
+/* 같은 품종 카드 중 첫 번째(과중 입력칸을 가지는 카드) 인덱스 */
+function weightLeaderIndex(i){
+  const k=pkey(varieties[i]); if(!k)return i;
+  for(let j=0;j<varieties.length;j++){ if(pkey(varieties[j])===k)return j; }
+  return i;
+}
+const isWeightLeader=i=>weightLeaderIndex(i)===i;
+
 /* ───────── 상태 ───────── */
 let varieties=[];
 let _locked=false;
@@ -605,12 +621,20 @@ function renderVarieties(){
       <div class="tree-grid" id="nak-grid-${i}">${nakHtml}</div>
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
 
-      <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 개당과중=정상무게÷표본과실수</span></div>
-      <div class="g4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:0">
+      ${isWeightLeader(i)
+      ? `<div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종별 20개↑, 농지 60개↑ · 개당과중=정상무게÷표본과실수 · 품종마다 조사</span></div>
+      <div class="wt-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:0">
         <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
         <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
         <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
+      </div>`
+      : `<div class="subtitle" style="margin-top:10px;display:flex;align-items:center;gap:6px">
+        <span>과중조사</span>
+        <span style="font-size:11px;color:var(--main-d);background:var(--main-l);padding:2px 8px;border-radius:8px;font-weight:700">${weightLeaderIndex(i)+1}번과 동일품종 · 과중 공유</span>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:0">
+        <div class="field" style="grid-column:1 / 2"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
+      </div>`}
 
       <div class="dmg-toggle-row ${v.dmgOpen?'on':''}" onclick="toggleDmg(${i})">
         <label class="sw" onclick="event.stopPropagation()">
@@ -872,6 +896,15 @@ function computeAll(){
   });
   const sampN=totalSampleN(totalSurvey);
 
+  /* 개당과중: '품종별'로 산출(이론서) — 같은 품종이면 수령이 달라도 공유,
+     품종이 다르면 별도 조사. 품종별 첫 입력값(정상무게 ÷ 표본과실수, 호두는 소과 구분 없음)을 사용 */
+  const weightByKey={};
+  for(const r of rows){
+    const k=pkey(r.v); if(!k)continue;
+    const wN=pf(r.v.wN),fcnt=pf(r.v.fcnt);
+    if(fcnt>0&&wN>0&&weightByKey[k]===undefined) weightByKey[k]=wN/fcnt;
+  }
+
   let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false;
   rows.forEach(r=>{
     const v=r.v;
@@ -890,9 +923,8 @@ function computeAll(){
     const nv=(v.naks||[]).map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
     const perNak=nv.length?r4(nv.reduce((a,b)=>a+b,0)/nv.length):0;
 
-    /* 개당과중: 정상무게 ÷ 표본과실수 (호두는 소과 구분 없음) */
-    const wN=pf(v.wN),fcnt=pf(v.fcnt);
-    const weight=fcnt>0?wN/fcnt:0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리) */
+    /* 개당과중: 품종별 공유값 사용 (정상무게 ÷ 표본과실수, 호두는 소과 구분 없음) */
+    const weight=weightByKey[pkey(v)]||0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리) */
 
     /* 피해구성 */
     const nm=pf(v.normal),d5=pf(v.p50),d8=pf(v.p80),d10=pf(v.p100);
@@ -1045,13 +1077,11 @@ function calc(){
     set(`v-per-${i}`,c.sampleCnt>0?c.perChak.toFixed(1)+'개':'');
     set(`v-pern-${i}`,c.perNak>0?c.perNak.toFixed(1)+'개':'');
     set(`v-w-${i}`,c.weight?c.weight.toFixed(2)+'g':'');
-    /* 과중 계산 자동표시 */
-    const wN=pf(v.wN),fcnt=pf(v.fcnt);
-    const wCalc=fcnt>0?(wN/fcnt):0;
-    set(`v-w2-${i}`,wCalc>0?wCalc.toFixed(2)+' g / 개':'');
+    /* 과중 계산 자동표시 — 농지 공유 개당과중(c.weight) 사용 */
+    set(`v-w2-${i}`,c.weight>0?c.weight.toFixed(2)+' g / 개':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(c.sampleCnt>0&&!c.weight){
+      if(c.sampleCnt>0&&!c.weight&&isWeightLeader(i)){
         w.textContent='⚠ 과중조사(개당과중)를 입력해야 수확량이 계산됩니다';
         w.className='warn';w.style.display='block';
       }else if(c.proper>0&&c.sampleCnt>c.proper){
