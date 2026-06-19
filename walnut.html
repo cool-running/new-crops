@@ -605,11 +605,10 @@ function renderVarieties(){
       <div class="tree-grid" id="nak-grid-${i}">${nakHtml}</div>
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
 
-      <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 소과(30mm이하)=무게×0.8</span></div>
+      <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 개당과중=정상무게÷표본과실수</span></div>
       <div class="g4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:0">
         <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
         <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>소과 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wS||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wS?Number(String(v.wS).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wS',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
         <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
       </div>
 
@@ -816,7 +815,7 @@ function focusNextInput(el){
       }
     }
   }
-  // 과중조사 마지막 칸(wt-inp 중 소과무게) → 다음 품종 착과수
+  // 과중조사 마지막 칸(wt-inp 중 정상무게) → 다음 품종 착과수
   if(el.classList.contains('wt-inp')){
     const card=el.closest('.vcard');
     if(card){
@@ -891,9 +890,9 @@ function computeAll(){
     const nv=(v.naks||[]).map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
     const perNak=nv.length?r4(nv.reduce((a,b)=>a+b,0)/nv.length):0;
 
-    /* 개당과중: (정상무게 + 소과무게×0.8) ÷ 표본과실수 */
-    const wN=pf(v.wN),wS=pf(v.wS),fcnt=pf(v.fcnt);
-    const weight=fcnt>0?(wN+wS*0.8)/fcnt:0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리). r2로 끊으면 수확량 1kg 오차 */
+    /* 개당과중: 정상무게 ÷ 표본과실수 (호두는 소과 구분 없음) */
+    const wN=pf(v.wN),fcnt=pf(v.fcnt);
+    const weight=fcnt>0?wN/fcnt:0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리) */
 
     /* 피해구성 */
     const nm=pf(v.normal),d5=pf(v.p50),d8=pf(v.p80),d10=pf(v.p100);
@@ -1047,8 +1046,8 @@ function calc(){
     set(`v-pern-${i}`,c.perNak>0?c.perNak.toFixed(1)+'개':'');
     set(`v-w-${i}`,c.weight?c.weight.toFixed(2)+'g':'');
     /* 과중 계산 자동표시 */
-    const wN=pf(v.wN),wS=pf(v.wS),fcnt=pf(v.fcnt);
-    const wCalc=fcnt>0?((wN+wS*0.8)/fcnt):0;
+    const wN=pf(v.wN),fcnt=pf(v.fcnt);
+    const wCalc=fcnt>0?(wN/fcnt):0;
     set(`v-w2-${i}`,wCalc>0?wCalc.toFixed(2)+' g / 개':'');
     const w=$(`v-warn-${i}`);
     if(w){
@@ -1301,16 +1300,15 @@ function buildCapture(){
   R.rows.forEach(r=>{
     if(!r.v.cat)return;
     const v=r.v,c=r.calc,catL=CATS[v.cat]?CATS[v.cat].label:'-';
-    const wN=pf(v.wN),wS=pf(v.wS),fcnt=pf(v.fcnt);
-    if(!fcnt&&!wN&&!wS)return;
+    const wN=pf(v.wN),fcnt=pf(v.fcnt);
+    if(!fcnt&&!wN)return;
     wRows+=`<tr>
       <td class="cap-td">${catL}</td>
       <td class="cap-td" style="background:#EEF2F0">${fcnt?fcnt.toLocaleString():'-'}</td>
       <td class="cap-td" style="background:#EEF2F0">${wN?wN.toLocaleString():'-'}</td>
-      <td class="cap-td" style="background:#EEF2F0">${wS?wS.toLocaleString():'-'}</td>
       <td class="cap-td" style="background:#EEF2F0">${c.weight?c.weight.toFixed(2):'-'}</td></tr>`;
   });
-  if(!wRows)wRows=`<tr><td class="cap-td" colspan="5" style="color:#999">해당 없음</td></tr>`;
+  if(!wRows)wRows=`<tr><td class="cap-td" colspan="4" style="color:#999">해당 없음</td></tr>`;
 
   const secTitle=t=>`<div style="font-size:14px;font-weight:800;color:#2d5016;margin:16px 0 6px;border-left:4px solid #5B7E3F;padding-left:8px">${t}</div>`;
 
@@ -1348,7 +1346,6 @@ function buildCapture(){
         <th class="cap-th">품종·숙기</th>
         <th class="cap-th">표본<br>과실수(개)</th>
         <th class="cap-th">정상<br>무게(g)</th>
-        <th class="cap-th">소과<br>무게(g)</th>
         <th class="cap-th">개당<br>과중(g)</th>
       </tr></thead><tbody>${wRows}</tbody>
     </table>
