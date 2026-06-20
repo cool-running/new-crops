@@ -1483,26 +1483,35 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('hdrState').className='hdr-state locked';$('hdrState').textContent='🔒 잠금';
   }
   window.addEventListener('resize',()=>{try{calc();}catch(e){}});
-  // 입력칸: 클릭하면 커서를 '맨 끝'에 두고(실제 선택영역을 만들지 않아 잘라내기/복사 콜아웃이 안 뜸),
-  // 첫 글자를 입력하면 기존 값이 지워지며 덮어쓰기(전체선택 후 입력과 결과 동일).
-  // 백스페이스 등 삭제키를 먼저 누르면 기존 값을 유지해 부분 수정도 가능.
+  // ── 입력칸 포커스 (마늘 방식) ──
+  // 탭(touch) 시 브라우저 기본 터치동작을 막고(preventDefault) 직접 포커스→전체선택.
+  // 이러면 안드로이드가 '사용자 선택 제스처'로 인식하지 않아 잘라내기/복사 툴바가 뜨지 않으면서
+  // 값이 전체선택되어 바로 덮어쓸 수 있음. (PC/키보드 포커스 시에도 전체선택)
   const isEditableInput=t=>t&&t.tagName==='INPUT'&&!t.readOnly&&!t.disabled
     &&t.type!=='date'&&t.type!=='checkbox'&&t.type!=='radio'&&t.type!=='button';
-  function caretEndSoon(t){
-    const put=()=>{ try{ const n=(t.value||'').length; if(t.setSelectionRange) t.setSelectionRange(n,n); }catch(_){} };
-    put(); setTimeout(put,0); requestAnimationFrame(put);
-  }
+  const selAll=t=>{ try{ t.select(); }catch(_){ try{ t.setSelectionRange(0,(t.value||'').length); }catch(__){} } };
+  let _tx=0,_ty=0,_scroll=false,_tEl=null,_touchActive=false;
+  document.addEventListener('touchstart',e=>{
+    _touchActive=true; clearTimeout(window.__taT); window.__taT=setTimeout(()=>_touchActive=false,700);
+    const t=e.target;
+    if(!isEditableInput(t)){ _tEl=null; return; }
+    _tEl=t; _tx=e.touches[0].clientX; _ty=e.touches[0].clientY; _scroll=false;
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(_tEl&&(Math.abs(e.touches[0].clientX-_tx)>6||Math.abs(e.touches[0].clientY-_ty)>6))_scroll=true;
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    const t=_tEl; _tEl=null;
+    if(!t||e.target!==t||_scroll)return;
+    if(e.cancelable)e.preventDefault();   // 기본 탭 동작 차단 → OS 선택 툴바 억제
+    t.focus();
+    setTimeout(()=>selAll(t),50);
+  },{passive:false});
+  // 비터치(PC 마우스·키보드, Enter 이동 등) 포커스: 전체선택
   document.addEventListener('focusin',e=>{
     const t=e.target;
-    if(isEditableInput(t)){ t._fresh=true; caretEndSoon(t); }   // 다음 첫 입력이 덮어쓰기 대상
+    if(isEditableInput(t)&&!_touchActive) setTimeout(()=>selAll(t),0);
   });
-  document.addEventListener('beforeinput',e=>{
-    const t=e.target;
-    if(!isEditableInput(t)||!t._fresh)return;
-    t._fresh=false;
-    if(e.inputType&&e.inputType.indexOf('insert')===0)t.value='';   // 타이핑/붙여넣기 → 덮어쓰기
-  });
-  document.addEventListener('focusout',e=>{ if(e.target)e.target._fresh=false; });
 });
 </script>
 </body>
