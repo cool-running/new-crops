@@ -1483,22 +1483,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('hdrState').className='hdr-state locked';$('hdrState').textContent='🔒 잠금';
   }
   window.addEventListener('resize',()=>{try{calc();}catch(e){}});
-  // 입력칸: 포커스 시 선택영역을 만들지 않아(커서만) 잘라내기/복사 콜아웃이 뜨지 않게 하고,
-  // 첫 글자를 입력하면 기존 값이 지워지며 덮어쓰기(전체선택 후 입력과 동일 효과).
-  // 백스페이스 등 삭제키는 기존 값을 유지해 부분 수정도 가능.
+  // 입력칸: 클릭/포커스하면 값이 전체선택되어 바로 덮어쓸 수 있게 함 (모든 편집칸 일관 적용)
   const isEditableInput=t=>t&&t.tagName==='INPUT'&&!t.readOnly&&!t.disabled
     &&t.type!=='date'&&t.type!=='checkbox'&&t.type!=='radio'&&t.type!=='button';
+  function selectAllSoon(t){
+    const sel=()=>{ try{ t.select(); if(t.setSelectionRange) t.setSelectionRange(0,(t.value||'').length); }catch(_){} };
+    sel(); setTimeout(sel,0); requestAnimationFrame(sel);
+  }
   document.addEventListener('focusin',e=>{
     const t=e.target;
-    if(isEditableInput(t))t._fresh=true;            // 다음 첫 입력이 덮어쓰기 대상
+    if(isEditableInput(t)){ t._sel=true; selectAllSoon(t); }
   });
-  document.addEventListener('beforeinput',e=>{
+  // 모바일: 포커스 직후 탭 업이 선택을 풀지 않도록 1회 방지
+  document.addEventListener('mouseup',e=>{
     const t=e.target;
-    if(!isEditableInput(t)||!t._fresh)return;
-    t._fresh=false;
-    if(e.inputType&&e.inputType.indexOf('insert')===0)t.value='';  // 타이핑/붙여넣기 → 덮어쓰기
+    if(t&&t.tagName==='INPUT'&&t._sel){ e.preventDefault(); t._sel=false; }
   });
-  document.addEventListener('focusout',e=>{ if(e.target)e.target._fresh=false; });
+  document.addEventListener('focusout',e=>{ if(e.target)e.target._sel=false; });
 });
 </script>
 </body>
