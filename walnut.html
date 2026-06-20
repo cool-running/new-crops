@@ -534,7 +534,7 @@ function renderVarieties(){
     const varNameHtml=isDirect
       ?`<div class="field">
           <label>품종</label>
-          <input class="inp filled" value="${v.varCustom||''}" placeholder="품종명 입력 (재선택은 길게 터치)" onfocus="this.select()" oninput="onVarCustom(${i},this)" ondblclick="onVarBack(${i})" oncontextmenu="event.preventDefault();onVarBack(${i})">
+          <input class="inp filled" value="${v.varCustom||''}" placeholder="품종명 입력 (재선택은 길게 터치)" oninput="onVarCustom(${i},this)" ondblclick="onVarBack(${i})" oncontextmenu="event.preventDefault();onVarBack(${i})">
         </div>`
       :`<div class="field">
           <label>품종</label>
@@ -567,7 +567,7 @@ function renderVarieties(){
         const raw=String(t).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div></div>`;
+        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       /* 낙과수 그리드 — 착과수와 같은 번호 */
       const naks=v.naks||[];
@@ -577,7 +577,7 @@ function renderVarieties(){
         const raw=String(n).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div></div>`;
+        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -594,8 +594,8 @@ function renderVarieties(){
 
       <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 개당과중=정상무게÷표본과실수</span></div>
       <div class="g4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:0">
-        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="this.select()" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div>
         <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
       </div>
 
@@ -773,8 +773,10 @@ function finishTreeSurvey(){
   _phase='fruit';
   renderVarieties();setPhaseUI();calc();saveState();
   showToast('나무조사 완료 — 표본 착과조사를 입력하세요');
-  setTimeout(()=>{ const fc=document.querySelector('#tree-grid-0 .ci'); if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();try{fc.select();}catch(e){}} },80);
+  setTimeout(()=>{ const fc=document.querySelector('#tree-grid-0 .ci'); if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();} },80);
 }
+function ovFocus(el){ el.dataset.ov=el.value; el.value=''; }   /* 포커스 시 비워 덮어쓰기 쉽게(선택 안함→툴바 안뜸) */
+function ovBlur(el){ if(el.value===''&&el.dataset.ov)el.value=el.dataset.ov; delete el.dataset.ov; }  /* 미입력이면 원값 복원 */
 function navKey(e,el){if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){e.preventDefault();focusNextInput(el);}}
 function focusNextInput(el){
   if(el.classList.contains('ci')){
@@ -791,7 +793,7 @@ function focusNextInput(el){
         if(nm){
           const card=grid.closest('.vcard');
           const wts=card?[...card.querySelectorAll('.wt-inp:not([disabled]):not([readonly])')]:[];
-          if(wts.length){wts[0].scrollIntoView({behavior:'smooth',block:'center'});wts[0].focus();try{wts[0].select();}catch(e){}return;}
+          if(wts.length){wts[0].scrollIntoView({behavior:'smooth',block:'center'});wts[0].focus();return;}
           const ng=$('tree-grid-'+(+nm[1]+1));if(ng){const fc=ng.querySelector('.ci');if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();return;}}
         }
         el.blur();return;
@@ -812,7 +814,7 @@ function focusNextInput(el){
   }
   const all=[...document.querySelectorAll('.content input:not([readonly]):not([disabled]),.content select:not([disabled])')].filter(x=>x.type!=='date'&&x.offsetParent!==null);
   const i=all.indexOf(el);
-  if(i>=0&&i+1<all.length){const n=all[i+1];n.focus();try{n.select&&n.select();}catch(e){}}else{el.blur();}
+  if(i>=0&&i+1<all.length){const n=all[i+1];n.focus();}else{el.blur();}
 }
 function addVariety(){if(_locked||(_phase!=='tree'&&!_expandAll))return;if(varieties.length>=6){showToast('품종은 최대 6개까지');return;}varieties.push(newVariety());renderVarieties();calc();saveState();}
 function delVariety(i){if(_locked||(_phase!=='tree'&&!_expandAll))return;if(varieties.length<=1){showToast('최소 1개 품종이 필요합니다');return;}varieties.splice(i,1);renderVarieties();calc();saveState();}
@@ -1387,20 +1389,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   refreshExpandBtn();
   renderVarieties();setPhaseUI();calc();
   window.addEventListener('resize',()=>{try{calc();}catch(e){}});
-  function selectAllSoon(t){
-    const sel=()=>{try{t.select();if(t.setSelectionRange)t.setSelectionRange(0,(t.value||'').length);}catch(_){}};
-    sel();setTimeout(sel,0);requestAnimationFrame(sel);
-  }
-  document.addEventListener('focusin',e=>{
-    const t=e.target;
-    if(!t||t.tagName!=='INPUT'||t.type==='date')return;
-    if(t.classList.contains('tinp')||t.classList.contains('inp')){t._sel=true;selectAllSoon(t);}
-  });
-  document.addEventListener('mouseup',e=>{
-    const t=e.target;
-    if(t&&t.tagName==='INPUT'&&t._sel){e.preventDefault();t._sel=false;}
-  });
-  document.addEventListener('focusout',e=>{if(e.target)e.target._sel=false;});
+  /* 전역 select-all 제거: 선택 툴바(복사/공유/모두선택) 방지. 입력칸은 ovFocus로 비우고 ovBlur로 복원 */
 });
 </script>
 </body>
