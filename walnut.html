@@ -775,7 +775,11 @@ function finishTreeSurvey(){
   showToast('나무조사 완료 — 표본 착과조사를 입력하세요');
   setTimeout(()=>{ const fc=document.querySelector('#tree-grid-0 .ci'); if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();} },80);
 }
-function ovFocus(el){ el.dataset.ov=el.value; el.value=''; }   /* 포커스 시 비워 덮어쓰기 쉽게(선택 안함→툴바 안뜸) */
+/* 사용자가 직접 탭한 경우에만 비우기. 진입/자동이동(프로그램적 포커스)은 기존 값 유지 */
+window.__ovTap=false;
+['pointerdown','mousedown','touchstart'].forEach(function(ev){document.addEventListener(ev,function(){window.__ovTap=true;},true);});
+['pointerup','mouseup','touchend'].forEach(function(ev){document.addEventListener(ev,function(){setTimeout(function(){window.__ovTap=false;},0);},true);});
+function ovFocus(el){ if(!window.__ovTap)return; el.dataset.ov=el.value; el.value=''; }   /* 탭 포커스만 비움(선택 안함→툴바 안뜸) */
 function ovBlur(el){ if(el.value===''&&el.dataset.ov)el.value=el.dataset.ov; delete el.dataset.ov; }  /* 미입력이면 원값 복원 */
 function navKey(e,el){if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){e.preventDefault();focusNextInput(el);}}
 function focusNextInput(el){
