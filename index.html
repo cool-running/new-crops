@@ -70,12 +70,6 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확개시전 수확량조사</div>
   </div>
 
-  <div class="crop-card done" onclick="go('jujube')">
-    <span class="badge badge-done">완성</span>
-    <div class="crop-icon"><svg viewBox="0 0 24 24" width="30" height="30" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle"><path d="M12 3.4 V6.6" stroke="#5C3A1E" stroke-width="1.4" stroke-linecap="round"/><path d="M12 5 C13.6 3.8 15.2 4 16 4.4 C15 5.6 13.4 6 12 5.8 Z" fill="#5AA046"/><ellipse cx="12" cy="14.2" rx="6" ry="8" fill="#B0271B" stroke="#7C160E" stroke-width="1"/><ellipse cx="9.8" cy="11.4" rx="1.5" ry="3" fill="#ffffff" opacity="0.32"/></svg></div>
-    <div class="crop-name">대추</div>
-    <div class="crop-desc">수확개시전 수확량조사</div>
-  </div>
 
 </div>
 
@@ -84,7 +78,6 @@ function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
   if(page==='chestnut')    location.href='./chestnut.html';
   if(page==='walnut')      location.href='./walnut.html';
-  if(page==='jujube')      location.href='./jujube.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
