@@ -779,8 +779,8 @@ function finishTreeSurvey(){
 window.__ovTap=false;
 ['pointerdown','mousedown','touchstart'].forEach(function(ev){document.addEventListener(ev,function(){window.__ovTap=true;},true);});
 ['pointerup','mouseup','touchend'].forEach(function(ev){document.addEventListener(ev,function(){setTimeout(function(){window.__ovTap=false;},0);},true);});
-function ovFocus(el){ if(!window.__ovTap)return; el.dataset.ov=el.value; el.value=''; }   /* 탭 포커스만 비움(선택 안함→툴바 안뜸) */
-function ovBlur(el){ if(el.value===''&&el.dataset.ov)el.value=el.dataset.ov; delete el.dataset.ov; }  /* 미입력이면 원값 복원 */
+function ovFocus(el){ if(!window.__ovTap)return; try{el.select();if(el.setSelectionRange)el.setSelectionRange(0,(el.value||'').length);}catch(e){} }   /* 탭 시 전체선택(내용 보이고 덮어쓰기 쉽게). 진입/자동이동은 선택 안함 */
+function ovBlur(el){}  /* 미사용 */
 function navKey(e,el){if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){e.preventDefault();focusNextInput(el);}}
 function focusNextInput(el){
   if(el.classList.contains('ci')){
