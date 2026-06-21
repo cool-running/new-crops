@@ -1446,7 +1446,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   // 화면 재렌더 시 새 칸은 MutationObserver로 자동 바인딩.
   const selAll=el=>{ try{ el.select(); }catch(_){ try{ el.setSelectionRange(0,(el.value||'').length); }catch(__){} } };
   const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-  function clearReady(el){ el._ov=false; el.classList.remove('sel-ready'); }
   function bindFocusEl(el){
     if(!el||el.tagName!=='INPUT'||el.dataset.mfBound)return;
     if(el.readOnly||el.disabled||['date','checkbox','radio','button'].includes(el.type))return;
@@ -1456,20 +1455,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     el.addEventListener('touchmove',ev=>{const t=ev.touches[0];if(Math.abs(t.clientX-sx)>6||Math.abs(t.clientY-sy)>6)scr=true;},{passive:true});
     el.addEventListener('touchend',ev=>{
       if(scr)return;
-      if(ev.cancelable)ev.preventDefault();   // 기본 탭 동작 차단 → 선택영역/툴바 안 생김
+      if(ev.cancelable)ev.preventDefault();   // 칸 자체의 기본 커서 배치 차단 → 실제 전체선택 유지
       el.focus();
-      el._ov=true; el.classList.add('sel-ready');       // '선택됨'처럼 강조 + 첫 입력 덮어쓰기 대기
-      try{ const n=(el.value||'').length; el.setSelectionRange(n,n); }catch(_){}   // 커서만(선택영역 X)
+      const v0=el.value;
+      // 키보드/스크롤로 선택이 풀릴 수 있어 여러 번 재선택 (계속 포커스 중·값 동일할 때만)
+      [0,60,160,300].forEach(d=>setTimeout(()=>{ if(document.activeElement===el&&el.value===v0) selAll(el); },d));
     },{passive:false});
-    // 첫 입력이 글자면 기존 값 비우고 덮어쓰기 / 삭제키면 기존 값 유지
-    el.addEventListener('beforeinput',ev=>{
-      if(!el._ov)return;
-      el._ov=false; el.classList.remove('sel-ready');
-      if(ev.inputType&&ev.inputType.indexOf('insert')===0)el.value='';
-    });
-    el.addEventListener('keydown',ev=>{ if(el._ov&&(ev.key==='Backspace'||ev.key==='Delete'))clearReady(el); });
-    el.addEventListener('blur',()=>clearReady(el));
-    // PC(비터치): 실제 전체선택
+    // PC(비터치)·Enter 이동: 전체선택
     el.addEventListener('focus',()=>{ if(!isTouch) setTimeout(()=>selAll(el),0); });
   }
   function bindAllFocus(){ document.querySelectorAll('input').forEach(bindFocusEl); }
