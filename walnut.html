@@ -220,6 +220,7 @@ body.big-text .scell .ci{font-size:19px!important}
 .cmp-table.tcmp tr.sumrow td{background:var(--auto);font-weight:800;color:var(--main-d)}
 .cmp-table.tcmp tr.sumrow .rowlabel{background:var(--auto)}
 .cmp-section{display:none}
+.sel-ready{background:#cfe6ff !important;box-shadow:inset 0 0 0 2px #5b9bd5 !important;border-color:#5b9bd5 !important}
 </style>
 </head>
 <body>
@@ -273,7 +274,7 @@ body.big-text .scell .ci{font-size:19px!important}
       </div>
       <div class="field">
         <label>미보상비율</label><span class="unit-badge">%</span>
-        <input type="number" id="unins_rate" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()" autocomplete="off">
+        <input type="text" id="unins_rate" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()" autocomplete="off">
       </div>
     </div>
     <div class="auto-strip" style="margin:0">
@@ -457,6 +458,14 @@ const CATS={
 };
 const CIDX={A:0,B:1,C:2};
 
+/* 숙기별 품종 목록 + 역방향 매핑(품종→숙기). 품종을 고르면 숙기가 자동 결정됨 */
+const VAR_BY_CAT={
+  A:['옥광','대보','석학'],
+  B:['단택','유마','이평','축파'],
+  C:['병고','산목','은기','미산적구']
+};
+const VARCAT={}; Object.entries(VAR_BY_CAT).forEach(([k,arr])=>arr.forEach(n=>{VARCAT[n]=k;}));
+
 function stdYield(cat,age){
   if(!cat||!CIDX.hasOwnProperty(cat))return 0;
   let a=Math.round(age)||0; if(a<4)return 0; if(a>30)a=30;
@@ -477,6 +486,22 @@ const rdown4=v=>Math.floor((v+Number.EPSILON)*10000)/10000;
 const r2=v=>Math.round((v+Number.EPSILON)*100)/100;   /* 개당과중: 소수점 둘째 자리(전산 기준) */
 const fmt=v=>{const r=Math.round(v*10000)/10000;return r.toLocaleString('ko-KR',{maximumFractionDigits:4});};
 const pf=x=>parseFloat(String(x==null?'':x).replace(/,/g,''))||0;
+
+/* ───────── 과중조사 품종 단위 공유 ─────────
+   개당과중은 '품종별'로 산출(이론서). 같은 품종이면 수령이 달라도 공유,
+   품종이 다르면 별도 조사. 품종 키 = 숙기 + 품종명(직접입력은 입력값) */
+function pkey(v){
+  if(!v||!v.cat)return '';
+  const nm = v.varName==='__direct__' ? ('직접:'+(v.varCustom||'')) : (v.varName||'');
+  return nm ? (v.cat+'|'+nm) : '';
+}
+/* 같은 품종 카드 중 첫 번째(과중 입력칸을 가지는 카드) 인덱스 */
+function weightLeaderIndex(i){
+  const k=pkey(varieties[i]); if(!k)return i;
+  for(let j=0;j<varieties.length;j++){ if(pkey(varieties[j])===k)return j; }
+  return i;
+}
+const isWeightLeader=i=>weightLeaderIndex(i)===i;
 
 /* ───────── 상태 ───────── */
 let varieties=[];
@@ -523,31 +548,37 @@ function renderVarieties(){
   const showFruit=fruit||_expandAll;
   const treeLocked=fruit&&!_expandAll;
   varieties.forEach((v,i)=>{
+    const cat=v.cat||'';
+    const isJoosaeng=(cat==='A');
+    const catLabel=cat&&CATS[cat]?CATS[cat].label:(v.varName||'품종');
     const card=document.createElement('div');
-    card.className='vcard';
+    card.className='vcard'+(isJoosaeng?' joosaeng':'');
     const dis=treeLocked?'disabled':'';
     const disTree=treeLocked?'disabled':''; /* 나무조사 칸 잠금용 */
 
-    /* 품종 선택 — 항상 편집 가능 (treeLocked 무관). 호두 품종: 재래종·신령 */
-    const WALNUT_VARS=['재래종','신령'];
+    /* 품종명: 숙기별로 묶은 단일 드롭다운(품종 선택 시 숙기 자동) vs 직접입력 토글
+       — 호두는 표준수확량을 쓰지 않으므로 숙기는 표시/품종분류용 */
+    const grpOpts=Object.entries(VAR_BY_CAT).map(([k,arr])=>
+      `<optgroup label="${CATS[k].label}">`+arr.map(n=>`<option value="${n}" ${v.varName===n?'selected':''}>${n}</option>`).join('')+`</optgroup>`
+    ).join('');
     const isDirect=v.varName==='__direct__';
     const varNameHtml=isDirect
       ?`<div class="field">
-          <label>품종</label>
+          <label>품종명</label>
           <input class="inp filled" value="${v.varCustom||''}" placeholder="품종명 입력 (재선택은 길게 터치)" oninput="onVarCustom(${i},this)" ondblclick="onVarBack(${i})" oncontextmenu="event.preventDefault();onVarBack(${i})">
         </div>`
       :`<div class="field">
           <label>품종</label>
           <select class="inp ${v.varName?'filled':''}" onchange="onVarName(${i},this)">
-            <option value="">선택</option>
-            ${WALNUT_VARS.map(n=>`<option value="${n}" ${v.varName===n?'selected':''}>${n}</option>`).join('')}
+            <option value="">품종 선택</option>
+            ${grpOpts}
             <option value="기타" ${v.varName==='기타'?'selected':''}>기타</option>
             <option value="__direct__">직접입력</option>
           </select>
         </div>`;
 
     const displayName=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):v.varName;
-    const headLabel=`${displayName||''}${v.age?' '+v.age+'년':''}`.trim()||'품종 선택';
+    const headLabel=`${cat&&CATS[cat]?CATS[cat].label:''}${displayName?' '+displayName:''}${v.age?' '+v.age+'년':''}`.trim()||'품종 선택';
     const typeBadge=`<div class="vhead-txt"><span class="vtype" id="v-name-${i}">${headLabel}</span></div>`;
 
     const properStrip=showFruit
@@ -567,7 +598,7 @@ function renderVarieties(){
         const raw=String(t).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div></div>`;
+        chakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onTreeC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       /* 낙과수 그리드 — 착과수와 같은 번호 */
       const naks=v.naks||[];
@@ -577,7 +608,7 @@ function renderVarieties(){
         const raw=String(n).replace(/,/g,'');
         const disp=raw?Number(raw).toLocaleString('ko-KR'):'';
         const has=raw!=='';
-        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div></div>`;
+        nakHtml+=`<div class="scell-outer"><div class="snum">${offset+ti+1}</div><div class="scell nak ${has?'has':''}"><input class="ci" inputmode="numeric" enterkeyhint="next" value="${disp}" oninput="onNakC(${i},${ti},this)" onkeydown="navKey(event,this)"></div></div>`;
       });
       fruitHtml=`
       <div class="tree-head">
@@ -592,12 +623,20 @@ function renderVarieties(){
       <div class="tree-grid" id="nak-grid-${i}">${nakHtml}</div>
       <div class="warn" id="v-warn-${i}">⚠ 표본주가 적정표본수보다 부족합니다</div>
 
-      <div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종 20개↑, 농지 60개↑ · 개당과중=정상무게÷표본과실수</span></div>
-      <div class="g4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:0">
-        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div>
-        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onfocus="ovFocus(this)" onblur="ovBlur(this)" onkeydown="navKey(event,this)"></div>
+      ${isWeightLeader(i)
+      ? `<div class="subtitle" style="margin-top:10px">과중조사 <span style="font-size:10px;color:var(--hint);font-weight:400">품종별 20개↑, 농지 60개↑ · 개당과중=정상무게÷표본과실수 · 품종마다 조사</span></div>
+      <div class="wt-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:0">
+        <div class="field"><label>표본과실수</label><span class="unit-badge">개</span><input class="inp wt-inp ${(v.fcnt||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.fcnt||''}" oninput="onCommaF(${i},'fcnt',this)" onkeydown="navKey(event,this)"></div>
+        <div class="field"><label>정상 무게</label><span class="unit-badge">g</span><input class="inp wt-inp ${(v.wN||'')!==''?'filled':''}" inputmode="numeric" enterkeyhint="next" value="${v.wN?Number(String(v.wN).replace(/,/g,'')).toLocaleString('ko-KR'):''}" oninput="onCommaF(${i},'wN',this)" onkeydown="navKey(event,this)"></div>
         <div class="field"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
+      </div>`
+      : `<div class="subtitle" style="margin-top:10px;display:flex;align-items:center;gap:6px">
+        <span>과중조사</span>
+        <span style="font-size:11px;color:var(--main-d);background:var(--main-l);padding:2px 8px;border-radius:8px;font-weight:700">${weightLeaderIndex(i)+1}번과 동일품종 · 과중 공유</span>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:0">
+        <div class="field" style="grid-column:1 / 2"><label style="color:var(--sub)">개당과중</label><input class="auto" id="v-w2-${i}" readonly></div>
+      </div>`}
 
       <div class="dmg-toggle-row ${v.dmgOpen?'on':''}" onclick="toggleDmg(${i})">
         <label class="sw" onclick="event.stopPropagation()">
@@ -639,7 +678,7 @@ function renderVarieties(){
       <div class="vcard-head">
         <div class="vbadge">${i+1}</div>${typeBadge}
       </div>
-      <div class="g3" style="margin-bottom:8px">
+      <div class="g2" style="margin-bottom:8px">
         ${varNameHtml}
         <div class="field"><label>수령</label><span class="unit-badge">년</span>
           <input class="inp tree-field ${v.age!==''?'filled':''}" ${dis} inputmode="numeric" value="${v.age}" oninput="onF(${i},'age',this)">
@@ -675,9 +714,12 @@ function renderVarieties(){
   lockInputs(_locked);
 }
 
+function onCat(i,el){varieties[i].cat=el.value;varieties[i].varName='';varieties[i].varManual=false;renderVarieties();calc();saveState();}
 function onVarName(i,el){
   varieties[i].varName=el.value;
   if(el.value!=='__direct__')varieties[i].varCustom='';
+  /* 품종 선택 시 숙기(cat) 자동 결정 (직접입력·기타·미선택은 숙기 없음) */
+  varieties[i].cat=(el.value&&el.value!=='__direct__'&&el.value!=='기타')?(VARCAT[el.value]||''):'';
   renderVarieties();calc();saveState();
 }
 function onVarCustom(i,el){varieties[i].varCustom=el.value;calc();saveState();}
@@ -775,12 +817,6 @@ function finishTreeSurvey(){
   showToast('나무조사 완료 — 표본 착과조사를 입력하세요');
   setTimeout(()=>{ const fc=document.querySelector('#tree-grid-0 .ci'); if(fc){fc.scrollIntoView({behavior:'smooth',block:'center'});fc.focus();} },80);
 }
-/* 사용자가 직접 탭한 경우에만 비우기. 진입/자동이동(프로그램적 포커스)은 기존 값 유지 */
-window.__ovTap=false;
-['pointerdown','mousedown','touchstart'].forEach(function(ev){document.addEventListener(ev,function(){window.__ovTap=true;},true);});
-['pointerup','mouseup','touchend'].forEach(function(ev){document.addEventListener(ev,function(){setTimeout(function(){window.__ovTap=false;},0);},true);});
-function ovFocus(el){ if(!window.__ovTap)return; try{el.select();if(el.setSelectionRange)el.setSelectionRange(0,(el.value||'').length);}catch(e){} }   /* 탭 시 전체선택(내용 보이고 덮어쓰기 쉽게). 진입/자동이동은 선택 안함 */
-function ovBlur(el){}  /* 미사용 */
 function navKey(e,el){if(e.key==='Enter'||e.key==='Next'||e.keyCode===13){e.preventDefault();focusNextInput(el);}}
 function focusNextInput(el){
   if(el.classList.contains('ci')){
@@ -852,19 +888,23 @@ function computeAll(){
     const reg=parseFloat(v.reg)||0,actual=parseFloat(v.actual)||0;
     const unins=parseFloat(v.unins)||0,dead=parseFloat(v.dead)||0,age=parseFloat(v.age)||0;
     const survey=Math.max(0,actual-unins-dead);
+    const stdUnit=stdYield(v.cat,age);
     const std=actual;   /* 호두 표준수확량표 미존재 → 평년 분배·미보상 환산을 실결 비례(전체평균=평년÷실결)로 처리.
                            ※ 다수령+미보상/원장변경 건은 전산의 수령별 가중과 ±0.05~0.07%p 근사(표 확보 시 교체). */
     totalSurvey+=survey;totalL+=std;totalReg+=reg;totalActual+=actual;
     if(reg>0&&actual>0&&Math.abs((actual-reg)/reg)>=0.05)contractChange=true;
-    return {v,reg,actual,unins,dead,age,survey,std,L:std};
+    return {v,reg,actual,unins,dead,age,survey,std,stdUnit,L:std};
   });
   const sampN=totalSampleN(totalSurvey);
 
-  /* 같은 품종끼리 과중조사 공유: 품종별로 정상무게·표본과실수를 합산해 공통 개당과중 사용
-     (예: 재래종 20년 + 재래종 10년 → 재래종 과중 한 번만 입력하면 전 수령 적용) */
-  const varKey=v=>{ if(!v.varName)return null; return v.varName==='__direct__'?('d:'+((v.varCustom||'').trim())):v.varName; };
-  const wPool={};
-  varieties.forEach(v=>{ const k=varKey(v); if(k===null)return; const wN=pf(v.wN),fc=pf(v.fcnt); if(!wPool[k])wPool[k]={wN:0,fcnt:0}; wPool[k].wN+=wN; wPool[k].fcnt+=fc; });
+  /* 개당과중: '품종별'로 산출(이론서) — 같은 품종이면 수령이 달라도 공유,
+     품종이 다르면 별도 조사. 품종별 첫 입력값(정상무게 ÷ 표본과실수, 호두는 소과 구분 없음)을 사용 */
+  const weightByKey={};
+  for(const r of rows){
+    const k=pkey(r.v); if(!k)continue;
+    const wN=pf(r.v.wN),fcnt=pf(r.v.fcnt);
+    if(fcnt>0&&wN>0&&weightByKey[k]===undefined) weightByKey[k]=wN/fcnt;
+  }
 
   let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false;
   rows.forEach(r=>{
@@ -884,10 +924,8 @@ function computeAll(){
     const nv=(v.naks||[]).map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
     const perNak=nv.length?r4(nv.reduce((a,b)=>a+b,0)/nv.length):0;
 
-    /* 개당과중: 같은 품종 합산값 사용(정상무게 ÷ 표본과실수). 호두는 소과 구분 없음 */
-    const _k=varKey(v); const _p=_k!==null&&wPool[_k]?wPool[_k]:{wN:pf(v.wN),fcnt:pf(v.fcnt)};
-    const wN=_p.wN,fcnt=_p.fcnt;
-    const weight=fcnt>0?wN/fcnt:0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리) */
+    /* 개당과중: 품종별 공유값 사용 (정상무게 ÷ 표본과실수, 호두는 소과 구분 없음) */
+    const weight=weightByKey[pkey(v)]||0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리) */
 
     /* 피해구성 */
     const nm=pf(v.normal),d5=pf(v.p50),d8=pf(v.p80),d10=pf(v.p100);
@@ -922,7 +960,7 @@ let _cmpOpen=false;
 function toggleCompare(){ _cmpOpen=!_cmpOpen; const b=$('compare-body'),a=$('cmp-arrow'); if(b)b.style.display=_cmpOpen?'block':'none'; if(a)a.textContent=_cmpOpen?'▴':'▾'; }
 function renderCompare(R){
   const sec=$('compare-section'),tbl=$('compare-table');
-  if(!varieties.some(v=>v.varName)){sec.style.display='none';return;}
+  if(!varieties.some(v=>v.cat)){sec.style.display='none';return;}
   sec.style.display='block';
   const circ=['①','②','③','④','⑤','⑥'];
   const rows=R.rows,n=rows.length;
@@ -930,10 +968,10 @@ function renderCompare(R){
   // 가로세로 전환: 품종 = 행, 항목 = 열, 좌측 라벨 = 품종·수령
   const cols='<colgroup><col style="width:27%"><col><col><col><col><col></colgroup>';
   const head='<tr><th class="corner">품종·수령</th><th>가입<br>주수</th><th>실제<br>결과주</th><th>조사<br>대상주</th><th>표본주</th><th>표본<br>간격</th></tr>';
-  const vname=r=>{const v=r.v;if(!v.varName)return '';return v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||''):(v.varName||'');};
+  const vname=r=>{const v=r.v;if(!v.cat)return '';const catL=CATS[v.cat]?CATS[v.cat].label:v.cat;const dispN=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||''):(v.varName||'');return [catL,dispN].filter(Boolean).join(' ');};
   let body='';
   rows.forEach((r,i)=>{
-    const nm=r.v.varName?vname(r):(circ[i]||String(i+1));
+    const nm=r.v.cat?vname(r):(circ[i]||String(i+1));
     const ageT=r.age?` ${r.age}년`:'';
     const regN=r.reg?r.reg.toLocaleString():'-';
     const actN=r.actual?r.actual.toLocaleString():'-';
@@ -1031,19 +1069,23 @@ function calc(){
     set(`v-survey-${i}`,r.survey?r.survey.toLocaleString():'');
     const nm=$(`v-name-${i}`);
     if(nm){
+      const catL=v.cat&&CATS[v.cat]?CATS[v.cat].label:'';
       const dispN=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):v.varName;
       const ageT=v.age?` ${v.age}년`:'';
-      nm.textContent=((dispN||'')+ageT).trim()||'품종 선택';
+      nm.textContent=([catL,dispN].filter(Boolean).join(' ')+ageT).trim()||'품종 선택';
     }
     set(`v-proper-${i}`,c.proper?c.proper+'주':'');
     set(`v-per-${i}`,c.sampleCnt>0?c.perChak.toFixed(1)+'개':'');
     set(`v-pern-${i}`,c.perNak>0?c.perNak.toFixed(1)+'개':'');
     set(`v-w-${i}`,c.weight?c.weight.toFixed(2)+'g':'');
-    /* 과중 자동표시: 같은 품종 공통 개당과중(c.weight) 사용 */
+    /* 과중 계산 자동표시 — 농지 공유 개당과중(c.weight) 사용 */
     set(`v-w2-${i}`,c.weight>0?c.weight.toFixed(2)+' g / 개':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(c.proper>0&&c.sampleCnt>c.proper){
+      if(c.sampleCnt>0&&!c.weight&&isWeightLeader(i)){
+        w.textContent='⚠ 과중조사(개당과중)를 입력해야 수확량이 계산됩니다';
+        w.className='warn';w.style.display='block';
+      }else if(c.proper>0&&c.sampleCnt>c.proper){
         w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
         w.className='warn over';w.style.display='block';
       }else{w.style.display='none';}
@@ -1078,7 +1120,7 @@ function setCalcMode(silent){
   if(!silent)vibrate([30,40,60]);
   const miss=[];
   if(!toNum($('avg_yield')))miss.push('평년수확량');
-  if(!varieties.some(v=>v.varName))miss.push('품종');
+  if(!varieties.some(v=>v.cat))miss.push('품종');
   if(!varieties.some(v=>v.trees.some(t=>t!=='')))miss.push('표본 착과조사');
   if(miss.length){showToast('미입력: '+miss.join(', '));return;}
   _locked=true;lockInputs(true);
@@ -1100,9 +1142,9 @@ function setEditMode(silent){
 function lockInputs(lock){
   document.querySelectorAll('.content input,.content select').forEach(el=>{
     if(el.classList.contains('auto'))return;
-    /* 품종(onVarName) 은 항상 편집 가능 */
+    /* 숙기(onCat), 품종(onVarName) 은 항상 편집 가능 */
     const oc=el.getAttribute('onchange')||'';
-    if(oc.startsWith('onVarName'))return;
+    if(oc.startsWith('onCat')||oc.startsWith('onVarName'))return;
     let dis=lock;
     if(_phase==='fruit'&&!_expandAll&&el.classList.contains('tree-field'))dis=true;
     el.disabled=dis;
@@ -1164,7 +1206,7 @@ function loadState(){
 /* ───────── 이력 ───────── */
 /* ───────── 이력 ───────── */
 let _pendingRec=null,_pendingEi=-1;
-function _varType(v){if(!v||!v.varName)return null;return v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||null):v.varName;}
+function _varType(v){if(!v.cat)return null;return CATS[v.cat]?CATS[v.cat].label:null;}
 function _doSaveHistory(rec,ei){
   let recs=[];try{recs=JSON.parse(localStorage.getItem('walnut_history_v2')||'[]');}catch(e){}
   if(ei>=0)recs.splice(ei,1);   // 기존 위치 제거 후 맨뒤(최신)에 추가
@@ -1218,26 +1260,15 @@ function openHistoryModal(){
 function closeHistoryModal(){$('historyModal').style.display='none';}
 function loadHistory(idx){
   let recs=[];try{recs=JSON.parse(localStorage.getItem('walnut_history_v2')||'[]');}catch(e){}
-  const r=recs[idx];if(!r){showToast('기록을 찾을 수 없습니다');return;}
-  closeHistoryModal();   /* 먼저 닫아, 이후 오류가 나도 '모달은 떠있는데 반응 없음'으로 보이지 않게 */
-  try{
-    $('farm_no').value=r.farm||'';markFilled($('farm_no'));
-    $('avg_yield').value=r.avg||'';markFilled($('avg_yield'));
-    $('unins_rate').value=r.unins||'';markFilled($('unins_rate'));
-    $('survey_date').value=r.date||'';syncDate($('survey_date'));
-    const src=Array.isArray(r.varieties)&&r.varieties.length?r.varieties:[{}];
-    varieties=src.map(v=>{
-      const nv=Object.assign(newVariety(),(v&&typeof v==='object')?v:{});
-      if(!Array.isArray(nv.trees))nv.trees=(typeof nv.trees==='string'&&nv.trees.trim()!=='')?nv.trees.split(',').map(s=>s.trim()):[];  /* trees 무결성 복구 */
-      if(typeof nv.varName!=='string')nv.varName='';
-      return nv;
-    });
-    if(_locked)setEditMode(true);
-    _phase=varieties.some(v=>Array.isArray(v.trees)&&v.trees.some(t=>String(t).trim()!==''))?'fruit':'tree';
-    renderVarieties();setPhaseUI();calc();saveState();showToast('불러왔습니다');
-  }catch(err){
-    showToast('불러오기 오류: '+(err&&err.message?err.message:String(err)));
-  }
+  const r=recs[idx];if(!r)return;
+  $('farm_no').value=r.farm||'';markFilled($('farm_no'));
+  $('avg_yield').value=r.avg||'';markFilled($('avg_yield'));
+  $('unins_rate').value=r.unins||'';markFilled($('unins_rate'));
+  $('survey_date').value=r.date||'';syncDate($('survey_date'));
+  varieties=(r.varieties||[newVariety()]).map(v=>Object.assign(newVariety(),v));
+  if(_locked)setEditMode(true);
+  _phase=varieties.some(v=>v.trees&&v.trees.some(t=>String(t).trim()!==''))?'fruit':'tree';
+  renderVarieties();setPhaseUI();calc();closeHistoryModal();showToast('불러왔습니다');
 }
 function deleteHistory(idx){
   let recs=[];try{recs=JSON.parse(localStorage.getItem('walnut_history_v2')||'[]');}catch(e){}
@@ -1254,10 +1285,10 @@ function buildCapture(){
   let treeRows='';
   let sReg=0,sAct=0,sDead=0,sUn=0,sProp=0,sSamp=0;
   R.rows.forEach(r=>{
-    if(!r.v.varName)return;
+    if(!r.v.cat)return;
     const c=r.calc,v=r.v,dead=pf(v.dead),un=pf(v.unins);
     sReg+=r.reg;sAct+=r.actual;sDead+=dead;sUn+=un;sProp+=c.proper;sSamp+=c.sampleCnt;
-    const catL=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):(v.varName||'-');
+    const catL=CATS[v.cat]?CATS[v.cat].label:'-';
     treeRows+=`<tr>
       <td class="cap-td">${catL}</td>
       <td class="cap-td">${v.age||'-'}</td>
@@ -1276,8 +1307,8 @@ function buildCapture(){
 
   let sampleRows='';let sn=0;
   R.rows.forEach(r=>{
-    if(!r.v.varName)return;
-    const v=r.v,c=r.calc,catL=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):(v.varName||'-');
+    if(!r.v.cat)return;
+    const v=r.v,c=r.calc,catL=CATS[v.cat]?CATS[v.cat].label:'-';
     v.trees.forEach(t=>{
       const cnt=parseFloat(String(t).replace(/,/g,''));
       if(isNaN(cnt))return;
@@ -1298,8 +1329,8 @@ function buildCapture(){
 
   let wRows='';
   R.rows.forEach(r=>{
-    if(!r.v.varName)return;
-    const v=r.v,c=r.calc,catL=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||'직접입력'):(v.varName||'-');
+    if(!r.v.cat)return;
+    const v=r.v,c=r.calc,catL=CATS[v.cat]?CATS[v.cat].label:'-';
     const wN=pf(v.wN),fcnt=pf(v.fcnt);
     if(!fcnt&&!wN)return;
     wRows+=`<tr>
@@ -1335,7 +1366,7 @@ function buildCapture(){
     ${secTitle('1. 나무조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">품종</th><th class="cap-th">수령</th><th class="cap-th">가입<br>주수</th>
+        <th class="cap-th">품종·숙기</th><th class="cap-th">수령</th><th class="cap-th">가입<br>주수</th>
         <th class="cap-th">실제결과<br>주수</th><th class="cap-th">고사<br>주수</th><th class="cap-th">미보상<br>주수</th>
         <th class="cap-th">적정<br>표본수</th><th class="cap-th">표본<br>주수</th>
       </tr></thead><tbody>${treeRows}</tbody>
@@ -1343,7 +1374,7 @@ function buildCapture(){
     ${secTitle('2. 과중조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">품종</th>
+        <th class="cap-th">품종·숙기</th>
         <th class="cap-th">표본<br>과실수(개)</th>
         <th class="cap-th">정상<br>무게(g)</th>
         <th class="cap-th">개당<br>과중(g)</th>
@@ -1352,7 +1383,7 @@ function buildCapture(){
     ${secTitle('3. 표본 착과조사')}
     <table style="width:100%;border-collapse:collapse">
       <thead><tr>
-        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종</th><th class="cap-th">수령</th>
+        <th class="cap-th">표본주<br>번호</th><th class="cap-th">품종·숙기</th><th class="cap-th">수령</th>
         <th class="cap-th">착과수<br>(개)</th>
         <th class="cap-th">개당<br>과중(g)</th>
         <th class="cap-th">인정<br>착과수(개)</th>
@@ -1406,7 +1437,52 @@ document.addEventListener('DOMContentLoaded',()=>{
   refreshExpandBtn();
   renderVarieties();setPhaseUI();calc();
   window.addEventListener('resize',()=>{try{calc();}catch(e){}});
-  /* 전역 select-all 제거: 선택 툴바(복사/공유/모두선택) 방지. 입력칸은 ovFocus로 비우고 ovBlur로 복원 */
+  // ── 입력칸 포커스 ──
+  // 모바일: 실제 선택영역을 만들면 안드로이드 잘라내기/복사 툴바가 뜨므로,
+  //   선택영역 대신 연한 강조색(.sel-ready)을 입혀 '선택된 것처럼' 보이게 하고
+  //   첫 글자 입력 시 기존 값을 비워 덮어쓰기(전체선택 후 입력과 결과 동일, 툴바는 안 뜸).
+  //   백스페이스 등 삭제키로 시작하면 기존 값 유지(부분 수정).
+  // PC: 메뉴 문제가 없으므로 실제 전체선택.
+  // 화면 재렌더 시 새 칸은 MutationObserver로 자동 바인딩.
+  const selAll=el=>{ try{ el.select(); }catch(_){ try{ el.setSelectionRange(0,(el.value||'').length); }catch(__){} } };
+  const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  function clearReady(el){ el._ov=false; el.classList.remove('sel-ready'); }
+  function bindFocusEl(el){
+    if(!el||el.tagName!=='INPUT'||el.dataset.mfBound)return;
+    if(el.readOnly||el.disabled||['date','checkbox','radio','button'].includes(el.type))return;
+    el.dataset.mfBound='1';
+    let sx=0,sy=0,scr=false;
+    el.addEventListener('touchstart',ev=>{const t=ev.touches[0];sx=t.clientX;sy=t.clientY;scr=false;},{passive:true});
+    el.addEventListener('touchmove',ev=>{const t=ev.touches[0];if(Math.abs(t.clientX-sx)>6||Math.abs(t.clientY-sy)>6)scr=true;},{passive:true});
+    el.addEventListener('touchend',ev=>{
+      if(scr)return;
+      if(ev.cancelable)ev.preventDefault();   // 기본 탭 동작 차단 → 선택영역/툴바 안 생김
+      el.focus();
+      el._ov=true; el.classList.add('sel-ready');       // '선택됨'처럼 강조 + 첫 입력 덮어쓰기 대기
+      try{ const n=(el.value||'').length; el.setSelectionRange(n,n); }catch(_){}   // 커서만(선택영역 X)
+    },{passive:false});
+    // 첫 입력이 글자면 기존 값 비우고 덮어쓰기 / 삭제키면 기존 값 유지
+    el.addEventListener('beforeinput',ev=>{
+      if(!el._ov)return;
+      el._ov=false; el.classList.remove('sel-ready');
+      if(ev.inputType&&ev.inputType.indexOf('insert')===0)el.value='';
+    });
+    el.addEventListener('keydown',ev=>{ if(el._ov&&(ev.key==='Backspace'||ev.key==='Delete'))clearReady(el); });
+    el.addEventListener('blur',()=>clearReady(el));
+    // PC(비터치): 실제 전체선택
+    el.addEventListener('focus',()=>{ if(!isTouch) setTimeout(()=>selAll(el),0); });
+  }
+  function bindAllFocus(){ document.querySelectorAll('input').forEach(bindFocusEl); }
+  bindAllFocus();
+  try{
+    new MutationObserver(muts=>{
+      for(const m of muts) m.addedNodes.forEach(n=>{
+        if(n.nodeType!==1)return;
+        if(n.tagName==='INPUT') bindFocusEl(n);
+        if(n.querySelectorAll) n.querySelectorAll('input').forEach(bindFocusEl);
+      });
+    }).observe(document.body,{childList:true,subtree:true});
+  }catch(_){}
 });
 </script>
 </body>
