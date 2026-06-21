@@ -459,12 +459,9 @@ const CATS={
 const CIDX={A:0,B:1,C:2};
 
 /* 숙기별 품종 목록 + 역방향 매핑(품종→숙기). 품종을 고르면 숙기가 자동 결정됨 */
-const VAR_BY_CAT={
-  A:['옥광','대보','석학'],
-  B:['단택','유마','이평','축파'],
-  C:['병고','산목','은기','미산적구']
-};
-const VARCAT={}; Object.entries(VAR_BY_CAT).forEach(([k,arr])=>arr.forEach(n=>{VARCAT[n]=k;}));
+/* 호두 품종 목록 (숙기 구분 없음 — 라벨/과중 품종 구분용) */
+const WALNUT_VARS=['재래종','신령','영동','만춘','정월','광덕'];
+const VARCAT={};   /* 호두는 숙기 미사용 — 품종→숙기 매핑 없음(cat 항상 '') */
 
 function stdYield(cat,age){
   if(!cat||!CIDX.hasOwnProperty(cat))return 0;
@@ -558,9 +555,7 @@ function renderVarieties(){
 
     /* 품종명: 숙기별로 묶은 단일 드롭다운(품종 선택 시 숙기 자동) vs 직접입력 토글
        — 호두는 표준수확량을 쓰지 않으므로 숙기는 표시/품종분류용 */
-    const grpOpts=Object.entries(VAR_BY_CAT).map(([k,arr])=>
-      `<optgroup label="${CATS[k].label}">`+arr.map(n=>`<option value="${n}" ${v.varName===n?'selected':''}>${n}</option>`).join('')+`</optgroup>`
-    ).join('');
+    const grpOpts=WALNUT_VARS.map(n=>`<option value="${n}" ${v.varName===n?'selected':''}>${n}</option>`).join('');
     const isDirect=v.varName==='__direct__';
     const varNameHtml=isDirect
       ?`<div class="field">
@@ -1082,7 +1077,10 @@ function calc(){
     set(`v-w2-${i}`,c.weight>0?c.weight.toFixed(2)+' g / 개':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(c.proper>0&&c.sampleCnt>c.proper){
+      if(c.sampleCnt>0&&!c.weight&&isWeightLeader(i)){
+        w.textContent='⚠ 과중조사(개당과중)를 입력해야 수확량이 계산됩니다';
+        w.className='warn';w.style.display='block';
+      }else if(c.proper>0&&c.sampleCnt>c.proper){
         w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
         w.className='warn over';w.style.display='block';
       }else{w.style.display='none';}
@@ -1407,7 +1405,6 @@ function buildCapture(){
 }
 
 let _previewDataUrl='';
-let _previewJpeg='';
 let _previewFilename='';
 async function saveImage(){
   if($('result-section').classList.contains('pending')){showToast('먼저 계산하기를 눌러주세요');return;}
@@ -1417,8 +1414,6 @@ async function saveImage(){
     const stamp=new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
     _previewFilename=`호두피해율_${$('farm_no').value||'농지'}_${stamp}.png`;
     _previewDataUrl=canvas.toDataURL('image/png');
-    /* 저장목록 미리보기용 축소 썸네일 (localStorage 용량 절약) */
-    _previewJpeg=(()=>{ try{ const _tw=Math.min(canvas.width,640),_th=Math.round(canvas.height*_tw/Math.max(1,canvas.width)); const _tc=document.createElement('canvas');_tc.width=_tw;_tc.height=_th;_tc.getContext('2d').drawImage(canvas,0,0,_tw,_th); return _tc.toDataURL('image/jpeg',0.55);}catch(_){ return canvas.toDataURL('image/jpeg',0.55);} })();
     $('previewImg').src=_previewDataUrl;
     $('previewModal').classList.add('show');
   }catch(e){showToast('저장 실패: '+e.message);}
@@ -1427,53 +1422,7 @@ function closePreview(e){if(e.target===$('previewModal'))closePreviewModal();}
 function closePreviewModal(){$('previewModal').classList.remove('show');}
 function doSaveImage(){
   const link=document.createElement('a');link.download=_previewFilename;link.href=_previewDataUrl;link.click();
-  /* ── 공용 저장목록(index.html) 연동 — 대추 등과 동일 형식 ── */
-  let _saved=false;
-  try{
-    const _farmNo=(($('farm_no')&&$('farm_no').value)||'').trim();
-    const _survDate=($('survey_date')&&$('survey_date').value)||'';
-    const _pct=($('result-pct')&&$('result-pct').textContent)||'-';
-    const _rec={ id:Date.now(), crop:'호두', cropDetail:'호두', category:'과수',
-      farmNo:_farmNo, surveyDate:_survDate, pct:_pct, filename:_previewFilename,
-      savedAt:(()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');})() };
-    let _hist=[];try{_hist=JSON.parse(localStorage.getItem('save_history')||'[]');}catch(_){}
-    if(!Array.isArray(_hist))_hist=[];
-    const _ei=_rec.farmNo?_hist.findIndex(r=>r&&r.crop===_rec.crop&&r.farmNo===_rec.farmNo):-1;
-    if(_ei>-1){_saveImgCache(_hist[_ei].id,'');_hist.splice(_ei,1);}
-    _hist.unshift(_rec);
-    if(_hist.length>200)_hist.splice(200);
-    try{ localStorage.setItem('save_history',JSON.stringify(_hist)); }
-    catch(err){
-      let _done=false;
-      try{ let _c=JSON.parse(localStorage.getItem('save_img_cache')||'[]'); if(!Array.isArray(_c))_c=[];
-        while(_c.length){ _c=_c.slice(0,Math.max(0,_c.length-3));
-          try{localStorage.setItem('save_img_cache',JSON.stringify(_c));}catch(_){}
-          try{localStorage.setItem('save_history',JSON.stringify(_hist));_done=true;break;}catch(_){} } }catch(_){}
-      if(!_done){ try{localStorage.removeItem('save_img_cache');}catch(_){} localStorage.setItem('save_history',JSON.stringify(_hist)); }
-    }
-    _saved=true;
-    try{_saveImgCache(_rec.id,_previewJpeg||_previewDataUrl);}catch(_){}
-  }catch(_){ _saved=false; }
-  showToast(_saved?'갤러리에 저장되었습니다':'⚠ 저장목록 기록 실패 — 저장공간을 정리해 주세요');closePreviewModal();
-}
-
-/* 공용 저장목록(index) 썸네일 캐시 — 대추 등과 동일 형식 */
-function _saveImgCache(id, dataUrl){
-  try{
-    const _ld=new Date();const today=_ld.getFullYear()+'-'+String(_ld.getMonth()+1).padStart(2,'0')+'-'+String(_ld.getDate()).padStart(2,'0');
-    let cache=[];try{cache=JSON.parse(localStorage.getItem('save_img_cache')||'[]');}catch(_){}
-    if(!Array.isArray(cache))cache=[];
-    cache=cache.filter(c=>c&&String(c.id)!==String(id));
-    if(dataUrl){ cache.unshift({id:id,date:today,img:dataUrl}); }
-    const todayItems=cache.filter(c=>c.date===today).slice(0,15);
-    const otherItems=cache.filter(c=>c.date!==today).slice(0,25);
-    let merged=[...todayItems,...otherItems];
-    while(merged.length){
-      try{ localStorage.setItem('save_img_cache',JSON.stringify(merged)); return; }
-      catch(e){ merged=merged.slice(0,Math.max(0,merged.length-5)); }
-    }
-    try{ localStorage.setItem('save_img_cache','[]'); }catch(_){}
-  }catch(_){}
+  showToast('갤러리에 저장되었습니다');closePreviewModal();
 }
 
 /* ───────── 시작 ───────── */
