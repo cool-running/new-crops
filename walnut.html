@@ -860,6 +860,12 @@ function computeAll(){
   });
   const sampN=totalSampleN(totalSurvey);
 
+  /* 같은 품종끼리 과중조사 공유: 품종별로 정상무게·표본과실수를 합산해 공통 개당과중 사용
+     (예: 재래종 20년 + 재래종 10년 → 재래종 과중 한 번만 입력하면 전 수령 적용) */
+  const varKey=v=>{ if(!v.varName)return null; return v.varName==='__direct__'?('d:'+((v.varCustom||'').trim())):v.varName; };
+  const wPool={};
+  varieties.forEach(v=>{ const k=varKey(v); if(k===null)return; const wN=pf(v.wN),fc=pf(v.fcnt); if(!wPool[k])wPool[k]={wN:0,fcnt:0}; wPool[k].wN+=wN; wPool[k].fcnt+=fc; });
+
   let totalApplied=0,totalYield=0,totalUninsLoss=0,anyShort=false;
   rows.forEach(r=>{
     const v=r.v;
@@ -878,8 +884,9 @@ function computeAll(){
     const nv=(v.naks||[]).map(t=>parseFloat(String(t).replace(/,/g,''))).filter(x=>!isNaN(x));
     const perNak=nv.length?r4(nv.reduce((a,b)=>a+b,0)/nv.length):0;
 
-    /* 개당과중: 정상무게 ÷ 표본과실수 (호두는 소과 구분 없음) */
-    const wN=pf(v.wN),fcnt=pf(v.fcnt);
+    /* 개당과중: 같은 품종 합산값 사용(정상무게 ÷ 표본과실수). 호두는 소과 구분 없음 */
+    const _k=varKey(v); const _p=_k!==null&&wPool[_k]?wPool[_k]:{wN:pf(v.wN),fcnt:pf(v.fcnt)};
+    const wN=_p.wN,fcnt=_p.fcnt;
     const weight=fcnt>0?wN/fcnt:0;   /* 전산은 개당과중을 풀정밀도로 사용(표시만 2자리) */
 
     /* 피해구성 */
@@ -1032,16 +1039,11 @@ function calc(){
     set(`v-per-${i}`,c.sampleCnt>0?c.perChak.toFixed(1)+'개':'');
     set(`v-pern-${i}`,c.perNak>0?c.perNak.toFixed(1)+'개':'');
     set(`v-w-${i}`,c.weight?c.weight.toFixed(2)+'g':'');
-    /* 과중 계산 자동표시 */
-    const wN=pf(v.wN),fcnt=pf(v.fcnt);
-    const wCalc=fcnt>0?(wN/fcnt):0;
-    set(`v-w2-${i}`,wCalc>0?wCalc.toFixed(2)+' g / 개':'');
+    /* 과중 자동표시: 같은 품종 공통 개당과중(c.weight) 사용 */
+    set(`v-w2-${i}`,c.weight>0?c.weight.toFixed(2)+' g / 개':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(c.sampleCnt>0&&!c.weight){
-        w.textContent='⚠ 과중조사(개당과중)를 입력해야 수확량이 계산됩니다';
-        w.className='warn';w.style.display='block';
-      }else if(c.proper>0&&c.sampleCnt>c.proper){
+      if(c.proper>0&&c.sampleCnt>c.proper){
         w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
         w.className='warn over';w.style.display='block';
       }else{w.style.display='none';}
