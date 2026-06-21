@@ -488,9 +488,9 @@ const pf=x=>parseFloat(String(x==null?'':x).replace(/,/g,''))||0;
    개당과중은 '품종별'로 산출(이론서). 같은 품종이면 수령이 달라도 공유,
    품종이 다르면 별도 조사. 품종 키 = 숙기 + 품종명(직접입력은 입력값) */
 function pkey(v){
-  if(!v||!v.cat)return '';
-  const nm = v.varName==='__direct__' ? ('직접:'+(v.varCustom||'')) : (v.varName||'');
-  return nm ? (v.cat+'|'+nm) : '';
+  if(!v)return '';
+  const nm = v.varName==='__direct__' ? (v.varCustom?('직접:'+v.varCustom):'') : (v.varName||'');
+  return nm ? nm : '';   /* 호두: 숙기 없이 품종명으로 식별 */
 }
 /* 같은 품종 카드 중 첫 번째(과중 입력칸을 가지는 카드) 인덱스 */
 function weightLeaderIndex(i){
@@ -955,7 +955,7 @@ let _cmpOpen=false;
 function toggleCompare(){ _cmpOpen=!_cmpOpen; const b=$('compare-body'),a=$('cmp-arrow'); if(b)b.style.display=_cmpOpen?'block':'none'; if(a)a.textContent=_cmpOpen?'▴':'▾'; }
 function renderCompare(R){
   const sec=$('compare-section'),tbl=$('compare-table');
-  if(!varieties.some(v=>v.cat)){sec.style.display='none';return;}
+  if(!varieties.some(v=>pkey(v))){sec.style.display='none';return;}
   sec.style.display='block';
   const circ=['①','②','③','④','⑤','⑥'];
   const rows=R.rows,n=rows.length;
@@ -963,10 +963,10 @@ function renderCompare(R){
   // 가로세로 전환: 품종 = 행, 항목 = 열, 좌측 라벨 = 품종·수령
   const cols='<colgroup><col style="width:27%"><col><col><col><col><col></colgroup>';
   const head='<tr><th class="corner">품종·수령</th><th>가입<br>주수</th><th>실제<br>결과주</th><th>조사<br>대상주</th><th>표본주</th><th>표본<br>간격</th></tr>';
-  const vname=r=>{const v=r.v;if(!v.cat)return '';const catL=CATS[v.cat]?CATS[v.cat].label:v.cat;const dispN=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||''):(v.varName||'');return [catL,dispN].filter(Boolean).join(' ');};
+  const vname=r=>{const v=r.v;if(!pkey(v))return '';const dispN=v.varName==='기타'?'기타':v.varName==='__direct__'?(v.varCustom||''):(v.varName||'');return dispN;};
   let body='';
   rows.forEach((r,i)=>{
-    const nm=r.v.cat?vname(r):(circ[i]||String(i+1));
+    const nm=pkey(r.v)?vname(r):(circ[i]||String(i+1));
     const ageT=r.age?` ${r.age}년`:'';
     const regN=r.reg?r.reg.toLocaleString():'-';
     const actN=r.actual?r.actual.toLocaleString():'-';
@@ -1115,7 +1115,7 @@ function setCalcMode(silent){
   if(!silent)vibrate([30,40,60]);
   const miss=[];
   if(!toNum($('avg_yield')))miss.push('평년수확량');
-  if(!varieties.some(v=>v.cat))miss.push('품종');
+  if(!varieties.some(v=>pkey(v)))miss.push('품종');
   if(!varieties.some(v=>v.trees.some(t=>t!=='')))miss.push('표본 착과조사');
   if(miss.length){showToast('미입력: '+miss.join(', '));return;}
   _locked=true;lockInputs(true);
@@ -1280,7 +1280,7 @@ function buildCapture(){
   let treeRows='';
   let sReg=0,sAct=0,sDead=0,sUn=0,sProp=0,sSamp=0;
   R.rows.forEach(r=>{
-    if(!r.v.cat)return;
+    if(!pkey(r.v))return;
     const c=r.calc,v=r.v,dead=pf(v.dead),un=pf(v.unins);
     sReg+=r.reg;sAct+=r.actual;sDead+=dead;sUn+=un;sProp+=c.proper;sSamp+=c.sampleCnt;
     const catL=CATS[v.cat]?CATS[v.cat].label:'-';
@@ -1302,7 +1302,7 @@ function buildCapture(){
 
   let sampleRows='';let sn=0;
   R.rows.forEach(r=>{
-    if(!r.v.cat)return;
+    if(!pkey(r.v))return;
     const v=r.v,c=r.calc,catL=CATS[v.cat]?CATS[v.cat].label:'-';
     v.trees.forEach(t=>{
       const cnt=parseFloat(String(t).replace(/,/g,''));
@@ -1324,7 +1324,7 @@ function buildCapture(){
 
   let wRows='';
   R.rows.forEach(r=>{
-    if(!r.v.cat)return;
+    if(!pkey(r.v))return;
     const v=r.v,c=r.calc,catL=CATS[v.cat]?CATS[v.cat].label:'-';
     const wN=pf(v.wN),fcnt=pf(v.fcnt);
     if(!fcnt&&!wN)return;
