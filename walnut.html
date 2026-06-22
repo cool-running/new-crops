@@ -1077,10 +1077,7 @@ function calc(){
     set(`v-w2-${i}`,c.weight>0?c.weight.toFixed(2)+' g / 개':'');
     const w=$(`v-warn-${i}`);
     if(w){
-      if(c.sampleCnt>0&&!c.weight&&isWeightLeader(i)){
-        w.textContent='⚠ 과중조사(개당과중)를 입력해야 수확량이 계산됩니다';
-        w.className='warn';w.style.display='block';
-      }else if(c.proper>0&&c.sampleCnt>c.proper){
+      if(c.proper>0&&c.sampleCnt>c.proper){
         w.textContent=`ℹ 적정표본 ${c.proper}주 · 현재 ${c.sampleCnt}주 — 품종 추가로 재배분됨 (－로 정리 가능)`;
         w.className='warn over';w.style.display='block';
       }else{w.style.display='none';}
