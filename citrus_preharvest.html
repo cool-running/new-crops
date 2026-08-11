@@ -123,7 +123,7 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 .cnt-btn-inline:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* 품종 한줄 로우 */
-.variety-row{display:grid;grid-template-columns:22px 1.5fr 1fr 0.9fr 26px;gap:6px;align-items:center;margin-bottom:8px}
+.variety-row{display:grid;grid-template-columns:20px 1.3fr 0.55fr 0.85fr 0.75fr 24px;gap:5px;align-items:center;margin-bottom:8px}
 .variety-row:last-child{margin-bottom:0}
 .vr-num{width:22px;height:22px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
 .variety-row select.inp,.variety-row input.inp{height:38px;font-size:12.5px;padding:0 4px}
@@ -132,6 +132,11 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 .vr-name-toggle{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;background:transparent;color:var(--sub);font-size:12px;cursor:pointer;z-index:2}
 .vr-name-wrap input.inp{padding-right:22px}
 .vr-del{height:26px;width:26px;border:none;background:transparent;color:var(--red);cursor:pointer;font-size:16px;border-radius:6px}
+.vr-samp-ctrl{display:flex;align-items:center;gap:6px;margin:-2px 0 10px 25px;font-size:10.5px;color:var(--sub)}
+.vr-samp-ctrl span{flex:1}
+.vr-samp-btn{width:22px;height:22px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-appearance:none;padding:0}
+.vr-samp-btn.plus{border:1.5px dashed var(--blue2);background:#EEF6E6;color:var(--blue)}
+.vr-samp-btn.minus{border:1.5px solid var(--red);background:#FFF5F5;color:var(--red)}
 
 .mini-info{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--sub);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)}
 .mini-info strong{color:var(--text);font-size:12px}
@@ -145,15 +150,7 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 .samp-tbl tbody td input{width:100%;height:32px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:12px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text)}
 .samp-tbl tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 .samp-tbl tbody td input.auto-cell{border:0.5px solid var(--border);background:var(--auto);color:var(--sub);font-weight:600}
-.samp-tbl tbody td.rate{font-size:10.5px;color:var(--sub);font-weight:600}
-.samp-tbl tbody td.rate.warn{color:var(--red)}
-.samp-tbl tr.ctrl-row td{background:#fafaf7;padding:6px 4px;border-bottom:1.5px solid var(--border)}
-.samp-tbl tr.ctrl-row .vcount{display:block;text-align:center;font-size:10px;color:var(--sub);margin-bottom:4px}
 .samp-tbl tfoot td{padding:7px 2px;background:#eef3e7;font-weight:800;font-size:11px;text-align:center;border-top:1.5px solid var(--blue2);color:var(--blue)}
-.samp-btn-row{display:flex;gap:6px}
-.samp-btn-row button{flex:1;height:28px;border-radius:7px;font-size:10.5px;font-weight:600;cursor:pointer}
-.samp-add{border:1.5px dashed var(--blue2);background:#EEF6E6;color:var(--blue)}
-.samp-del{border:1.5px solid var(--red);background:#FFF5F5;color:var(--red)}
 
 .guide{text-align:center;padding:16px 0;font-size:13px;color:var(--hint)}
 
@@ -169,7 +166,7 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 .locked input.inp:not([type=date]),.locked .samp-tbl input,.locked select.inp{pointer-events:none;opacity:0.72}
 .locked input[type=date].inp{pointer-events:none;opacity:0.72}
 .locked .datewrap{pointer-events:none;opacity:0.72}
-.locked .vr-del,.locked .samp-btn-row,.locked .count-grid,.locked .custom-count-row,.locked .vr-name-toggle{pointer-events:none;opacity:0.4}
+.locked .vr-del,.locked .vr-samp-btn,.locked .count-grid,.locked .custom-count-row,.locked .vr-name-toggle{pointer-events:none;opacity:0.4}
 
 /* 결과 */
 .result-box{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(91,126,63,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
@@ -203,7 +200,7 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 .hist-load{border:none;background:var(--blue);color:white}
 
 /* 품종 수 선택 (인라인) */
-.vlist-head{display:grid;grid-template-columns:22px 1.5fr 1fr 0.9fr 26px;gap:6px;padding:0 2px;margin-bottom:6px}
+.vlist-head{display:grid;grid-template-columns:20px 1.3fr 0.55fr 0.85fr 0.75fr 24px;gap:5px;padding:0 2px;margin-bottom:6px}
 .vlist-head span{font-size:10px;font-weight:600;color:var(--sub);text-align:center}
 .vlist-head span:first-child{visibility:hidden}
 .custom-count-row{display:flex;align-items:center;gap:8px;margin-top:12px}
@@ -303,7 +300,7 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
       <button onclick="applyCustomCount()">확인</button>
     </div>
 
-    <div class="vlist-head" style="margin-top:14px"><span>#</span><span>품종</span><span>실제결과주수</span><span>적정표본</span><span></span></div>
+    <div class="vlist-head" style="margin-top:14px"><span>#</span><span>품종</span><span>수령</span><span>실제결과주수</span><span>적정표본</span><span></span></div>
     <div id="variety-list"></div>
   </div>
 
@@ -370,49 +367,51 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 품종별 표본주수 산정</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">■ 나무조사</div>
         <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
-          <colgroup><col style="width:46%"><col style="width:27%"><col style="width:27%"></colgroup>
+          <colgroup><col style="width:34%"><col style="width:18%"><col style="width:24%"><col style="width:24%"></colgroup>
           <thead><tr>
-            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">품종</th>
-            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">실제결과주수</th>
-            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">적정표본</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">품종</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">수령</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">실제결과주수</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">적정표본주수</th>
           </tr></thead>
           <tbody id="cap-variety-table"></tbody>
         </table>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본조사</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">■ 피해과실수 표본조사</div>
         <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
-          <colgroup><col style="width:14%"><col style="width:29%"><col style="width:29%"><col style="width:28%"></colgroup>
+          <colgroup><col style="width:11%"><col style="width:27%"><col style="width:21%"><col style="width:21%"><col style="width:20%"></colgroup>
           <thead><tr>
-            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">No</th>
-            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">합계</th>
-            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">피해과</th>
-            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">정상과</th>
+            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">표본주</th>
+            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">품종/수령</th>
+            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">100%<br>피해과실수</th>
+            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">정상과실수</th>
+            <th style="padding:6px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">과실수<br>합계</th>
           </tr></thead>
           <tbody id="cap-sample-table"></tbody>
         </table>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">(금차) 수확전 과실손해 피해율</div>
         <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;table-layout:fixed">
           <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
           <thead><tr>
             <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">피해율</th>
             <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">미보상비율</th>
-            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">기준과실수</th>
-            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">피해과실수</th>
-            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">정상과실수</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">100%피해과실수</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">정상과실수</th>
+            <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-align:center">과실수합계</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-pct">-</td>
             <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-total">-</td>
             <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-damaged">-</td>
-            <td style="padding:7px 2px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-normal">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-normal">-</td>
+            <td style="padding:7px 2px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-total">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -523,7 +522,7 @@ let varieties = [];
 let _isLocked = false;
 
 function newVariety(){
-  return { name:'', mode:'select', trees:'', proper:0, samplesManual:false, samples:[] };
+  return { name:'', mode:'select', age:'', trees:'', proper:0, samplesManual:false, samples:[] };
 }
 
 // ── 품종 수 선택 ───────────────────────────────────
@@ -570,12 +569,25 @@ function renderVarietySetup(){
     return `<div class="variety-row">
       <div class="vr-num">${vi+1}</div>
       ${nameCell}
+      <input type="text" class="inp ${v.age?'filled':''}" inputmode="numeric" placeholder="수령" value="${v.age||''}"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'')" onblur="onVarietyAgeInput(${vi},this)" autocomplete="off">
       <input type="text" class="inp ${v.trees?'filled':''}" inputmode="numeric" placeholder="주수" value="${v.trees}"
         oninput="onCommaInput(this)" onblur="onVarietyTreesInput(${vi},this)" autocomplete="off">
       <input type="text" class="auto" readonly value="${v.proper?v.proper+'주':'-'}">
       ${varieties.length>1?`<button class="vr-del" onclick="confirmRemoveVariety(${vi})">🗑</button>`:'<span></span>'}
+    </div>
+    <div class="vr-samp-ctrl">
+      <span>표본 ${(v.samples||[]).length}/${v.proper||0}주</span>
+      <button class="vr-samp-btn minus" onclick="confirmSampleDel(${vi})" title="표본 삭제">−</button>
+      <button class="vr-samp-btn plus" onclick="confirmSampleAdd(${vi})" title="표본 추가">+</button>
     </div>`;
   }).join('');
+}
+function onVarietyAgeInput(vi,el){
+  varieties[vi].age = el.value;
+  el.classList.toggle('filled', el.value!=='');
+  renderSampleSection();
+  saveState();
 }
 
 function closeVarietyDelModal(){ document.getElementById('variety-del-overlay').classList.remove('show'); }
@@ -695,48 +707,38 @@ function renderSampleSection(){
     const n = (v.samples||[]).length;
     if(n===0) return;
     const name = v.name || `품종${vi+1}`;
+    const label = v.age ? `${name}<br>${v.age}년` : name;
     v.samples.forEach((s,si)=>{
       globalNo++;
       const totalNum = numSafe(s.total);
       const dmgNum = numSafe(s.damaged);
-      if(s.total!==''){ totalSum+=totalNum; damagedSum+=dmgNum; normalSum+=numSafe(s.normal); }
-      const rate = (s.total!=='' && totalNum>0) ? ((dmgNum/totalNum)*100).toFixed(1)+'%' : '-';
-      const warn = (s.total!=='' && s.damaged!=='' && dmgNum>totalNum);
-      bodyHtml += `<tr>`;
-      if(si===0){ bodyHtml += `<td class="vname-cell" rowspan="${n+1}">${name}</td>`; }
+      if(s.damaged!=='' || s.normal!==''){ totalSum+=totalNum; damagedSum+=dmgNum; normalSum+=numSafe(s.normal); }
+      bodyHtml += `<tr>
+        <td class="no">${globalNo}</td>`;
+      if(si===0){ bodyHtml += `<td class="vname-cell" rowspan="${n}">${label}</td>`; }
       bodyHtml += `
-        <td class="no">${globalNo}</td>
-        <td><input type="text" inputmode="numeric" value="${s.total!==''?Number(s.total).toLocaleString():''}"
-          class="${s.total!==''?'filled':''}"
-          oninput="onCommaInput(this)"
-          onblur="onSampleInput(${vi},${si},'total',this.value.replace(/,/g,''))" autocomplete="off"></td>
         <td><input type="text" inputmode="numeric" value="${s.damaged!==''?Number(s.damaged).toLocaleString():''}"
           class="${s.damaged!==''?'filled':''}"
           oninput="onCommaInput(this)"
           onblur="onSampleInput(${vi},${si},'damaged',this.value.replace(/,/g,''))" autocomplete="off"></td>
-        <td><input type="text" class="auto-cell" readonly value="${s.normal!==''?Number(s.normal).toLocaleString():''}"></td>
-        <td class="rate ${warn?'warn':''}">${warn?'⚠':rate}</td>
+        <td><input type="text" inputmode="numeric" value="${s.normal!==''?Number(s.normal).toLocaleString():''}"
+          class="${s.normal!==''?'filled':''}"
+          oninput="onCommaInput(this)"
+          onblur="onSampleInput(${vi},${si},'normal',this.value.replace(/,/g,''))" autocomplete="off"></td>
+        <td><input type="text" class="auto-cell" readonly value="${s.total!==''?Number(s.total).toLocaleString():''}"></td>
       </tr>`;
     });
-    bodyHtml += `<tr class="ctrl-row"><td colspan="5">
-        <span class="vcount">표본 ${n}주 / 적정표본 ${v.proper||0}주</span>
-        <div class="samp-btn-row">
-          <button class="samp-add" onclick="confirmSampleAdd(${vi})">+ 표본 추가</button>
-          <button class="samp-del" onclick="confirmSampleDel(${vi})">- 표본 삭제</button>
-        </div>
-      </td></tr>`;
   });
 
   wrap.innerHTML = `<table class="samp-tbl">
-    <colgroup><col style="width:16%"><col style="width:9%"><col style="width:20%"><col style="width:19%"><col style="width:19%"><col style="width:17%"></colgroup>
-    <thead><tr><th>품종</th><th>No</th><th>합계</th><th>피해과</th><th>정상과</th><th>피해율</th></tr></thead>
+    <colgroup><col style="width:9%"><col style="width:22%"><col style="width:23%"><col style="width:23%"><col style="width:23%"></colgroup>
+    <thead><tr><th>No</th><th>품종/수령</th><th>피해과</th><th>정상과</th><th>합계</th></tr></thead>
     <tbody>${bodyHtml}</tbody>
     <tfoot><tr>
       <td colspan="2">합계</td>
-      <td>${totalSum>0?totalSum.toLocaleString():'-'}</td>
       <td>${totalSum>0?damagedSum.toLocaleString():'-'}</td>
       <td>${totalSum>0?normalSum.toLocaleString():'-'}</td>
-      <td>${totalSum>0?((damagedSum/totalSum)*100).toFixed(1)+'%':'-'}</td>
+      <td>${totalSum>0?totalSum.toLocaleString():'-'}</td>
     </tr></tfoot>
   </table>`;
   setTimeout(bindMobileFocusHandlers,0);
@@ -795,10 +797,10 @@ function confirmSampleDel(vi){
 function onSampleInput(vi,si,field,rawVal){
   const s = varieties[vi].samples[si];
   if(!s) return;
-  if(field==='total') s.total = rawVal;
   if(field==='damaged') s.damaged = rawVal;
-  if(s.total!=='' && s.damaged!==''){ s.normal = String(numSafe(s.total)-numSafe(s.damaged)); }
-  else { s.normal=''; }
+  if(field==='normal') s.normal = rawVal;
+  if(s.damaged!=='' && s.normal!==''){ s.total = String(numSafe(s.damaged)+numSafe(s.normal)); }
+  else { s.total=''; }
   renderSampleSection();
   calcTotals();
   saveState();
@@ -809,7 +811,7 @@ function calcTotals(){
   let totalSum=0, damagedSum=0;
   varieties.forEach(v=>{
     (v.samples||[]).forEach(s=>{
-      if(s.total!==''){
+      if(s.damaged!=='' || s.normal!==''){
         totalSum += numSafe(s.total);
         damagedSum += numSafe(s.damaged);
       }
@@ -894,6 +896,7 @@ function fillCaptureTemplate(){
     const name = v.name || `품종${vi+1}`;
     return `<tr>
       <td style="padding:6px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-weight:700;font-size:11.5px">${name}</td>
+      <td style="padding:6px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-weight:700;font-size:11.5px">${v.age?v.age+'년':'-'}</td>
       <td style="padding:6px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-weight:700;font-size:11.5px">${v.trees||'-'}</td>
       <td style="padding:6px 2px;border-top:1px solid #eee;text-align:center;background:#fff;font-weight:700;font-size:11.5px">${v.proper||'-'}</td>
     </tr>`;
@@ -901,19 +904,23 @@ function fillCaptureTemplate(){
 
   let rowsHtml=''; let no=1;
   let totalSum=0,damagedSum=0,normalSum=0;
-  varieties.forEach(v=>{
-    (v.samples||[]).forEach(s=>{
-      if(s.total===''){ return; }
+  varieties.forEach((v,vi)=>{
+    const validSamples = (v.samples||[]).filter(s=>s.damaged!=='' || s.normal!=='');
+    const name = v.name || `품종${vi+1}`;
+    const label = v.age ? `${name}<br>${v.age}년` : name;
+    validSamples.forEach((s,si)=>{
       totalSum+=numSafe(s.total); damagedSum+=numSafe(s.damaged); normalSum+=numSafe(s.normal);
       rowsHtml+=`<tr>
-        <td style="padding:5px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${no++}</td>
-        <td style="padding:5px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${numSafe(s.total).toLocaleString()}</td>
+        <td style="padding:5px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${no++}</td>`;
+      if(si===0){ rowsHtml+=`<td style="padding:5px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#f5f8f1;font-weight:700;font-size:10.5px;color:#5B7E3F" rowspan="${validSamples.length}">${label}</td>`; }
+      rowsHtml+=`
         <td style="padding:5px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${numSafe(s.damaged).toLocaleString()}</td>
-        <td style="padding:5px 2px;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${numSafe(s.normal).toLocaleString()}</td>
+        <td style="padding:5px 2px;border-right:1px solid #d1d5db;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${numSafe(s.normal).toLocaleString()}</td>
+        <td style="padding:5px 2px;border-top:1px solid #eee;text-align:center;background:#fff;font-size:11px">${numSafe(s.total).toLocaleString()}</td>
       </tr>`;
     });
   });
-  document.getElementById('cap-sample-table').innerHTML = rowsHtml || '<tr><td colspan="4" style="padding:10px;text-align:center;color:#999;font-size:11px">표본 데이터 없음</td></tr>';
+  document.getElementById('cap-sample-table').innerHTML = rowsHtml || '<tr><td colspan="5" style="padding:10px;text-align:center;color:#999;font-size:11px">표본 데이터 없음</td></tr>';
 
   const uninsRate = numSafe(document.getElementById('unins_rate').value);
   let pctDisp = '- -';
