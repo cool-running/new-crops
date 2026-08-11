@@ -117,8 +117,8 @@ body.big-text .samp-tbl input{height:40px !important;font-size:15px !important;f
 body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 
 /* 품종 수 선택 (인라인) */
-.count-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px}
-.cnt-btn-inline{height:52px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-size:19px;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s}
+.count-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:4px}
+.cnt-btn-inline{height:52px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-size:20px;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s}
 .cnt-btn-inline.active{background:#eef6e6;border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 1.5px var(--blue) inset}
 .cnt-btn-inline:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
@@ -206,10 +206,10 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
 .vlist-head{display:grid;grid-template-columns:22px 1.5fr 1fr 0.9fr 26px;gap:6px;padding:0 2px;margin-bottom:6px}
 .vlist-head span{font-size:10px;font-weight:600;color:var(--sub);text-align:center}
 .vlist-head span:first-child{visibility:hidden}
-.custom-count-row{display:flex;align-items:center;gap:8px;margin-top:14px}
-.custom-count-row .ccr-label{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0}
-.custom-count-row input{flex:1;height:44px;border:1.5px solid var(--binp);border-radius:10px;text-align:center;font-size:15px;-webkit-appearance:none;min-width:0}
-.custom-count-row button{height:44px;padding:0 16px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0}
+.custom-count-row{display:flex;align-items:center;gap:8px;margin-top:12px}
+.custom-count-row .ccr-label{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0}
+.custom-count-row input{flex:1;height:38px;border:1.5px solid var(--binp);border-radius:8px;text-align:center;font-size:13px;-webkit-appearance:none;min-width:0}
+.custom-count-row button{height:38px;padding:0 12px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -240,7 +240,7 @@ body.big-text .datewrap .date-disp{height:50px;font-size:16px;font-weight:800}
     <div style="display:flex;gap:6px;align-items:flex-end">
       <div class="field" style="flex:0 0 28%">
         <label>계약자명</label>
-        <input type="text" id="contractor_name" class="inp" placeholder="계약자명"
+        <input type="text" id="contractor_name" class="inp" placeholder="이름"
           oninput="markFilled(this)" onblur="saveState()" autocomplete="off">
       </div>
       <div class="field" style="flex:0 0 22%">
@@ -570,7 +570,7 @@ function renderVarietySetup(){
     return `<div class="variety-row">
       <div class="vr-num">${vi+1}</div>
       ${nameCell}
-      <input type="text" class="inp ${v.trees?'filled':''}" inputmode="numeric" placeholder="실제결과주수" value="${v.trees}"
+      <input type="text" class="inp ${v.trees?'filled':''}" inputmode="numeric" placeholder="주수" value="${v.trees}"
         oninput="onCommaInput(this)" onblur="onVarietyTreesInput(${vi},this)" autocomplete="off">
       <input type="text" class="auto" readonly value="${v.proper?v.proper+'주':'-'}">
       ${varieties.length>1?`<button class="vr-del" onclick="confirmRemoveVariety(${vi})">🗑</button>`:'<span></span>'}
