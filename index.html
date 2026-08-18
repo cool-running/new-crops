@@ -56,11 +56,11 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확량조사</div>
   </div>
 
-  <div class="crop-card test" onclick="go('citrus')">
+  <div class="crop-card test" onclick="go('corn')">
     <span class="badge badge-test">테스트</span>
-    <div class="crop-icon">🍊</div>
-    <div class="crop-name">감귤</div>
-    <div class="crop-desc">수확전손해조사</div>
+    <div class="crop-icon"><svg viewBox="0 0 24 24" width="28" height="28" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle"><path d="M12 3 C9.5 3 7.8 5.2 7.8 8 L7.8 16 C7.8 18.8 9.6 20.5 12 20.5 C14.4 20.5 16.2 18.8 16.2 16 L16.2 8 C16.2 5.2 14.5 3 12 3 Z" fill="#F2C744" stroke="#B8860B" stroke-width="0.8"/><path d="M9 6.4 L15 6.4 M8.6 8.6 L15.4 8.6 M8.4 10.8 L15.6 10.8 M8.4 13 L15.6 13 M8.6 15.2 L15.4 15.2 M9 17.4 L15 17.4" stroke="#B8860B" stroke-width="0.6"/><path d="M9 6.4 L9 17.4 M11 5.6 L11 18.4 M13 5.6 L13 18.4 M15 6.4 L15 17.4" stroke="#B8860B" stroke-width="0.6"/><path d="M8.5 3.4 C7 2.6 5.6 2.8 4.6 3.8 C5.8 5 7.4 5 8.8 4.2 Z" fill="#5AA046"/><path d="M15.5 3.4 C17 2.6 18.4 2.8 19.4 3.8 C18.2 5 16.6 5 15.2 4.2 Z" fill="#4E8A3D"/></svg></div>
+    <div class="crop-name">옥수수</div>
+    <div class="crop-desc">수확량조사</div>
   </div>
 
 </div>
@@ -68,7 +68,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 <script>
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
-  if(page==='citrus')      location.href='./citrus_preharvest.html';
+  if(page==='corn')        location.href='./corn.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
