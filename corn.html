@@ -10,7 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select.inp, tbody td input, input.v-weight';
+  const selectors = 'input.inp, select.inp, tbody td input';
   document.querySelectorAll(selectors).forEach(el=>{
     if(el.dataset.mobileFocusBound === '1') return;
     el.dataset.mobileFocusBound = '1';
@@ -116,23 +116,15 @@ body.big-text input.auto{height:46px !important;font-size:16px !important;font-w
 body.big-text .field label{font-size:12.5px !important}
 
 /* 품종 설정 */
-.v-row-compact{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-.v-num{flex-shrink:0;width:24px;height:24px;border-radius:6px;background:var(--green);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.v-sel{flex:1;min-width:0;height:38px}
-.v-weight{flex-shrink:0;width:56px;height:38px;border:1.5px solid var(--binp);border-radius:var(--rs);text-align:center;font-size:13px;background:white;-webkit-appearance:none;color:var(--text)}
-.v-weight.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
-.v-weight:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,0.2);background:#dceeff;color:#185FA5}
-.v-unit{flex-shrink:0;font-size:11px;color:var(--sub);width:10px}
-.v-name-inline{margin:-2px 0 8px 30px;width:calc(100% - 30px)}
 
 /* 표본구간 테이블 */
-.tbl-wrap{overflow-x:auto;width:100%}
-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
-thead th{background:#f8f8f8;padding:6px 3px 8px;text-align:center;font-weight:600;color:var(--sub);font-size:10.5px!important;border-bottom:1.5px solid var(--border);line-height:1.3;white-space:pre-line}
-thead th.vhead{background:#eaf3e0;color:#2d5016;font-weight:800;font-size:11px!important;border-left:1.5px solid var(--card)}
-tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
+.tbl-wrap{overflow-x:hidden;width:100%}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+thead th{background:#f8f8f8;padding:5px 1px 7px;text-align:center;font-weight:600;color:var(--sub);font-size:10px!important;border-bottom:1.5px solid var(--border);line-height:1.25;white-space:pre-line}
+thead th.vhead{background:#eaf3e0;color:#2d5016;font-weight:800;font-size:10px!important;border-left:1.5px solid var(--card);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:1px;padding-right:1px}
+tbody td{padding:2px 1px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
 tbody td.no{text-align:center;color:var(--sub);font-size:10px;font-weight:600;width:22px}
-tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:12.5px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background 0.15s,border-color 0.15s}
+tbody td input{width:100%;height:30px;border:1.2px solid var(--binp);border-radius:5px;text-align:center;font-size:11.5px;padding:0 1px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background 0.15s,border-color 0.15s}
 tbody td input:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(24,95,165,0.2)!important;background:#dceeff!important;color:#185FA5!important}
 tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#000;font-weight:700}
 tbody td input.filled:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,0.2);background:#dceeff;color:#185FA5}
@@ -303,49 +295,35 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
   </div>
 
   <div class="section">
-    <div class="sec-title">품종 <span id="variety-count-badge" style="font-size:13px;font-weight:700;color:var(--green)"></span></div>
-    <div class="v-row-compact">
-      <span class="v-num">1</span>
-      <select id="v1_sel" class="inp filled v-sel" onchange="onVarietyChange(1)">
-        <option value="mibaek2">미백2호</option>
-        <option value="daehak">대학찰,연농2호</option>
-        <option value="miheuk">미흑찰 등</option>
-        <option value="custom">직접입력</option>
-      </select>
-      <input type="number" id="v1_weight" class="v-weight filled" value="180" inputmode="decimal" oninput="markFilled(this);calc()">
-      <span class="v-unit">g</span>
-    </div>
-    <input type="text" id="v1_name" class="inp v-name-inline" placeholder="품종명 입력" style="display:none" oninput="markFilled(this);renderSamples()">
-
-    <div class="v-row-compact" id="v2_box" style="display:none">
-      <span class="v-num">2</span>
-      <select id="v2_sel" class="inp v-sel" onchange="onVarietyChange(2)">
-        <option value="mibaek2">미백2호</option>
-        <option value="daehak">대학찰,연농2호</option>
-        <option value="miheuk">미흑찰 등</option>
-        <option value="custom">직접입력</option>
-      </select>
-      <input type="number" id="v2_weight" class="v-weight" inputmode="decimal" oninput="markFilled(this);calc()">
-      <span class="v-unit">g</span>
-    </div>
-    <input type="text" id="v2_name" class="inp v-name-inline" placeholder="품종명 입력" style="display:none" oninput="markFilled(this);renderSamples()">
-
-    <div class="v-row-compact" id="v3_box" style="display:none">
-      <span class="v-num">3</span>
-      <select id="v3_sel" class="inp v-sel" onchange="onVarietyChange(3)">
-        <option value="mibaek2">미백2호</option>
-        <option value="daehak">대학찰,연농2호</option>
-        <option value="miheuk">미흑찰 등</option>
-        <option value="custom">직접입력</option>
-      </select>
-      <input type="number" id="v3_weight" class="v-weight" inputmode="decimal" oninput="markFilled(this);calc()">
-      <span class="v-unit">g</span>
-    </div>
-    <input type="text" id="v3_name" class="inp v-name-inline" placeholder="품종명 입력" style="display:none" oninput="markFilled(this);renderSamples()">
-
-    <div class="sample-btn-row">
-      <button class="add-btn" id="v-add-btn" onclick="requestAddVariety()">+ 품종 추가</button>
-      <button class="del-sample-btn" id="v-del-btn" onclick="requestRemoveVariety()">- 품종 삭제</button>
+    <div class="sec-title">품종</div>
+    <div class="g3">
+      <div class="field">
+        <label>품종 1</label>
+        <select id="v1_sel" class="inp" onchange="onVarietyChange(1)">
+          <option value="">선택</option>
+          <option value="mibaek2">미백2호</option>
+          <option value="daehak">대학찰,연농2호</option>
+          <option value="miheuk">미흑찰 등</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>품종 2</label>
+        <select id="v2_sel" class="inp" onchange="onVarietyChange(2)">
+          <option value="">사용 안함</option>
+          <option value="mibaek2">미백2호</option>
+          <option value="daehak">대학찰,연농2호</option>
+          <option value="miheuk">미흑찰 등</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>품종 3</label>
+        <select id="v3_sel" class="inp" onchange="onVarietyChange(3)">
+          <option value="">사용 안함</option>
+          <option value="mibaek2">미백2호</option>
+          <option value="daehak">대학찰,연농2호</option>
+          <option value="miheuk">미흑찰 등</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -461,26 +439,6 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
   </div>
 </div>
 
-<!-- 품종 추가/삭제 확인 -->
-<div id="variety-confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
-    <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">품종 변경 확인</div>
-    <div id="variety-confirm-msg" style="font-size:14px;line-height:1.7;color:#666;text-align:center;margin-bottom:20px;white-space:pre-line"></div>
-    <div style="display:flex;gap:10px">
-      <button onclick="varietyConfirmAnswer(false)" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
-      <button onclick="varietyConfirmAnswer(true)" style="flex:1;height:46px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
-    </div>
-  </div>
-</div>
-
-<!-- 품종 최소개수 안내 -->
-<div id="variety-alert-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
-    <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">삭제 불가</div>
-    <div id="variety-alert-msg" style="font-size:14px;line-height:1.6;color:#666;text-align:center;margin-bottom:18px">최소 1개의 품종은<br>삭제할 수 없습니다.</div>
-    <button onclick="document.getElementById('variety-alert-overlay').style.display='none'" style="width:100%;height:44px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
-  </div>
-</div>
 
 <!-- 이전 기록 불러오기 모달 -->
 <div id="history-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:16px">
@@ -566,100 +524,29 @@ function markFilled(el){
 function toNum(id){ const el=document.getElementById(id); if(!el) return 0; const v=parseFloat(el.value); return isNaN(v)?0:v; }
 
 // ───────────────────────────────────────────── 품종 ─────────────────────────────────────────────
-let varietyCount = 1;
-
 function onVarietyChange(i){
   const sel = document.getElementById('v'+i+'_sel');
-  const nameWrap = document.getElementById('v'+i+'_name');
-  const weightEl = document.getElementById('v'+i+'_weight');
-  sel.classList.add('filled');
-  if(sel.value==='custom'){
-    nameWrap.style.display='';
-  } else {
-    nameWrap.style.display='none';
-    weightEl.value = VARIETY_WEIGHT[sel.value];
-    weightEl.classList.add('filled');
-  }
+  sel.classList.toggle('filled', sel.value!=='');
   renderSamples();
   calc();
+  saveState();
 }
 function activeVarietyIdx(){
-  // returns array of active indices (0-based), length = varietyCount
+  // returns array of active indices (0-based) among 0,1,2
   const out=[];
-  for(let i=0;i<varietyCount;i++) out.push(i);
+  if(document.getElementById('v1_sel').value!=='') out.push(0);
+  if(document.getElementById('v2_sel').value!=='') out.push(1);
+  if(document.getElementById('v3_sel').value!=='') out.push(2);
   return out;
 }
 function varietyLabel(i){
   const sel = document.getElementById('v'+(i+1)+'_sel').value;
-  if(sel==='custom'){
-    const nm = document.getElementById('v'+(i+1)+'_name').value.trim();
-    return nm || ('품종'+(i+1));
-  }
   const map={mibaek2:'미백2호',daehak:'대학찰,연농2호',miheuk:'미흑찰 등'};
   return map[sel] || ('품종'+(i+1));
 }
 function varietyWeight(i){
-  return toNum('v'+(i+1)+'_weight'); // grams
-}
-function updateVarietyCountBadge(){
-  const el = document.getElementById('variety-count-badge');
-  if(el) el.textContent = `(${varietyCount}/3)`;
-  const addBtn = document.getElementById('v-add-btn');
-  const delBtn = document.getElementById('v-del-btn');
-  if(addBtn) addBtn.style.opacity = varietyCount>=3 ? '0.5' : '1';
-  if(delBtn) delBtn.style.opacity = varietyCount<=1 ? '0.5' : '1';
-}
-
-// ── 품종 추가/삭제 (+/- , 팝업 확인) ──────────────
-let _varietyConfirmAction = null;
-function requestAddVariety(){
-  if(varietyCount>=3) return;
-  _varietyConfirmAction='add';
-  document.getElementById('variety-confirm-msg').textContent = `품종을 추가하시겠습니까? (현재 ${varietyCount}개 → ${varietyCount+1}개)`;
-  document.getElementById('variety-confirm-overlay').style.display='flex';
-}
-function requestRemoveVariety(){
-  if(varietyCount<=1){
-    document.getElementById('variety-alert-overlay').style.display='flex';
-    return;
-  }
-  _varietyConfirmAction='remove';
-  document.getElementById('variety-confirm-msg').textContent = `품종 ${varietyCount}(${varietyLabel(varietyCount-1)})을 삭제하시겠습니까?\n표본구간에 입력된 해당 품종 데이터도 함께 삭제됩니다.`;
-  document.getElementById('variety-confirm-overlay').style.display='flex';
-}
-function varietyConfirmAnswer(ok){
-  document.getElementById('variety-confirm-overlay').style.display='none';
-  if(ok){
-    if(_varietyConfirmAction==='add') doAddVariety();
-    else if(_varietyConfirmAction==='remove') doRemoveVariety();
-  }
-  _varietyConfirmAction=null;
-}
-function doAddVariety(){
-  varietyCount++;
-  const box = document.getElementById('v'+varietyCount+'_box');
-  if(box) box.style.display='';
-  const sel = document.getElementById('v'+varietyCount+'_sel');
-  if(sel && !sel.value) sel.value='mibaek2';
-  onVarietyChange(varietyCount);
-  updateVarietyCountBadge();
-  saveState();
-}
-function doRemoveVariety(){
-  const i = varietyCount;
-  const box = document.getElementById('v'+i+'_box');
-  if(box) box.style.display='none';
-  document.getElementById('v'+i+'_sel').value='mibaek2';
-  document.getElementById('v'+i+'_sel').classList.remove('filled');
-  const wEl=document.getElementById('v'+i+'_weight'); wEl.value=''; wEl.classList.remove('filled');
-  const nEl=document.getElementById('v'+i+'_name'); if(nEl){ nEl.value=''; nEl.classList.remove('filled'); }
-  document.getElementById('v'+i+'_name').style.display='none';
-  samples.forEach(s=>{ s.v[i-1] = blankVarietyCounts(); });
-  varietyCount--;
-  renderSamples();
-  updateVarietyCountBadge();
-  calc();
-  saveState();
+  const sel = document.getElementById('v'+(i+1)+'_sel').value;
+  return VARIETY_WEIGHT[sel] || 0; // grams
 }
 
 // ───────────────────────────────────────────── 표본구간 ─────────────────────────────────────────────
@@ -697,16 +584,18 @@ function renderSamples(){
   const tbodyEl = document.getElementById('sample-body');
   const tfootEl = document.getElementById('sample-tfoot');
   const activeIdx = activeVarietyIdx();
+  const gradeColCount = activeIdx.length*3;
+  const gradePct = (72/gradeColCount).toFixed(2);
 
-  let cols = `<col style="width:32px"><col style="min-width:58px"><col style="min-width:58px">`;
-  activeIdx.forEach(()=>{ cols += `<col style="min-width:44px"><col style="min-width:44px"><col style="min-width:44px">`; });
+  let cols = `<col style="width:7%"><col style="width:10.5%"><col style="width:10.5%">`;
+  activeIdx.forEach(()=>{ cols += `<col style="width:${gradePct}%"><col style="width:${gradePct}%"><col style="width:${gradePct}%">`; });
   colEl.innerHTML = cols;
 
-  let row1 = `<tr><th rowspan="2">No.</th><th rowspan="2">이랑<br>길이</th><th rowspan="2">이랑<br>폭</th>`;
+  let row1 = `<tr><th rowspan="2">No.</th><th rowspan="2">길이</th><th rowspan="2">폭</th>`;
   let row2 = `<tr>`;
   activeIdx.forEach(vi=>{
     row1 += `<th colspan="3" class="vhead">${varietyLabel(vi)}</th>`;
-    row2 += `<th>상품</th><th>중품</th><th>하품목<br>이하</th>`;
+    row2 += `<th title="상품">상</th><th title="중품">중</th><th title="하품목이하">하</th>`;
   });
   row1 += `</tr>`;
   row2 += `</tr>`;
@@ -851,6 +740,7 @@ function calc(){
 function validateAll(){
   const missing=[];
   if(!document.getElementById('region').value) missing.push('지역');
+  if(!document.getElementById('v1_sel').value) missing.push('품종 1');
   if(!document.getElementById('plant_date').value) missing.push('재식일자');
   if(!toNum('std_yield')) missing.push('표준수확량');
   if(!toNum('act_area')) missing.push('실제경작면적');
@@ -938,7 +828,7 @@ function loadHistoryRecord(idx){
   try{ records=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); }catch(e){}
   const r=records[idx];
   if(!r) return;
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v1_weight','v1_name','v2_sel','v2_weight','v2_name','v3_sel','v3_weight','v3_name'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -947,17 +837,6 @@ function loadHistoryRecord(idx){
     if(el.type==='date') markFilled(el);
     else if(el.classList) el.classList.toggle('filled', v!=='');
   });
-  const vc = r.varietyCount || (r.v3_sel ? 3 : (r.v2_sel ? 2 : 1));
-  varietyCount = 1;
-  document.getElementById('v2_box').style.display='none';
-  document.getElementById('v3_box').style.display='none';
-  onVarietyChange(1);
-  for(let n=2;n<=vc;n++){
-    varietyCount = n;
-    document.getElementById('v'+n+'_box').style.display='';
-    onVarietyChange(n);
-  }
-  updateVarietyCountBadge();
   if(r.samples && Array.isArray(r.samples)) samples = JSON.parse(JSON.stringify(r.samples));
   renderSamples();
   closeHistoryModal();
@@ -979,10 +858,10 @@ function saveToHistory(){
   const surveyDate=document.getElementById('survey_date').value||'';
   const pctEl=document.getElementById('result-pct');
   const pct=pctEl&&pctEl.textContent!=='- -'?pctEl.textContent.replace('%',''):null;
-  const record={ farm_no:farmNo, survey_date:surveyDate, pct, varietyCount,
+  const record={ farm_no:farmNo, survey_date:surveyDate, pct,
     saved_at:new Date().toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/ /g,'')
   };
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v1_weight','v1_name','v2_sel','v2_weight','v2_name','v3_sel','v3_weight','v3_name'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{ const el=document.getElementById(id); if(el) record[id]=el.value; });
   record.samples = JSON.parse(JSON.stringify(samples));
   let records=[];
@@ -1053,11 +932,9 @@ function saveState(){
     unit_price: document.getElementById('unit_price').value,
     self_rate: document.getElementById('self_rate').value,
     unins_rate: document.getElementById('unins_rate').value,
-    v1_sel: document.getElementById('v1_sel').value, v1_weight: document.getElementById('v1_weight').value,
-    v2_sel: document.getElementById('v2_sel').value, v2_weight: document.getElementById('v2_weight').value, v2_name: document.getElementById('v2_name').value,
-    v3_sel: document.getElementById('v3_sel').value, v3_weight: document.getElementById('v3_weight').value, v3_name: document.getElementById('v3_name').value,
-    v1_name: document.getElementById('v1_name').value,
-    varietyCount: varietyCount,
+    v1_sel: document.getElementById('v1_sel').value,
+    v2_sel: document.getElementById('v2_sel').value,
+    v3_sel: document.getElementById('v3_sel').value,
     samples: samples,
     isLocked: _isLocked
   };
@@ -1068,7 +945,7 @@ function loadState(){
     const raw = localStorage.getItem('corn_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_name','v2_name','v3_name'];
+    const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
@@ -1078,21 +955,8 @@ function loadState(){
       }
     });
     if(s.v1_sel){ document.getElementById('v1_sel').value=s.v1_sel; document.getElementById('v1_sel').classList.add('filled'); }
-    if(s.v1_weight){ document.getElementById('v1_weight').value=s.v1_weight; document.getElementById('v1_weight').classList.add('filled'); }
-    if(s.v2_sel){ document.getElementById('v2_sel').value=s.v2_sel; }
-    if(s.v3_sel){ document.getElementById('v3_sel').value=s.v3_sel; }
-    const vc = s.varietyCount || (s.v3_sel ? 3 : (s.v2_sel ? 2 : 1));
-    varietyCount = 1;
-    document.getElementById('v2_box').style.display='none';
-    document.getElementById('v3_box').style.display='none';
-    onVarietyChange(1);
-    for(let n=2;n<=vc;n++){
-      varietyCount = n;
-      document.getElementById('v'+n+'_box').style.display='';
-      onVarietyChange(n);
-    }
-    updateVarietyCountBadge();
-    if(document.getElementById('v1_sel').value==='custom') document.getElementById('v1_name').style.display='';
+    if(s.v2_sel){ document.getElementById('v2_sel').value=s.v2_sel; document.getElementById('v2_sel').classList.add('filled'); }
+    if(s.v3_sel){ document.getElementById('v3_sel').value=s.v3_sel; document.getElementById('v3_sel').classList.add('filled'); }
     if(s.samples && s.samples.length>0) samples = s.samples;
     if(s.isLocked){ setTimeout(()=>{ setCalcMode(); }, 0); }
     return true;
@@ -1125,10 +989,6 @@ try{
   }
 }catch(e){}
 
-if(!loaded){
-  document.getElementById('v1_weight').value = 180;
-}
-updateVarietyCountBadge();
 updateSamplesAndCalc();
 setTimeout(()=>{ renderSamples(); calc(); }, 30);
 </script>
