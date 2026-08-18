@@ -225,7 +225,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     <div class="g2">
       <div class="field">
         <label>지역</label>
-        <select id="region" class="inp" onchange="markFilled(this);calc()">
+        <select id="region" class="inp" onchange="markFilled(this);autofillUnitPrice();calc()">
           <option value="">선택</option>
           <option value="강원">강원</option>
           <option value="경기,서울">경기, 서울</option>
@@ -245,8 +245,8 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     <div class="g3">
       <div class="field"><label>보험가입금액</label><span class="unit-badge">원</span>
         <input type="text" id="ins_amount" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
-      <div class="field"><label>표준가격</label><span class="unit-badge">원/kg</span>
-        <input type="text" id="unit_price" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
+      <div class="field"><label>표준가격(자동)</label><span class="unit-badge">원/kg</span>
+        <input type="text" id="unit_price" class="inp" inputmode="decimal" oninput="_priceManuallyEdited=true;onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>자기부담비율</label>
         <select id="self_rate" class="inp" onchange="markFilled(this);calc()">
           <option value="">선택</option>
@@ -303,7 +303,12 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
           <option value="">선택</option>
           <option value="mibaek2">미백2호</option>
           <option value="daehak">대학찰,연농2호</option>
-          <option value="miheuk">미흑찰 등</option>
+          <option value="miheuk">미흑찰</option>
+          <option value="ilmi">일미찰</option>
+          <option value="yeonja">연자흑찰</option>
+          <option value="eolluk">얼룩찰</option>
+          <option value="chalok4">찰옥4호</option>
+          <option value="baksa">박사찰</option>
         </select>
       </div>
       <div class="field">
@@ -312,7 +317,12 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
           <option value="">사용 안함</option>
           <option value="mibaek2">미백2호</option>
           <option value="daehak">대학찰,연농2호</option>
-          <option value="miheuk">미흑찰 등</option>
+          <option value="miheuk">미흑찰</option>
+          <option value="ilmi">일미찰</option>
+          <option value="yeonja">연자흑찰</option>
+          <option value="eolluk">얼룩찰</option>
+          <option value="chalok4">찰옥4호</option>
+          <option value="baksa">박사찰</option>
         </select>
       </div>
       <div class="field">
@@ -321,7 +331,12 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
           <option value="">사용 안함</option>
           <option value="mibaek2">미백2호</option>
           <option value="daehak">대학찰,연농2호</option>
-          <option value="miheuk">미흑찰 등</option>
+          <option value="miheuk">미흑찰</option>
+          <option value="ilmi">일미찰</option>
+          <option value="yeonja">연자흑찰</option>
+          <option value="eolluk">얼룩찰</option>
+          <option value="chalok4">찰옥4호</option>
+          <option value="baksa">박사찰</option>
         </select>
       </div>
     </div>
@@ -479,7 +494,20 @@ const DENSITY_REGION_MAP = {
   '충북,충남,대전,세종':'충북,충남,대전','전북':'전북,전남,광주,제주','전남,광주,제주':'전북,전남,광주,제주',
   '경북,대구':'경북,대구','경남,울산,부산':'경남,울산,부산'
 };
-const VARIETY_WEIGHT = {mibaek2:180, daehak:160, miheuk:190};
+const VARIETY_WEIGHT = {mibaek2:180, daehak:160, miheuk:190, ilmi:190, yeonja:190, eolluk:190, chalok4:190, baksa:190};
+// 표준가격(25년 기준, 원/kg) - 강원도만 별도, 나머지는 전국 동일
+const STANDARD_PRICE = {'강원':2271};
+const STANDARD_PRICE_DEFAULT = 1992;
+let _priceManuallyEdited = false;
+function autofillUnitPrice(){
+  if(_priceManuallyEdited) return;
+  const region = document.getElementById('region').value;
+  if(!region) return;
+  const price = STANDARD_PRICE[region] !== undefined ? STANDARD_PRICE[region] : STANDARD_PRICE_DEFAULT;
+  const el = document.getElementById('unit_price');
+  el.value = price.toLocaleString();
+  el.classList.add('filled');
+}
 
 function lookupTiming(region, md){
   const table = TIMING_TABLE[region]; if(!table) return null;
@@ -548,7 +576,7 @@ function activeVarietyIdx(){
 }
 function varietyLabel(i){
   const sel = document.getElementById('v'+(i+1)+'_sel').value;
-  const map={mibaek2:'미백2호',daehak:'대학찰,연농2호',miheuk:'미흑찰 등'};
+  const map={mibaek2:'미백2호',daehak:'대학찰,연농2호',miheuk:'미흑찰',ilmi:'일미찰',yeonja:'연자흑찰',eolluk:'얼룩찰',chalok4:'찰옥4호',baksa:'박사찰'};
   return map[sel] || ('품종'+(i+1));
 }
 function varietyWeight(i){
