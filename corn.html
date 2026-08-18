@@ -246,7 +246,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
       <div class="field"><label>보험가입금액</label><span class="unit-badge">원</span>
         <input type="text" id="ins_amount" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>표준가격(자동)</label><span class="unit-badge">원/kg</span>
-        <input type="text" id="unit_price" class="inp" inputmode="decimal" oninput="_priceManuallyEdited=true;onCommaInput(this)" onblur="calc()"></div>
+        <input type="text" id="unit_price" class="auto" readonly></div>
       <div class="field"><label>자기부담비율</label>
         <select id="self_rate" class="inp" onchange="markFilled(this);calc()">
           <option value="">선택</option>
@@ -498,13 +498,11 @@ const VARIETY_WEIGHT = {mibaek2:180, daehak:160, miheuk:190, ilmi:190, yeonja:19
 // 표준가격(25년 기준, 원/kg) - 강원도만 별도, 나머지는 전국 동일
 const STANDARD_PRICE = {'강원':2271};
 const STANDARD_PRICE_DEFAULT = 1992;
-let _priceManuallyEdited = false;
 function autofillUnitPrice(){
-  if(_priceManuallyEdited) return;
   const region = document.getElementById('region').value;
-  if(!region) return;
-  const price = STANDARD_PRICE[region] !== undefined ? STANDARD_PRICE[region] : STANDARD_PRICE_DEFAULT;
   const el = document.getElementById('unit_price');
+  if(!region){ el.value=''; el.classList.remove('filled'); return; }
+  const price = STANDARD_PRICE[region] !== undefined ? STANDARD_PRICE[region] : STANDARD_PRICE_DEFAULT;
   el.value = price.toLocaleString();
   el.classList.add('filled');
 }
@@ -862,7 +860,7 @@ function loadHistoryRecord(idx){
   try{ records=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); }catch(e){}
   const r=records[idx];
   if(!r) return;
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -871,6 +869,7 @@ function loadHistoryRecord(idx){
     if(el.type==='date') markFilled(el);
     else if(el.classList) el.classList.toggle('filled', v!=='');
   });
+  autofillUnitPrice();
   if(r.samples && Array.isArray(r.samples)) samples = JSON.parse(JSON.stringify(r.samples));
   renderSamples();
   closeHistoryModal();
@@ -981,7 +980,7 @@ function loadState(){
     const raw = localStorage.getItem('corn_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate'];
+    const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
@@ -990,6 +989,7 @@ function loadState(){
         if(el.type==='date') markFilled(el); else el.classList.add('filled');
       }
     });
+    autofillUnitPrice();
     if(s.v1_sel){ document.getElementById('v1_sel').value=s.v1_sel; document.getElementById('v1_sel').classList.add('filled'); }
     if(s.v2_sel){ document.getElementById('v2_sel').value=s.v2_sel; document.getElementById('v2_sel').classList.add('filled'); }
     if(s.v3_sel){ document.getElementById('v3_sel').value=s.v3_sel; document.getElementById('v3_sel').classList.add('filled'); }
