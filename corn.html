@@ -244,9 +244,9 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     </div>
     <div class="g3">
       <div class="field"><label>보험가입금액</label><span class="unit-badge">원</span>
-        <input type="number" id="ins_amount" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="ins_amount" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>표준가격</label><span class="unit-badge">원/kg</span>
-        <input type="number" id="unit_price" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="unit_price" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>자기부담비율</label>
         <select id="self_rate" class="inp" onchange="markFilled(this);calc()">
           <option value="">선택</option>
@@ -264,19 +264,19 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     <div class="sec-title">면적정보</div>
     <div class="g3">
       <div class="field"><label>표준수확량</label><span class="unit-badge">kg</span>
-        <input type="number" id="std_yield" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="std_yield" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>가입면적</label><span class="unit-badge">㎡</span>
-        <input type="number" id="ins_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="ins_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>실제경작면적</label><span class="unit-badge">㎡</span>
-        <input type="number" id="act_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="updateSamplesAndCalc()"></div>
+        <input type="text" id="act_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()"></div>
     </div>
     <div class="g3">
       <div class="field"><label>고사면적</label><span class="unit-badge">㎡</span>
-        <input type="number" id="dead_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="dead_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>타작물/미보상</label><span class="unit-badge">㎡</span>
-        <input type="number" id="other_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="other_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
       <div class="field"><label>기수확면적</label><span class="unit-badge">㎡</span>
-        <input type="number" id="harv_area" class="inp" inputmode="decimal" oninput="markFilled(this)" onblur="calc()"></div>
+        <input type="text" id="harv_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
     </div>
     <div class="g3">
       <div class="field">
@@ -329,7 +329,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title">표본구간 조사 <span id="sample-count-badge" style="font-size:13px;font-weight:700;color:var(--green)"></span></div>
+      <div class="sec-title">표본구간 조사</div>
     </div>
     <div style="font-size:10px;color:var(--hint);margin-bottom:8px">이랑길이·이랑폭(m) / 품종별 상품·중품·하품목이하 개수</div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -521,7 +521,14 @@ function markFilled(el){
   }
 }
 
-function toNum(id){ const el=document.getElementById(id); if(!el) return 0; const v=parseFloat(el.value); return isNaN(v)?0:v; }
+function toNum(id){ const el=document.getElementById(id); if(!el) return 0; const v=parseFloat((el.value||'').replace(/,/g,'')); return isNaN(v)?0:v; }
+function onCommaInput(el){
+  const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
+  const parts = raw.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value = parts.slice(0,2).join('.');
+  el.classList.toggle('filled', el.value!=='' && el.value!=='0');
+}
 
 // ───────────────────────────────────────────── 품종 ─────────────────────────────────────────────
 function onVarietyChange(i){
@@ -563,7 +570,6 @@ function updateSamplesAndCalc(){
   if(need>0 && samples.length===0){
     for(let i=0;i<need;i++) samples.push(newSample());
   }
-  document.getElementById('sample-count-badge').textContent = samples.length>0 ? `(적정 ${need}구간 이상 · 현재 ${samples.length}구간)` : '';
   renderSamples();
   calc();
 }
@@ -876,7 +882,9 @@ function saveToHistory(){
 // ───────────────────────────────────────────── 초기화 ─────────────────────────────────────────────
 function openResetModal(){ document.getElementById('reset-overlay').classList.add('show'); }
 function closeResetModal(){ document.getElementById('reset-overlay').classList.remove('show'); }
+let _skipSaveOnUnload = false;
 function confirmResetAll(){
+  _skipSaveOnUnload = true;
   try{ localStorage.removeItem('corn_state'); }catch(e){}
   location.reload();
 }
@@ -963,7 +971,7 @@ function loadState(){
   }catch(e){ return false; }
 }
 
-window.addEventListener('beforeunload', saveState);
+window.addEventListener('beforeunload', ()=>{ if(!_skipSaveOnUnload) saveState(); });
 document.querySelectorAll('.datewrap input[type=date]').forEach(inp=>{
   inp.addEventListener('click', ()=>{ try{ if(inp.showPicker) inp.showPicker(); }catch(e){} });
 });
