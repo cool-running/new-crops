@@ -617,9 +617,14 @@ function renderSamples(){
   const tfootEl = document.getElementById('sample-tfoot');
   const activeIdx = activeVarietyIdx();
   const gradeColCount = activeIdx.length*3;
-  const gradePct = (72/gradeColCount).toFixed(2);
+  let noPct, lenPct, widPct;
+  if(activeIdx.length<=1){ noPct=7; lenPct=17; widPct=17; }
+  else if(activeIdx.length===2){ noPct=7; lenPct=14; widPct=14; }
+  else { noPct=7; lenPct=10.5; widPct=10.5; }
+  const remainPct = 100 - noPct - lenPct - widPct;
+  const gradePct = gradeColCount>0 ? (remainPct/gradeColCount).toFixed(2) : 0;
 
-  let cols = `<col style="width:7%"><col style="width:10.5%"><col style="width:10.5%">`;
+  let cols = `<col style="width:${noPct}%"><col style="width:${lenPct}%"><col style="width:${widPct}%">`;
   activeIdx.forEach(()=>{ cols += `<col style="width:${gradePct}%"><col style="width:${gradePct}%"><col style="width:${gradePct}%">`; });
   colEl.innerHTML = cols;
 
