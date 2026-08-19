@@ -378,8 +378,8 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 
   <div class="result-box pending" id="result-section">
     <div class="result-top-row">
-      <div style="flex:1">
-        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:2px">피해율</div>
+      <div style="flex:1;display:flex;align-items:baseline;gap:8px">
+        <div style="font-size:14px;color:rgba(255,255,255,0.85);font-weight:700">피해율</div>
         <div class="result-pct" id="result-pct">- -</div>
       </div>
       <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
@@ -395,14 +395,12 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 <!-- 캡처 템플릿 -->
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:600px;background:linear-gradient(180deg,#2d5016 0%,#5B7E3F 100%);padding:0;box-sizing:border-box">
-    <div style="padding:22px 20px 20px;display:flex;align-items:flex-end;justify-content:space-between;color:#fff">
-      <div style="display:flex;align-items:center;gap:8px">
+    <div style="padding:22px 20px 20px;display:flex;flex-direction:column;gap:4px;color:#fff">
+      <span id="cap-date-disp" style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85)"></span>
+      <span id="cap-farmno-disp" style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85)"></span>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
         <span style="font-size:22px">🌽</span>
-        <span style="font-size:18px;font-weight:800">옥수수 수확량조사 결과</span>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-        <span id="cap-date-disp" style="font-size:14px;font-weight:800;color:#fff"></span>
-        <span id="cap-farmno-disp" style="font-size:14px;font-weight:800;color:#fff"></span>
+        <span style="font-size:18px;font-weight:800">수확량조사 결과</span>
       </div>
     </div>
     <div style="background:#f3f4f6;border-radius:20px 20px 0 0;padding:20px 16px 24px;display:flex;flex-direction:column;gap:14px">
@@ -424,18 +422,14 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
         <div id="cap-sample-wrap" style="overflow-x:auto"></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;padding:16px 14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+      <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:14px;font-weight:900;color:#2d5016;margin-bottom:10px">3. 결과</div>
-        <div style="display:flex;align-items:baseline;gap:8px;padding-bottom:12px;margin-bottom:12px;border-bottom:1.5px solid #eee">
-          <span style="font-size:14px;font-weight:800;color:#333">피해율</span>
-          <b id="cap-pct" style="color:#5B7E3F;font-size:24px;font-weight:900">-</b>
-        </div>
         <table style="width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
           <tr>
-            <td class="cap-th">피해수확량</td><td class="cap-th">손해액</td><td class="cap-th">보험금</td>
+            <td class="cap-th">피해율</td><td class="cap-th">피해수확량</td><td class="cap-th">손해액</td><td class="cap-th">보험금</td>
           </tr>
           <tr>
-            <td id="cap-damage" class="cap-td">-</td><td id="cap-loss" class="cap-td">-</td><td id="cap-payout" class="cap-td">-</td>
+            <td id="cap-pct" class="cap-td" style="color:#5B7E3F;font-weight:900;font-size:13px">-</td><td id="cap-damage" class="cap-td">-</td><td id="cap-loss" class="cap-td">-</td><td id="cap-payout" class="cap-td">-</td>
           </tr>
         </table>
       </div>
@@ -959,8 +953,8 @@ function confirmResetAll(){
 function buildCaptureSampleTable(){
   const activeIdx = activeVarietyIdx();
   const needWide = activeIdx.length>1;
-  let html = `<table style="width:100%;border-collapse:collapse;font-size:10.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;table-layout:fixed;${needWide?'min-width:'+(300+activeIdx.length*130)+'px':''}">`;
-  html += `<tr><td class="cap-th" rowspan="2" style="width:22px">No</td><td class="cap-th" rowspan="2">길이<br>(m)</td><td class="cap-th" rowspan="2">폭<br>(m)</td>`;
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:10.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;table-layout:fixed;${needWide?'min-width:'+(280+activeIdx.length*130)+'px':''}">`;
+  html += `<tr><td class="cap-th" rowspan="2" style="width:34px">No</td><td class="cap-th" rowspan="2">길이×폭(m)</td>`;
   activeIdx.forEach(vi=>{ html += `<td class="cap-th" colspan="3">${varietyLabel(vi)}</td>`; });
   html += `</tr><tr>`;
   activeIdx.forEach(()=>{ html += `<td class="cap-th">상품</td><td class="cap-th">중품</td><td class="cap-th">하품</td>`; });
@@ -968,9 +962,10 @@ function buildCaptureSampleTable(){
   samples.forEach((s,idx)=>{
     const lenV = (s.len!==''&&s.len!==undefined) ? s.len : '';
     const widV = (s.wid!==''&&s.wid!==undefined) ? s.wid : '';
+    const hasDim = lenV || widV;
+    const dimText = hasDim ? `${lenV||'-'}×${widV||'-'}` : '-';
     html += `<tr><td class="cap-td">${idx+1}</td>`;
-    html += `<td class="cap-td${lenV?' cap-td-filled':''}">${lenV||'-'}</td>`;
-    html += `<td class="cap-td${widV?' cap-td-filled':''}">${widV||'-'}</td>`;
+    html += `<td class="cap-td${hasDim?' cap-td-filled':''}">${dimText}</td>`;
     activeIdx.forEach(vi=>{
       ['sang','jung','ha'].forEach(f=>{
         const v = s.v[vi][f];
