@@ -396,12 +396,14 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:600px;background:linear-gradient(180deg,#2d5016 0%,#5B7E3F 100%);padding:0;box-sizing:border-box">
     <div style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;flex-wrap:nowrap">
-      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-        <span id="cap-date-disp"></span><span style="opacity:0.6">·</span><span id="cap-farmno-disp"></span>
+      <div style="display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+        <span id="cap-date-disp" style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.9)"></span>
+        <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.6)">·</span>
+        <span id="cap-farmno-disp" style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.9)"></span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">
-        <span style="font-size:18px">🌽</span>
-        <span style="font-size:15px;font-weight:800">수확량조사 결과</span>
+        <span style="font-size:17px;line-height:1">🌽</span>
+        <span style="font-size:14px;font-weight:800;line-height:1">옥수수 수확량조사 결과</span>
       </div>
     </div>
     <div style="background:#f3f4f6;border-radius:20px 20px 0 0;padding:20px 16px 24px;display:flex;flex-direction:column;gap:14px">
@@ -411,7 +413,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
           <span style="font-size:14px;font-weight:900;color:#2d5016">1. 면적조사</span>
           <span style="font-size:10px;font-weight:600;color:#999">(단위: ㎡)</span>
         </div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;table-layout:fixed">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #d1d5db;table-layout:fixed">
           <tr>
             <td class="cap-th">실제경작</td><td class="cap-th">고사</td><td class="cap-th">타작물·미보상</td><td class="cap-th">기수확</td><td class="cap-th">조사대상</td>
           </tr>
@@ -428,7 +430,8 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 
       <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:14px;font-weight:900;color:#2d5016;margin-bottom:10px">3. 결과</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid #d1d5db;table-layout:fixed">
+          <colgroup><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup>
           <tr>
             <td class="cap-th">피해율</td><td class="cap-th">피해수확량</td><td class="cap-th">손해액</td><td class="cap-th">보험금</td>
           </tr>
@@ -957,14 +960,14 @@ function confirmResetAll(){
 function buildCaptureSampleTable(){
   const activeIdx = activeVarietyIdx();
   const gradeCount = activeIdx.length*3;
-  const noPct=8, lenPct=13, widPct=13;
+  const noPct=7, lenPct=12.5, widPct=12.5;
   const gradePct = gradeCount>0 ? ((100-noPct-lenPct-widPct)/gradeCount).toFixed(2) : 0;
-  const minWidth = 260 + activeIdx.length*120;
+  const minWidth = 250 + activeIdx.length*120;
 
   let cols = `<col style="width:${noPct}%"><col style="width:${lenPct}%"><col style="width:${widPct}%">`;
   activeIdx.forEach(()=>{ cols += `<col style="width:${gradePct}%"><col style="width:${gradePct}%"><col style="width:${gradePct}%">`; });
 
-  let html = `<table style="width:100%;border-collapse:collapse;font-size:10.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;table-layout:fixed;min-width:${minWidth}px"><colgroup>${cols}</colgroup>`;
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:10.5px;border:1px solid #d1d5db;table-layout:fixed;min-width:${minWidth}px"><colgroup>${cols}</colgroup>`;
   html += `<tr><td class="cap-th" rowspan="2">No</td><td class="cap-th" rowspan="2">길이(m)</td><td class="cap-th" rowspan="2">폭(m)</td>`;
   activeIdx.forEach(vi=>{ html += `<td class="cap-th" colspan="3" style="font-size:9.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:1px;padding-right:1px">${varietyLabel(vi)}</td>`; });
   html += `</tr><tr>`;
