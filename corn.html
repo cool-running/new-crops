@@ -145,6 +145,11 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 .sum-strip span{font-size:12px;color:var(--sub)}
 .sum-strip strong{font-size:13px;font-weight:800;color:var(--text)}
 
+/* 갤러리 캡처 템플릿 */
+.cap-th{padding:7px 3px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db;text-align:center}
+.cap-td{padding:7px 3px;border:1px solid #d1d5db;text-align:center;background:#fff;color:#111;font-weight:600}
+.cap-td-filled{background:#e8faf3;color:#000;font-weight:700}
+
 
 .result-box{background:linear-gradient(135deg,#5B7E3F 0%,#7FAD52 100%);border-radius:18px;padding:14px 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(91,126,63,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
 .result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
@@ -389,39 +394,52 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 
 <!-- 캡처 템플릿 -->
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;background:#f3f4f6;padding:0;z-index:-1">
-  <div style="min-height:600px;background:linear-gradient(180deg,#2d5016 0%,#7FAD52 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
-    <div style="height:26px"></div>
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
-      <div style="font-size:15px;font-weight:700">옥수수 피해율 계산결과</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+  <div style="min-height:600px;background:linear-gradient(180deg,#2d5016 0%,#5B7E3F 100%);padding:0;box-sizing:border-box">
+    <div style="padding:22px 20px 20px;display:flex;align-items:flex-end;justify-content:space-between;color:#fff">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:22px">🌽</span>
+        <span style="font-size:18px;font-weight:800">옥수수 수확량조사 결과</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
         <span id="cap-date-disp" style="font-size:14px;font-weight:800;color:#fff"></span>
         <span id="cap-farmno-disp" style="font-size:14px;font-weight:800;color:#fff"></span>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="background:#f3f4f6;border-radius:20px 20px 0 0;padding:20px 16px 24px;display:flex;flex-direction:column;gap:14px">
+
       <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:14px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <table style="width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
-          <tr><td style="padding:6px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db;width:30%">계약자</td><td id="cap-farmer" style="padding:6px;border:1px solid #d1d5db;text-align:center">-</td>
-          <td style="padding:6px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db;width:25%">지역</td><td id="cap-region" style="padding:6px;border:1px solid #d1d5db;text-align:center">-</td></tr>
-          <tr><td style="padding:6px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db">실제경작면적</td><td id="cap-actarea" style="padding:6px;border:1px solid #d1d5db;text-align:center">-</td>
-          <td style="padding:6px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db">표준수확량</td><td id="cap-stdyield" style="padding:6px;border:1px solid #d1d5db;text-align:center">-</td></tr>
+        <div style="font-size:14px;font-weight:900;color:#2d5016;margin-bottom:10px">1. 면적조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;table-layout:fixed">
+          <tr>
+            <td class="cap-th">실제경작(㎡)</td><td class="cap-th">고사(㎡)</td><td class="cap-th">타작물·미보상(㎡)</td><td class="cap-th">기수확(㎡)</td><td class="cap-th">조사대상(㎡)</td>
+          </tr>
+          <tr>
+            <td id="cap-actarea" class="cap-td">-</td><td id="cap-dead" class="cap-td">-</td><td id="cap-other" class="cap-td">-</td><td id="cap-harv" class="cap-td">-</td><td id="cap-surveyarea" class="cap-td">-</td>
+          </tr>
         </table>
       </div>
+
       <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:14px;font-weight:900;color:#111;margin-bottom:10px">2. 지수 및 조사대상면적</div>
+        <div style="font-size:14px;font-weight:900;color:#2d5016;margin-bottom:10px">2. 표본조사</div>
+        <div id="cap-sample-wrap" style="overflow-x:auto"></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;padding:16px 14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:14px;font-weight:900;color:#2d5016;margin-bottom:10px">3. 결과</div>
+        <div style="display:flex;align-items:baseline;gap:8px;padding-bottom:12px;margin-bottom:12px;border-bottom:1.5px solid #eee">
+          <span style="font-size:14px;font-weight:800;color:#333">피해율</span>
+          <b id="cap-pct" style="color:#5B7E3F;font-size:24px;font-weight:900">-</b>
+        </div>
         <table style="width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
-          <tr><td style="padding:6px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db;width:30%">재식시기지수</td><td id="cap-timingidx" style="padding:6px;border:1px solid #d1d5db;text-align:center">-</td>
-          <td style="padding:6px;background:#5B7E3F;color:#fff;font-weight:700;border:1px solid #d1d5db;width:25%">조사대상면적</td><td id="cap-surveyarea" style="padding:6px;border:1px solid #d1d5db;text-align:center">-</td></tr>
+          <tr>
+            <td class="cap-th">피해수확량</td><td class="cap-th">손해액</td><td class="cap-th">보험금</td>
+          </tr>
+          <tr>
+            <td id="cap-damage" class="cap-td">-</td><td id="cap-loss" class="cap-td">-</td><td id="cap-payout" class="cap-td">-</td>
+          </tr>
         </table>
       </div>
-      <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:14px;font-weight:900;color:#111;margin-bottom:10px">3. 결과</div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:12.5px"><span style="color:#666">피해수확량</span><b id="cap-damage">-</b></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:12.5px"><span style="color:#666">손해액</span><b id="cap-loss">-</b></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:12.5px"><span style="color:#666">보험금</span><b id="cap-payout">-</b></div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0 2px;font-size:15px"><span style="color:#111;font-weight:800">피해율</span><b id="cap-pct" style="color:#5B7E3F;font-size:18px">-</b></div>
-      </div>
+
     </div>
   </div>
 </div>
@@ -783,7 +801,7 @@ function calc(){
     boxEl.classList.add('pending');
   }
 
-  window._calcResult = {region, timingIdx, stdYield, actArea, surveyArea, insAmount, totalDamageYield, uninsLoss, lossAmount, payout, damageRate};
+  window._calcResult = {region, timingIdx, stdYield, actArea, deadArea, otherArea, harvArea, surveyArea, insAmount, totalDamageYield, uninsLoss, lossAmount, payout, damageRate};
 }
 
 // ───────────────────────────────────────────── 잠금/수정 ─────────────────────────────────────────────
@@ -938,17 +956,50 @@ function confirmResetAll(){
 }
 
 // ───────────────────────────────────────────── 갤러리 저장 ─────────────────────────────────────────────
+function buildCaptureSampleTable(){
+  const activeIdx = activeVarietyIdx();
+  const needWide = activeIdx.length>1;
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:10.5px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;table-layout:fixed;${needWide?'min-width:'+(300+activeIdx.length*130)+'px':''}">`;
+  html += `<tr><td class="cap-th" rowspan="2" style="width:22px">No</td><td class="cap-th" rowspan="2">길이<br>(m)</td><td class="cap-th" rowspan="2">폭<br>(m)</td>`;
+  activeIdx.forEach(vi=>{ html += `<td class="cap-th" colspan="3">${varietyLabel(vi)}</td>`; });
+  html += `</tr><tr>`;
+  activeIdx.forEach(()=>{ html += `<td class="cap-th">상품</td><td class="cap-th">중품</td><td class="cap-th">하품</td>`; });
+  html += `</tr>`;
+  samples.forEach((s,idx)=>{
+    const lenV = (s.len!==''&&s.len!==undefined) ? s.len : '';
+    const widV = (s.wid!==''&&s.wid!==undefined) ? s.wid : '';
+    html += `<tr><td class="cap-td">${idx+1}</td>`;
+    html += `<td class="cap-td${lenV?' cap-td-filled':''}">${lenV||'-'}</td>`;
+    html += `<td class="cap-td${widV?' cap-td-filled':''}">${widV||'-'}</td>`;
+    activeIdx.forEach(vi=>{
+      ['sang','jung','ha'].forEach(f=>{
+        const v = s.v[vi][f];
+        const has = v!==''&&v!==undefined&&v!=='0';
+        html += `<td class="cap-td${has?' cap-td-filled':''}">${(v!==''&&v!==undefined)?v:'-'}</td>`;
+      });
+    });
+    html += `</tr>`;
+  });
+  html += `</table>`;
+  return html;
+}
+
 function saveImage(){
   const r = window._calcResult||{};
   document.getElementById('cap-date-disp').textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
-  document.getElementById('cap-farmno-disp').textContent = document.getElementById('farm_no').value ? '농지 '+document.getElementById('farm_no').value : '';
-  document.getElementById('cap-farmer').textContent = document.getElementById('farmer_name').value || '-';
-  document.getElementById('cap-region').textContent = r.region || '-';
+  const farmerNm = document.getElementById('farmer_name').value;
+  const farmNo = document.getElementById('farm_no').value;
+  document.getElementById('cap-farmno-disp').textContent = farmerNm||farmNo ? `${farmerNm||'-'}(${farmNo||'-'})` : '';
+
   document.getElementById('cap-actarea').textContent = r.actArea ? r.actArea.toLocaleString()+' ㎡' : '-';
-  document.getElementById('cap-stdyield').textContent = r.stdYield ? r.stdYield.toLocaleString()+' kg' : '-';
-  document.getElementById('cap-timingidx').textContent = r.timingIdx!==null&&r.timingIdx!==undefined ? r.timingIdx.toFixed(2) : '-';
-  document.getElementById('cap-surveyarea').textContent = r.surveyArea ? r.surveyArea.toFixed(1)+' ㎡' : '-';
-  document.getElementById('cap-damage').textContent = r.totalDamageYield ? r.totalDamageYield.toFixed(1)+' kg' : '-';
+  document.getElementById('cap-dead').textContent = r.deadArea ? r.deadArea.toLocaleString()+' ㎡' : '-';
+  document.getElementById('cap-other').textContent = r.otherArea ? r.otherArea.toLocaleString()+' ㎡' : '-';
+  document.getElementById('cap-harv').textContent = r.harvArea ? r.harvArea.toLocaleString()+' ㎡' : '-';
+  document.getElementById('cap-surveyarea').textContent = r.surveyArea ? r.surveyArea.toLocaleString(undefined,{maximumFractionDigits:1})+' ㎡' : '-';
+
+  document.getElementById('cap-sample-wrap').innerHTML = buildCaptureSampleTable();
+
+  document.getElementById('cap-damage').textContent = r.totalDamageYield ? r.totalDamageYield+' kg' : '-';
   document.getElementById('cap-loss').textContent = r.lossAmount ? Math.round(r.lossAmount).toLocaleString()+' 원' : '-';
   document.getElementById('cap-payout').textContent = r.payout ? Math.round(r.payout).toLocaleString()+' 원' : '-';
   document.getElementById('cap-pct').textContent = r.damageRate!==undefined ? (r.damageRate*100).toFixed(2)+'%' : '-';
@@ -969,6 +1020,7 @@ function saveImage(){
     });
   });
 }
+
 
 // ───────────────────────────────────────────── 상태 저장/복원 ─────────────────────────────────────────────
 function saveState(){
