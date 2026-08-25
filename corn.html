@@ -144,6 +144,8 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 .sum-strip{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
 .sum-strip span{font-size:12px;color:var(--sub)}
 .sum-strip strong{font-size:13px;font-weight:800;color:var(--text)}
+.density-ok{font-size:11px;font-weight:800;color:#1D9E75;background:#e8faf3;border-radius:6px;padding:2px 6px}
+.density-bad{font-size:11px;font-weight:800;color:#c0392b;background:#FFF0F0;border-radius:6px;padding:2px 6px}
 
 /* 갤러리 캡처 템플릿 */
 .cap-th{height:34px;padding:4px 3px;background:#5B7E3F;color:#fff;font-weight:700;font-size:10.5px;border:1px solid #d1d5db;text-align:center;vertical-align:middle;line-height:1.25;box-sizing:border-box}
@@ -372,6 +374,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     <div class="sum-strip" id="sum-strip" style="display:none">
       <span>표본구간 면적합계: <strong id="s-area">-</strong></span>
       <span>표본피해수확량 합계: <strong id="s-damage">-</strong></span>
+      <span>재식주수(10a당): <strong id="s-density">-</strong> <span id="s-density-badge"></span></span>
     </div>
   </div>
 
@@ -524,6 +527,11 @@ const DENSITY_REGION_MAP = {
   '강원':'강원','경기,서울':'경기,인천,서울','인천':'경기,인천,서울',
   '충북,충남,대전,세종':'충북,충남,대전','전북':'전북,전남,광주,제주','전남,광주,제주':'전북,전남,광주,제주',
   '경북,대구':'경북,대구','경남,울산,부산':'경남,울산,부산'
+};
+// 적정 재식밀도 범위 (10a당 재식주수) - 전북,전남,광주,제주만 하한 3000, 나머지 3500 / 상한 공통 5000
+const DENSITY_OK_RANGE = {
+  '강원':[3500,5000],'경기,인천,서울':[3500,5000],'충북,충남,대전':[3500,5000],
+  '전북,전남,광주,제주':[3000,5000],'경북,대구':[3500,5000],'경남,울산,부산':[3500,5000]
 };
 const VARIETY_WEIGHT = {mibaek2:180, daehak:160, miheuk:190, ilmi:190, yeonja:190, eolluk:190, chalok4:190, baksa:190};
 // 표준가격(25년 기준, 원/kg) - 강원도만 별도, 나머지는 전국 동일
@@ -779,12 +787,28 @@ function calc(){
   // ── 재식주수(10a당) → 재식밀도지수: 표본 전체 평균 이랑길이·폭 기준 1회 산출 ──
   // 주간 = 평균 이랑길이 / 5 (표본구간 1개당 5주 기준, 공식 계산기 방식)
   let densityIdx = 1;
+  let plantDensity = 0;
   if(dimCount>0 && densityRegionGroup){
     const avgLen = sumLen/dimCount;
     const avgWid = sumWid/dimCount;
     const jugan = avgLen/5;
-    const plantDensity = (jugan>0 && avgWid>0) ? (plantRows/(jugan*avgWid))*1000 : 0;
+    plantDensity = (jugan>0 && avgWid>0) ? (plantRows/(jugan*avgWid))*1000 : 0;
     if(plantDensity>0) densityIdx = lookupDensity(densityRegionGroup, plantDensity);
+  }
+  const densityEl = document.getElementById('s-density');
+  const densityBadgeEl = document.getElementById('s-density-badge');
+  if(plantDensity>0){
+    densityEl.textContent = Math.round(plantDensity).toLocaleString();
+    const range = densityRegionGroup ? DENSITY_OK_RANGE[densityRegionGroup] : null;
+    if(range){
+      const ok = plantDensity>=range[0] && plantDensity<=range[1];
+      densityBadgeEl.textContent = ok ? '적정' : '부적정';
+      densityBadgeEl.className = ok ? 'density-ok' : 'density-bad';
+    } else {
+      densityBadgeEl.textContent=''; densityBadgeEl.className='';
+    }
+  } else {
+    densityEl.textContent='-'; densityBadgeEl.textContent=''; densityBadgeEl.className='';
   }
   const useTiming = timingIdx!==null ? timingIdx : 1;
 
