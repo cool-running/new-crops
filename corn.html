@@ -227,7 +227,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 
   <div class="section">
     <div class="sec-title">가입정보</div>
-    <div class="g2">
+    <div class="g3">
       <div class="field">
         <label>지역</label>
         <select id="region" class="inp" onchange="markFilled(this);autofillUnitPrice();calc()">
@@ -245,6 +245,10 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
       <div class="field">
         <label>재식일자(파종일)</label>
         <div class="datewrap"><div class="date-disp ph" data-ph="재식일자">재식일자</div><input type="date" id="plant_date" onchange="markFilled(this);calc()"></div>
+      </div>
+      <div class="field">
+        <label>이랑줄수</label>
+        <input type="number" id="plant_rows" class="inp filled" value="1" inputmode="decimal" oninput="markFilled(this);calc()">
       </div>
     </div>
     <div class="g3">
@@ -737,6 +741,7 @@ function calc(){
   const harvArea = toNum('harv_area');
   const insAmount = toNum('ins_amount');
   const unitPrice = toNum('unit_price');
+  const plantRows = toNum('plant_rows') || 1;
   const selfRateEl = document.getElementById('self_rate');
   const selfRate = selfRateEl.value? parseFloat(selfRateEl.value) : 0;
   const uninsRate = toNum('unins_rate')/100;
@@ -748,38 +753,54 @@ function calc(){
   const activeIdx = activeVarietyIdx();
   const densityRegionGroup = region ? DENSITY_REGION_MAP[region] : null;
 
-  let sumArea = 0, sumDamage = 0;
+  // ── 표본구간별 피해수확량(지수 미반영) + 면적/이랑길이·폭 평균 집계 ──
+  let sumArea = 0, sumDamage = 0, sumLen = 0, sumWid = 0, dimCount = 0;
 
-  samples.forEach((s, idx)=>{
+  samples.forEach((s)=>{
     const len = parseFloat(s.len)||0;
     const wid = parseFloat(s.wid)||0;
     const area = len*wid;
-    let rawDamage = 0; // kg, before timing/density idx
-    let totalCount = 0;
+    let rawDamage = 0; // kg, 재식시기·밀도지수 미반영 (전산 공식: 지수는 전체 평균 1회만 적용)
     activeIdx.forEach(vi=>{
-      const sang = parseFloat(s.v[vi].sang)||0;
       const jung = parseFloat(s.v[vi].jung)||0;
       const ha = parseFloat(s.v[vi].ha)||0;
-      totalCount += sang+jung+ha;
       const cnt = ha + jung*0.5;
       const wKg = varietyWeight(vi)/1000;
       rawDamage += cnt * wKg;
     });
-    const localDensity = area>0 ? (totalCount/area)*1000 : 0;
-    const densityIdx = (densityRegionGroup && localDensity>0) ? lookupDensity(densityRegionGroup, localDensity) : 1;
-    const useTiming = timingIdx!==null ? timingIdx : 1;
-    const sampleDamage = rawDamage * useTiming * densityIdx;
-
     sumArea += area;
-    sumDamage += sampleDamage;
+    sumDamage += rawDamage;
+    if(len>0 && wid>0){ sumLen += len; sumWid += wid; dimCount++; }
   });
 
   document.getElementById('s-area').textContent = sumArea>0 ? sumArea.toFixed(2)+' ㎡' : '-';
   document.getElementById('s-damage').textContent = sumDamage>0 ? sumDamage.toFixed(3)+' kg' : '-';
 
-  const unitDamage = sumArea>0 ? sumDamage/sumArea : 0;
-  const totalDamageYieldRaw = unitDamage*surveyArea + unitStdYield*deadArea;
-  const totalDamageYield = Math.floor(totalDamageYieldRaw); // 전산 실사례 대조: 정수 kg 절사 후 손해액 산정
+  // ── 재식주수(10a당) → 재식밀도지수: 표본 전체 평균 이랑길이·폭 기준 1회 산출 ──
+  // 주간 = 평균 이랑길이 / 5 (표본구간 1개당 5주 기준, 공식 계산기 방식)
+  let densityIdx = 1;
+  if(dimCount>0 && densityRegionGroup){
+    const avgLen = sumLen/dimCount;
+    const avgWid = sumWid/dimCount;
+    const jugan = avgLen/5;
+    const plantDensity = (jugan>0 && avgWid>0) ? (plantRows/(jugan*avgWid))*1000 : 0;
+    if(plantDensity>0) densityIdx = lookupDensity(densityRegionGroup, plantDensity);
+  }
+  const useTiming = timingIdx!==null ? timingIdx : 1;
+
+  const unitDamage = sumArea>0 ? Math.round((sumDamage/sumArea)*1000)/1000 : 0; // 표본구간 단위면적당 피해수확량 (소수 3자리 반올림, 공식 계산기 방식)
+
+  // 대학찰(단일품종일 때만 특례): (단.표.수-0.0162*고사면적) 적용 + 10 단위 절사
+  const isDaehakOnly = activeIdx.length===1 && document.getElementById('v1_sel').value==='daehak';
+  let totalDamageYield;
+  if(isDaehakOnly){
+    const raw = (unitStdYield - 0.0162*deadArea) + unitDamage*surveyArea*useTiming*densityIdx;
+    totalDamageYield = Math.floor(raw/10)*10;
+  } else {
+    const raw = unitStdYield*deadArea + unitDamage*surveyArea*useTiming*densityIdx;
+    totalDamageYield = Math.floor(raw);
+  }
+
   const uninsLoss = totalDamageYield * uninsRate;
   const lossAmount = Math.max(0,(totalDamageYield - uninsLoss)) * unitPrice;
   const selfDeductible = insAmount * selfRate;
@@ -900,7 +921,7 @@ function loadHistoryRecord(idx){
   try{ records=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); }catch(e){}
   const r=records[idx];
   if(!r) return;
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','plant_rows','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -934,7 +955,7 @@ function saveToHistory(){
   const record={ farm_no:farmNo, survey_date:surveyDate, pct,
     saved_at:new Date().toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/ /g,'')
   };
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','plant_rows','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{ const el=document.getElementById(id); if(el) record[id]=el.value; });
   record.samples = JSON.parse(JSON.stringify(samples));
   let records=[];
@@ -1040,6 +1061,7 @@ function saveState(){
     survey_date: document.getElementById('survey_date').value,
     region: document.getElementById('region').value,
     plant_date: document.getElementById('plant_date').value,
+    plant_rows: document.getElementById('plant_rows').value,
     std_yield: document.getElementById('std_yield').value,
     ins_area: document.getElementById('ins_area').value,
     act_area: document.getElementById('act_area').value,
@@ -1063,7 +1085,7 @@ function loadState(){
     const raw = localStorage.getItem('corn_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate'];
+    const fields=['farmer_name','farm_no','survey_date','region','plant_date','plant_rows','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
