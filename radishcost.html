@@ -126,6 +126,7 @@ table.smp tr.rowodd input.filled{background:var(--fill-bg)}
 .smp-rhead .rsum b{font-size:15px;font-weight:800;color:#1a1a1a}
 .smp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
 .scell{background:#f6f7f3;border:1px solid #e3e1d9;border-radius:6px;text-align:center;position:relative;height:38px}
+.scell-disabled{background:#fafaf8;border-style:dashed;opacity:0.55}
 .scell .cl{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;font-weight:600;pointer-events:none;transition:none;word-break:keep-all;line-height:1.15;padding:0 2px;text-align:center;flex-direction:column}
 .scell .ci{position:absolute;top:0;left:0;right:0;height:100%;border:none;background:transparent;text-align:center;font-size:14px;font-weight:800;color:transparent;-webkit-appearance:none;padding:6px 0 0}
 .scell .ci::placeholder{color:transparent}
@@ -226,7 +227,7 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
       </div>
       <div class="field" style="flex:0 0 22%;min-width:0">
         <label>농지번호</label>
-        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="4자리" maxlength="4" oninput="onField(this)" autocomplete="off">
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="4자리" maxlength="4" enterkeyhint="next" oninput="onField(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();const t=document.getElementById('insArea');if(t){t.focus();t.select();}}" autocomplete="off">
       </div>
       <div class="field" style="flex:1;min-width:0">
         <label>조사일자</label>
@@ -250,12 +251,12 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
       <div class="field"><label>피해면적</label><span class="unit-badge">㎡</span>
         <input type="text" id="dmgArea" class="inp" inputmode="numeric" oninput="onAreaInput(this)"></div>
     </div>
-    <div class="g2" style="margin-top:8px">
-      <div class="autobar" style="margin-top:0"><span>면적피해비율</span><b id="r-areapct">-</b></div>
-    </div>
-    <div class="g2" style="margin-top:8px;grid-template-columns:1fr">
+    <div class="g3" style="margin-top:8px">
       <div class="field"><label>미보상비율</label><span class="unit-badge">%</span>
         <input type="text" id="uninsRate" class="inp" inputmode="decimal" placeholder="%" oninput="onField(this)"></div>
+      <div class="field"><label>면적피해비율</label>
+        <input type="text" id="r-areapct" class="auto" readonly value="-"></div>
+      <div></div>
     </div>
   </div>
 
@@ -384,10 +385,10 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #e0e0e0;table-layout:fixed">
           <colgroup>
-            <col style="width:6.5%"><col style="width:7.5%"><col style="width:7%">
-            <col style="width:6.4%"><col style="width:6.4%"><col style="width:6.4%"><col style="width:6.4%"><col style="width:6.4%">
-            <col style="width:6.4%"><col style="width:6.4%"><col style="width:6.4%"><col style="width:6.4%"><col style="width:6.4%">
-            <col style="width:6.5%"><col style="width:8%">
+            <col style="width:7%"><col style="width:8%">
+            <col style="width:6.6%"><col style="width:6.6%"><col style="width:6.6%"><col style="width:6.6%"><col style="width:6.6%">
+            <col style="width:6.6%"><col style="width:6.6%"><col style="width:6.6%"><col style="width:6.6%"><col style="width:6.6%">
+            <col style="width:8%"><col style="width:11%">
           </colgroup>
           <thead id="cap-smp-head"></thead>
           <tbody id="cap-smp-body"></tbody>
@@ -516,19 +517,22 @@ function renderSamples(){
   st.samples.forEach((s,r)=>{
     h+='<div class="smp-row">';
     h+='<div class="smp-rhead"><span class="rname">'+(r+1)+'번 표본</span>'+
-       '<input inputmode="numeric" class="rang" data-r="'+r+'" value="'+(s.rang||'')+'" placeholder="이랑번호" oninput="onRang(this)">'+
        '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>주</span></div>';
     h+='<div class="smp-grid">';
     CHIP_DEFS.forEach(c=>{
+      if(c.key==='dead'){
+        h+='<div class="scell scell-disabled">'+
+           '<div class="cl">해당없음</div>'+
+           '<span class="scell-badge">기고사</span>'+
+           '<div class="ci" style="display:flex;align-items:center;justify-content:center;color:#ccc">-</div>'+
+           '</div>';
+        return;
+      }
       const v=chipVal(s,c.key);
       const has=(v!==''&&v!=null&&num(v)!==0)?' has':'';
-      const isDead=(c.key==='dead');
-      const lcls='';
-      const labelHtml=isDead?'기고사(100%산입)':c.label;
-      const badgeHtml=isDead?'기고사':c.label;
-      h+='<div class="scell'+has+lcls+'" onclick="focusCell(this)">'+
-         '<div class="cl">'+labelHtml+'</div>'+
-         '<span class="scell-badge">'+badgeHtml+'</span>'+
+      h+='<div class="scell'+has+'" onclick="focusCell(this)">'+
+         '<div class="cl">'+c.label+'</div>'+
+         '<span class="scell-badge">'+c.label+'</span>'+
          '<input inputmode="numeric" class="ci" data-r="'+r+'" data-key="'+c.key+'" value="'+(v||'')+'" placeholder="" oninput="onCell(this)">'+
          '</div>';
     });
@@ -542,12 +546,6 @@ function renderSamples(){
 function focusCell(cell){
   const inp=cell.querySelector('.ci');
   if(inp){ inp.focus(); setTimeout(()=>{try{inp.select();}catch(e){}},20); }
-}
-function onRang(el){
-  const r=+el.dataset.r;
-  st.samples[r].rang=el.value;
-  el.classList.toggle('filled',(el.value||'').trim()!=='');
-  persist();
 }
 function onCell(el){
   const r=+el.dataset.r;
@@ -642,7 +640,7 @@ function onSmp(el){
 
 function calc(){
   const ar=areaRate(),so=sonhae();
-  $('r-areapct').textContent=ar===null?'-':fmtPct(ar);
+  $('r-areapct').value=ar===null?'-':fmtPct(ar);
   $('r-sonhae').textContent=so===null?'-':fmtPct(so);
   const nj=nujeok();
   $('result-pct').textContent=(nj!==null)?fmtPct(nj):'- -';
@@ -782,7 +780,6 @@ function fillCaptureTemplate(){
   { const soHead=sonhae(); if($('cap-sonhae')) $('cap-sonhae').textContent=soHead===null?'-':fmtPct(soHead); }
   const thS='padding:4px 0;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b;font-size:9px';
   let hh='<tr><th style="'+thS+'">표본</th>'+
-    '<th style="'+thS+'">이랑</th>'+
     '<th style="padding:4px 0;background:#5B7E3F;color:#d8ecc4;border:0.5px solid #3f5a2b;font-size:9px">정상</th>'+
     '<th style="'+thS+'">10</th><th style="'+thS+'">20</th><th style="'+thS+'">30</th><th style="'+thS+'">40</th><th style="'+thS+'">50</th>'+
     '<th style="'+thS+'">60</th><th style="'+thS+'">70</th><th style="'+thS+'">80</th><th style="'+thS+'">90</th><th style="'+thS+'">100</th>'+
@@ -795,21 +792,20 @@ function fillCaptureTemplate(){
   st.samples.forEach((s,r)=>{
     let row=num(s.normal)+num(s.dead); s.d.forEach(v=>row+=num(v));
     bb+='<tr><td style="'+cell+';background:#f7f9f3;font-weight:700">'+(r+1)+'</td>'+
-        '<td style="'+cell+';background:#f7f9f3;font-weight:700">'+(s.rang||'·')+'</td>'+
         '<td style="'+cell+';font-weight:700">'+dash(s.normal)+'</td>';
     s.d.forEach(v=>{ bb+='<td style="'+cell+'">'+dash(v)+'</td>'; });
-    bb+='<td style="'+cell+'">'+dash(s.dead)+'</td>'+
+    bb+='<td style="'+cell+';color:#ccc">-</td>'+
         '<td style="'+cell+';background:#eef3e7;font-weight:800">'+(row>0?row:'·')+'</td></tr>';
   });
-  if(!bb) bb='<tr><td colspan="15" style="padding:10px;text-align:center;font-size:10px">-</td></tr>';
+  if(!bb) bb='<tr><td colspan="14" style="padding:10px;text-align:center;font-size:10px">-</td></tr>';
   // 합계행 (10~100 각 열별)
   let colAll=[0,0,0,0,0,0,0,0,0,0],dead=0,all=0,normalSum=0;
   st.samples.forEach(s=>{ normalSum+=num(s.normal); dead+=num(s.dead); let row=num(s.normal)+num(s.dead); s.d.forEach((v,k)=>{row+=num(v); colAll[k]+=num(v);}); all+=row; });
   if(st.samples.length){
-    bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td colspan="2" style="'+cell+';border-color:#e9d4a8">계</td>';
+    bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td style="'+cell+';border-color:#e9d4a8">계</td>';
     bb+='<td style="'+cell+';border-color:#e9d4a8">'+(normalSum||'·')+'</td>';
     colAll.forEach(c=>{ bb+='<td style="'+cell+';border-color:#e9d4a8">'+(c||'·')+'</td>'; });
-    bb+='<td style="'+cell+';border-color:#e9d4a8">'+(dead||'·')+'</td><td style="'+cell+';border-color:#e9d4a8">'+(all||'·')+'</td></tr>';
+    bb+='<td style="'+cell+';border-color:#e9d4a8">-</td><td style="'+cell+';border-color:#e9d4a8">'+(all||'·')+'</td></tr>';
   }
   $('cap-smp-body').innerHTML=bb;
   // 3. 결과
