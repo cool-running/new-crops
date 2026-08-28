@@ -75,6 +75,13 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">무·배추·파·시금치·양상추</div>
   </div>
 
+  <div class="crop-card done" onclick="go('broccoli')">
+    <span class="badge badge-done">완성</span>
+    <div class="crop-icon">🥦</div>
+    <div class="crop-name">브로콜리</div>
+    <div class="crop-desc">생산비 조사</div>
+  </div>
+
 </div>
 
 <script>
@@ -82,6 +89,7 @@ function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
   if(page==='corn')        location.href='./corn.html';
   if(page==='radishcost')  location.href='./radishcost.html';
+  if(page==='broccoli')    location.href='./broccoli.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
