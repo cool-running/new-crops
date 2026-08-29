@@ -41,10 +41,33 @@ function bindMobileFocusHandlers(){
     }
   });
 }
+function bindEnterNavigation(){
+  const selector = 'input.inp[type="text"], input.inp[type="number"], tbody td input';
+  const els = Array.from(document.querySelectorAll(selector)).filter(el=>el.offsetParent!==null && !el.disabled && !el.readOnly);
+  els.forEach((el, idx)=>{
+    if(!el.hasAttribute('enterkeyhint')) el.setAttribute('enterkeyhint','next');
+    if(el.dataset.enterBound === '1') return;
+    el.dataset.enterBound = '1';
+    const moveNext = ()=>{
+      const list = Array.from(document.querySelectorAll(selector)).filter(e=>e.offsetParent!==null && !e.disabled && !e.readOnly);
+      const i = list.indexOf(el);
+      const next = i>=0 ? list[i+1] : null;
+      if(next){ next.focus(); try{ next.select(); }catch(_){} }
+      else { el.blur(); }
+    };
+    el.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ e.preventDefault(); moveNext(); }
+    });
+    el.addEventListener('beforeinput', (e)=>{
+      if(e.inputType==='insertLineBreak'){ e.preventDefault(); moveNext(); }
+    });
+  });
+}
 document.addEventListener('DOMContentLoaded', ()=>{
   bindMobileFocusHandlers();
+  bindEnterNavigation();
   document.addEventListener('click', ()=>{
-    setTimeout(bindMobileFocusHandlers, 0);
+    setTimeout(()=>{ bindMobileFocusHandlers(); bindEnterNavigation(); }, 0);
   }, {passive:true});
 });
 </script>
@@ -734,6 +757,7 @@ function renderSamples(){
     inp.classList.toggle('filled', inp.value!=='' && inp.value!=='0');
   });
   bindMobileFocusHandlers();
+  bindEnterNavigation();
 }
 
 function onSampleDimInput(idx, field, el){
@@ -767,7 +791,6 @@ function calc(){
   const harvArea = toNum('harv_area');
   const insAmount = toNum('ins_amount');
   const unitPrice = toNum('unit_price');
-  const plantRows = 1; // 이랑줄수는 UI에서 제거, 항상 1로 고정
   const selfRateEl = document.getElementById('self_rate');
   const selfRate = selfRateEl.value? parseFloat(selfRateEl.value) : 0;
   const uninsRate = toNum('unins_rate')/100;
@@ -779,48 +802,47 @@ function calc(){
   const activeIdx = activeVarietyIdx();
   const densityRegionGroup = region ? DENSITY_REGION_MAP[region] : null;
 
-  // ── 표본구간별 피해수확량(지수 미반영) + 면적/이랑길이·폭 평균 집계 ──
-  let sumArea = 0, sumDamage = 0, sumLen = 0, sumWid = 0, dimCount = 0;
+  // ── 표본구간별 피해수확량: 구간마다 그 구간의 실측밀도로 재식밀도지수를 각각 계산해 바로 적용 ──
+  let sumArea = 0, sumDamage = 0, sumDensityIdx = 0, sumDensityVal = 0, densityRowCount = 0;
+  const useTiming = timingIdx!==null ? timingIdx : 1;
 
   samples.forEach((s)=>{
     const len = parseFloat(s.len)||0;
     const wid = parseFloat(s.wid)||0;
     const area = len*wid;
-    let rawDamage = 0; // kg, 재식시기·밀도지수 미반영 (전산 공식: 지수는 전체 평균 1회만 적용)
+    let totalCount = 0;
+    let rawDamage = 0; // kg, 재식시기·밀도지수 미반영
     activeIdx.forEach(vi=>{
+      const sang = parseFloat(s.v[vi].sang)||0;
       const jung = parseFloat(s.v[vi].jung)||0;
       const ha = parseFloat(s.v[vi].ha)||0;
+      totalCount += sang+jung+ha;
       const cnt = ha + jung*0.5;
       const wKg = varietyWeight(vi)/1000;
       rawDamage += cnt * wKg;
     });
+    const localDensity = area>0 ? (totalCount/area)*1000 : 0;
+    const rowDensityIdx = (densityRegionGroup && localDensity>0) ? lookupDensity(densityRegionGroup, localDensity) : 1;
+    const sampleDamage = rawDamage * useTiming * rowDensityIdx;
+
     sumArea += area;
-    sumDamage += rawDamage;
-    if(len>0 && wid>0){ sumLen += len; sumWid += wid; dimCount++; }
+    sumDamage += sampleDamage;
+    if(localDensity>0){ sumDensityVal += localDensity; sumDensityIdx += rowDensityIdx; densityRowCount++; }
   });
 
   document.getElementById('s-area').textContent = sumArea>0 ? sumArea.toFixed(2)+' ㎡' : '-';
   document.getElementById('s-damage').textContent = sumDamage>0 ? sumDamage.toFixed(3)+' kg' : '-';
 
-  // ── 재식주수(10a당) → 재식밀도지수: 표본 전체 평균 이랑길이·폭 기준 1회 산출 ──
-  // 주간 = 평균 이랑길이 / 5 (표본구간 1개당 5주 기준, 공식 계산기 방식)
-  let densityIdx = 1;
-  let plantDensity = 0;
-  if(dimCount>0 && densityRegionGroup){
-    const avgLen = sumLen/dimCount;
-    const avgWid = sumWid/dimCount;
-    const jugan = avgLen/5;
-    plantDensity = (jugan>0 && avgWid>0) ? (plantRows/(jugan*avgWid))*1000 : 0;
-    if(plantDensity>0) densityIdx = lookupDensity(densityRegionGroup, plantDensity);
-  }
+  // ── 재식주수(10a당) 표시: 구간별 실측밀도의 평균 (참고용 배지 표시에만 사용, 실제 계산은 이미 구간별로 반영됨) ──
   const densityEl = document.getElementById('s-density');
   const densityBadgeEl = document.getElementById('s-density-badge');
-  let densityStatus = null; // null=데이터없음, true=적정, false=부적정
-  if(plantDensity>0){
-    densityEl.textContent = Math.round(plantDensity).toLocaleString();
+  let densityStatus = null; // null=데이터없음, true=적정, false=부적정 (참고용 경고일 뿐 계산을 막지 않음)
+  const avgDensity = densityRowCount>0 ? sumDensityVal/densityRowCount : 0;
+  if(avgDensity>0){
+    densityEl.textContent = Math.round(avgDensity).toLocaleString();
     const range = densityRegionGroup ? DENSITY_OK_RANGE[densityRegionGroup] : null;
     if(range){
-      densityStatus = plantDensity>=range[0] && plantDensity<=range[1];
+      densityStatus = avgDensity>=range[0] && avgDensity<=range[1];
       densityBadgeEl.textContent = densityStatus ? '적정' : '부적정';
       densityBadgeEl.className = densityStatus ? 'density-ok' : 'density-bad';
     } else {
@@ -829,18 +851,17 @@ function calc(){
   } else {
     densityEl.textContent='-'; densityBadgeEl.textContent=''; densityBadgeEl.className='';
   }
-  const useTiming = timingIdx!==null ? timingIdx : 1;
 
-  const unitDamage = sumArea>0 ? Math.round((sumDamage/sumArea)*1000)/1000 : 0; // 표본구간 단위면적당 피해수확량 (소수 3자리 반올림, 공식 계산기 방식)
+  const unitDamage = sumArea>0 ? Math.round((sumDamage/sumArea)*10000)/10000 : 0; // 표본구간 단위면적당 피해수확량 (소수 4자리 반올림)
 
-  // 대학찰(단일품종일 때만 특례): (단.표.수-0.0162*고사면적) 적용 + 10 단위 절사
+  // 대학찰(단일품종일 때만 특례): (단.표.수-0.0162*고사면적) 적용 + 10 단위 절사. 지수는 이미 구간별로 반영되어 있으므로 여기선 추가로 곱하지 않음
   const isDaehakOnly = activeIdx.length===1 && document.getElementById('v1_sel').value==='daehak';
   let totalDamageYield;
   if(isDaehakOnly){
-    const raw = (unitStdYield - 0.0162*deadArea) + unitDamage*surveyArea*useTiming*densityIdx;
+    const raw = (unitStdYield - 0.0162*deadArea) + unitDamage*surveyArea;
     totalDamageYield = Math.floor(raw/10)*10;
   } else {
-    const raw = unitStdYield*deadArea + unitDamage*surveyArea*useTiming*densityIdx;
+    const raw = unitStdYield*deadArea + unitDamage*surveyArea;
     totalDamageYield = Math.floor(raw);
   }
 
@@ -853,17 +874,13 @@ function calc(){
   document.getElementById('damage_yield_disp').value = (sumArea>0 && totalDamageYield>0) ? totalDamageYield+' kg' : '';
 
   const hasSample = sumArea>0;
-  document.getElementById('m-damage').textContent = densityStatus===false ? '확인필요' : (hasSample && totalDamageYield>0? totalDamageYield+' kg' : '-');
-  document.getElementById('m-loss').textContent = densityStatus===false ? '확인필요' : (hasSample && lossAmount>0? Math.round(lossAmount).toLocaleString()+' 원' : '-');
-  document.getElementById('m-payout').textContent = densityStatus===false ? '확인필요' : (hasSample && payout>0? Math.round(payout).toLocaleString()+' 원' : '-');
+  document.getElementById('m-damage').textContent = hasSample && totalDamageYield>0? totalDamageYield+' kg' : '-';
+  document.getElementById('m-loss').textContent = hasSample && lossAmount>0? Math.round(lossAmount).toLocaleString()+' 원' : '-';
+  document.getElementById('m-payout').textContent = hasSample && payout>0? Math.round(payout).toLocaleString()+' 원' : '-';
 
   const pctEl = document.getElementById('result-pct');
   const boxEl = document.getElementById('result-section');
-  if(densityStatus===false){
-    pctEl.textContent = '재식주수 부적정';
-    pctEl.classList.add('warn');
-    boxEl.classList.remove('pending');
-  } else if(stdYield>0 && hasSample){
+  if(stdYield>0 && hasSample){
     pctEl.textContent = (damageRate*100).toFixed(2)+'%';
     pctEl.classList.remove('warn');
     boxEl.classList.remove('pending');
@@ -1080,10 +1097,10 @@ function saveImage(){
 
   document.getElementById('cap-sample-wrap').innerHTML = buildCaptureSampleTable();
 
-  document.getElementById('cap-damage').textContent = r.densityStatus===false ? '확인필요' : (r.totalDamageYield ? r.totalDamageYield+' kg' : '-');
-  document.getElementById('cap-loss').textContent = r.densityStatus===false ? '확인필요' : (r.lossAmount ? Math.round(r.lossAmount).toLocaleString()+' 원' : '-');
-  document.getElementById('cap-payout').textContent = r.densityStatus===false ? '확인필요' : (r.payout ? Math.round(r.payout).toLocaleString()+' 원' : '-');
-  document.getElementById('cap-pct').textContent = r.densityStatus===false ? '재식주수 부적정' : (r.damageRate!==undefined ? (r.damageRate*100).toFixed(2)+'%' : '-');
+  document.getElementById('cap-damage').textContent = r.totalDamageYield ? r.totalDamageYield+' kg' : '-';
+  document.getElementById('cap-loss').textContent = r.lossAmount ? Math.round(r.lossAmount).toLocaleString()+' 원' : '-';
+  document.getElementById('cap-payout').textContent = r.payout ? Math.round(r.payout).toLocaleString()+' 원' : '-';
+  document.getElementById('cap-pct').textContent = r.damageRate!==undefined ? (r.damageRate*100).toFixed(2)+'%' : '-';
 
   const el = document.getElementById('capture-template');
   el.style.left='0'; el.style.top='0'; el.style.zIndex='-1'; el.style.position='fixed';
