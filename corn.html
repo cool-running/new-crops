@@ -230,7 +230,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 
   <div class="section">
     <div class="sec-title">가입정보</div>
-    <div class="g3">
+    <div class="g2">
       <div class="field">
         <label>지역</label>
         <select id="region" class="inp" onchange="markFilled(this);autofillUnitPrice();calc()">
@@ -249,10 +249,6 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
         <label>재식일자(파종일)</label>
         <div class="datewrap"><div class="date-disp ph" data-ph="재식일자">재식일자</div><input type="date" id="plant_date" onchange="markFilled(this);calc()"></div>
       </div>
-      <div class="field">
-        <label>이랑줄수</label>
-        <input type="number" id="plant_rows" class="inp filled" value="1" inputmode="decimal" oninput="markFilled(this);calc()">
-      </div>
     </div>
     <div class="g3">
       <div class="field"><label>보험가입금액</label><span class="unit-badge">원</span>
@@ -260,11 +256,10 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
       <div class="field"><label>표준가격(자동)</label><span class="unit-badge">원/kg</span>
         <input type="text" id="unit_price" class="auto" readonly></div>
       <div class="field"><label>자기부담비율</label>
-        <select id="self_rate" class="inp" onchange="markFilled(this);calc()">
-          <option value="">선택</option>
+        <select id="self_rate" class="inp filled" onchange="markFilled(this);calc()">
           <option value="0.1">10%</option>
           <option value="0.15">15%</option>
-          <option value="0.2">20%</option>
+          <option value="0.2" selected>20%</option>
           <option value="0.3">30%</option>
           <option value="0.4">40%</option>
         </select>
@@ -284,11 +279,11 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     </div>
     <div class="g3">
       <div class="field"><label>고사면적</label><span class="unit-badge">㎡</span>
-        <input type="text" id="dead_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
+        <input type="text" id="dead_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()"></div>
       <div class="field"><label>타작물/미보상</label><span class="unit-badge">㎡</span>
-        <input type="text" id="other_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
+        <input type="text" id="other_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()"></div>
       <div class="field"><label>기수확면적</label><span class="unit-badge">㎡</span>
-        <input type="text" id="harv_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
+        <input type="text" id="harv_area" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()"></div>
     </div>
     <div class="g3">
       <div class="field">
@@ -626,8 +621,12 @@ function varietyWeight(i){
 function blankVarietyCounts(){ return {sang:'',jung:'',ha:''}; }
 function newSample(){ return {len:'', wid:'', v:[blankVarietyCounts(),blankVarietyCounts(),blankVarietyCounts()]}; }
 
+function getSurveyAreaNow(){
+  const act = toNum('act_area'), dead = toNum('dead_area'), other = toNum('other_area'), harv = toNum('harv_area');
+  return Math.max(0, act - dead - other - harv);
+}
 function updateSamplesAndCalc(){
-  const area = toNum('act_area');
+  const area = getSurveyAreaNow();
   const need = getSampleCount(area);
   document.getElementById('sample-guide').style.display = need>0 ? 'none' : 'block';
   document.getElementById('sample-tbl-wrap').style.display = need>0 ? 'block' : 'none';
@@ -642,7 +641,7 @@ function updateSamplesAndCalc(){
 
 function addSample(){ samples.push(newSample()); renderSamples(); calc(); }
 function removeSample(){
-  const area = toNum('act_area');
+  const area = getSurveyAreaNow();
   const need = getSampleCount(area);
   if(samples.length<=need){
     document.getElementById('sample-min-msg').textContent = `적정 표본구간수(${need}구간) 이하로는 삭제할 수 없습니다.`;
@@ -750,7 +749,7 @@ function calc(){
   const harvArea = toNum('harv_area');
   const insAmount = toNum('ins_amount');
   const unitPrice = toNum('unit_price');
-  const plantRows = toNum('plant_rows') || 1;
+  const plantRows = 1; // 이랑줄수는 UI에서 제거, 항상 1로 고정
   const selfRateEl = document.getElementById('self_rate');
   const selfRate = selfRateEl.value? parseFloat(selfRateEl.value) : 0;
   const uninsRate = toNum('unins_rate')/100;
@@ -833,11 +832,12 @@ function calc(){
   const payout = Math.max(0, Math.min(insAmount, lossAmount) - selfDeductible);
   const damageRate = stdYield>0 ? Math.max(0,(totalDamageYield - uninsLoss))/stdYield : 0;
 
-  document.getElementById('damage_yield_disp').value = totalDamageYield>0 ? totalDamageYield+' kg' : '';
+  document.getElementById('damage_yield_disp').value = (sumArea>0 && totalDamageYield>0) ? totalDamageYield+' kg' : '';
 
-  document.getElementById('m-damage').textContent = densityStatus===false ? '확인필요' : (totalDamageYield>0? totalDamageYield+' kg' : '-');
-  document.getElementById('m-loss').textContent = densityStatus===false ? '확인필요' : (lossAmount>0? Math.round(lossAmount).toLocaleString()+' 원' : '-');
-  document.getElementById('m-payout').textContent = densityStatus===false ? '확인필요' : (payout>0? Math.round(payout).toLocaleString()+' 원' : '-');
+  const hasSample = sumArea>0;
+  document.getElementById('m-damage').textContent = densityStatus===false ? '확인필요' : (hasSample && totalDamageYield>0? totalDamageYield+' kg' : '-');
+  document.getElementById('m-loss').textContent = densityStatus===false ? '확인필요' : (hasSample && lossAmount>0? Math.round(lossAmount).toLocaleString()+' 원' : '-');
+  document.getElementById('m-payout').textContent = densityStatus===false ? '확인필요' : (hasSample && payout>0? Math.round(payout).toLocaleString()+' 원' : '-');
 
   const pctEl = document.getElementById('result-pct');
   const boxEl = document.getElementById('result-section');
@@ -845,7 +845,7 @@ function calc(){
     pctEl.textContent = '재식주수 부적정';
     pctEl.classList.add('warn');
     boxEl.classList.remove('pending');
-  } else if(stdYield>0 && (sumArea>0||deadArea>0)){
+  } else if(stdYield>0 && hasSample){
     pctEl.textContent = (damageRate*100).toFixed(2)+'%';
     pctEl.classList.remove('warn');
     boxEl.classList.remove('pending');
@@ -953,7 +953,7 @@ function loadHistoryRecord(idx){
   try{ records=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); }catch(e){}
   const r=records[idx];
   if(!r) return;
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','plant_rows','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -987,7 +987,7 @@ function saveToHistory(){
   const record={ farm_no:farmNo, survey_date:surveyDate, pct,
     saved_at:new Date().toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/ /g,'')
   };
-  const fields=['farmer_name','farm_no','survey_date','region','plant_date','plant_rows','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
+  const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','unit_price','self_rate','unins_rate','v1_sel','v2_sel','v3_sel'];
   fields.forEach(id=>{ const el=document.getElementById(id); if(el) record[id]=el.value; });
   record.samples = JSON.parse(JSON.stringify(samples));
   let records=[];
@@ -1093,7 +1093,6 @@ function saveState(){
     survey_date: document.getElementById('survey_date').value,
     region: document.getElementById('region').value,
     plant_date: document.getElementById('plant_date').value,
-    plant_rows: document.getElementById('plant_rows').value,
     std_yield: document.getElementById('std_yield').value,
     ins_area: document.getElementById('ins_area').value,
     act_area: document.getElementById('act_area').value,
@@ -1117,7 +1116,7 @@ function loadState(){
     const raw = localStorage.getItem('corn_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    const fields=['farmer_name','farm_no','survey_date','region','plant_date','plant_rows','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate'];
+    const fields=['farmer_name','farm_no','survey_date','region','plant_date','std_yield','ins_area','act_area','dead_area','other_area','harv_area','ins_amount','self_rate','unins_rate'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
@@ -1154,6 +1153,11 @@ const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-$
 const loaded = loadState();
 document.getElementById('survey_date').value = fmt(new Date());
 markFilled(document.getElementById('survey_date'));
+const plantDateEl = document.getElementById('plant_date');
+if(!plantDateEl.value){
+  plantDateEl.value = `${new Date().getFullYear()}-04-15`; // 보통 정식일자가 4월이라 기본값으로 제안 (수정 가능)
+  markFilled(plantDateEl);
+}
 try{
   if(localStorage.getItem('corn_bigtext')==='1'){
     document.body.classList.add('big-text');
