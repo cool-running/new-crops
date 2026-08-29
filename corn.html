@@ -852,18 +852,19 @@ function calc(){
     densityEl.textContent='-'; densityBadgeEl.textContent=''; densityBadgeEl.className='';
   }
 
-  const unitDamage = sumArea>0 ? Math.round((sumDamage/sumArea)*10000)/10000 : 0; // 표본구간 단위면적당 피해수확량 (소수 4자리 반올림)
+  const unitDamagePrecise = sumArea>0 ? sumDamage/sumArea : 0; // 최종 계산은 반올림 전 정밀값 사용
+  const unitDamage = Math.round(unitDamagePrecise*10000)/10000; // 표시용(4자리 반올림)
 
   // 대학찰(단일품종일 때만 특례): (단.표.수-0.0162*고사면적) 적용 + 10 단위 절사. 지수는 이미 구간별로 반영되어 있으므로 여기선 추가로 곱하지 않음
   const isDaehakOnly = activeIdx.length===1 && document.getElementById('v1_sel').value==='daehak';
   let totalDamageYield;
   if(isDaehakOnly){
-    const raw = (unitStdYield - 0.0162*deadArea) + unitDamage*surveyArea;
+    const raw = (unitStdYield - 0.0162*deadArea) + unitDamagePrecise*surveyArea;
     totalDamageYield = Math.floor(raw/10)*10;
   } else {
     // 실제 전산 2개 사례 정밀대조 결과: 고사면적 몫은 반올림, 표본구간 몫은 절사, 따로 계산 후 합산
     const deadTerm = unitStdYield*deadArea;
-    const sampleTerm = unitDamage*surveyArea;
+    const sampleTerm = unitDamagePrecise*surveyArea;
     totalDamageYield = Math.round(deadTerm) + Math.floor(sampleTerm);
   }
 
