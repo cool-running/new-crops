@@ -861,8 +861,10 @@ function calc(){
     const raw = (unitStdYield - 0.0162*deadArea) + unitDamage*surveyArea;
     totalDamageYield = Math.floor(raw/10)*10;
   } else {
-    const raw = unitStdYield*deadArea + unitDamage*surveyArea;
-    totalDamageYield = Math.floor(raw);
+    // 실제 전산 2개 사례 정밀대조 결과: 고사면적 몫은 반올림, 표본구간 몫은 절사, 따로 계산 후 합산
+    const deadTerm = unitStdYield*deadArea;
+    const sampleTerm = unitDamage*surveyArea;
+    totalDamageYield = Math.round(deadTerm) + Math.floor(sampleTerm);
   }
 
   const uninsLoss = totalDamageYield * uninsRate;
