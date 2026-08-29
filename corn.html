@@ -621,6 +621,16 @@ function varietyWeight(i){
 function blankVarietyCounts(){ return {sang:'',jung:'',ha:''}; }
 function newSample(){ return {len:'', wid:'', v:[blankVarietyCounts(),blankVarietyCounts(),blankVarietyCounts()]}; }
 
+function isSampleBlank(s){
+  if((s.len!==''&&s.len!==undefined) || (s.wid!==''&&s.wid!==undefined)) return false;
+  for(let vi=0; vi<3; vi++){
+    const v=s.v[vi];
+    if((v.sang!==''&&v.sang!==undefined) || (v.jung!==''&&v.jung!==undefined) || (v.ha!==''&&v.ha!==undefined)) return false;
+  }
+  return true;
+}
+function allSamplesBlank(){ return samples.every(isSampleBlank); }
+
 function getSurveyAreaNow(){
   const act = toNum('act_area'), dead = toNum('dead_area'), other = toNum('other_area'), harv = toNum('harv_area');
   return Math.max(0, act - dead - other - harv);
@@ -632,8 +642,16 @@ function updateSamplesAndCalc(){
   document.getElementById('sample-tbl-wrap').style.display = need>0 ? 'block' : 'none';
   document.getElementById('sample-btn-row').style.display = need>0 ? 'flex' : 'none';
   document.getElementById('sum-strip').style.display = need>0 ? 'flex' : 'none';
-  if(need>0 && samples.length===0){
-    for(let i=0;i<need;i++) samples.push(newSample());
+  if(need>0){
+    if(samples.length===0){
+      for(let i=0;i<need;i++) samples.push(newSample());
+    } else if(samples.length<need){
+      // 구간수가 늘어난 경우: 기존 입력값 보존한 채 부족한 만큼만 추가 (항상 안전)
+      while(samples.length<need) samples.push(newSample());
+    } else if(samples.length>need && allSamplesBlank()){
+      // 구간수가 줄었는데 아직 아무 값도 입력 안 한 상태라면 안전하게 재조정
+      samples = samples.slice(0, need);
+    }
   }
   renderSamples();
   calc();
