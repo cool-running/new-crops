@@ -276,8 +276,6 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
     <div class="g3">
       <div class="field"><label>보험가입금액</label><span class="unit-badge">원</span>
         <input type="text" id="ins_amount" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calc()"></div>
-      <div class="field"><label>표준가격(자동)</label><span class="unit-badge">원/kg</span>
-        <input type="text" id="unit_price" class="auto" readonly></div>
       <div class="field"><label>자기부담비율</label>
         <select id="self_rate" class="inp filled" onchange="markFilled(this);calc()">
           <option value="0.1">10%</option>
@@ -287,6 +285,8 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
           <option value="0.4">40%</option>
         </select>
       </div>
+      <div class="field"><label>표준가격(자동)</label><span class="unit-badge">원/kg</span>
+        <input type="text" id="unit_price" class="auto" readonly></div>
     </div>
   </div>
 
