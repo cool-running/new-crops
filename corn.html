@@ -157,6 +157,7 @@ body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important}
 .result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
 .result-top-row{display:flex;align-items:center;margin-bottom:12px}
 .result-pct{font-size:30px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1}
+.result-pct.warn{font-size:19px;color:#FFE0A3}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 6px;text-align:center}
@@ -797,13 +798,14 @@ function calc(){
   }
   const densityEl = document.getElementById('s-density');
   const densityBadgeEl = document.getElementById('s-density-badge');
+  let densityStatus = null; // null=데이터없음, true=적정, false=부적정
   if(plantDensity>0){
     densityEl.textContent = Math.round(plantDensity).toLocaleString();
     const range = densityRegionGroup ? DENSITY_OK_RANGE[densityRegionGroup] : null;
     if(range){
-      const ok = plantDensity>=range[0] && plantDensity<=range[1];
-      densityBadgeEl.textContent = ok ? '적정' : '부적정';
-      densityBadgeEl.className = ok ? 'density-ok' : 'density-bad';
+      densityStatus = plantDensity>=range[0] && plantDensity<=range[1];
+      densityBadgeEl.textContent = densityStatus ? '적정' : '부적정';
+      densityBadgeEl.className = densityStatus ? 'density-ok' : 'density-bad';
     } else {
       densityBadgeEl.textContent=''; densityBadgeEl.className='';
     }
@@ -833,21 +835,27 @@ function calc(){
 
   document.getElementById('damage_yield_disp').value = totalDamageYield>0 ? totalDamageYield+' kg' : '';
 
-  document.getElementById('m-damage').textContent = totalDamageYield>0? totalDamageYield+' kg' : '-';
-  document.getElementById('m-loss').textContent = lossAmount>0? Math.round(lossAmount).toLocaleString()+' 원' : '-';
-  document.getElementById('m-payout').textContent = payout>0? Math.round(payout).toLocaleString()+' 원' : '-';
+  document.getElementById('m-damage').textContent = densityStatus===false ? '확인필요' : (totalDamageYield>0? totalDamageYield+' kg' : '-');
+  document.getElementById('m-loss').textContent = densityStatus===false ? '확인필요' : (lossAmount>0? Math.round(lossAmount).toLocaleString()+' 원' : '-');
+  document.getElementById('m-payout').textContent = densityStatus===false ? '확인필요' : (payout>0? Math.round(payout).toLocaleString()+' 원' : '-');
 
   const pctEl = document.getElementById('result-pct');
   const boxEl = document.getElementById('result-section');
-  if(stdYield>0 && (sumArea>0||deadArea>0)){
+  if(densityStatus===false){
+    pctEl.textContent = '재식주수 부적정';
+    pctEl.classList.add('warn');
+    boxEl.classList.remove('pending');
+  } else if(stdYield>0 && (sumArea>0||deadArea>0)){
     pctEl.textContent = (damageRate*100).toFixed(2)+'%';
+    pctEl.classList.remove('warn');
     boxEl.classList.remove('pending');
   } else {
     pctEl.textContent = '- -';
+    pctEl.classList.remove('warn');
     boxEl.classList.add('pending');
   }
 
-  window._calcResult = {region, timingIdx, stdYield, actArea, deadArea, otherArea, harvArea, surveyArea, insAmount, totalDamageYield, uninsLoss, lossAmount, payout, damageRate};
+  window._calcResult = {region, timingIdx, stdYield, actArea, deadArea, otherArea, harvArea, surveyArea, insAmount, totalDamageYield, uninsLoss, lossAmount, payout, damageRate, densityStatus};
 }
 
 // ───────────────────────────────────────────── 잠금/수정 ─────────────────────────────────────────────
@@ -916,7 +924,7 @@ function openHistoryModal(){
     list.innerHTML = records.slice().reverse().map((r,i)=>{
       const idx = records.length-1-i;
       const farmDisp = r.farmer_name ? r.farmer_name+'('+(r.farm_no||'-')+')' : (r.farm_no ? '농지 '+r.farm_no : '농지번호 미입력');
-      const pctDisp = r.pct!=null ? r.pct+'%' : '-';
+      const pctDisp = r.pct!=null ? (/^[0-9.]+$/.test(r.pct) ? r.pct+'%' : r.pct) : '-';
       return `<div style="border:1.5px solid #e8edf3;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;background:white;transition:background .15s"
         onclick="loadHistoryRecord(${idx})">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -1054,10 +1062,10 @@ function saveImage(){
 
   document.getElementById('cap-sample-wrap').innerHTML = buildCaptureSampleTable();
 
-  document.getElementById('cap-damage').textContent = r.totalDamageYield ? r.totalDamageYield+' kg' : '-';
-  document.getElementById('cap-loss').textContent = r.lossAmount ? Math.round(r.lossAmount).toLocaleString()+' 원' : '-';
-  document.getElementById('cap-payout').textContent = r.payout ? Math.round(r.payout).toLocaleString()+' 원' : '-';
-  document.getElementById('cap-pct').textContent = r.damageRate!==undefined ? (r.damageRate*100).toFixed(2)+'%' : '-';
+  document.getElementById('cap-damage').textContent = r.densityStatus===false ? '확인필요' : (r.totalDamageYield ? r.totalDamageYield+' kg' : '-');
+  document.getElementById('cap-loss').textContent = r.densityStatus===false ? '확인필요' : (r.lossAmount ? Math.round(r.lossAmount).toLocaleString()+' 원' : '-');
+  document.getElementById('cap-payout').textContent = r.densityStatus===false ? '확인필요' : (r.payout ? Math.round(r.payout).toLocaleString()+' 원' : '-');
+  document.getElementById('cap-pct').textContent = r.densityStatus===false ? '재식주수 부적정' : (r.damageRate!==undefined ? (r.damageRate*100).toFixed(2)+'%' : '-');
 
   const el = document.getElementById('capture-template');
   el.style.left='0'; el.style.top='0'; el.style.zIndex='-1'; el.style.position='fixed';
