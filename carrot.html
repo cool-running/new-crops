@@ -44,31 +44,83 @@ function bindMobileFocusHandlers(){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   bindMobileFocusHandlers();
-  bindSampleNextNavigation();
+  bindNextNav();
   document.addEventListener('click', ()=>{
     setTimeout(bindMobileFocusHandlers, 0);
   }, {passive:true});
 });
 
-function bindSampleNextNavigation(){
-  const inputs = Array.from(document.querySelectorAll('#sample-body input'));
-  inputs.forEach((el, idx) => {
+let sampleInputOrder='row'; // 'row'(구간별: 좌→우, 위→아래) | 'col'(항목별: 위→아래, 좌→우)
+
+function getNextOrderedInput(el){
+  const rows=Array.from(document.querySelectorAll('#sample-body tr'));
+  if(sampleInputOrder==='row'){
+    const cur=Array.from(document.querySelectorAll('#sample-body input')).filter(x=>x.offsetParent!==null&&!x.disabled);
+    const i=cur.indexOf(el);
+    return cur[i+1]||null;
+  }
+  // 열 우선: 같은 열의 다음 행 → 없으면 다음 열의 첫 행
+  const td=el.closest('td');
+  const tr=el.closest('tr');
+  const rowIdx=rows.indexOf(tr);
+  const colIdx=Array.from(tr.children).indexOf(td);
+  const totalCols=rows[0]?rows[0].children.length:0;
+  for(let r=rowIdx+1;r<rows.length;r++){
+    const cell=rows[r].children[colIdx];
+    const inp=cell?cell.querySelector('input'):null;
+    if(inp&&inp.offsetParent!==null&&!inp.disabled) return inp;
+  }
+  for(let c=colIdx+1;c<totalCols;c++){
+    for(let r=0;r<rows.length;r++){
+      const cell=rows[r].children[c];
+      const inp=cell?cell.querySelector('input'):null;
+      if(inp&&inp.offsetParent!==null&&!inp.disabled) return inp;
+    }
+  }
+  return null;
+}
+function toggleInputOrder(){
+  sampleInputOrder=sampleInputOrder==='row'?'col':'row';
+  try{ if(navigator.vibrate) navigator.vibrate([15]); }catch(e){}
+  updateInputOrderBtn();
+  try{ localStorage.setItem('carrot_input_order',sampleInputOrder); }catch(e){}
+}
+function updateInputOrderBtn(){
+  const btn=document.getElementById('order-toggle-btn');
+  if(!btn) return;
+  const rightArrow='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B7E3F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12,6 18,12 12,18"/></svg>';
+  const downArrow='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B7E3F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="12" y1="4" x2="12" y2="18"/><polyline points="6,12 12,18 18,12"/></svg>';
+  if(sampleInputOrder==='row'){
+    btn.innerHTML=rightArrow+'<span>구간별</span>';
+    btn.title='구간(행)별로 입력 — 엔터하면 같은 구간의 다음 칸으로 이동';
+  }else{
+    btn.innerHTML=downArrow+'<span>항목별</span>';
+    btn.title='항목(열)별로 입력 — 엔터하면 같은 항목의 다음 구간으로 이동';
+  }
+}
+
+function bindNextNav(){
+  const inputs = Array.from(document.querySelectorAll('#sample-body input')).filter(x=>x.offsetParent!==null&&!x.disabled);
+  inputs.forEach((el) => {
     if (el.dataset.nextBound === '1') return;
     el.dataset.nextBound = '1';
     el.setAttribute('enterkeyhint', 'next');
-    el.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      const currentInputs = Array.from(document.querySelectorAll('#sample-body input')).filter(x => x.offsetParent !== null && !x.disabled && x.type !== 'hidden');
-      const currentIndex = currentInputs.indexOf(el);
-      if (currentIndex === -1) return;
-      const next = currentInputs[currentIndex + 1];
+    const moveNext = () => {
+      const next = getNextOrderedInput(el);
       if (next) {
         next.focus();
         next.select?.();
       } else {
         el.blur();
       }
+    };
+    el.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      moveNext();
+    });
+    el.addEventListener('beforeinput', (e) => {
+      if (e.inputType === 'insertLineBreak') { e.preventDefault(); moveNext(); }
     });
   });
 }
@@ -89,7 +141,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .header{background:var(--green);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
 .back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.header h1{font-size:16px;font-weight:600}
+.header h1{font-size:16px;font-weight:600;word-break:keep-all}
 .header-sub{font-size:11px;opacity:0.75;margin-top:1px}
 .hdr-state{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:5px 10px;border-radius:20px;background:rgba(255,255,255,0.92);border:1px solid rgba(255,255,255,0.6);white-space:nowrap;transition:all .15s}
 .hdr-state.unlocked{color:#137a4d}
@@ -153,7 +205,7 @@ body.big-text input[type=date].inp{font-size:15px !important;letter-spacing:-0.0
 
 .tbl-wrap{overflow-x:auto;width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-thead th{background:#f8f8f8;padding:6px 4px 10px;text-align:center;font-weight:600;color:var(--sub);font-size:12px!important;border-bottom:1.5px solid var(--border);line-height:1.4;white-space:pre-line}
+thead th{background:#f8f8f8;padding:6px 2px 10px;text-align:center;font-weight:600;color:var(--sub);font-size:12px!important;border-bottom:1.5px solid var(--border);line-height:1.4;white-space:nowrap}
 tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
 tbody td.no{text-align:center;color:var(--sub);font-size:10px;font-weight:600;width:20px}
 tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:13px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background 0.15s,border-color 0.15s}
@@ -282,9 +334,9 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
         <span class="sec-title" style="margin-bottom:0">면적 정보</span>
       </div>
       <div class="field"></div>
-      <div class="field">
+      <div class="field" style="align-items:flex-end">
         <label>계약변경여부</label>
-        <input type="text" id="contract_yn_disp" class="auto" readonly>
+        <input type="text" id="contract_yn_disp" class="auto" readonly style="width:50%;text-align:center">
       </div>
     </div>
     <div class="g3">
@@ -348,28 +400,56 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
 
   <!-- 표본구간 -->
   <div class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--green)"></span></div>
-      <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g)</span>
+    <div class="sec-head">
+      <div class="sec-title" style="margin-bottom:0;min-width:0">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--green)"></span></div>
+      <div style="display:flex;gap:5px;flex-shrink:0">
+        <button id="order-toggle-btn" onclick="toggleInputOrder()" type="button"
+          style="height:28px;width:80px;padding:0;border:1.5px solid var(--green2);border-radius:20px;background:white;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B7E3F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12,6 18,12 12,18"/></svg><span>구간별</span></button>
+        <button id="batch-toggle-btn" onclick="toggleBatchRow()" type="button"
+          style="height:28px;width:80px;padding:0;border:1.5px solid var(--green2);border-radius:20px;background:white;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap">⚡ 일괄입력</button>
+      </div>
     </div>
-    <div style="font-size:10.5px;color:var(--hint);margin-bottom:8px;line-height:1.5">※ 이랑폭 2m 미만: 이랑길이 5주 이상 / 2m 이상: 이랑길이 3주 이상 조사</div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
+    <div id="batch-row" style="display:none;gap:8px;margin-bottom:10px">
+      <div style="flex:1;display:flex;align-items:center;gap:4px;background:#EBF4FF;border:1.5px solid #378ADD;border-radius:10px;padding:6px;min-width:0">
+        <label style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;font-size:10px;font-weight:700;color:#185FA5;flex-shrink:0">
+          <input type="checkbox" id="batch-len-chk" onchange="toggleBatchLen()" style="width:18px;height:18px;accent-color:#185FA5;cursor:pointer;flex-shrink:0">
+          길이
+        </label>
+        <input type="text" id="batch-len-val" inputmode="decimal" placeholder="일괄" enterkeyhint="done"
+          style="flex:1;height:32px;min-width:0;border:1.5px solid #378ADD;border-radius:7px;padding:0 2px;font-size:12px;font-weight:700;text-align:center;background:white;color:#185FA5;-webkit-appearance:none"
+          oninput="onBatchLenInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
+        <button onclick="applyBatchLen()" title="적용" style="height:32px;width:30px;background:#185FA5;color:white;border:none;border-radius:7px;font-size:15px;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">✓</button>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;gap:4px;background:#EBF4FF;border:1.5px solid #378ADD;border-radius:10px;padding:6px;min-width:0">
+        <label style="display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;font-size:10px;font-weight:700;color:#185FA5;flex-shrink:0">
+          <input type="checkbox" id="batch-wid-chk" onchange="toggleBatchWid()" style="width:18px;height:18px;accent-color:#185FA5;cursor:pointer;flex-shrink:0">
+          폭
+        </label>
+        <input type="text" id="batch-wid-val" inputmode="decimal" placeholder="일괄" enterkeyhint="done"
+          style="flex:1;height:32px;min-width:0;border:1.5px solid #378ADD;border-radius:7px;padding:0 2px;font-size:12px;font-weight:700;text-align:center;background:white;color:#185FA5;-webkit-appearance:none"
+          oninput="onBatchWidInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
+        <button onclick="applyBatchWid()" title="적용" style="height:32px;width:30px;background:#185FA5;color:white;border:none;border-radius:7px;font-size:15px;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">✓</button>
+      </div>
+    </div>
+
+    <div style="font-size:10.5px;color:var(--hint);margin-bottom:6px;line-height:1.5">※ 이랑폭 2m 미만: 이랑길이 5주 이상 / 2m 이상: 이랑길이 3주 이상 조사</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:10%">
-          <col style="width:18%">
-          <col style="width:18%">
-          <col style="width:18%">
-          <col style="width:18%">
-          <col style="width:18%">
+          <col style="width:8%">
+          <col style="width:14%">
+          <col style="width:14%">
+          <col style="width:20%">
+          <col style="width:22%">
+          <col style="width:22%">
         </colgroup>
         <thead>
           <tr>
             <th>No.</th>
             <th>길이</th>
             <th>폭</th>
-            <th>정상(g)</th>
+            <th>정상</th>
             <th>80%피해</th>
             <th>100%피해</th>
           </tr>
@@ -494,7 +574,7 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">길이</th>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">폭</th>
-            <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">정상(g)</th>
+            <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">정상</th>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">80%피해</th>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">100%피해</th>
           </tr></thead>
@@ -695,10 +775,66 @@ function renderSamples(){
         onblur="samples[${i}].d100=this.value.replace(/,/g,'');calcTotals();saveState()" autocomplete="off"></td>
     </tr>`).join('');
 
-  setTimeout(()=>{ bindMobileFocusHandlers(); bindSampleNextNavigation(); }, 0);
+  setTimeout(()=>{ bindMobileFocusHandlers(); bindNextNav(); }, 0);
 }
 
 function addSample(){ samples.push({len:'',wid:'',norm:'',d80:'',d100:''}); renderSamples(); }
+
+// ── 일괄입력 패널 열고/닫기 ─────────────────────────────
+function toggleBatchRow(){
+  const row=document.getElementById('batch-row');
+  const btn=document.getElementById('batch-toggle-btn');
+  const open=row.style.display==='none'||row.style.display==='';
+  row.style.display=open?'flex':'none';
+  if(btn){
+    btn.style.background=open?'var(--green)':'white';
+    btn.style.color=open?'white':'var(--green)';
+  }
+  if(!open){
+    // 닫을 때 체크 해제(입력값은 유지)
+    const blc=document.getElementById('batch-len-chk'), bwc=document.getElementById('batch-wid-chk');
+    if(blc) blc.checked=false;
+    if(bwc) bwc.checked=false;
+  }
+}
+
+// ── 길이/폭 일괄적용 ─────────────────────────────────
+function toggleBatchLen(){
+  const chk=document.getElementById('batch-len-chk');
+  const valInput=document.getElementById('batch-len-val');
+  if(chk.checked){
+    if(!valInput.value && samples.length>0 && samples[0].len) valInput.value=samples[0].len;
+    valInput.focus(); valInput.select?.();
+  }
+}
+function onBatchLenInput(el){ el.classList.toggle('filled', el.value!==''); }
+function applyBatchLen(){
+  const chk=document.getElementById('batch-len-chk');
+  if(!chk.checked) return;
+  const val=normalizeDim(document.getElementById('batch-len-val').value);
+  if(val==='') return;
+  try{ if(navigator.vibrate) navigator.vibrate([20]); }catch(e){}
+  samples.forEach(s=>{ s.len=val; });
+  renderSamples(); calcTotals(); saveState();
+}
+function toggleBatchWid(){
+  const chk=document.getElementById('batch-wid-chk');
+  const valInput=document.getElementById('batch-wid-val');
+  if(chk.checked){
+    if(!valInput.value && samples.length>0 && samples[0].wid) valInput.value=samples[0].wid;
+    valInput.focus(); valInput.select?.();
+  }
+}
+function onBatchWidInput(el){ el.classList.toggle('filled', el.value!==''); }
+function applyBatchWid(){
+  const chk=document.getElementById('batch-wid-chk');
+  if(!chk.checked) return;
+  const val=normalizeDim(document.getElementById('batch-wid-val').value);
+  if(val==='') return;
+  try{ if(navigator.vibrate) navigator.vibrate([20]); }catch(e){}
+  samples.forEach(s=>{ s.wid=val; });
+  renderSamples(); calcTotals(); saveState();
+}
 
 function removeSample(){
   const actArea  = toNum(document.getElementById('act_area'));
@@ -779,9 +915,9 @@ function calc(){
   const areaErrNum = insArea>0 ? (actArea-insArea)/insArea : 0;
   const isChanged  = insArea>0 && actArea>0 && Math.abs(areaErrNum)>0.1;
   if(insArea>0 && actArea>0){
-    contractEl.value = isChanged ? '원장변경 대상' : '이상무';
+    contractEl.value = isChanged ? '여' : '부';
     contractEl.style.color = isChanged ? '#e24b4a' : '#5B7E3F';
-    contractEl.style.fontWeight = isChanged ? '700' : '600';
+    contractEl.style.fontWeight = '700';
   } else {
     contractEl.value = '';
     contractEl.style.color = '';
@@ -1082,6 +1218,13 @@ function resetAll(){
   document.getElementById('contract_yn_disp').value='';
   _isLocked=false; setEditMode(true);
   samples=[];
+  const blc=document.getElementById('batch-len-chk'), blv=document.getElementById('batch-len-val');
+  const bwc=document.getElementById('batch-wid-chk'), bwv=document.getElementById('batch-wid-val');
+  if(blc) blc.checked=false; if(blv){ blv.value=''; blv.classList.remove('filled'); }
+  if(bwc) bwc.checked=false; if(bwv){ bwv.value=''; bwv.classList.remove('filled'); }
+  const brow=document.getElementById('batch-row'), bbtn=document.getElementById('batch-toggle-btn');
+  if(brow) brow.style.display='none';
+  if(bbtn){ bbtn.style.background='white'; bbtn.style.color='var(--green)'; }
   renderSamples();
   document.getElementById('s-area').textContent='-';
   document.getElementById('s-unit').textContent='-';
@@ -1108,7 +1251,7 @@ function fillCaptureTemplate(){
   const contractV = document.getElementById('contract_yn_disp').value || '-';
   const capC = document.getElementById('cap-contract');
   capC.textContent = contractV;
-  capC.style.color = contractV.includes('변경') ? '#e24b4a' : '#111827';
+  capC.style.color = contractV === '여' ? '#e24b4a' : (contractV === '부' ? '#5B7E3F' : '#111827');
   capC.style.fontWeight='700';
 
   document.getElementById('cap-act-area').textContent   = _fmtNum(document.getElementById('act_area').value, ' ㎡');
@@ -1262,6 +1405,11 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 
 // ── 초기 실행 ─────────────────────────────────────
 const loaded = loadState();
+try{
+  const savedOrder=localStorage.getItem('carrot_input_order');
+  if(savedOrder==='col'||savedOrder==='row') sampleInputOrder=savedOrder;
+}catch(e){}
+updateInputOrderBtn();
 document.getElementById('survey_date').value=fmt(new Date());
 markFilled(document.getElementById('survey_date'));
 
@@ -1276,24 +1424,6 @@ setTimeout(()=>{
     updateSamplesAndCalc();
   }
 }, 50);
-
-function bindSampleNextNavigation(){
-  const inputs = Array.from(document.querySelectorAll('#sample-body input'));
-  inputs.forEach((el)=>{
-    if(el.dataset.nextBound==='1') return;
-    el.dataset.nextBound='1';
-    el.setAttribute('enterkeyhint','next');
-    el.addEventListener('keydown',(e)=>{
-      if(e.key!=='Enter') return;
-      e.preventDefault();
-      const currentInputs=Array.from(document.querySelectorAll('#sample-body input')).filter(x=>x.offsetParent!==null&&!x.disabled&&x.type!=='hidden');
-      const currentIndex=currentInputs.indexOf(el);
-      if(currentIndex===-1) return;
-      const next=currentInputs[currentIndex+1];
-      if(next){ next.focus(); next.select?.(); } else { el.blur(); }
-    });
-  });
-}
 </script>
 
 <script>
