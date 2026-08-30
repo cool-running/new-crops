@@ -836,7 +836,7 @@ function removeSample(){
   const actArea  = toNum(document.getElementById('act_area'));
   const deadArea = parseFloat(document.getElementById('dead_area').value)||0;
   const otherArea= parseFloat(document.getElementById('other_area').value)||0;
-  const harvArea = parseFloat(document.getElementById('harv_area').value)||0;
+  const harvArea = parseFloat((document.getElementById('harv_area').value||'').replace(/,/g,''))||0;
   const surveyArea= Math.max(0, actArea-deadArea-otherArea-harvArea);
   const needed = getSampleCount(surveyArea);
   if(samples.length <= needed){ showDeleteLimitModal(); return; }
@@ -849,7 +849,7 @@ function updateSamplesAndCalc(){
   const actArea  = toNum(document.getElementById('act_area'));
   const deadArea = parseFloat(document.getElementById('dead_area').value)||0;
   const otherArea= parseFloat(document.getElementById('other_area').value)||0;
-  const harvArea = parseFloat(document.getElementById('harv_area').value)||0;
+  const harvArea = parseFloat((document.getElementById('harv_area').value||'').replace(/,/g,''))||0;
   const surveyArea= Math.max(0, actArea-deadArea-otherArea-harvArea);
   const needed = getSampleCount(surveyArea);
 
@@ -903,7 +903,7 @@ function calc(){
   const actArea   = toNum(document.getElementById('act_area')) || insArea;
   const deadArea  = parseFloat(document.getElementById('dead_area').value)||0;
   const otherArea = parseFloat(document.getElementById('other_area').value)||0;
-  const harvArea  = parseFloat(document.getElementById('harv_area').value)||0;
+  const harvArea  = parseFloat((document.getElementById('harv_area').value||'').replace(/,/g,''))||0;
   const uninsRate = (parseFloat(document.getElementById('unins_rate').value)||0)/100;
 
   // 계약변경여부
@@ -1007,6 +1007,7 @@ function setCalcMode(silent=false){
 
   if(samples.length > 0){
     const emptyRows = [];
+    let anyNormMissing = false;
     samples.forEach((s, i)=>{
       const hasLen  = parseFloat(s.len)  > 0;
       const hasWid  = parseFloat(s.wid)  > 0;
@@ -1015,13 +1016,14 @@ function setCalcMode(silent=false){
         const fields = [];
         if(!hasLen)  fields.push('길이');
         if(!hasWid)  fields.push('폭');
-        if(!hasNorm) fields.push('정상');
+        if(!hasNorm){ fields.push('정상'); anyNormMissing = true; }
         emptyRows.push(`  ${i+1}구간: ${fields.join('·')} 미입력`);
       }
     });
     if(emptyRows.length > 0){
       missing.push('• 표본구간');
       emptyRows.forEach(r => missing.push(r));
+      if(anyNormMissing) missing.push('  ※ 정상 중량이 없으면 0을 입력하세요');
     }
   }
 
