@@ -161,6 +161,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px;position:relative}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 
@@ -205,7 +206,7 @@ body.big-text input[type=date].inp{font-size:15px !important;letter-spacing:-0.0
 
 .tbl-wrap{overflow-x:auto;width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-thead th{background:#f8f8f8;padding:6px 2px 10px;text-align:center;font-weight:600;color:var(--sub);font-size:12px!important;border-bottom:1.5px solid var(--border);line-height:1.4;white-space:nowrap}
+thead th{background:#f8f8f8;padding:6px 1px 10px;text-align:center;font-weight:600;color:var(--sub);font-size:11.5px!important;border-bottom:1.5px solid var(--border);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center;vertical-align:middle}
 tbody td.no{text-align:center;color:var(--sub);font-size:10px;font-weight:600;width:20px}
 tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:13px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background 0.15s,border-color 0.15s}
@@ -329,16 +330,7 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
 
   <!-- 면적 정보 -->
   <div class="section">
-    <div class="g3" style="align-items:center;margin-bottom:8px">
-      <div class="field" style="justify-content:center">
-        <span class="sec-title" style="margin-bottom:0">면적 정보</span>
-      </div>
-      <div class="field"></div>
-      <div class="field" style="align-items:flex-end">
-        <label>계약변경여부</label>
-        <input type="text" id="contract_yn_disp" class="auto" readonly style="width:50%;text-align:center">
-      </div>
-    </div>
+    <div class="sec-title">면적 정보</div>
     <div class="g3">
       <div class="field">
         <label>평년수확량</label>
@@ -379,9 +371,16 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
           oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
     </div>
-    <div class="g3">
+    <div class="g4">
+      <div class="field">
+        <label>미보상비율</label>
+        <span class="unit-badge">%</span>
+        <input type="number" id="unins_rate" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()" autocomplete="off">
+      </div>
       <div class="field">
         <label>조사대상면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
@@ -390,10 +389,8 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
         <input type="text" id="surv_yield_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>미보상비율</label>
-        <span class="unit-badge">%</span>
-        <input type="number" id="unins_rate" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()" autocomplete="off">
+        <label>계약변경</label>
+        <input type="text" id="contract_yn_disp" class="auto" readonly>
       </div>
     </div>
   </div>
@@ -437,12 +434,12 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:8%">
-          <col style="width:13%">
-          <col style="width:13%">
-          <col style="width:22%">
-          <col style="width:22%">
-          <col style="width:22%">
+          <col style="width:10%">
+          <col style="width:18%">
+          <col style="width:18%">
+          <col style="width:18%">
+          <col style="width:18%">
+          <col style="width:18%">
         </colgroup>
         <thead>
           <tr>
@@ -928,7 +925,7 @@ function calc(){
   const surveyArea = Math.max(0, effArea-deadArea-otherArea-harvArea);
 
   // 조사대상면적 표시
-  document.getElementById('survey_area_disp').value = surveyArea>0 ? surveyArea.toLocaleString()+' ㎡' : '';
+  document.getElementById('survey_area_disp').value = surveyArea>0 ? surveyArea.toLocaleString() : '';
 
   // 면적 변경 평년수확량
   const effAvg = isChanged
