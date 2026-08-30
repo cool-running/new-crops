@@ -984,7 +984,7 @@ function calc(){
   document.getElementById('r-surv').textContent  = survYield.toLocaleString('ko-KR')+' kg';
   document.getElementById('r-loss').textContent  = netLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-unins').textContent = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
-  document.getElementById('surv_yield_disp').value = survYield.toLocaleString('ko-KR')+' kg';
+  document.getElementById('surv_yield_disp').value = survYield.toLocaleString('ko-KR');
 
   resultBox.className='result-box';
   const _rawPctS = Math.round((effAvg - survYield) / effAvg * 10000) / 100;
