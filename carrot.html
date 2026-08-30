@@ -23,6 +23,7 @@ function bindMobileFocusHandlers(){
     const isSelect = el.tagName === 'SELECT';
     const isDate = el.type === 'date';
     if(!isSelect && !isDate){
+      const cursorEndOnly = el.hasAttribute('data-cursor-end');
       let _tsx=0, _tsy=0, _scrolling=false;
       el.addEventListener('touchstart',(e)=>{ _tsx=e.touches[0].clientX; _tsy=e.touches[0].clientY; _scrolling=false; },{passive:true});
       el.addEventListener('touchmove',(e)=>{ if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6) _scrolling=true; },{passive:true});
@@ -32,9 +33,14 @@ function bindMobileFocusHandlers(){
         el.focus();
         el.classList.add('mobile-focus');
         setTimeout(()=>{
-          try{ el.select(); }catch(_){
+          if(cursorEndOnly){
             const len=el.value.length;
-            try{ el.setSelectionRange(0,len); }catch(_){}
+            try{ el.setSelectionRange(len,len); }catch(_){}
+          } else {
+            try{ el.select(); }catch(_){
+              const len=el.value.length;
+              try{ el.setSelectionRange(0,len); }catch(_){}
+            }
           }
         }, 50);
       },{passive:false});
@@ -109,7 +115,12 @@ function bindNextNav(){
       const next = getNextOrderedInput(el);
       if (next) {
         next.focus();
-        next.select?.();
+        if(next.hasAttribute('data-cursor-end')){
+          const len=next.value.length;
+          try{ next.setSelectionRange(len,len); }catch(_){}
+        } else {
+          next.select?.();
+        }
       } else {
         el.blur();
       }
@@ -314,8 +325,9 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
       </div>
       <div class="field" style="flex:0 0 22%;min-width:0">
         <label>농지번호</label>
-        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="4자리"
-          maxlength="4" pattern="[0-9]{4}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);markFilled(this);checkDupFarmNo(this.value)" autocomplete="off">
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="4자리" enterkeyhint="next"
+          maxlength="4" pattern="[0-9]{4}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);markFilled(this);checkDupFarmNo(this.value)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();const t=document.getElementById('avg_yield');if(t){t.focus();t.select();}}" autocomplete="off">
       </div>
       <div class="field" style="flex:1;min-width:0">
         <label>조사일자</label>
@@ -523,7 +535,7 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
           <thead><tr>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">평년수확량</th>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">가입면적</th>
-            <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">원장변경유무</th>
+            <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">원장변경여부</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg-yield">-</td>
@@ -554,18 +566,6 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본조사</div>
-        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">3-1. 조사일자</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;margin-bottom:12px">
-          <thead><tr>
-            <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">조사일자</th>
-            <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">미보상비율</th>
-          </tr></thead>
-          <tbody><tr>
-            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px" id="cap-surv-date">-</td>
-            <td style="padding:7px 4px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px" id="cap-unins-rate">-</td>
-          </tr></tbody>
-        </table>
-        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">3-2. 표본구간</div>
         <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 4px;background:#5B7E3F;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
@@ -750,11 +750,11 @@ function renderSamples(){
   document.getElementById('sample-body').innerHTML = samples.map((s,i)=>`
     <tr>
       <td class="no">${i+1}</td>
-      <td><input type="text" value="${s.len?formatDim(s.len):''}" inputmode="decimal"
+      <td><input type="text" value="${s.len?formatDim(s.len):''}" inputmode="decimal" data-cursor-end="1"
         class="${s.len?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
         onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calcTotals();saveState()" autocomplete="off"></td>
-      <td><input type="text" value="${s.wid?formatDim(s.wid):''}" inputmode="decimal"
+      <td><input type="text" value="${s.wid?formatDim(s.wid):''}" inputmode="decimal" data-cursor-end="1"
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
         onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals();saveState()" autocomplete="off"></td>
@@ -1260,9 +1260,6 @@ function fillCaptureTemplate(){
   document.getElementById('cap-other-area').textContent = _fmtArea(document.getElementById('other_area').value);
   document.getElementById('cap-harv-area').textContent  = _fmtArea(document.getElementById('harv_area').value);
 
-  const fmtShort = v => { if(!v) return '-'; const p=v.split('-'); return p.length===3?`${p[0].slice(2)}-${p[1]}-${p[2]}`:v; };
-  document.getElementById('cap-surv-date').textContent  = fmtShort(survDateVal);
-  document.getElementById('cap-unins-rate').textContent = document.getElementById('unins_rate').value ? document.getElementById('unins_rate').value+'%' : '0%';
   document.getElementById('cap-unins-rate2').textContent = document.getElementById('unins_rate').value ? document.getElementById('unins_rate').value+'%' : '0%';
 
   document.getElementById('cap-pct').textContent  = document.getElementById('result-pct').textContent || '-';
@@ -1287,6 +1284,17 @@ function fillCaptureTemplate(){
       </tr>`;
     }
   });
+  if(html){
+    const g = id => (document.getElementById(id)?.textContent || '-');
+    html+=`<tr style="border-top:2px solid #5B7E3F;background:#eef5f0">
+      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">합계</td>
+      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-len')}</td>
+      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-wid')}</td>
+      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-norm')}</td>
+      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-d80')}</td>
+      <td style="padding:5px 3px;text-align:center;font-weight:900;font-size:12px;color:#5B7E3F">${g('t-d100')}</td>
+    </tr>`;
+  }
   tbody.innerHTML = html || '<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
 }
 
