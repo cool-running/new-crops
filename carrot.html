@@ -209,6 +209,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 body.big-text input.inp,body.big-text select.inp{height:52px !important;font-size:20px !important;font-weight:700 !important;border-width:2px !important;}
 body.big-text input.auto{height:52px !important;font-size:18px !important;font-weight:600 !important;}
 body.big-text .field label{font-size:13px !important;}
+body.big-text .unit-hide-bigtext{display:none !important;}
 body.big-text tbody td input{height:44px !important;font-size:16px !important;font-weight:700 !important;}
 body.big-text thead th{font-size:12px !important;padding:8px 2px !important;}
 body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important;}
@@ -390,7 +391,7 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
           oninput="markFilled(this)" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>조사대상면적</label>
+        <label>조사대상면적 <span class="unit-hide-bigtext" style="font-weight:400;color:var(--hint);font-size:10px">㎡</span></label>
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
