@@ -590,11 +590,11 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
             <th style="padding:7px 2px;background:#5B7E3F;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">미보상감수량</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-pct">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins-rate2">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-surv">-</td>
-            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-loss">-</td>
-            <td style="padding:7px 2px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;vertical-align:middle;background:#fff;font-weight:700;font-size:12px" id="cap-pct">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;vertical-align:middle;background:#fff;font-weight:700;font-size:12px" id="cap-unins-rate2">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;vertical-align:middle;background:#fff;font-weight:700;font-size:12px" id="cap-surv">-</td>
+            <td style="padding:7px 2px;border-right:1px solid #d1d5db;text-align:center;vertical-align:middle;background:#fff;font-weight:700;font-size:12px" id="cap-loss">-</td>
+            <td style="padding:7px 2px;text-align:center;vertical-align:middle;background:#fff;font-weight:700;font-size:12px" id="cap-unins">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -1288,12 +1288,12 @@ function fillCaptureTemplate(){
   if(html){
     const g = id => (document.getElementById(id)?.textContent || '-');
     html+=`<tr style="border-top:2px solid #5B7E3F;background:#eef5f0">
-      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">합계</td>
-      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-len')}</td>
-      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-wid')}</td>
-      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-norm')}</td>
-      <td style="padding:5px 3px;text-align:center;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-d80')}</td>
-      <td style="padding:5px 3px;text-align:center;font-weight:900;font-size:12px;color:#5B7E3F">${g('t-d100')}</td>
+      <td style="padding:5px 3px;text-align:center;vertical-align:middle;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">합계</td>
+      <td style="padding:5px 3px;text-align:center;vertical-align:middle;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-len')}</td>
+      <td style="padding:5px 3px;text-align:center;vertical-align:middle;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-wid')}</td>
+      <td style="padding:5px 3px;text-align:center;vertical-align:middle;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-norm')}</td>
+      <td style="padding:5px 3px;text-align:center;vertical-align:middle;font-weight:700;font-size:12px;color:#5B7E3F;border-right:1px solid #d1d5db">${g('t-d80')}</td>
+      <td style="padding:5px 3px;text-align:center;vertical-align:middle;font-weight:900;font-size:12px;color:#5B7E3F">${g('t-d100')}</td>
     </tr>`;
   }
   tbody.innerHTML = html || '<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
