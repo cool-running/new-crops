@@ -174,7 +174,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
 .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px;position:relative}
-.field label{font-size:11px;color:var(--sub);font-weight:500;padding-right:20px}
+.field label{font-size:11px;color:var(--sub);font-weight:500}
 
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center;text-align-last:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -385,23 +385,23 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
     </div>
     <div class="g4">
       <div class="field">
-        <label>미보상비율</label>
-        <span class="unit-badge">%</span>
+        <label style="text-align:center">미보상비율</label>
+        <span class="unit-badge" style="right:auto;left:50%;transform:translateX(-50%)">%</span>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>조사대상면적</label>
-        <span class="unit-badge">㎡</span>
+        <label style="text-align:center">조사대상면적</label>
+        <span class="unit-badge" style="right:auto;left:50%;transform:translateX(-50%)">㎡</span>
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>조사수확량</label>
-        <span class="unit-badge">kg</span>
+        <label style="text-align:center">조사수확량</label>
+        <span class="unit-badge" style="right:auto;left:50%;transform:translateX(-50%)">kg</span>
         <input type="text" id="surv_yield_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>계약변경</label>
+        <label style="text-align:center">계약변경</label>
         <input type="text" id="contract_yn_disp" class="auto" readonly style="text-align:center">
       </div>
     </div>
