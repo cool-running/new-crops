@@ -94,8 +94,8 @@ function toggleInputOrder(){
 function updateInputOrderBtn(){
   const btn=document.getElementById('order-toggle-btn');
   if(!btn) return;
-  const rightArrow='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B7E3F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12,6 18,12 12,18"/></svg>';
-  const downArrow='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B7E3F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="12" y1="4" x2="12" y2="18"/><polyline points="6,12 12,18 18,12"/></svg>';
+  const rightArrow='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12,6 18,12 12,18"/></svg>';
+  const downArrow='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="12" y1="4" x2="12" y2="18"/><polyline points="6,12 12,18 18,12"/></svg>';
   if(sampleInputOrder==='row'){
     btn.innerHTML=rightArrow+'<span>구간별</span>';
     btn.title='구간(행)별로 입력 — 엔터하면 같은 구간의 다음 칸으로 이동';
@@ -410,9 +410,9 @@ body.big-text .datewrap .date-disp{height:52px;font-size:15px;font-weight:800;wh
       <div class="sec-title" style="margin-bottom:0;min-width:0">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--green)"></span></div>
       <div style="display:flex;gap:5px;flex-shrink:0">
         <button id="order-toggle-btn" onclick="toggleInputOrder()" type="button"
-          style="height:28px;width:80px;padding:0;border:1.5px solid var(--green2);border-radius:20px;background:white;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B7E3F" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12,6 18,12 12,18"/></svg><span>구간별</span></button>
+          style="height:28px;width:80px;padding:0;border:1.5px solid #378ADD;border-radius:20px;background:white;color:#185FA5;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="12,6 18,12 12,18"/></svg><span>구간별</span></button>
         <button id="batch-toggle-btn" onclick="toggleBatchRow()" type="button"
-          style="height:28px;width:80px;padding:0;border:1.5px solid var(--green2);border-radius:20px;background:white;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap">⚡ 일괄입력</button>
+          style="height:28px;width:80px;padding:0;border:1.5px solid #378ADD;border-radius:20px;background:white;color:#185FA5;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap">⚡ 일괄입력</button>
       </div>
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -783,8 +783,8 @@ function toggleBatchRow(){
   const open=row.style.display==='none'||row.style.display==='';
   row.style.display=open?'flex':'none';
   if(btn){
-    btn.style.background=open?'var(--green)':'white';
-    btn.style.color=open?'white':'var(--green)';
+    btn.style.background=open?'#185FA5':'white';
+    btn.style.color=open?'white':'#185FA5';
   }
   if(!open){
     // 닫을 때 체크 해제(입력값은 유지)
@@ -1220,7 +1220,7 @@ function resetAll(){
   if(bwc) bwc.checked=false; if(bwv){ bwv.value=''; bwv.classList.remove('filled'); }
   const brow=document.getElementById('batch-row'), bbtn=document.getElementById('batch-toggle-btn');
   if(brow) brow.style.display='none';
-  if(bbtn){ bbtn.style.background='white'; bbtn.style.color='var(--green)'; }
+  if(bbtn){ bbtn.style.background='white'; bbtn.style.color='#185FA5'; }
   renderSamples();
   document.getElementById('s-area').textContent='-';
   document.getElementById('s-unit').textContent='-';
