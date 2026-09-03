@@ -58,10 +58,10 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">수확량조사</div>
   </div>
 
-  <div class="crop-card test" onclick="go('applefall')">
+  <div class="crop-card test" onclick="go('fruitdamage')">
     <div class="crop-icon">🍂🍎</div>
     <div class="crop-name">낙과·착과피해조사</div>
-    <div class="crop-desc">사과</div>
+    <div class="crop-desc">과수4종</div>
   </div>
 
   <div class="crop-card done" onclick="go('broccoli')">
@@ -76,7 +76,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 function go(page){
   if(page==='ginseng')     location.href='./ginseng.html';
   if(page==='carrot')      location.href='./carrot.html';
-  if(page==='applefall')   location.href='./applefall.html';
+  if(page==='fruitdamage') location.href='./fruitdamage.html';
   if(page==='broccoli')    location.href='./broccoli.html';
 }
 if('serviceWorker' in navigator){
