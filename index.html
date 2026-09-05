@@ -70,6 +70,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-desc">생산비 조사</div>
   </div>
 
+  <div class="crop-card test" onclick="go('buckwheat')">
+    <div class="crop-icon">🌾</div>
+    <div class="crop-name">메밀</div>
+    <div class="crop-desc">생산비 조사</div>
+  </div>
+
 </div>
 
 <script>
@@ -78,6 +84,7 @@ function go(page){
   if(page==='carrot')      location.href='./carrot.html';
   if(page==='fruitdamage') location.href='./fruitdamage.html';
   if(page==='broccoli')    location.href='./broccoli.html';
+  if(page==='buckwheat')   location.href='./buckwheat.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
