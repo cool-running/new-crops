@@ -350,7 +350,7 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;margin-bottom:13px">
       <div style="display:flex;align-items:baseline;gap:6px;min-width:0;overflow:hidden">
         <span id="cap-date" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;flex-shrink:0"></span>
-        <span id="cap-farmno" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+        <span id="cap-farmno" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.8px;padding-right:2px"></span>
       </div>
       <span style="font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:4px;flex-shrink:0">
         <span id="cap-crop-icon" style="display:inline-flex;align-items:center;font-size:15px">🌾</span>
@@ -362,21 +362,21 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
       <!-- 1. 면적조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 면적조사</div>
-        <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #e0e0e0;table-layout:fixed">
-          <colgroup><col style="width:22%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:18%"></colgroup>
+        <table style="width:100%;border-collapse:collapse;font-size:8.5px;border:1px solid #e0e0e0;table-layout:fixed">
+          <colgroup><col style="width:20%"><col style="width:17%"><col style="width:19%"><col style="width:24%"><col style="width:20%"></colgroup>
           <thead><tr>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실제경작면적</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정상면적</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">도복피해면적</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">도복이외피해면적</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;text-align:center">표본구간수</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;white-space:nowrap;vertical-align:middle">실제경작면적</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;white-space:nowrap;vertical-align:middle">정상면적</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;white-space:nowrap;vertical-align:middle">도복피해면적</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;white-space:nowrap;vertical-align:middle">도복이외피해면적</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;text-align:center;white-space:nowrap;vertical-align:middle">표본구간수</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:5px 1px;text-align:center;font-weight:700" id="cap-act-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-normal-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-lodge-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-other-dmg-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-sample-count">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;vertical-align:middle" id="cap-act-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0;vertical-align:middle" id="cap-normal-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0;vertical-align:middle" id="cap-lodge-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0;vertical-align:middle" id="cap-other-dmg-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0;vertical-align:middle" id="cap-sample-count">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -404,16 +404,16 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
         <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #e0e0e0">
           <colgroup><col style="width:28%"><col style="width:24%"><col style="width:24%"><col style="width:24%"></colgroup>
           <thead><tr>
-            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">피해율</th>
-            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">미보상비율</th>
-            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">피해면적비율</th>
-            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;text-align:center">손해정도비율</th>
+            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;vertical-align:middle">피해율</th>
+            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;vertical-align:middle">미보상비율</th>
+            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center;vertical-align:middle">피해면적비율</th>
+            <th style="padding:5px 2px;background:#5B7E3F;color:#fff;text-align:center;vertical-align:middle">손해정도비율</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:5px 2px;text-align:center;font-weight:900;color:#5B7E3F;font-size:14px" id="cap-final">-</td>
-            <td style="padding:5px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-unins2">0%</td>
-            <td style="padding:5px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-areapct">-</td>
-            <td style="padding:5px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-sonhae">-</td>
+            <td style="padding:5px 2px;text-align:center;vertical-align:middle;font-weight:900;color:#5B7E3F;font-size:14px" id="cap-final">-</td>
+            <td style="padding:5px 2px;text-align:center;vertical-align:middle;font-weight:700;border-left:1px solid #e0e0e0" id="cap-unins2">0%</td>
+            <td style="padding:5px 2px;text-align:center;vertical-align:middle;font-weight:700;border-left:1px solid #e0e0e0" id="cap-areapct">-</td>
+            <td style="padding:5px 2px;text-align:center;vertical-align:middle;font-weight:700;border-left:1px solid #e0e0e0" id="cap-sonhae">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -458,7 +458,15 @@ const fmtPct=x=>(x*100).toFixed(2).replace(/\.?0+$/,'')+'%';
 function todayStr(){const d=new Date();const z=n=>(n<10?'0':'')+n;return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
 
 function persist(){ try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){} }
-function restore(){ try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(st,JSON.parse(r));}catch(e){} }
+function restore(){ try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(st,JSON.parse(r));}catch(e){} normalizeSamples(); }
+function normalizeSamples(){
+  // 예전 10단계 버전으로 저장된 데이터 호환: d 배열을 현재 LEVELS 길이(5)로 정리
+  st.samples.forEach(s=>{
+    if(!Array.isArray(s.d)) { s.d=Array(LEVELS.length).fill(''); return; }
+    if(s.d.length>LEVELS.length) s.d=s.d.slice(0,LEVELS.length);
+    while(s.d.length<LEVELS.length) s.d.push('');
+  });
+}
 
 /* 표본 */
 function totalDmgAreaInput(){ return num(st.lodgeArea)+num(st.otherDmgArea); }
@@ -479,7 +487,7 @@ function sonhae(){
   let w=0,t=0;
   st.samples.forEach(s=>{
     t+=num(s.normal);
-    s.d.forEach((v,i)=>{t+=num(v);w+=num(v)*LEVELS[i];});
+    s.d.forEach((v,i)=>{ if(i>=LEVELS.length) return; t+=num(v);w+=num(v)*LEVELS[i]; });
     t+=num(s.dead); w+=num(s.dead)*1.0;
   });
   if(t<=0)return null;return Math.round((w/t)*10000)/10000;
@@ -760,6 +768,7 @@ function loadHistoryRecord(idx){
   const r=recs[idx];if(!r)return;
   st=Object.assign({samples:[]},r);
   delete st.pct;delete st.saved_at;
+  normalizeSamples();
   closeHistoryModal();
   persist();loadForm();
   showToast('불러왔습니다');
