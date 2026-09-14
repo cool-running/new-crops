@@ -362,30 +362,21 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
       <!-- 1. 면적조사 -->
       <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
         <div style="font-size:12px;font-weight:900;color:#5B7E3F;margin-bottom:8px">1. 면적조사</div>
-        <table style="width:100%;border-collapse:collapse;font-size:9.5px;border:1px solid #e0e0e0;table-layout:fixed;margin-bottom:6px">
-          <colgroup><col style="width:33.3%"><col style="width:33.3%"><col style="width:33.4%"></colgroup>
+        <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #e0e0e0;table-layout:fixed">
+          <colgroup><col style="width:22%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:18%"></colgroup>
           <thead><tr>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">가입면적</th>
             <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">실제경작면적</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;text-align:center">도복피해면적</th>
-          </tr></thead>
-          <tbody><tr>
-            <td style="padding:5px 1px;text-align:center;font-weight:700" id="cap-ins-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-act-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-lodge-area">-</td>
-          </tr></tbody>
-        </table>
-        <table style="width:100%;border-collapse:collapse;font-size:9.5px;border:1px solid #e0e0e0;table-layout:fixed">
-          <colgroup><col style="width:33.3%"><col style="width:33.3%"><col style="width:33.4%"></colgroup>
-          <thead><tr>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">정상면적</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">도복피해면적</th>
             <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">도복이외피해면적</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;border-right:1px solid #e0e0e0;text-align:center">타작물·미보상</th>
-            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;text-align:center">기수확면적</th>
+            <th style="padding:5px 1px;background:#5B7E3F;color:#fff;text-align:center">표본구간수</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:5px 1px;text-align:center;font-weight:700" id="cap-other-dmg-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-other-area">-</td>
-            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-harvested-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700" id="cap-act-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-normal-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-lodge-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-other-dmg-area">-</td>
+            <td style="padding:5px 1px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-sample-count">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -419,13 +410,12 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
             <th style="padding:5px 2px;background:#5B7E3F;color:#fff;text-align:center">손해정도비율</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:6px 2px;text-align:center;font-weight:900;color:#5B7E3F;font-size:14px" id="cap-final">-</td>
-            <td style="padding:6px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-unins2">0%</td>
-            <td style="padding:6px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-areapct">-</td>
-            <td style="padding:6px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-sonhae">-</td>
+            <td style="padding:5px 2px;text-align:center;font-weight:900;color:#5B7E3F;font-size:14px" id="cap-final">-</td>
+            <td style="padding:5px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-unins2">0%</td>
+            <td style="padding:5px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-areapct">-</td>
+            <td style="padding:5px 2px;text-align:center;font-weight:700;border-left:1px solid #e0e0e0" id="cap-sonhae">-</td>
           </tr></tbody>
         </table>
-        <div style="margin-top:8px;font-size:9px;color:#999;line-height:1.5">※ 면적·표본·조사자의견은 종이 조사서에 직접 기재</div>
       </div>
 
     </div>
@@ -452,9 +442,7 @@ function bindSelectAll(){
     el.addEventListener('focus',()=>{setTimeout(()=>{try{el.select();}catch(_){}},0);},{passive:true});
   });
 }
-const LEVELS=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0];
-const TOP=[0,1,2,3,4], BOT=[5,6,7,8,9];
-const LABEL={top:['10%','20%','30%','40%','50%'],bot:['60%','70%','80%','90%','100%']};
+const LEVELS=[0.2,0.4,0.6,0.8,1.0];
 const KEY='buckwheat_state', HKEY='buckwheat_history', BKEY='buckwheat_bigtext';
 
 let st={
@@ -478,7 +466,7 @@ function sampleCount(a){a=num(a);if(a<=0)return 0;if(a>=15000)return 10;if(a>=70
 function minSamples(){return sampleCount(totalDmgAreaInput());}
 function ensureSamples(){
   const n=minSamples();
-  while(st.samples.length<n) st.samples.push({rang:'',normal:'',d:Array(10).fill(''),dead:''});
+  while(st.samples.length<n) st.samples.push({rang:'',normal:'',d:Array(5).fill(''),dead:''});
   return st.samples.length; // 초과분(사용자 추가)은 유지
 }
 /* 계산 — 메밀 전용 공식
@@ -518,9 +506,8 @@ function nujeok(){
 /* 표본 렌더 */
 const CHIP_DEFS=[
   {key:'normal',label:'정상'},
-  {key:'d0',label:'10%'},{key:'d1',label:'20%'},{key:'d2',label:'30%'},{key:'d3',label:'40%'},
-  {key:'d4',label:'50%'},{key:'d5',label:'60%'},{key:'d6',label:'70%'},{key:'d7',label:'80%'},
-  {key:'d8',label:'90%'},{key:'d9',label:'100%'}
+  {key:'d0',label:'20%'},{key:'d1',label:'40%'},{key:'d2',label:'60%'},
+  {key:'d3',label:'80%'},{key:'d4',label:'100%'}
 ];
 function chipVal(s,key){
   if(key==='normal') return s.normal;
@@ -579,7 +566,7 @@ function onCell(el){
 }
 function addSample(){
   if(st.samples.length>=20){ return; }
-  st.samples.push({rang:'',normal:'',d:Array(10).fill(''),dead:''});
+  st.samples.push({rang:'',normal:'',d:Array(5).fill(''),dead:''});
   renderSamples();persist();calc();
 }
 function removeSample(){
@@ -589,15 +576,12 @@ function removeSample(){
   renderSamples();persist();calc();
 }
 function updateSampleTotals(){
-  let colTop=[0,0,0,0,0],dead=0,all=0;
+  let all=0;
   st.samples.forEach((s,r)=>{
     let row=num(s.normal)+num(s.dead);s.d.forEach(v=>row+=num(v));
     const el=$('smp-tot-'+r);if(el)el.textContent=row;
-    all+=row;dead+=num(s.dead);
-    [0,1,2,3,4].forEach(k=>{colTop[k]+=num(s.d[k])+num(s.d[k+5]);});
+    all+=row;
   });
-  [0,1,2,3,4].forEach(k=>{const e=$('sum-'+k);if(e)e.textContent=colTop[k];});
-  if($('sum-dead'))$('sum-dead').textContent=dead;
   if($('sum-all'))$('sum-all').textContent=all;
 }
 
@@ -805,19 +789,18 @@ function fillCaptureTemplate(){
     : (st.farm_no?('농지번호: '+st.farm_no):'');
   // 1. 면적
   const fmtArea=v=>{ if(!v) return '-'; const n=String(v).replace(/,/g,''); const [i,d]=n.split('.'); return (i?Number(i).toLocaleString('en-US'):'0')+(n.indexOf('.')>=0?'.'+(d||''):''); };
-  $('cap-ins-area').textContent=fmtArea(st.insArea)+(st.insArea?' ㎡':'');
   $('cap-act-area').textContent=fmtArea(st.actArea)+(st.actArea?' ㎡':'');
+  { const actA=num(st.actArea); const na=actA>0?Math.max(0,actA-num(st.lodgeArea)-num(st.otherDmgArea)):null;
+    $('cap-normal-area').textContent=na===null?'-':na.toLocaleString()+' ㎡'; }
   $('cap-lodge-area').textContent=st.lodgeArea?fmtArea(st.lodgeArea)+' ㎡':'0 ㎡';
   $('cap-other-dmg-area').textContent=st.otherDmgArea?fmtArea(st.otherDmgArea)+' ㎡':'0 ㎡';
-  $('cap-other-area').textContent=st.otherArea?fmtArea(st.otherArea)+' ㎡':'0 ㎡';
-  $('cap-harvested-area').textContent=st.harvestedArea?fmtArea(st.harvestedArea)+' ㎡':'0 ㎡';
-  // 2. 손해정도 표본표 (가로 한줄: 정상·10~100·계)
+  $('cap-sample-count').textContent=st.samples.length||'-';
+  // 2. 손해정도 표본표 (가로 한줄: 정상·20~100·계)
   { const soHead=sonhae(); if($('cap-sonhae')) $('cap-sonhae').textContent=soHead===null?'-':fmtPct(soHead); }
   const thS='padding:4px 0;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b;font-size:9px';
   let hh='<tr><th style="'+thS+'">표본</th>'+
     '<th style="padding:4px 0;background:#5B7E3F;color:#d8ecc4;border:0.5px solid #3f5a2b;font-size:9px">정상</th>'+
-    '<th style="'+thS+'">10</th><th style="'+thS+'">20</th><th style="'+thS+'">30</th><th style="'+thS+'">40</th><th style="'+thS+'">50</th>'+
-    '<th style="'+thS+'">60</th><th style="'+thS+'">70</th><th style="'+thS+'">80</th><th style="'+thS+'">90</th><th style="'+thS+'">100</th>'+
+    '<th style="'+thS+'">20</th><th style="'+thS+'">40</th><th style="'+thS+'">60</th><th style="'+thS+'">80</th><th style="'+thS+'">100</th>'+
     '<th style="'+thS+'">계</th></tr>';
   $('cap-smp-head').innerHTML=hh;
   const cell='padding:4px 0;border:0.5px solid #e0e0e0;text-align:center;font-size:10px';
@@ -830,9 +813,9 @@ function fillCaptureTemplate(){
     s.d.forEach(v=>{ bb+='<td style="'+cell+'">'+dash(v)+'</td>'; });
     bb+='<td style="'+cell+';background:#eef3e7;font-weight:800">'+(row>0?row:'·')+'</td></tr>';
   });
-  if(!bb) bb='<tr><td colspan="13" style="padding:10px;text-align:center;font-size:10px">-</td></tr>';
-  // 합계행 (10~100 각 열별)
-  let colAll=[0,0,0,0,0,0,0,0,0,0],all=0,normalSum=0;
+  if(!bb) bb='<tr><td colspan="8" style="padding:10px;text-align:center;font-size:10px">-</td></tr>';
+  // 합계행 (20~100 각 열별)
+  let colAll=[0,0,0,0,0],all=0,normalSum=0;
   st.samples.forEach(s=>{ normalSum+=num(s.normal); let row=num(s.normal); s.d.forEach((v,k)=>{row+=num(v); colAll[k]+=num(v);}); all+=row; });
   if(st.samples.length){
     bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td style="'+cell+';border-color:#e9d4a8">계</td>';
