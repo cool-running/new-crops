@@ -314,7 +314,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
 </div>
 
 <!-- 갤러리 저장용 캡처 템플릿 -->
-<div id="captureBox" style="position:fixed;left:-99999px;top:0;width:794px;background:#f3f4f6;padding:0;z-index:-1"></div>
+<div id="captureBox" style="position:fixed;left:-99999px;top:0;width:680px;background:#fff;padding:0;z-index:-1"></div>
 
 <div class="toast" id="toast"></div>
 
@@ -341,7 +341,7 @@ var PUMJONG={
 function cropList(prefix){ return PUMJONG[val(prefix==='fall'?'cropFall':'cropAtt')]||[]; }
 function onAttCropChange(){ buildAttBlocks(currentAttBlocks()); liveUpdate(); saveState(); }
 function onFallCropChange(){ buildFallBlocks(currentFallBlocks()); liveUpdate(); saveState(); }
-function pumjongCell(prefix,idx,pj){
+function pumjongCell(prefix,idx,pj,flexStyle){
   var list=cropList(prefix); var isCustom=(pj!==''&&list.indexOf(pj)<0);
   var sel='<select class="inp filled '+prefix+'-pj-sel" data-idx="'+idx+'" onchange="onPjSel(this)" style="'+(isCustom?'display:none':'')+'">'+
     '<option value=""'+(pj===''?' selected':'')+'>품종</option>'+
@@ -349,7 +349,7 @@ function pumjongCell(prefix,idx,pj){
     '<option value="__custom__"'+(isCustom?' selected':'')+'>직접입력</option>'+
   '</select>';
   var txt='<input class="inp filled '+prefix+'-pj-txt" data-idx="'+idx+'" type="text" placeholder="품종 입력" value="'+(isCustom?esc(pj):'')+'" style="'+(isCustom?'':'display:none')+'" oninput="mark(this);saveState()" onblur="onPjBlur(this)" autocomplete="off">';
-  return '<span class="pj-wrap" style="flex:1;display:block">'+sel+txt+'</span>';
+  return '<span class="pj-wrap" style="'+(flexStyle||'flex:1')+';display:block;min-width:0">'+sel+txt+'</span>';
 }
 function onPjSel(sel){
   var wrap=sel.parentNode, txt=wrap.querySelector('input');
@@ -397,8 +397,12 @@ function buildAttBlocks(saved){
     var v=prev[i]||{};
     html+='<div class="grade-block" data-idx="'+i+'">'+
       '<div class="grade-block-head">'+
-        '<span style="flex-shrink:0;margin-right:8px;font-size:12px;font-weight:800;color:var(--blue);background:#eaf2fb;padding:8px 10px;border-radius:8px;white-space:nowrap">표본'+i+'</span>'+
-        pumjongCell('att',i,v.pj||'')+
+        '<span style="flex-shrink:0;margin-right:6px;font-size:12px;font-weight:800;color:var(--blue);background:#eaf2fb;padding:8px 8px;border-radius:8px;white-space:nowrap">표본'+i+'</span>'+
+        pumjongCell('att',i,v.pj||'','flex:0 0 34%')+
+        '<div style="flex-shrink:0;text-align:center;margin-left:6px">'+
+          '<div class="unit" style="margin-bottom:3px;white-space:nowrap">피해구성비율</div>'+
+          '<div class="auto" id="attRatio_'+i+'" style="width:76px;height:34px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
+        '</div>'+
       '</div>'+
       '<div class="g5">'+
         gradeCell('정상','ag0',v.g0)+gradeCell('30%형','ag30',v.g30,'grade-30')+gradeCell('50%형','ag50',v.g50)+gradeCell('80%형','ag80',v.g80)+gradeCell('100%형','ag100',v.g100,'grade-100')+
@@ -531,7 +535,7 @@ function computeAll(){
   });
   attOrder.forEach(function(pj){
     var m=attMap[pj]; var ratio=ratioOf5(m);
-    attGroups.push({label:pj+(m.n>1?' ('+m.n+'주 합산)':''),ratio:ratio});
+    attGroups.push({label:pj+(m.n>1?' ('+m.n+'주 합산)':''),ratio:ratio,g0:m.g0,g30:m.g30,g50:m.g50,g80:m.g80,g100:m.g100});
   });
   document.querySelectorAll('#fallGradeGroups .grade-block').forEach(function(b){
     var g={ g0:parseFloat(b.querySelector('.fg0').value)||0, g30:parseFloat(b.querySelector('.fg30').value)||0, g50:parseFloat(b.querySelector('.fg50').value)||0,
@@ -550,13 +554,19 @@ function computeAll(){
     }
     var admit = fallEnabled ? Math.round(cnt*ratio/100) : 0;
     fallTotal+=admit;
-    fallGroups.push({idx:b.dataset.idx,label:mode==='census'?'':(readPj('fall',b)||('품종'+b.dataset.idx)),cnt:cnt,ratio:ratio,admitCnt:admit});
+    fallGroups.push({idx:b.dataset.idx,label:mode==='census'?'':(readPj('fall',b)||('품종'+b.dataset.idx)),cnt:cnt,ratio:ratio,admitCnt:admit,g0:g.g0,g30:g.g30,g50:g.g50,g80:g.g80,g100:g.g100});
   });
   var grandTotal=fallTotal;
   return { attGroups:attGroups, fallGroups:fallGroups, attTotal:attTotal, fallTotal:fallTotal, grandTotal:grandTotal };
 }
 function liveUpdate(){
   var R=computeAll();
+  document.querySelectorAll('#attGradeGroups .grade-block').forEach(function(b){
+    var g={ g0:parseFloat(b.querySelector('.ag0').value)||0, g30:parseFloat(b.querySelector('.ag30').value)||0, g50:parseFloat(b.querySelector('.ag50').value)||0,
+      g80:parseFloat(b.querySelector('.ag80').value)||0, g100:parseFloat(b.querySelector('.ag100').value)||0 };
+    var el=document.getElementById('attRatio_'+b.dataset.idx);
+    if(el) el.textContent=ratioOf5(g).toFixed(2)+'%';
+  });
   var box=document.getElementById('resultBox'), detail=document.getElementById('resultDetail');
   var stats=[];
   if(attEnabled && R.attGroups.length){
@@ -718,52 +728,57 @@ function buildCapture(){
   var farmNo=val('farmNo')||'-', contractorName=val('contractorName')||'';
   var date=val('surveyDate'); date=date?date.replace(/-/g,'.'):'-';
 
-  var TH='padding:9px 6px;background:#4a7aad;color:#fff;border-right:1px solid #cfd6dd;border-bottom:1px solid #cfd6dd;font-size:12px;font-weight:700;text-align:center';
-  var THl='padding:9px 6px;background:#4a7aad;color:#fff;border-bottom:1px solid #cfd6dd;font-size:12px;font-weight:700;text-align:center';
-  var TD='padding:8px 6px;border-right:1px solid #e0e3e8;border-bottom:1px solid #e0e3e8;text-align:center;background:#fff;font-weight:700;font-size:13px';
-  var TDl='padding:8px 6px;border-bottom:1px solid #e0e3e8;text-align:center;background:#fff;font-weight:700;font-size:13px';
-  var TG='padding:8px 6px;border-right:1px solid #cdebdd;text-align:center;background:#e8faf3;font-weight:800;font-size:13px';
-  var TGl='padding:8px 6px;text-align:center;background:#e8faf3;font-weight:800;font-size:13px';
+  var TH='background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:7px 4px;border:1px solid #cfd8e0;text-align:center';
+  var TD='font-size:12px;padding:6px 4px;border:1px solid #cfd8e0;text-align:center;background:#fff;color:#111;font-weight:700';
+  var TF='font-size:12px;padding:6px 4px;border:1px solid #cfd8e0;text-align:center;background:#eaf2fb;color:var(--blue);font-weight:800';
+  var secNo=1;
 
-  function card(title,inner){ return '<div style="background:#fff;border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,0.05)"><div style="font-size:17px;font-weight:900;color:#111;margin-bottom:12px">'+title+'</div>'+inner+'</div>'; }
-  function tbl(inner){ return '<table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #cfd6dd;table-layout:fixed">'+inner+'</table>'; }
+  function section(title,inner){
+    return '<div style="font-size:14px;font-weight:800;color:var(--blue);margin:16px 0 6px;border-left:4px solid var(--blue);padding-left:8px">'+(secNo++)+'. '+title+'</div>'+inner;
+  }
+  function tbl(inner){ return '<table style="width:100%;border-collapse:collapse;table-layout:fixed">'+inner+'</table>'; }
 
   var cAtt='';
   if(attEnabled && L.attGroups.length){
     var ta=''; L.attGroups.forEach(function(g){
-      ta+='<tr><td style="'+TD+'">'+esc(g.label)+'</td><td style="'+TDl+'">'+g.ratio.toFixed(2)+'%</td></tr>';
+      var sum=g.g0+g.g30+g.g50+g.g80+g.g100;
+      ta+='<tr><td style="'+TD+'">'+esc(g.label)+'</td><td style="'+TD+'">'+fmt(g.g0)+'</td><td style="'+TD+'">'+fmt(g.g30)+'</td><td style="'+TD+'">'+fmt(g.g50)+'</td><td style="'+TD+'">'+fmt(g.g80)+'</td><td style="'+TD+'">'+fmt(g.g100)+'</td><td style="'+TD+'">'+fmt(sum)+'</td><td style="'+TF+'">'+g.ratio.toFixed(2)+'%</td></tr>';
     });
-    cAtt=card('착과피해조사',
-      tbl('<colgroup><col style="width:55%"><col style="width:45%"></colgroup>'+
-        '<thead><tr><th style="'+TH+'">품종</th><th style="'+THl+'">착과피해구성비율</th></tr></thead><tbody>'+ta+'</tbody>'));
+    cAtt=section('착과피해조사',
+      tbl('<colgroup><col style="width:20%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:20%"></colgroup>'+
+        '<thead><tr><th style="'+TH+'">품종</th><th style="'+TH+'">정상</th><th style="'+TH+'">30%형</th><th style="'+TH+'">50%형</th><th style="'+TH+'">80%형</th><th style="'+TH+'">100%형</th><th style="'+TH+'">합계</th><th style="'+TH+'">피해구성비율</th></tr></thead><tbody>'+ta+'</tbody>'));
   }
   var cFall='';
   if(fallEnabled && L.fallGroups.length){
     var tf=''; L.fallGroups.forEach(function(g){
-      tf+='<tr><td style="'+TD+'">'+esc(g.label)+'</td><td style="'+TD+'">'+fmt(g.cnt)+'</td><td style="'+TD+'">'+g.ratio.toFixed(2)+'%</td><td style="'+TDl+'">'+fmt(g.admitCnt)+'</td></tr>';
+      var sum=g.g0+g.g30+g.g50+g.g80+g.g100;
+      tf+='<tr><td style="'+TD+'">'+(g.label?esc(g.label):'-')+'</td><td style="'+TD+'">'+fmt(g.cnt)+'</td><td style="'+TD+'">'+fmt(g.g0)+'</td><td style="'+TD+'">'+fmt(g.g30)+'</td><td style="'+TD+'">'+fmt(g.g50)+'</td><td style="'+TD+'">'+fmt(g.g80)+'</td><td style="'+TD+'">'+fmt(g.g100)+'</td><td style="'+TD+'">'+fmt(sum)+'</td><td style="'+TD+'">'+g.ratio.toFixed(2)+'%</td><td style="'+TF+'">'+fmt(g.admitCnt)+'</td></tr>';
     });
-    tf+='<tr><td style="'+TG+'" colspan="3">낙과인정피해과실수 합계</td><td style="'+TGl+'">'+fmt(L.fallTotal)+'</td></tr>';
-    cFall=card('낙과피해조사',
-      tbl('<colgroup><col style="width:30%"><col style="width:22%"><col style="width:22%"><col style="width:26%"></colgroup>'+
-        '<thead><tr><th style="'+TH+'">품종</th><th style="'+TH+'">낙과수</th><th style="'+TH+'">피해구성률</th><th style="'+THl+'">인정피해과실수</th></tr></thead><tbody>'+tf+'</tbody>'));
+    tf+='<tr><td colspan="9" style="'+TF+'">낙과인정피해과실수 합계</td><td style="'+TF+'">'+fmt(L.fallTotal)+'</td></tr>';
+    cFall=section('낙과피해조사',
+      tbl('<colgroup><col style="width:14%"><col style="width:9%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:10%"><col style="width:14%"></colgroup>'+
+        '<thead><tr><th style="'+TH+'">품종</th><th style="'+TH+'">낙과수</th><th style="'+TH+'">정상</th><th style="'+TH+'">30%형</th><th style="'+TH+'">50%형</th><th style="'+TH+'">80%형</th><th style="'+TH+'">100%형</th><th style="'+TH+'">합계</th><th style="'+TH+'">피해구성비율</th><th style="'+TH+'">인정피해과실수</th></tr></thead><tbody>'+tf+'</tbody>'));
   }
 
-  var cResult=card('결과',
-    '<div style="background:#185FA5;border-radius:12px;padding:16px 18px;text-align:center">'+
-      '<div style="font-size:14px;color:#fff;opacity:0.85;font-weight:600;margin-bottom:5px">낙과인정피해과실수 합계</div>'+
-      '<div style="font-size:32px;color:#fff;font-weight:900">'+fmt(L.grandTotal)+' 개</div>'+
-    '</div>');
+  var TR='font-size:14px;padding:8px 4px;border:1px solid #cfd8e0;text-align:center;background:#fff;color:var(--blue);font-weight:800';
+  var resultRows='';
+  if(attEnabled && L.attGroups.length){
+    var avgRatio=L.attGroups.reduce(function(s,g){return s+g.ratio;},0)/L.attGroups.length;
+    resultRows+='<td style="'+TH+'">착과피해구성률</td><td style="'+TR+'">'+avgRatio.toFixed(2)+'%</td>';
+  }
+  if(fallEnabled && L.fallGroups.length){
+    resultRows+='<td style="'+TH+'">낙과인정피해과실수</td><td style="'+TR+'">'+fmt(L.fallTotal)+' 개</td>';
+  }
+  var cResult=section('결과', tbl('<tbody><tr>'+resultRows+'</tr></tbody>'));
 
-  return '<div style="width:794px;background:#f3f4f6;font-family:-apple-system,Noto Sans KR,sans-serif">'+
-    '<div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 12%,#f3f4f6 12%,#f3f4f6 100%);padding:0 32px 34px;box-sizing:border-box">'+
-      '<div style="height:34px"></div>'+
-      '<div style="display:flex;align-items:baseline;gap:9px;color:#fff;margin-bottom:20px;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+
-        '<span>'+date+'</span><span style="opacity:0.6">·</span>'+
-        '<span>'+(contractorName?contractorName+'('+farmNo+')':'농지 '+farmNo)+'</span><span style="opacity:0.6">·</span>'+
-        '<span style="font-size:19px">🍏 착과·낙과피해 계산결과</span>'+
-      '</div>'+
-      '<div style="display:flex;flex-direction:column;gap:16px">'+cAtt+cFall+cResult+'</div>'+
-    '</div></div>';
+  return '<div style="width:680px;background:#fff;font-family:-apple-system,Noto Sans KR,sans-serif;padding:20px;box-sizing:border-box">'+
+    '<div style="background:var(--blue);color:#fff;border-radius:12px;padding:11px 14px;display:flex;align-items:baseline;gap:10px;white-space:nowrap">'+
+      '<span style="font-size:12.5px;font-weight:700;flex-shrink:0">'+date+'</span>'+
+      '<span style="font-size:12.5px;font-weight:700;flex-shrink:0;letter-spacing:0.4px">'+(contractorName?esc(contractorName)+(farmNo!=='-'?' ('+farmNo+')':''):(farmNo!=='-'?'농지 '+farmNo:''))+'</span>'+
+      '<span style="font-size:13.5px;font-weight:800;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis">🍏 착과·낙과피해 계산결과</span>'+
+    '</div>'+
+    cAtt+cFall+cResult+
+  '</div>';
 }
 function saveImage(){
   if(!LAST){ showToast('먼저 계산하세요'); return; }
@@ -771,7 +786,7 @@ function saveImage(){
   var box=document.getElementById('captureBox');
   box.innerHTML=buildCapture();
   showToast('이미지 만드는 중…');
-  html2canvas(box,{scale:2,backgroundColor:'#f3f4f6',useCORS:true,windowWidth:794}).then(function(canvas){
+  html2canvas(box,{scale:2,backgroundColor:'#fff',useCORS:true,windowWidth:680}).then(function(canvas){
     box.innerHTML='';
     var farmNo=(val('farmNo')||'농지').replace(/[^0-9]/g,'')||'농지';
     var d=new Date(), stamp=d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'_'+('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2);
