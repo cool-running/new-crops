@@ -132,7 +132,8 @@ input.auto{height:40px;border:1.5px solid var(--border);border-radius:var(--rs);
 .tree-table tr.tree-row-block:first-child{border-top:none}
 .tree-table select.tree-sukgi{width:100%;height:40px;font-size:11px;padding:0 1px;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none}
 .tree-table input.tJoinTree{width:100%;height:40px;font-size:12px;padding:0 1px;text-align:center;-moz-appearance:textfield}
-.tree-table input.tree-pumjong-txt{width:100%;height:40px;font-size:12px;padding:0 3px;text-align:center}
+.tree-table .pj-wrap{display:block;width:100%}
+.tree-table select.tree-pumjong-sel,.tree-table input.tree-pumjong-txt{width:100%;height:40px;font-size:11px;padding:0 2px;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none}
 .tree-table input.tAfterCnt{width:100%;height:40px;font-size:12px;padding:0 2px;text-align:center}
 .tree-table .tvar-detail-btn{width:36px;height:36px;padding:0;border:1.5px solid var(--green);border-radius:8px;background:#fff;color:var(--green);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto}
 .tree-table .tvar-detail-btn.on{background:var(--green);color:#fff}
@@ -227,7 +228,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
     <div style="display:flex;gap:6px;align-items:flex-end">
       <div class="field" style="flex:1;min-width:0">
         <label>품목</label>
-        <select class="inp filled" id="crop" onchange="mark(this);refreshPumjongDatalist();saveState()" style="text-align:center;text-align-last:center">
+        <select class="inp filled" id="crop" onchange="mark(this);onCropChange();saveState()" style="text-align:center;text-align-last:center">
           <option value="사과" selected>사과</option>
           <option value="배">배</option>
           <option value="단감">단감</option>
@@ -274,10 +275,9 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
     </div>
     <input type="hidden" id="treeRowN" value="1">
     <table class="tree-table" style="margin-top:12px">
-      <thead><tr><th style="width:36px">숙기</th><th style="width:62px">품종</th><th style="width:56px">가입주수</th><th style="width:80px">착과수</th><th style="width:36px">나무조사</th></tr></thead>
+      <thead><tr><th style="width:36px">숙기</th><th style="width:98px">품종</th><th style="width:38px">가입주수</th><th style="width:62px">착과수</th><th style="width:36px">나무조사</th></tr></thead>
       <tbody id="treeRows"></tbody>
     </table>
-    <datalist id="pumjongDatalist"></datalist>
     <div class="g3" style="margin-top:10px">
       <div class="field">
         <label>가입주수 <span class="unit">(합계)</span></label>
@@ -496,17 +496,36 @@ var PUMJONG={
   '떫은감':['대봉','청도반시','둥시','상주둥시','갑주백목','고종시']
 };
 function cropList(){ return PUMJONG[val('crop')]||[]; }
-function pumjongDatalistHtml(){
-  return cropList().map(function(v){ return '<option value="'+esc(v)+'">'; }).join('');
-}
-function refreshPumjongDatalist(){
-  var dl=document.getElementById('pumjongDatalist'); if(dl) dl.innerHTML=pumjongDatalistHtml();
-}
+function onCropChange(){ buildTreeRows(); }
 function treePumjongCell(idx,pj){
-  return '<input class="inp tree-pumjong-txt'+(pj!==''?' filled':'')+'" data-idx="'+idx+'" type="text" list="pumjongDatalist" placeholder="품종" value="'+esc(pj)+'" oninput="mark(this);onVarietyRename();liveUpdate();saveState()" autocomplete="off">';
+  var list=cropList(); var isCustom=(pj!==''&&list.indexOf(pj)<0);
+  var sel='<select class="inp tree-pumjong-sel'+(pj!==''?' filled':'')+'" data-idx="'+idx+'" onchange="onTreePumjongSel(this)" style="'+(isCustom?'display:none':'')+'">'+
+    '<option value=""'+(pj===''?' selected':'')+'>품종</option>'+
+    list.map(function(v){ return '<option'+(v===pj?' selected':'')+'>'+v+'</option>'; }).join('')+
+    '<option value="__custom__"'+(isCustom?' selected':'')+'>직접입력</option>'+
+  '</select>';
+  var txt='<input class="inp tree-pumjong-txt'+(isCustom?' filled':'')+'" data-idx="'+idx+'" type="text" placeholder="품종 입력" value="'+(isCustom?esc(pj):'')+'" style="'+(isCustom?'':'display:none')+'" oninput="mark(this);saveState()" onblur="onTreePumjongBlur(this)" autocomplete="off">';
+  return '<span class="pj-wrap" data-idx="'+idx+'">'+sel+txt+'</span>';
+}
+function onTreePumjongSel(sel){
+  var wrap=sel.parentNode, txt=wrap.querySelector('.tree-pumjong-txt');
+  if(sel.value==='__custom__'){ sel.style.display='none'; txt.style.display=''; txt.value=''; mark(txt); txt.focus(); }
+  else{ mark(sel); if(txt){ txt.style.display='none'; txt.value=''; mark(txt); } }
+  onVarietyRename(); liveUpdate(); saveState();
+}
+function onTreePumjongBlur(txt){
+  if((txt.value||'').trim()===''){
+    var wrap=txt.parentNode, sel=wrap.querySelector('.tree-pumjong-sel');
+    txt.style.display='none'; if(sel){ sel.style.display=''; sel.value=''; mark(sel); }
+  }
+  onVarietyRename(); liveUpdate(); saveState();
 }
 function readTreePumjong(idx){
-  var txt=document.querySelector('#treeRows .tree-pumjong-txt[data-idx="'+idx+'"]'); return txt?(txt.value||'').trim():'';
+  var wrap=document.querySelector('#treeRows .pj-wrap[data-idx="'+idx+'"]'); if(!wrap) return '';
+  var txt=wrap.querySelector('.tree-pumjong-txt'), sel=wrap.querySelector('.tree-pumjong-sel');
+  if(txt && txt.style.display!=='none') return (txt.value||'').trim();
+  if(sel) return (sel.value==='__custom__'?'':(sel.value||''));
+  return '';
 }
 function varietyLabel(idx){
   var su=''; var s=document.querySelector('#treeRows .tree-sukgi[data-idx="'+idx+'"]'); if(s) su=s.value||'';
@@ -1011,7 +1030,6 @@ function restoreState(){
   var st=null; try{ st=JSON.parse(localStorage.getItem(KEY_STATE)||'null'); }catch(e){}
   if(!st) return false;
   FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el&&st[id]!==undefined) el.value=st[id]; });
-  refreshPumjongDatalist();
   buildTreeRows(st.trees||null, st.treeVars||null, st.treeOpen||null);
   attEnabled = st.attEnabled!==undefined ? st.attEnabled : false;
   fallEnabled = st.fallEnabled!==undefined ? st.fallEnabled : false;
@@ -1047,7 +1065,6 @@ function doReset(){
       else if(id==='surveyDate'){ el.value=todayStr(); } else el.value='';
     });
   }catch(e){}
-  refreshPumjongDatalist();
   buildTreeRows({},{},{});
   attEnabled=false; fallEnabled=false; attMode='reuse'; fallMode='sample';
   setAttEnabled(false); setFallEnabled(false); setAttMode('reuse'); setFallMode('sample');
@@ -1222,7 +1239,6 @@ function saveToSharedHistory(imgDataUrl){
 /* ── 초기 구동 ── */
 (function init(){
   try{ if(localStorage.getItem(KEY_BIG)==='1'){ document.body.classList.add('big-text'); document.getElementById('bigtextBtn').classList.add('on'); document.getElementById('bigtextLabel').textContent='작게'; } }catch(e){}
-  refreshPumjongDatalist();
   if(!restoreState()){
     buildTreeRows();
     treeField(1,'tJoinTree').value='100'; treeField(1,'tRealTree').value='100'; treeField(1,'tAfterCnt').value='10,000';
