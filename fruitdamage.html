@@ -396,13 +396,9 @@ function buildAttBlocks(saved){
   for(var i=1;i<=n;i++){
     var v=prev[i]||{};
     html+='<div class="grade-block" data-idx="'+i+'">'+
-      '<div class="grade-block-head" style="align-items:flex-end">'+
-        '<span style="flex-shrink:0;margin-right:4px;font-size:12px;font-weight:800;color:var(--blue);background:#eaf2fb;height:40px;padding:0 8px;border-radius:8px;white-space:nowrap;display:flex;align-items:center;justify-content:center">표본'+i+'</span>'+
-        pumjongCell('att',i,v.pj||'','flex:0 0 32%')+
-        '<div style="flex-shrink:0;text-align:center;margin-left:6px">'+
-          '<div class="unit" style="margin-bottom:3px;white-space:nowrap">피해구성비율</div>'+
-          '<div class="auto" id="attRatio_'+i+'" style="width:76px;height:40px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
-        '</div>'+
+      '<div class="grade-block-head">'+
+        pumjongCell('att',i,v.pj||'','flex:0 0 55%')+
+        '<div class="auto" id="attRatio_'+i+'" style="flex-shrink:0;margin-left:6px;width:84px;height:40px;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
       '</div>'+
       '<div class="g5">'+
         gradeCell('정상','ag0',v.g0)+gradeCell('30%형','ag30',v.g30,'grade-30')+gradeCell('50%형','ag50',v.g50)+gradeCell('80%형','ag80',v.g80)+gradeCell('100%형','ag100',v.g100,'grade-100')+
