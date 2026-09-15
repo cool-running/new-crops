@@ -251,7 +251,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
         <span class="subhead" style="margin:0">📊 낙과 피해구성조사</span>
         <span style="display:flex;gap:6px">
           <button type="button" class="btn-icon minus" onclick="removeFallBlock()">－</button>
-          <button type="button" class="btn-icon" onclick="addFallBlock()">＋</button>
+          <button type="button" class="btn-icon" id="fallAddBtn" onclick="addFallBlock()">＋</button>
         </span>
       </div>
       <div id="fallGradeGroups"></div>
@@ -333,7 +333,7 @@ function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').rep
 
 /* ── 품목/품종 ── */
 var PUMJONG={
-  '사과':['부사(후지)','홍로','쓰가루','감홍','양광','시나노골드','아리수','홍옥','미얀비'],
+  '사과':['부사(후지)','홍로','쓰가루','아오리','감홍','양광','시나노골드','아리수','홍옥','미얀비'],
   '배':['신고','원황','화산','추황배','황금배','만풍배','신화'],
   '단감':['부유','차랑','태추','서촌조생','로망'],
   '떫은감':['대봉','청도반시','둥시','상주둥시','갑주백목','고종시']
@@ -396,12 +396,12 @@ function buildAttBlocks(saved){
   for(var i=1;i<=n;i++){
     var v=prev[i]||{};
     html+='<div class="grade-block" data-idx="'+i+'">'+
-      '<div class="grade-block-head">'+
-        '<span style="flex-shrink:0;margin-right:6px;font-size:12px;font-weight:800;color:var(--blue);background:#eaf2fb;padding:8px 8px;border-radius:8px;white-space:nowrap">표본'+i+'</span>'+
-        pumjongCell('att',i,v.pj||'','flex:0 0 34%')+
+      '<div class="grade-block-head" style="align-items:flex-end">'+
+        '<span style="flex-shrink:0;margin-right:4px;font-size:12px;font-weight:800;color:var(--blue);background:#eaf2fb;height:40px;padding:0 8px;border-radius:8px;white-space:nowrap;display:flex;align-items:center;justify-content:center">표본'+i+'</span>'+
+        pumjongCell('att',i,v.pj||'','flex:0 0 32%')+
         '<div style="flex-shrink:0;text-align:center;margin-left:6px">'+
           '<div class="unit" style="margin-bottom:3px;white-space:nowrap">피해구성비율</div>'+
-          '<div class="auto" id="attRatio_'+i+'" style="width:76px;height:34px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
+          '<div class="auto" id="attRatio_'+i+'" style="width:76px;height:40px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
         '</div>'+
       '</div>'+
       '<div class="g5">'+
@@ -431,9 +431,7 @@ function buildFallBlocks(saved){
   for(var i=1;i<=n;i++){
     var v=prev[i]||{}; var mode=v.mode||'census';
     var sampArr = Array.isArray(v.samp) && v.samp.length ? v.samp : ['','',''];
-    var showPjSel=(mode!=='census');
     html+='<div class="grade-block" data-idx="'+i+'" data-mode="'+mode+'">'+
-      (showPjSel ? '<div class="grade-block-head">'+pumjongCell('fall',i,v.pj||'')+'</div>' : '')+
       '<div class="seg" style="margin-bottom:9px">'+
         '<button type="button" class="seg-btn fallModeBtn'+(mode==='sample'?' on':'')+'" onclick="setFallBlockMode(this,\'sample\')">표본조사</button>'+
         '<button type="button" class="seg-btn fallModeBtn'+(mode==='census'?' on':'')+'" onclick="setFallBlockMode(this,\'census\')">전수조사</button>'+
@@ -442,7 +440,10 @@ function buildFallBlocks(saved){
         '<div class="field"><label>낙과수 (개)</label><input class="inp filled fallCntInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.cnt||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
       '</div>'+
       '<div class="fallSampleWrap" style="display:'+(mode==='sample'?'':'none')+'">'+
-        '<div class="field" style="margin-bottom:8px"><label>조사대상주수 (개)</label><input class="inp filled fallTargetInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.target||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
+        '<div class="grade-block-head" style="align-items:flex-end;margin-bottom:8px">'+
+          pumjongCell('fall',i,v.pj||'','flex:0 0 52%')+
+          '<div class="field" style="flex:1;margin-left:6px"><label>조사대상주수 (개)</label><input class="inp filled fallTargetInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.target||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
+        '</div>'+
         '<div class="sec-title" style="justify-content:space-between;margin-bottom:6px">'+
           '<span class="subhead" style="margin:0">표본주별 낙과수 (개)</span>'+
           '<span style="display:flex;gap:6px">'+
@@ -462,6 +463,9 @@ function buildFallBlocks(saved){
   }
   wrap.innerHTML=html;
   document.querySelectorAll('#fallGradeGroups .inp').forEach(mark);
+  var lastMode=(prev[n]||{}).mode||'census';
+  var addBtn=document.getElementById('fallAddBtn');
+  if(addBtn){ addBtn.style.opacity = lastMode==='census' ? '0.4' : '1'; }
 }
 var MINFSAMP=1, MAXFSAMP=10;
 function addFallSamp(btn){
@@ -499,6 +503,7 @@ function addFallBlock(){
   var n=parseInt(num('fallBlockN'))||1; if(n>=MAXBLK){ showToast('최대 '+MAXBLK+'개까지 가능합니다'); return; }
   var saved=currentFallBlocks();
   var last=saved[n]||{};
+  if((last.mode||'census')==='census'){ showToast('전수조사는 품종 구분 없이 전체 1건만 입력합니다. 여러 품종을 나눠 입력하려면 표본조사를 사용하세요.'); return; }
   document.getElementById('fallBlockN').value=n+1;
   saved[n+1]={ mode:last.mode||'census' };
   buildFallBlocks(saved); liveUpdate(); saveState();
