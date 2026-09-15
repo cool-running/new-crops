@@ -131,9 +131,9 @@ input.auto{height:40px;border:1.5px solid var(--border);border-radius:var(--rs);
 .tree-table tr.tree-row-block{border-top:1px solid #f0efe9}
 .tree-table tr.tree-row-block:first-child{border-top:none}
 .tree-table select.tree-sukgi{width:100%;height:40px;font-size:11px;padding:0 1px;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none}
-.tree-table .pj-wrap{display:block;width:100%}
-.tree-table select.tree-pumjong-sel,.tree-table input.tree-pumjong-txt{width:100%;height:40px;font-size:11px;padding:0 2px;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none}
+.tree-table input.tree-pumjong-txt{width:100%;height:40px;font-size:12px;padding:0 3px;text-align:center}
 .tree-table input.tJoinTree{width:100%;height:40px;font-size:12px;padding:0 1px;text-align:center;-moz-appearance:textfield}
+.tree-table input.tAfterCnt{width:100%;height:40px;font-size:12px;padding:0 2px;text-align:center}
 .tree-table .tvar-detail-btn{width:36px;height:36px;padding:0;border:1.5px solid var(--green);border-radius:8px;background:#fff;color:var(--green);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto}
 .tree-table .tvar-detail-btn.on{background:var(--green);color:#fff}
 .tvar-detail-row td{padding:8px 2px 2px}
@@ -227,7 +227,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
     <div style="display:flex;gap:6px;align-items:flex-end">
       <div class="field" style="flex:1;min-width:0">
         <label>품목</label>
-        <select class="inp filled" id="crop" onchange="mark(this);onCropChange();saveState()" style="text-align:center;text-align-last:center">
+        <select class="inp filled" id="crop" onchange="mark(this);saveState()" style="text-align:center;text-align-last:center">
           <option value="사과" selected>사과</option>
           <option value="배">배</option>
           <option value="단감">단감</option>
@@ -274,7 +274,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
     </div>
     <input type="hidden" id="treeRowN" value="1">
     <table class="tree-table" style="margin-top:12px">
-      <thead><tr><th style="width:42px">숙기</th><th style="width:100px">품종</th><th style="width:64px">가입주수</th><th style="width:42px">나무조사</th></tr></thead>
+      <thead><tr><th style="width:36px">숙기</th><th style="width:62px">품종</th><th style="width:56px">가입주수</th><th style="width:80px">착과수</th><th style="width:36px">나무조사</th></tr></thead>
       <tbody id="treeRows"></tbody>
     </table>
     <div class="g3" style="margin-top:10px">
@@ -287,7 +287,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
         <input class="auto" id="sumTarget" type="text" readonly value="0">
       </div>
       <div class="field">
-        <label>적과후착과수 <span class="unit">(합계)</span></label>
+        <label>착과수 <span class="unit">(합계)</span></label>
         <input class="auto" id="sumAfterCnt" type="text" readonly value="0">
       </div>
     </div>
@@ -480,16 +480,6 @@ function syncDate(){
   else { disp.textContent='조사일자'; disp.classList.add('ph'); disp.classList.remove('filled'); }
 }
 
-/* ── 품종 목록 (품목별) ── */
-var PUMJONG={
-  '사과':['부사(후지)','홍로','쓰가루','감홍','양광','시나노골드','아리수','홍옥','미야비'],
-  '배':['신고','원황','화산','추황배','황금배','만풍배','신화'],
-  '단감':['부유','차랑','태추','서촌조생','로망'],
-  '떫은감':['대봉','청도반시','둥시','상주둥시','갑주백목','고종시']
-};
-function cropList(){ return PUMJONG[val('crop')]||[]; }
-function onCropChange(){ buildTreeRows(); }
-
 /* ── 숙기/품종 셀 ── */
 function joinVar(su,pj){ su=(su||'').trim(); pj=(pj||'').trim(); return (su&&pj)?(su+'/'+pj):(su||pj); }
 function splitVar(s){ s=(s||'').trim(); var SU=['조생','중생','만생']; var i=s.indexOf('/');
@@ -497,34 +487,10 @@ function splitVar(s){ s=(s||'').trim(); var SU=['조생','중생','만생']; var
   if(SU.indexOf(s)>=0) return {su:s,pj:''}; return {su:'',pj:s};
 }
 function treePumjongCell(idx,pj){
-  var list=cropList(); var isCustom=(pj!==''&&list.indexOf(pj)<0);
-  var sel='<select class="inp tree-pumjong-sel'+(pj!==''?' filled':'')+'" data-idx="'+idx+'" onchange="onTreePumjongSel(this)" style="'+(isCustom?'display:none':'')+'">'+
-    '<option value=""'+(pj===''?' selected':'')+'>품종</option>'+
-    list.map(function(v){ return '<option'+(v===pj?' selected':'')+'>'+v+'</option>'; }).join('')+
-    '<option value="__custom__"'+(isCustom?' selected':'')+'>직접입력</option>'+
-  '</select>';
-  var txt='<input class="inp tree-pumjong-txt'+(isCustom?' filled':'')+'" data-idx="'+idx+'" type="text" placeholder="품종 입력" value="'+(isCustom?esc(pj):'')+'" style="'+(isCustom?'':'display:none')+'" oninput="mark(this);saveState()" onblur="onTreePumjongBlur(this)" autocomplete="off">';
-  return '<span class="pj-wrap" data-idx="'+idx+'">'+sel+txt+'</span>';
-}
-function onTreePumjongSel(sel){
-  var wrap=sel.parentNode, txt=wrap.querySelector('.tree-pumjong-txt');
-  if(sel.value==='__custom__'){ sel.style.display='none'; txt.style.display=''; txt.value=''; mark(txt); txt.focus(); }
-  else{ mark(sel); if(txt){ txt.style.display='none'; txt.value=''; mark(txt); } }
-  onVarietyRename(); liveUpdate(); saveState();
-}
-function onTreePumjongBlur(txt){
-  if((txt.value||'').trim()===''){
-    var wrap=txt.parentNode, sel=wrap.querySelector('.tree-pumjong-sel');
-    txt.style.display='none'; if(sel){ sel.style.display=''; sel.value=''; mark(sel); }
-  }
-  onVarietyRename(); liveUpdate(); saveState();
+  return '<input class="inp tree-pumjong-txt'+(pj!==''?' filled':'')+'" data-idx="'+idx+'" type="text" placeholder="품종" value="'+esc(pj)+'" oninput="mark(this);onVarietyRename();liveUpdate();saveState()" autocomplete="off">';
 }
 function readTreePumjong(idx){
-  var wrap=document.querySelector('#treeRows .pj-wrap[data-idx="'+idx+'"]'); if(!wrap) return '';
-  var txt=wrap.querySelector('.tree-pumjong-txt'), sel=wrap.querySelector('.tree-pumjong-sel');
-  if(txt && txt.style.display!=='none') return (txt.value||'').trim();
-  if(sel) return (sel.value==='__custom__'?'':(sel.value||''));
-  return '';
+  var txt=document.querySelector('#treeRows .tree-pumjong-txt[data-idx="'+idx+'"]'); return txt?(txt.value||'').trim():'';
 }
 function varietyLabel(idx){
   var su=''; var s=document.querySelector('#treeRows .tree-sukgi[data-idx="'+idx+'"]'); if(s) su=s.value||'';
@@ -595,10 +561,11 @@ function buildTreeRows(savedVals,savedVars,savedOpen){
       '</select></td>'+
       '<td>'+treePumjongCell(i,pj)+'</td>'+
       '<td><input class="inp tJoinTree" type="number" inputmode="numeric" value="'+((v.joinTree!==undefined&&v.joinTree!=='')?v.joinTree:'0')+'" oninput="onTreeJoinInput(this,'+i+')"></td>'+
+      '<td><input class="inp tAfterCnt" type="text" inputmode="numeric" placeholder="0" value="'+((v.afterCnt!==undefined&&v.afterCnt!=='')?v.afterCnt:'')+'" oninput="onComma(this);updateTreeSums();saveState()"></td>'+
       '<td><button type="button" class="tvar-detail-btn'+(btnOn?' on':'')+'" onclick="toggleTreeDetail('+i+')">🌳</button></td>'+
     '</tr>'+
     '<tr class="tvar-detail-row" data-idx="'+i+'" style="display:'+(open?'table-row':'none')+'">'+
-      '<td colspan="4" style="padding:8px 4px 12px;background:#f9f9f8;border-bottom:1px solid #ddd;border-radius:0 0 8px 8px">'+
+      '<td colspan="5" style="padding:8px 4px 12px;background:#f9f9f8;border-bottom:1px solid #ddd;border-radius:0 0 8px 8px">'+
         '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">'+
           treeCell('고사','tDeadTree',v.deadTree)+treeCell('수확불능','tHarvestImposs',v.harvestImposs)+treeCell('미보상고사','tDeadNC',v.deadNC)+treeCell('미보상생존','tAliveNC',v.aliveNC)+
         '</div>'+
@@ -606,10 +573,6 @@ function buildTreeRows(savedVals,savedVars,savedOpen){
           '<div class="tree-cell"><label>실제결과</label><input class="inp tRealTree" type="number" inputmode="numeric" value="'+realTreeVal+'" oninput="mark(this);updateTreeSums();saveState()"></div>'+
           '<div class="tree-cell"><label style="color:var(--blue)">조사대상(자동)</label><input class="auto tTargetBox" type="text" readonly value="0" style="height:40px;font-size:13.5px;padding:0;text-align:center;border-radius:8px;font-weight:800;color:var(--blue);background:#eaf2fb;border-color:var(--blue)"></div>'+
           treeCell('기수확','tHarvestDone',v.harvestDone)+
-        '</div>'+
-        '<div style="margin-top:6px">'+
-          '<div class="tree-cell" style="text-align:left;margin-bottom:3px"><label style="text-align:left">적과후착과수 (개)</label></div>'+
-          '<input class="inp tAfterCnt" type="text" inputmode="numeric" value="'+((v.afterCnt!==undefined&&v.afterCnt!=='')?v.afterCnt:'')+'" oninput="onComma(this);updateTreeSums();saveState()">'+
         '</div>'+
       '</td>'+
     '</tr>';
