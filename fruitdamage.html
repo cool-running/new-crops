@@ -427,9 +427,9 @@ function buildFallBlocks(saved){
   for(var i=1;i<=n;i++){
     var v=prev[i]||{}; var mode=v.mode||'census';
     var sampArr = Array.isArray(v.samp) && v.samp.length ? v.samp : ['','',''];
-    var pjmode=v.pjmode||'known'; var alloc=v.alloc||{};
-    var showPjSel=!(mode==='census' && pjmode==='unknown');
-    html+='<div class="grade-block" data-idx="'+i+'" data-mode="'+mode+'" data-pjmode="'+pjmode+'">'+
+    var alloc=v.alloc||{};
+    var showPjSel=(mode!=='census');
+    html+='<div class="grade-block" data-idx="'+i+'" data-mode="'+mode+'">'+
       '<div class="grade-block-head">'+
         (showPjSel ? pumjongCell('fall',i,v.pj||'') : '<span class="inp auto" style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub)">전체 (품종구분불가)</span>')+
       '</div>'+
@@ -438,12 +438,8 @@ function buildFallBlocks(saved){
         '<button type="button" class="seg-btn fallModeBtn'+(mode==='census'?' on':'')+'" onclick="setFallBlockMode(this,\'census\')">전수조사</button>'+
       '</div>'+
       '<div class="fallCensusWrap" style="display:'+(mode==='census'?'':'none')+'">'+
-        '<div class="field" style="margin-bottom:9px"><label>품종구분 여부</label><div class="seg">'+
-          '<button type="button" class="seg-btn fallPjModeBtn'+(pjmode==='known'?' on':'')+'" onclick="setFallPjMode(this,\'known\')">여</button>'+
-          '<button type="button" class="seg-btn fallPjModeBtn'+(pjmode==='unknown'?' on':'')+'" onclick="setFallPjMode(this,\'unknown\')">부</button>'+
-        '</div></div>'+
-        '<div class="field"><label>낙과수 (개)'+(pjmode==='unknown'?' — 전체':'')+'</label><input class="inp filled fallCntInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.cnt||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
-        '<div class="fallAllocWrap" style="display:'+(pjmode==='unknown'?'':'none')+';margin-top:9px">'+
+        '<div class="field"><label>낙과수 (개) — 전체</label><input class="inp filled fallCntInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.cnt||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
+        '<div class="fallAllocWrap" style="margin-top:9px">'+
           '<div class="hint" style="margin-top:0;margin-bottom:6px">품종을 눈으로 구분할 수 없을 때, 낙과 중 100개 이상을 무작위로 뽑아 품종별로 센 개수를 입력하세요. 그 비율로 전체 낙과수를 나눠 배분합니다.</div>'+
           [1,2,3,4,5].map(function(k){ var a=alloc[k]||{}; return '<div style="display:flex;gap:6px;margin-bottom:6px">'+
             '<input class="inp filled fallAllocPj fallAllocPj'+k+'" type="text" placeholder="품종'+k+'" value="'+esc(a.pj||'')+'" style="flex:1" oninput="mark(this);liveUpdate();saveState()">'+
@@ -473,13 +469,6 @@ function buildFallBlocks(saved){
   wrap.innerHTML=html;
   document.querySelectorAll('#fallGradeGroups .inp').forEach(mark);
 }
-function setFallPjMode(btn,pjmode){
-  var block=btn.closest('.grade-block'); if(!block) return;
-  var savedAll=currentFallBlocks();
-  savedAll[block.dataset.idx].pjmode=pjmode;
-  buildFallBlocks(savedAll);
-  liveUpdate(); saveState();
-}
 var MINFSAMP=1, MAXFSAMP=10;
 function addFallSamp(btn){
   var block=btn.closest('.grade-block'); if(!block) return;
@@ -499,11 +488,9 @@ function removeFallSamp(btn){
 }
 function setFallBlockMode(btn,mode){
   var block=btn.closest('.grade-block'); if(!block) return;
-  block.dataset.mode=mode;
-  block.querySelectorAll('.fallModeBtn').forEach(function(b){ b.classList.remove('on'); });
-  btn.classList.add('on');
-  block.querySelector('.fallCensusWrap').style.display = mode==='census' ? '' : 'none';
-  block.querySelector('.fallSampleWrap').style.display = mode==='sample' ? '' : 'none';
+  var savedAll=currentFallBlocks();
+  savedAll[block.dataset.idx].mode=mode;
+  buildFallBlocks(savedAll);
   liveUpdate(); saveState();
 }
 function currentFallBlocks(){
@@ -514,7 +501,7 @@ function currentFallBlocks(){
       var pjEl=b.querySelector('.fallAllocPj'+k), cntEl=b.querySelector('.fallAllocCnt'+k);
       if(pjEl||cntEl) alloc[k]={ pj:pjEl?pjEl.value:'', cnt:cntEl?cntEl.value:'' };
     });
-    o[idx]={ pj:readPj('fall',b), mode:b.dataset.mode||'census', pjmode:b.dataset.pjmode||'known', cnt:b.querySelector('.fallCntInput').value, target:b.querySelector('.fallTargetInput').value, samp:samp, alloc:alloc,
+    o[idx]={ pj:readPj('fall',b), mode:b.dataset.mode||'census', cnt:b.querySelector('.fallCntInput').value, target:b.querySelector('.fallTargetInput').value, samp:samp, alloc:alloc,
       g0:b.querySelector('.fg0').value, g30:b.querySelector('.fg30').value, g50:b.querySelector('.fg50').value, g80:b.querySelector('.fg80').value, g100:b.querySelector('.fg100').value };
   }); return o;
 }
@@ -523,7 +510,7 @@ function addFallBlock(){
   var saved=currentFallBlocks();
   var last=saved[n]||{};
   document.getElementById('fallBlockN').value=n+1;
-  saved[n+1]={ mode:last.mode||'census', pjmode:last.pjmode||'known' };
+  saved[n+1]={ mode:last.mode||'census' };
   buildFallBlocks(saved); liveUpdate(); saveState();
 }
 function removeFallBlock(){ var n=parseInt(num('fallBlockN'))||1; if(n<=MINBLK){ showToast('최소 1개는 있어야 합니다'); return; } document.getElementById('fallBlockN').value=n-1; buildFallBlocks(); liveUpdate(); saveState(); }
@@ -565,7 +552,6 @@ function computeAll(){
       g80:parseFloat(b.querySelector('.fg80').value)||0, g100:parseFloat(b.querySelector('.fg100').value)||0 };
     var ratio=ratioOf5(g);
     var mode=b.dataset.mode||'census';
-    var pjmode=b.dataset.pjmode||'known';
     var cnt=0;
     if(mode==='census'){
       cnt=parseFloat((b.querySelector('.fallCntInput').value||'').replace(/,/g,''))||0;
@@ -576,7 +562,7 @@ function computeAll(){
       cnt = cardCnt>0 ? Math.round((sum/cardCnt)*target) : 0;
       var autoEl=document.getElementById('fallAutoCnt_'+b.dataset.idx); if(autoEl) autoEl.textContent=fmt(cnt);
     }
-    if(mode==='census' && pjmode==='unknown'){
+    if(mode==='census'){
       var allocRows=[];
       [1,2,3,4,5].forEach(function(k){
         var pjEl=b.querySelector('.fallAllocPj'+k), cEl=b.querySelector('.fallAllocCnt'+k);
