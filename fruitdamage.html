@@ -572,20 +572,20 @@ function liveUpdate(){
   var stats=[];
   if(attEnabled && R.attGroups.length){
     var avgRatio = R.attGroups.reduce(function(s,g){return s+g.ratio;},0) / R.attGroups.length;
-    stats.push({label:'착과피해구성비율'+(R.attGroups.length>1?' (평균)':''), val:avgRatio.toFixed(2)+'%'});
+    stats.push({label:'착과피해구성비율'+(R.attGroups.length>1?' (평균)':''), val:avgRatio.toFixed(2)+'%', color:'#FFD0D0'});
   }
   if(fallEnabled && R.fallGroups.length){
-    stats.push({label:'낙과인정피해과실수 합계', val:fmt(R.fallTotal)+' 개'});
+    stats.push({label:'낙과인정피해과실수 합계', val:fmt(R.fallTotal)+' 개', color:'#fff'});
   }
   if(stats.length){
-    var html='';
-    stats.forEach(function(s,i){
-      if(i>0) html+='<div style="width:1px;height:40px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>';
-      html+='<div style="padding:0 6px;flex:1;min-width:0;text-align:center">'+
-        '<div style="font-size:10.5px;color:rgba(255,255,255,0.75);font-weight:500;line-height:1.2;word-break:keep-all;min-height:25px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:3px">'+s.label+'</div>'+
-        '<div style="font-size:'+(stats.length>1?'19px':'22px')+';font-weight:900;color:#fff;letter-spacing:-0.02em;line-height:1;white-space:nowrap">'+s.val+'</div>'+
+    var html='<div style="display:flex;flex-direction:column;gap:8px;width:100%">';
+    stats.forEach(function(s){
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'+
+        '<span style="font-size:12.5px;color:rgba(255,255,255,0.8);font-weight:600">'+s.label+'</span>'+
+        '<span style="font-size:19px;font-weight:900;color:'+s.color+';letter-spacing:-0.02em;white-space:nowrap">'+s.val+'</span>'+
       '</div>';
     });
+    html+='</div>';
     detail.innerHTML=html;
     box.classList.remove('pending');
   } else {
