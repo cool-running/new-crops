@@ -328,26 +328,6 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
       </div>
     </div>
     <div class="module-body" id="fallBody">
-      <div class="field">
-        <label>조사방식</label>
-        <div class="seg">
-          <button type="button" class="seg-btn" id="fallModeSampleBtn" onclick="setFallMode('sample')">표본조사</button>
-          <button type="button" class="seg-btn" id="fallModeCensusBtn" onclick="setFallMode('census')">전수조사</button>
-        </div>
-      </div>
-
-      <div id="fallSampleWrap" style="margin-top:12px">
-        <div class="sec-title" style="justify-content:space-between;margin-top:2px">
-          <span>낙과수 표본조사</span>
-          <span style="display:flex;gap:6px">
-            <button class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="fallSampMinus()">－ 표본</button>
-            <button class="btn-add" onclick="fallSampPlus()">＋ 표본</button>
-          </span>
-        </div>
-        <input type="hidden" id="fallSampleN" value="3">
-        <div id="fallRows"></div>
-      </div>
-
       <div class="subhead" style="margin-top:14px">📊 낙과 피해구성조사 (품종별)</div>
       <div id="fallGradeGroups"></div>
     </div>
@@ -441,9 +421,9 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
 
 <script>
 var KEY_STATE='fruitdamage_state', KEY_HIST='fruitdamage_history', KEY_BIG='fruitdamage_bigtext';
-var FIELDS=['crop','contractorName','farmNo','surveyDate','treeRowN','fallSampleN','attManualCnt'];
+var FIELDS=['crop','contractorName','farmNo','surveyDate','treeRowN','attManualCnt'];
 var LAST=null;
-var attEnabled=false, fallEnabled=false, attMode='reuse', fallMode='sample';
+var attEnabled=false, fallEnabled=false, attMode='reuse';
 
 function num(id){ var e=document.getElementById(id); if(!e) return 0; var v=(e.value||'').toString().replace(/,/g,''); var n=parseFloat(v); return isNaN(n)?0:n; }
 function val(id){ var e=document.getElementById(id); return e?e.value:''; }
@@ -678,38 +658,6 @@ function refreshVarietySelects(){
   });
   buildAttGradeGroups(currentAttGrades()); buildFallGradeGroups(currentFallGrades());
 }
-function cleanupFallSamples(){ var keys=computeGroups().map(function(g){return String(g.gidx);}); document.querySelectorAll('#fallRows .samp-varsel').forEach(function(sel){ if(sel.value && keys.indexOf(sel.value)<0) sel.value=''; }); }
-
-var MINSAMP=3, MAXSAMP=20;
-
-/* ── 낙과 표본조사 ── */
-function buildFallSampleRows(saved){
-  var n=parseInt(num('fallSampleN'))||0; if(n>MAXSAMP) n=MAXSAMP;
-  var wrap=document.getElementById('fallRows'); if(!wrap) return;
-  var prev=saved || getFallSamples();
-  var rows='';
-  for(var i=1;i<=n;i++){
-    var r=prev[i]||{}; var vsel=r.v!==undefined?r.v:''; var cnt=r.c!==undefined?r.c:'';
-    rows+='<tr><td class="samp-no">'+i+'</td>'+
-      '<td><select class="inp samp-varsel" data-idx="'+i+'" onchange="mark(this);liveUpdate();saveState()">'+varietyOptions(vsel)+'</select></td>'+
-      '<td><input class="inp samp-cnt" data-idx="'+i+'" type="number" inputmode="numeric" value="'+cnt+'" oninput="mark(this);fallSumSamples();liveUpdate();saveState()"></td>'+
-    '</tr>';
-  }
-  wrap.innerHTML='<table class="samp-table"><colgroup><col style="width:36px"><col><col style="width:74px"></colgroup>'+
-    '<thead><tr><th>표본</th><th>품종</th><th>표본낙과수</th></tr></thead><tbody>'+rows+
-    '<tr class="samp-total-row"><td colspan="2" class="samp-total-label">합계 (개)</td><td><div class="samp-total-box" id="fallSampTotalBox">0</div></td></tr></tbody></table>';
-  document.querySelectorAll('#fallRows .inp').forEach(mark);
-  fallSumSamples();
-}
-function fallSumSamples(){ var s=0; document.querySelectorAll('#fallRows .samp-cnt').forEach(function(i){ s+=parseFloat(i.value)||0; }); var b=document.getElementById('fallSampTotalBox'); if(b) b.textContent=fmt(s); return s; }
-function getFallSamples(){ var o2={};
-  document.querySelectorAll('#fallRows .samp-varsel').forEach(function(sel){ var idx=sel.dataset.idx; o2[idx]=o2[idx]||{}; o2[idx].v=sel.value; });
-  document.querySelectorAll('#fallRows .samp-cnt').forEach(function(inp){ var idx=inp.dataset.idx; o2[idx]=o2[idx]||{}; o2[idx].c=inp.value; });
-  return o2;
-}
-function fallSampPlus(){ var n=parseInt(num('fallSampleN'))||0; if(n>=MAXSAMP){ showToast('표본은 최대 '+MAXSAMP+'개까지 가능합니다'); return; } document.getElementById('fallSampleN').value=n+1; buildFallSampleRows(); liveUpdate(); saveState(); }
-function fallSampMinus(){ var n=parseInt(num('fallSampleN'))||0; if(n<=MINSAMP){ showToast('적정 표본주수 3개 이상 필요합니다'); return; } document.getElementById('fallSampleN').value=n-1; buildFallSampleRows(); liveUpdate(); saveState(); }
-
 /* ── 실시여부 / 방식 토글 ── */
 function setAttEnabled(on){
   attEnabled=on;
@@ -734,14 +682,6 @@ function setAttMode(m){
   buildAttGradeGroups(currentAttGrades());
   liveUpdate(); saveState();
 }
-function setFallMode(m){
-  fallMode=m;
-  document.getElementById('fallModeSampleBtn').classList.toggle('on',m==='sample');
-  document.getElementById('fallModeCensusBtn').classList.toggle('on',m==='census');
-  document.getElementById('fallSampleWrap').style.display=(m==='sample')?'':'none';
-  buildFallGradeGroups(currentFallGrades());
-  liveUpdate(); saveState();
-}
 
 /* ── 피해구성조사 블록 (품종별) ── */
 function gradeCell(label,cls,v,extraClass){
@@ -758,7 +698,8 @@ function currentAttGrades(){
 function currentFallGrades(){
   var o={}; document.querySelectorAll('#fallGradeGroups .grade-block').forEach(function(b){
     var key=b.dataset.label!==undefined?b.dataset.label:b.dataset.idx;
-    o[key]={ g0:b.querySelector('.fg0').value, g50:b.querySelector('.fg50').value, g80:b.querySelector('.fg80').value, g100:b.querySelector('.fg100').value, active:b.dataset.active, census:b.querySelector('.fcensus')?b.querySelector('.fcensus').value:'' };
+    var cntEl=b.querySelector('.fallCntInput');
+    o[key]={ g0:b.querySelector('.fg0').value, g30:b.querySelector('.fg30').value, g50:b.querySelector('.fg50').value, g80:b.querySelector('.fg80').value, g100:b.querySelector('.fg100').value, cnt:cntEl?cntEl.value:'' };
   }); return o;
 }
 function displayLabel(label){ var i=label.indexOf('/'); return i>=0 ? label.slice(i+1) : label; }
@@ -791,16 +732,23 @@ function buildAttGradeGroups(saved){
 }
 function buildFallGradeGroups(saved){
   var wrap=document.getElementById('fallGradeGroups'); if(!wrap) return;
-  var prev=saved||{}; var groups=computeGroups(); var census=(fallMode==='census');
+  var prev=saved||{}; var groups=computeGroups();
   var html='';
-  groups.forEach(function(g){
+  groups.forEach(function(g,gi){
     var idx=g.gidx;
     var v=prev[g.label]||{};
     html+='<div class="grade-block" data-idx="'+idx+'" data-label="'+esc(g.label)+'" data-active="y">'+
-      '<div class="grade-block-head"><span class="grade-key">'+esc(g.label)+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span></div>'+
-      (census?('<div class="field" style="margin-bottom:8px"><label>전체 낙과수(개) — 이 품종</label><input class="inp fcensus" type="number" inputmode="numeric" value="'+(v.census||'')+'" oninput="mark(this);liveUpdate();saveState()"></div>'):'')+
-      '<div class="g4">'+
-        gradeCell('정상','fg0',v.g0)+gradeCell('50%형','fg50',v.g50)+gradeCell('80%형','fg80',v.g80)+gradeCell('100%형','fg100',v.g100,'grade-100')+
+      '<div class="grade-block-head" style="align-items:center">'+
+        '<div style="flex:1;min-width:0">'+
+          '<span class="grade-key">표본'+(gi+1)+' · '+esc(displayLabel(g.label))+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span>'+
+        '</div>'+
+        '<div style="flex-shrink:0;text-align:center;margin-left:8px">'+
+          '<div class="unit" style="margin-bottom:3px">낙과수(개)</div>'+
+          '<input class="inp filled fallCntInput" data-idx="'+idx+'" type="text" inputmode="numeric" placeholder="0" value="'+(v.cnt||'')+'" style="width:104px;height:34px;font-size:13px;padding:0 4px;text-align:center" oninput="onComma(this);liveUpdate();saveState()">'+
+        '</div>'+
+      '</div>'+
+      '<div class="g5">'+
+        gradeCell('정상','fg0',v.g0)+gradeCell('30%형','fg30',v.g30,'grade-30')+gradeCell('50%형','fg50',v.g50)+gradeCell('80%형','fg80',v.g80)+gradeCell('100%형','fg100',v.g100,'grade-100')+
       '</div>'+
     '</div>';
   });
@@ -808,11 +756,9 @@ function buildFallGradeGroups(saved){
 }
 /* ── 계산 엔진 ── */
 function ratioOf5(v){ var s=v.g0+v.g30+v.g50+v.g80+v.g100; return s>0?(v.g30*0.3+v.g50*0.5+v.g80*0.8+v.g100*1)/s*100:0; }
-function ratioOf4(v){ var s=v.g0+v.g50+v.g80+v.g100; return s>0?(v.g50*0.5+v.g80*0.8+v.g100*1)/s*100:0; }
 
 function computeAll(){
   var groups=computeGroups();
-  var fallSamp=getFallSamples();
 
   var attGroups=[], fallGroups=[];
   var attTotal=0, fallTotal=0, afterTotal=0;
@@ -837,20 +783,12 @@ function computeAll(){
     /* 낙과 */
     block=document.querySelector('#fallGradeGroups .grade-block[data-idx="'+idx+'"]');
     active = block ? block.dataset.active!=='n' : true;
-    var fg={ g0:0,g50:0,g80:0,g100:0 }; var censusCnt=0;
-    if(block){ fg={ g0:parseFloat(block.querySelector('.fg0').value)||0, g50:parseFloat(block.querySelector('.fg50').value)||0,
-      g80:parseFloat(block.querySelector('.fg80').value)||0, g100:parseFloat(block.querySelector('.fg100').value)||0 };
-      var cEl=block.querySelector('.fcensus'); if(cEl) censusCnt=parseFloat(cEl.value)||0; }
-    var fallRatio=ratioOf4(fg);
-    var fallCnt=0;
-    if(fallEnabled && active){
-      if(fallMode==='census'){ fallCnt=censusCnt; }
-      else{
-        var sumF=0,cntF=0;
-        Object.keys(fallSamp).forEach(function(k){ var r=fallSamp[k]; if(String(r.v)===String(idx)){ sumF+=parseFloat(r.c)||0; cntF+=1; } });
-        fallCnt = cntF>0 ? Math.round((sumF/cntF)*target) : 0;
-      }
-    }
+    var fg={ g0:0,g30:0,g50:0,g80:0,g100:0 };
+    if(block){ fg={ g0:parseFloat(block.querySelector('.fg0').value)||0, g30:parseFloat(block.querySelector('.fg30').value)||0, g50:parseFloat(block.querySelector('.fg50').value)||0,
+      g80:parseFloat(block.querySelector('.fg80').value)||0, g100:parseFloat(block.querySelector('.fg100').value)||0 }; }
+    var fallRatio=ratioOf5(fg);
+    var fallCntEl=block&&block.querySelector('.fallCntInput');
+    var fallCnt = fallCntEl ? (parseFloat((fallCntEl.value||'').replace(/,/g,''))||0) : 0;
     var fallAdmitCnt = fallEnabled&&active ? Math.round(fallCnt*fallRatio/100) : 0;
     fallTotal+=fallAdmitCnt;
     fallGroups.push({idx:idx,label:g0.label,active:fallEnabled&&active,cnt:fallCnt,ratio:fallRatio,admitCnt:fallAdmitCnt,g:fg});
@@ -921,8 +859,8 @@ function setLockUI(locked){ var hs=document.getElementById('hdrState'); if(hs){ 
 function saveState(){
   try{
     var st={ trees:currentTreeValues(), treeVars:currentTreeVars(), treeOpen:currentTreeOpen(),
-      fallSamples:getFallSamples(), attGrades:currentAttGrades(), fallGrades:currentFallGrades(),
-      attEnabled:attEnabled, fallEnabled:fallEnabled, attMode:attMode, fallMode:fallMode };
+      attGrades:currentAttGrades(), fallGrades:currentFallGrades(),
+      attEnabled:attEnabled, fallEnabled:fallEnabled, attMode:attMode };
     FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el) st[id]=el.value; });
     st.calcDone=document.getElementById('content').classList.contains('locked');
     localStorage.setItem(KEY_STATE, JSON.stringify(st));
@@ -936,9 +874,7 @@ function restoreState(){
   attEnabled = st.attEnabled!==undefined ? st.attEnabled : false;
   fallEnabled = st.fallEnabled!==undefined ? st.fallEnabled : false;
   attMode = st.attMode || 'reuse';
-  fallMode = st.fallMode || 'sample';
-  setAttEnabled(attEnabled); setFallEnabled(fallEnabled); setAttMode(attMode); setFallMode(fallMode);
-  buildFallSampleRows(st.fallSamples||null);
+  setAttEnabled(attEnabled); setFallEnabled(fallEnabled); setAttMode(attMode);
   buildAttGradeGroups(st.attGrades||null);
   buildFallGradeGroups(st.fallGrades||null);
   syncDate();
@@ -962,14 +898,12 @@ function doReset(){
   try{
     FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
       if(id==='treeRowN') el.value='1'; else if(id==='crop') el.value='사과';
-      else if(id==='fallSampleN') el.value='3';
       else if(id==='surveyDate'){ el.value=todayStr(); } else el.value='';
     });
   }catch(e){}
   buildTreeRows({},{},{});
-  attEnabled=false; fallEnabled=false; attMode='reuse'; fallMode='sample';
-  setAttEnabled(false); setFallEnabled(false); setAttMode('reuse'); setFallMode('sample');
-  buildFallSampleRows({});
+  attEnabled=false; fallEnabled=false; attMode='reuse';
+  setAttEnabled(false); setFallEnabled(false); setAttMode('reuse');
   buildAttGradeGroups({}); buildFallGradeGroups({});
   syncDate();
   document.querySelectorAll('.inp').forEach(mark);
@@ -1144,9 +1078,9 @@ function saveToSharedHistory(imgDataUrl){
     buildTreeRows();
     treeField(1,'tJoinTree').value='100'; treeField(1,'tRealTree').value='100'; treeField(1,'tAfterCnt').value='10,000';
     updateTreeSums();
-    setAttEnabled(false); setFallEnabled(false); setAttMode('reuse'); setFallMode('sample');
-    buildFallSampleRows();
-    buildAttGradeGroups(); buildFallGradeGroups();
+    setAttEnabled(false); setFallEnabled(false); setAttMode('reuse');
+    buildFallGradeGroups();
+    buildAttGradeGroups();
     document.querySelectorAll('.inp').forEach(mark);
   }
   if(!document.getElementById('surveyDate').value){ document.getElementById('surveyDate').value=todayStr(); }
