@@ -275,7 +275,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
     </div>
     <input type="hidden" id="treeRowN" value="1">
     <table class="tree-table" style="margin-top:12px">
-      <thead><tr><th style="width:36px">숙기</th><th style="width:98px">품종</th><th style="width:38px">가입주수</th><th style="width:62px">착과수</th><th style="width:36px">나무조사</th></tr></thead>
+      <thead><tr><th style="width:54px">숙기</th><th style="width:64px">품종</th><th style="width:54px">가입주수</th><th style="width:62px">착과수</th><th style="width:36px">나무조사</th></tr></thead>
       <tbody id="treeRows"></tbody>
     </table>
     <div class="g3" style="margin-top:10px">
@@ -306,30 +306,15 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
     <div class="module-body" id="attBody">
       <div class="field">
         <label>기존 착과수 사용여부</label>
-        <div class="seg" style="grid-template-columns:1fr 1fr 1fr">
-          <button type="button" class="seg-btn" id="attModeReuseBtn" onclick="setAttMode('reuse')" style="font-size:11.5px">여 · 기존값</button>
-          <button type="button" class="seg-btn" id="attModeManualBtn" onclick="setAttMode('manual')" style="font-size:11.5px">부 · 직접입력</button>
-          <button type="button" class="seg-btn" id="attModeSampleBtn" onclick="setAttMode('sample')" style="font-size:11.5px">부 · 표본조사</button>
+        <div class="seg" id="attModeSeg" style="grid-template-columns:1fr 1fr">
+          <button type="button" class="seg-btn" id="attModeReuseBtn" onclick="setAttMode('reuse')">여 · 기존값 사용</button>
+          <button type="button" class="seg-btn" id="attModeManualBtn" onclick="setAttMode('manual')">부 · 직접입력</button>
+          <input class="inp filled" id="attManualCnt" type="text" inputmode="numeric" placeholder="착과수" style="display:none" oninput="onComma(this);liveUpdate();saveState()">
         </div>
-      </div>
-
-      <div id="attSampleWrap" style="margin-top:12px">
-        <div class="sec-title" style="justify-content:space-between;margin-top:2px">
-          <span>착과 표본조사</span>
-          <button class="btn-add" onclick="attSampPlus()">＋ 표본</button>
-        </div>
-        <div class="hint" style="margin-top:0">표본주마다 품종·착과수·피해구성을 따로 입력합니다. 1주만 조사해도, 3주 모두 조사해도 됩니다.</div>
-        <input type="hidden" id="attSampleN" value="1">
-        <div id="attRows"></div>
       </div>
 
       <div class="subhead" style="margin-top:14px">📊 착과 피해구성조사 (품종별)</div>
       <div id="attGradeGroups"></div>
-
-      <div class="subtot">
-        <span class="k">착과인정피해과실수 합계</span>
-        <span class="v" id="attTotalAdmit">0 개</span>
-      </div>
     </div>
   </div>
 
@@ -365,11 +350,6 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
 
       <div class="subhead" style="margin-top:14px">📊 낙과 피해구성조사 (품종별)</div>
       <div id="fallGradeGroups"></div>
-
-      <div class="subtot">
-        <span class="k">낙과인정피해과실수 합계</span>
-        <span class="v" id="fallTotalAdmit">0 개</span>
-      </div>
     </div>
   </div>
 
@@ -461,7 +441,7 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
 
 <script>
 var KEY_STATE='fruitdamage_state', KEY_HIST='fruitdamage_history', KEY_BIG='fruitdamage_bigtext';
-var FIELDS=['crop','contractorName','farmNo','surveyDate','treeRowN','attSampleN','fallSampleN'];
+var FIELDS=['crop','contractorName','farmNo','surveyDate','treeRowN','fallSampleN','attManualCnt'];
 var LAST=null;
 var attEnabled=false, fallEnabled=false, attMode='reuse', fallMode='sample';
 
@@ -654,20 +634,12 @@ function updateTreeSums(){
   var j=document.getElementById('sumJoinTree'); if(j) j.value=fmt(sumJoin);
   var t=document.getElementById('sumTarget'); if(t) t.value=fmt(sumTarget);
   var a=document.getElementById('sumAfterCnt'); if(a) a.value=fmt(sumAfter);
-  computeGroups().forEach(function(g){ syncAttCntDefault(g.gidx, g.afterCnt); });
+  computeGroups().forEach(function(g){ syncAttCntDisplay(g.gidx, g.afterCnt); });
 }
-/* 기존착과수 사용 모드에서, 사용자가 직접 수정하지 않은 착과수 입력칸은 나무조사 적과후착과수를 그대로 따라간다 */
-function syncAttCntDefault(idx, afterCnt){
-  if(attMode!=='reuse') return;
-  var block=document.querySelector('#attGradeGroups .grade-block[data-idx="'+idx+'"]'); if(!block) return;
-  var cntEl=block.querySelector('.attCntInput'); if(!cntEl) return;
-  var curVal=(cntEl.value||'').replace(/,/g,'');
-  var lastAuto=cntEl.dataset.auto;
-  if(lastAuto===undefined || lastAuto===curVal){
-    cntEl.value=fmt(afterCnt);
-    cntEl.dataset.auto=String(afterCnt);
-    mark(cntEl);
-  }
+/* 착과수(개) 표시: 여-기존값 모드면 나무조사 적과후착과수, 부-직접입력 모드면 상단 공통 입력값을 그대로 보여준다 */
+function syncAttCntDisplay(idx, afterCnt){
+  var el=document.querySelector('#attGradeGroups .grade-block[data-idx="'+idx+'"] .attCntInput'); if(!el) return;
+  el.textContent = fmt(attMode==='manual' ? num('attManualCnt') : afterCnt);
 }
 function treeData(idx){
   var rt=parseFloat(treeField(idx,'tRealTree').value)||0, hd=parseFloat(treeField(idx,'tHarvestDone').value)||0,
@@ -706,52 +678,9 @@ function refreshVarietySelects(){
   });
   buildAttGradeGroups(currentAttGrades()); buildFallGradeGroups(currentFallGrades());
 }
-function cleanupAttSamples(){ var keys=computeGroups().map(function(g){return String(g.gidx);}); document.querySelectorAll('#attRows .samp-varsel').forEach(function(sel){ if(sel.value && keys.indexOf(sel.value)<0) sel.value=''; }); }
 function cleanupFallSamples(){ var keys=computeGroups().map(function(g){return String(g.gidx);}); document.querySelectorAll('#fallRows .samp-varsel').forEach(function(sel){ if(sel.value && keys.indexOf(sel.value)<0) sel.value=''; }); }
 
-/* ── 착과 표본조사 ── */
 var MINSAMP=3, MAXSAMP=20;
-var MINATTSAMP=1;
-function buildAttSampleRows(saved){
-  var n=parseInt(num('attSampleN'))||0; if(n>MAXSAMP) n=MAXSAMP;
-  var wrap=document.getElementById('attRows'); if(!wrap) return;
-  var prev=saved || getAttSamples();
-  var html='';
-  for(var i=1;i<=n;i++){
-    var r=prev[i]||{}; var vsel=r.v!==undefined?r.v:''; var cnt=r.c!==undefined?r.c:'';
-    html+='<div class="grade-block" data-idx="'+i+'">'+
-      '<div class="grade-block-head">'+
-        '<select class="inp samp-varsel" data-idx="'+i+'" style="flex:1;margin-right:8px;height:36px;font-size:12.5px" onchange="mark(this);liveUpdate();saveState()">'+varietyOptions(vsel)+'</select>'+
-        '<button type="button" class="tree-del-btn" onclick="removeAttSampleCard('+i+')">✕</button>'+
-      '</div>'+
-      '<div class="field" style="margin-bottom:9px"><label>표본'+i+'번 착과수 (개)</label>'+
-        '<input class="inp samp-cnt" data-idx="'+i+'" type="text" inputmode="numeric" placeholder="0" value="'+cnt+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
-      '<div class="g5">'+
-        gradeCell('정상','ag0',r.g0)+gradeCell('30%형','ag30',r.g30,'grade-30')+gradeCell('50%형','ag50',r.g50)+gradeCell('80%형','ag80',r.g80)+gradeCell('100%형','ag100',r.g100,'grade-100')+
-      '</div>'+
-      '<div class="grade-result" style="grid-template-columns:1fr"><div class="gr"><div class="k">이 표본 피해구성비율</div><div class="v" id="attCardRatio_'+i+'">0.00%</div></div></div>'+
-    '</div>';
-  }
-  wrap.innerHTML = html || '<div class="hint">＋ 표본을 추가하세요.</div>';
-  document.querySelectorAll('#attRows .inp').forEach(mark);
-}
-function getAttSamples(){ var o2={};
-  document.querySelectorAll('#attRows .grade-block').forEach(function(b){
-    var idx=b.dataset.idx;
-    o2[idx]={ v:b.querySelector('.samp-varsel').value, c:b.querySelector('.samp-cnt').value,
-      g0:b.querySelector('.ag0').value, g30:b.querySelector('.ag30').value, g50:b.querySelector('.ag50').value, g80:b.querySelector('.ag80').value, g100:b.querySelector('.ag100').value };
-  });
-  return o2;
-}
-function removeAttSampleCard(delIdx){
-  var n=parseInt(num('attSampleN'))||0; if(n<=MINATTSAMP){ showToast('최소 1개 표본은 있어야 합니다'); return; }
-  var samples=getAttSamples(); delete samples[delIdx];
-  var oldKeys=Object.keys(samples).map(Number).sort(function(a,b){return a-b;});
-  var ns={}; oldKeys.forEach(function(k,i){ ns[i+1]=samples[k]; });
-  document.getElementById('attSampleN').value=oldKeys.length||1;
-  buildAttSampleRows(ns); liveUpdate(); saveState();
-}
-function attSampPlus(){ var n=parseInt(num('attSampleN'))||0; if(n>=MAXSAMP){ showToast('표본은 최대 '+MAXSAMP+'개까지 가능합니다'); return; } document.getElementById('attSampleN').value=n+1; buildAttSampleRows(); liveUpdate(); saveState(); }
 
 /* ── 낙과 표본조사 ── */
 function buildFallSampleRows(saved){
@@ -797,17 +726,12 @@ function setFallEnabled(on){
   liveUpdate(); saveState();
 }
 function setAttMode(m){
-  var prevMode=attMode;
   attMode=m;
   document.getElementById('attModeReuseBtn').classList.toggle('on',m==='reuse');
   document.getElementById('attModeManualBtn').classList.toggle('on',m==='manual');
-  document.getElementById('attModeSampleBtn').classList.toggle('on',m==='sample');
-  document.getElementById('attSampleWrap').style.display=(m==='sample')?'':'none';
-  var grades=currentAttGrades();
-  if(prevMode!==m && (m==='reuse' || m==='manual')){
-    Object.keys(grades).forEach(function(k){ grades[k].cnt=undefined; grades[k].cntAuto=undefined; });
-  }
-  buildAttGradeGroups(grades);
+  document.getElementById('attModeSeg').style.gridTemplateColumns = (m==='manual') ? '1fr 1fr 1fr' : '1fr 1fr';
+  document.getElementById('attManualCnt').style.display = (m==='manual') ? '' : 'none';
+  buildAttGradeGroups(currentAttGrades());
   liveUpdate(); saveState();
 }
 function setFallMode(m){
@@ -826,11 +750,9 @@ function gradeCell(label,cls,v,extraClass){
 }
 function currentAttGrades(){
   var o={}; document.querySelectorAll('#attGradeGroups .grade-block').forEach(function(b){
-    var ag0=b.querySelector('.ag0'); if(!ag0) return; /* 표본조사 모드의 읽기전용 요약 블록은 건너뜀 */
-    var cntEl=b.querySelector('.attCntInput');
+    var ag0=b.querySelector('.ag0'); if(!ag0) return;
     var key=b.dataset.label!==undefined?b.dataset.label:b.dataset.idx;
-    o[key]={ g0:ag0.value, g30:b.querySelector('.ag30').value, g50:b.querySelector('.ag50').value, g80:b.querySelector('.ag80').value, g100:b.querySelector('.ag100').value, active:b.dataset.active,
-      cnt:cntEl?cntEl.value:'', cntAuto:cntEl?cntEl.dataset.auto:undefined };
+    o[key]={ g0:ag0.value, g30:b.querySelector('.ag30').value, g50:b.querySelector('.ag50').value, g80:b.querySelector('.ag80').value, g100:b.querySelector('.ag100').value };
   }); return o;
 }
 function currentFallGrades(){
@@ -839,51 +761,29 @@ function currentFallGrades(){
     o[key]={ g0:b.querySelector('.fg0').value, g50:b.querySelector('.fg50').value, g80:b.querySelector('.fg80').value, g100:b.querySelector('.fg100').value, active:b.dataset.active, census:b.querySelector('.fcensus')?b.querySelector('.fcensus').value:'' };
   }); return o;
 }
+function displayLabel(label){ var i=label.indexOf('/'); return i>=0 ? label.slice(i+1) : label; }
 function buildAttGradeGroups(saved){
   var wrap=document.getElementById('attGradeGroups'); if(!wrap) return;
   var groups=computeGroups();
-  if(attMode==='sample'){
-    var attSamp2=getAttSamples();
-    var html2='';
-    groups.forEach(function(g){
-      var hasSample=Object.keys(attSamp2).some(function(k){ return String(attSamp2[k].v)===String(g.gidx); });
-      html2+='<div class="grade-block" data-idx="'+g.gidx+'" data-label="'+esc(g.label)+'" data-active="y">'+
-        '<div class="grade-block-head"><span class="grade-key">'+esc(g.label)+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span>'+
-          '<span class="unit" id="attNoSample_'+g.gidx+'" style="color:var(--red);display:'+(hasSample?'none':'')+'">표본 없음</span>'+
-        '</div>'+
-        '<div class="grade-result" style="grid-template-columns:1fr 1fr 1fr">'+
-          '<div class="gr"><div class="k">착과수(표본계산)</div><div class="v" id="attCnt_'+g.gidx+'">0</div></div>'+
-          '<div class="gr"><div class="k">피해구성비율</div><div class="v" id="attRatio_'+g.gidx+'">0.00%</div></div>'+
-          '<div class="gr"><div class="k">인정피해과실수</div><div class="v hl" id="attAdmit_'+g.gidx+'">0</div></div>'+
-        '</div>'+
-      '</div>';
-    });
-    wrap.innerHTML=html2 || '<div class="hint">먼저 나무조사에서 품종을 등록하세요.</div>';
-    return;
-  }
   var prev=saved||{}; var isManual=(attMode==='manual');
+  var manualCnt=num('attManualCnt');
   var html='';
-  groups.forEach(function(g){
+  groups.forEach(function(g,gi){
     var idx=g.gidx;
-    var v=prev[g.label]||{}; var active=(v.active!==undefined)?v.active:'y';
-    var cntVal, hintText;
-    if(isManual){ cntVal=(v.cnt!==undefined&&v.cnt!=='')?v.cnt:''; hintText='직접 입력'; }
-    else { cntVal=(v.cnt!==undefined&&v.cnt!=='')?v.cnt:fmt(g.afterCnt); hintText='기존값 사용 · 수정 가능'; }
-    var cntAuto = (v.cntAuto!==undefined) ? v.cntAuto : String(g.afterCnt);
-    html+='<div class="grade-block" data-idx="'+idx+'" data-label="'+esc(g.label)+'" data-active="'+active+'">'+
-      '<div class="grade-block-head"><span class="grade-key">'+esc(g.label)+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span>'+
-        '<span class="yn-toggle"><button type="button" class="yn-btn'+(active==='y'?' on':'')+'" onclick="toggleGradeActive(this,\'att\','+idx+',true)">실시</button><button type="button" class="yn-btn'+(active!=='y'?' on off':'')+'" onclick="toggleGradeActive(this,\'att\','+idx+',false)">미실시</button></span>'+
-      '</div>'+
-      '<div class="field" style="margin-bottom:9px">'+
-        '<label>착과수 (개) <span class="unit" id="attCntHint_'+idx+'">'+hintText+'</span></label>'+
-        '<input class="inp filled attCntInput" data-idx="'+idx+'" type="text" inputmode="numeric" placeholder="0" value="'+cntVal+'" data-auto="'+esc(cntAuto)+'" oninput="onComma(this);liveUpdate();saveState()">'+
+    var v=prev[g.label]||{};
+    var cntVal = isManual ? fmt(manualCnt) : fmt(g.afterCnt);
+    html+='<div class="grade-block" data-idx="'+idx+'" data-label="'+esc(g.label)+'" data-active="y">'+
+      '<div class="grade-block-head" style="align-items:center">'+
+        '<div style="flex:1;min-width:0">'+
+          '<span class="grade-key">표본'+(gi+1)+' · '+esc(displayLabel(g.label))+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span>'+
+        '</div>'+
+        '<div style="flex-shrink:0;text-align:center;margin-left:8px">'+
+          '<div class="unit" style="margin-bottom:3px">착과수(개)</div>'+
+          '<div class="attCntInput" data-idx="'+idx+'" style="width:104px;height:34px;font-size:13px;font-weight:700;padding:0 4px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1.5px solid var(--border);background:var(--auto);color:var(--text)">'+cntVal+'</div>'+
+        '</div>'+
       '</div>'+
       '<div class="g5">'+
         gradeCell('정상','ag0',v.g0)+gradeCell('30%형','ag30',v.g30,'grade-30')+gradeCell('50%형','ag50',v.g50)+gradeCell('80%형','ag80',v.g80)+gradeCell('100%형','ag100',v.g100,'grade-100')+
-      '</div>'+
-      '<div class="grade-result" style="grid-template-columns:1fr 1fr">'+
-        '<div class="gr"><div class="k">착과피해구성률</div><div class="v" id="attRatio_'+idx+'">0.00%</div></div>'+
-        '<div class="gr"><div class="k">착과인정피해과실수</div><div class="v hl" id="attAdmit_'+idx+'">0</div></div>'+
       '</div>'+
     '</div>';
   });
@@ -895,41 +795,24 @@ function buildFallGradeGroups(saved){
   var html='';
   groups.forEach(function(g){
     var idx=g.gidx;
-    var v=prev[g.label]||{}; var active=(v.active!==undefined)?v.active:'y';
-    html+='<div class="grade-block" data-idx="'+idx+'" data-label="'+esc(g.label)+'" data-active="'+active+'">'+
-      '<div class="grade-block-head"><span class="grade-key">'+esc(g.label)+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span>'+
-        '<span class="yn-toggle"><button type="button" class="yn-btn'+(active==='y'?' on':'')+'" onclick="toggleGradeActive(this,\'fall\','+idx+',true)">실시</button><button type="button" class="yn-btn'+(active!=='y'?' on off':'')+'" onclick="toggleGradeActive(this,\'fall\','+idx+',false)">미실시</button></span>'+
-      '</div>'+
-      (census?('<div class="field" style="margin-bottom:8px"><label>전체 낙과수(개) — 이 품종</label><input class="inp fcensus" type="number" inputmode="numeric" value="'+(v.census||'')+'" oninput="mark(this);liveUpdate();saveState()"></div><div class="hint" style="margin:-4px 0 8px">↓ 전체 낙과수 중 <b>100개 내외</b>를 추출해 피해구성을 조사하세요 (합계가 100일 필요는 없음)</div>'):'')+
+    var v=prev[g.label]||{};
+    html+='<div class="grade-block" data-idx="'+idx+'" data-label="'+esc(g.label)+'" data-active="y">'+
+      '<div class="grade-block-head"><span class="grade-key">'+esc(g.label)+(g.idxs.length>1?' <span class="unit">('+g.idxs.length+'행 합산)</span>':'')+'</span></div>'+
+      (census?('<div class="field" style="margin-bottom:8px"><label>전체 낙과수(개) — 이 품종</label><input class="inp fcensus" type="number" inputmode="numeric" value="'+(v.census||'')+'" oninput="mark(this);liveUpdate();saveState()"></div>'):'')+
       '<div class="g4">'+
         gradeCell('정상','fg0',v.g0)+gradeCell('50%형','fg50',v.g50)+gradeCell('80%형','fg80',v.g80)+gradeCell('100%형','fg100',v.g100,'grade-100')+
-      '</div>'+
-      '<div class="grade-result">'+
-        '<div class="gr"><div class="k">낙과피해구성률</div><div class="v" id="fallRatio_'+idx+'">0.00%</div></div>'+
-        '<div class="gr"><div class="k">낙과과실수</div><div class="v" id="fallCnt_'+idx+'">0</div></div>'+
-        '<div class="gr"><div class="k">낙과인정피해과실수</div><div class="v hl" id="fallAdmit_'+idx+'">0</div></div>'+
       '</div>'+
     '</div>';
   });
   wrap.innerHTML=html || '<div class="hint">먼저 나무조사에서 품종을 등록하세요.</div>';
 }
-function toggleGradeActive(btn,kind,idx,on){
-  var wrap=document.getElementById(kind==='att'?'attGradeGroups':'fallGradeGroups');
-  var block=wrap.querySelector('.grade-block[data-idx="'+idx+'"]'); if(!block) return;
-  block.dataset.active=on?'y':'n';
-  block.querySelectorAll('.yn-btn').forEach(function(b){ b.classList.remove('on','off'); });
-  var onBtn=block.querySelector('.yn-btn:nth-child(1)'), offBtn=block.querySelector('.yn-btn:nth-child(2)');
-  if(on){ onBtn.classList.add('on'); } else { offBtn.classList.add('on','off'); }
-  liveUpdate(); saveState();
-}
-
 /* ── 계산 엔진 ── */
 function ratioOf5(v){ var s=v.g0+v.g30+v.g50+v.g80+v.g100; return s>0?(v.g30*0.3+v.g50*0.5+v.g80*0.8+v.g100*1)/s*100:0; }
 function ratioOf4(v){ var s=v.g0+v.g50+v.g80+v.g100; return s>0?(v.g50*0.5+v.g80*0.8+v.g100*1)/s*100:0; }
 
 function computeAll(){
   var groups=computeGroups();
-  var attSamp=getAttSamples(), fallSamp=getFallSamples();
+  var fallSamp=getFallSamples();
 
   var attGroups=[], fallGroups=[];
   var attTotal=0, fallTotal=0, afterTotal=0;
@@ -941,25 +824,12 @@ function computeAll(){
 
     /* 착과 */
     var attRatio=0, attCnt=0, active=true, g={ g0:0,g30:0,g50:0,g80:0,g100:0 };
-    if(attMode==='sample'){
-      var sumG={g0:0,g30:0,g50:0,g80:0,g100:0}, sumC=0, cardCnt=0;
-      Object.keys(attSamp).forEach(function(k){
-        var r=attSamp[k]; if(String(r.v)!==String(idx)) return;
-        sumG.g0+=parseFloat(r.g0)||0; sumG.g30+=parseFloat(r.g30)||0; sumG.g50+=parseFloat(r.g50)||0; sumG.g80+=parseFloat(r.g80)||0; sumG.g100+=parseFloat(r.g100)||0;
-        sumC+=parseFloat(r.c)||0; cardCnt+=1;
-      });
-      g=sumG; attRatio=ratioOf5(g);
-      attCnt = cardCnt>0 ? Math.round((sumC/cardCnt)*target) : 0;
-      active = cardCnt>0;
-    } else {
-      block=document.querySelector('#attGradeGroups .grade-block[data-idx="'+idx+'"]');
-      active = block ? block.dataset.active!=='n' : true;
-      if(block){ g={ g0:parseFloat(block.querySelector('.ag0').value)||0, g30:parseFloat(block.querySelector('.ag30').value)||0,
-        g50:parseFloat(block.querySelector('.ag50').value)||0, g80:parseFloat(block.querySelector('.ag80').value)||0, g100:parseFloat(block.querySelector('.ag100').value)||0 }; }
-      attRatio=ratioOf5(g);
-      var cntEl=block&&block.querySelector('.attCntInput');
-      attCnt = cntEl ? (parseFloat((cntEl.value||'').replace(/,/g,''))||0) : 0;
-    }
+    block=document.querySelector('#attGradeGroups .grade-block[data-idx="'+idx+'"]');
+    active = block ? block.dataset.active!=='n' : true;
+    if(block){ g={ g0:parseFloat(block.querySelector('.ag0').value)||0, g30:parseFloat(block.querySelector('.ag30').value)||0,
+      g50:parseFloat(block.querySelector('.ag50').value)||0, g80:parseFloat(block.querySelector('.ag80').value)||0, g100:parseFloat(block.querySelector('.ag100').value)||0 }; }
+    attRatio=ratioOf5(g);
+    attCnt = (attMode==='manual') ? num('attManualCnt') : afterCnt;
     var attAdmitCnt = attEnabled&&active ? Math.round(attCnt*attRatio/100) : 0;
     attTotal+=attAdmitCnt;
     attGroups.push({idx:idx,label:g0.label,active:attEnabled&&active,cnt:attCnt,ratio:attRatio,admitCnt:attAdmitCnt,g:g});
@@ -991,21 +861,13 @@ function computeAll(){
   return { idxs:groups.map(function(g){return g.gidx;}), attGroups:attGroups, fallGroups:fallGroups, attTotal:attTotal, fallTotal:fallTotal, afterTotal:afterTotal, grandTotal:grandTotal, rate:rate };
 }
 
+/* 착과 표본조사(합산 입력) 값이 바뀔 때마다 품종별 착과수(평균×조사대상주수)를 다시 계산해 반영 */
 function liveUpdate(){
   updateTreeSums();
   var R=computeAll();
   R.attGroups.forEach(function(g){
     var r=document.getElementById('attRatio_'+g.idx); if(r) r.textContent=g.ratio.toFixed(2)+'%';
     var a=document.getElementById('attAdmit_'+g.idx); if(a) a.textContent=fmt(g.admitCnt);
-    if(attMode==='sample'){
-      var c=document.getElementById('attCnt_'+g.idx); if(c) c.textContent=fmt(g.cnt);
-      var ns=document.getElementById('attNoSample_'+g.idx); if(ns) ns.style.display=g.active?'none':'';
-    }
-  });
-  document.querySelectorAll('#attRows .grade-block').forEach(function(b){
-    var gv={ g0:parseFloat(b.querySelector('.ag0').value)||0, g30:parseFloat(b.querySelector('.ag30').value)||0,
-      g50:parseFloat(b.querySelector('.ag50').value)||0, g80:parseFloat(b.querySelector('.ag80').value)||0, g100:parseFloat(b.querySelector('.ag100').value)||0 };
-    var rEl=document.getElementById('attCardRatio_'+b.dataset.idx); if(rEl) rEl.textContent=ratioOf5(gv).toFixed(2)+'%';
   });
   R.fallGroups.forEach(function(g){
     var r=document.getElementById('fallRatio_'+g.idx); if(r) r.textContent=g.ratio.toFixed(2)+'%';
@@ -1059,7 +921,7 @@ function setLockUI(locked){ var hs=document.getElementById('hdrState'); if(hs){ 
 function saveState(){
   try{
     var st={ trees:currentTreeValues(), treeVars:currentTreeVars(), treeOpen:currentTreeOpen(),
-      attSamples:getAttSamples(), fallSamples:getFallSamples(), attGrades:currentAttGrades(), fallGrades:currentFallGrades(),
+      fallSamples:getFallSamples(), attGrades:currentAttGrades(), fallGrades:currentFallGrades(),
       attEnabled:attEnabled, fallEnabled:fallEnabled, attMode:attMode, fallMode:fallMode };
     FIELDS.forEach(function(id){ var el=document.getElementById(id); if(el) st[id]=el.value; });
     st.calcDone=document.getElementById('content').classList.contains('locked');
@@ -1076,7 +938,6 @@ function restoreState(){
   attMode = st.attMode || 'reuse';
   fallMode = st.fallMode || 'sample';
   setAttEnabled(attEnabled); setFallEnabled(fallEnabled); setAttMode(attMode); setFallMode(fallMode);
-  buildAttSampleRows(st.attSamples||null);
   buildFallSampleRows(st.fallSamples||null);
   buildAttGradeGroups(st.attGrades||null);
   buildFallGradeGroups(st.fallGrades||null);
@@ -1101,14 +962,14 @@ function doReset(){
   try{
     FIELDS.forEach(function(id){ var el=document.getElementById(id); if(!el) return;
       if(id==='treeRowN') el.value='1'; else if(id==='crop') el.value='사과';
-      else if(id==='attSampleN'||id==='fallSampleN') el.value='3';
+      else if(id==='fallSampleN') el.value='3';
       else if(id==='surveyDate'){ el.value=todayStr(); } else el.value='';
     });
   }catch(e){}
   buildTreeRows({},{},{});
   attEnabled=false; fallEnabled=false; attMode='reuse'; fallMode='sample';
   setAttEnabled(false); setFallEnabled(false); setAttMode('reuse'); setFallMode('sample');
-  buildAttSampleRows({}); buildFallSampleRows({});
+  buildFallSampleRows({});
   buildAttGradeGroups({}); buildFallGradeGroups({});
   syncDate();
   document.querySelectorAll('.inp').forEach(mark);
@@ -1284,7 +1145,7 @@ function saveToSharedHistory(imgDataUrl){
     treeField(1,'tJoinTree').value='100'; treeField(1,'tRealTree').value='100'; treeField(1,'tAfterCnt').value='10,000';
     updateTreeSums();
     setAttEnabled(false); setFallEnabled(false); setAttMode('reuse'); setFallMode('sample');
-    buildAttSampleRows(); buildFallSampleRows();
+    buildFallSampleRows();
     buildAttGradeGroups(); buildFallGradeGroups();
     document.querySelectorAll('.inp').forEach(mark);
   }
