@@ -219,8 +219,8 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
       <div class="sec-title" style="justify-content:space-between">
         <span class="subhead" style="margin:0">📊 착과 피해구성조사</span>
         <span style="display:flex;gap:6px">
-          <button type="button" class="btn-icon minus" onclick="removeAttBlock()">－</button>
-          <button type="button" class="btn-icon" onclick="addAttBlock()">＋</button>
+          <button type="button" class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="removeAttBlock()">－ 표본 삭제</button>
+          <button type="button" class="btn-add" onclick="addAttBlock()">＋ 표본 추가</button>
         </span>
       </div>
       <div id="attGradeGroups"></div>
@@ -250,8 +250,8 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
       <div class="sec-title" style="justify-content:space-between">
         <span class="subhead" style="margin:0">📊 낙과 피해구성조사</span>
         <span style="display:flex;gap:6px">
-          <button type="button" class="btn-icon minus" onclick="removeFallBlock()">－</button>
-          <button type="button" class="btn-icon" id="fallAddBtn" onclick="addFallBlock()">＋</button>
+          <button type="button" class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="removeFallBlock()">－ 표본 삭제</button>
+          <button type="button" class="btn-add" id="fallAddBtn" onclick="addFallBlock()">＋ 표본 추가</button>
         </span>
       </div>
       <div id="fallGradeGroups"></div>
