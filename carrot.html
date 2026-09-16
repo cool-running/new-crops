@@ -1276,12 +1276,12 @@ function fillCaptureTemplate(){
   if(html){
     const g = id => (document.getElementById(id)?.textContent || '-');
     html+=`<tr>
-      <td class="cap-td" style="background:#EEF2F0;font-weight:800;color:#2d5016">합계</td>
-      <td class="cap-td" style="background:#EEF2F0;font-weight:800;color:#2d5016">${g('t-len')}</td>
-      <td class="cap-td" style="background:#EEF2F0;font-weight:800;color:#2d5016">${g('t-wid')}</td>
-      <td class="cap-td" style="background:#EEF2F0;font-weight:800;color:#2d5016">${g('t-norm')}</td>
-      <td class="cap-td" style="background:#EEF2F0;font-weight:800;color:#2d5016">${g('t-d80')}</td>
-      <td class="cap-td" style="background:#EEF2F0;font-weight:800;color:#2d5016">${g('t-d100')}</td>
+      <td class="cap-td" style="background:#fff;font-weight:800;color:#2d5016">합계</td>
+      <td class="cap-td" style="background:#fff;font-weight:800;color:#2d5016">${g('t-len')}</td>
+      <td class="cap-td" style="background:#fff;font-weight:800;color:#2d5016">${g('t-wid')}</td>
+      <td class="cap-td" style="background:#fff;font-weight:800;color:#2d5016">${g('t-norm')}</td>
+      <td class="cap-td" style="background:#fff;font-weight:800;color:#2d5016">${g('t-d80')}</td>
+      <td class="cap-td" style="background:#fff;font-weight:800;color:#2d5016">${g('t-d100')}</td>
     </tr>`;
   }
   tbody.innerHTML = html || '<tr><td colspan="6" class="cap-td" style="color:#999">-</td></tr>';
