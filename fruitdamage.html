@@ -809,16 +809,18 @@ function buildCapture(){
   }
 
   var TR='font-size:14px;padding:8px 4px;border:1px solid #cfd8e0;text-align:center;background:#fff;color:var(--blue);font-weight:800';
-  var resultRows='';
+  var resultRows='', resultCols='', pairCount=0;
   if(attEnabled && L.attGroups.length){
     resultRows+='<td style="'+TH+'">착과피해구성률</td><td style="'+TR+'">'+attTotRatio.toFixed(2)+'%</td>';
+    resultCols+='<col><col>'; pairCount++;
   }
   if(fallEnabled && L.fallGroups.length){
     var fallCntTotal=L.fallGroups.reduce(function(s,g){return s+g.cnt;},0);
     resultRows+='<td style="'+TH+'">낙과수</td><td style="'+TR+'">'+fmt(fallCntTotal)+' 개</td>';
     resultRows+='<td style="'+TH+'">낙과인정피해과실수</td><td style="'+TR+'">'+fmt(L.fallTotal)+' 개</td>';
+    resultCols+='<col><col style="width:11%"><col><col style="width:11%">'; pairCount+=2;
   }
-  var cResult=section('결과', tbl('<tbody><tr>'+resultRows+'</tr></tbody>'));
+  var cResult=section('결과', tbl('<colgroup>'+resultCols+'</colgroup><tbody><tr>'+resultRows+'</tr></tbody>'));
 
   return '<div style="width:680px;background:#fff;font-family:-apple-system,Noto Sans KR,sans-serif;padding:20px;box-sizing:border-box">'+
     '<div style="background:var(--blue);color:#fff;border-radius:12px;padding:11px 14px;display:flex;align-items:baseline;gap:10px;white-space:nowrap">'+
