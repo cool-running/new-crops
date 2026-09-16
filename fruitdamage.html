@@ -811,6 +811,8 @@ function buildCapture(){
     resultRows+='<td style="'+TH+'">착과피해구성률</td><td style="'+TR+'">'+attTotRatio.toFixed(2)+'%</td>';
   }
   if(fallEnabled && L.fallGroups.length){
+    var fallCntTotal=L.fallGroups.reduce(function(s,g){return s+g.cnt;},0);
+    resultRows+='<td style="'+TH+'">낙과수</td><td style="'+TR+'">'+fmt(fallCntTotal)+' 개</td>';
     resultRows+='<td style="'+TH+'">낙과인정피해과실수</td><td style="'+TR+'">'+fmt(L.fallTotal)+' 개</td>';
   }
   var cResult=section('결과', tbl('<tbody><tr>'+resultRows+'</tr></tbody>'));
