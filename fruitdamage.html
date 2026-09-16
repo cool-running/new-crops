@@ -219,8 +219,8 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
       <div class="sec-title" style="justify-content:space-between">
         <span class="subhead" style="margin:0">📊 착과 피해구성조사</span>
         <span style="display:flex;gap:6px">
-          <button type="button" class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="removeAttBlock()">－ 표본 삭제</button>
-          <button type="button" class="btn-add" onclick="addAttBlock()">＋ 표본 추가</button>
+          <button type="button" class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="removeAttBlock()">－ 표본주 삭제</button>
+          <button type="button" class="btn-add" onclick="addAttBlock()">＋ 표본주 추가</button>
         </span>
       </div>
       <div id="attGradeGroups"></div>
@@ -250,8 +250,8 @@ body.big-text .seg-btn{height:46px !important;font-size:14px !important}
       <div class="sec-title" style="justify-content:space-between">
         <span class="subhead" style="margin:0">📊 낙과 피해구성조사</span>
         <span style="display:flex;gap:6px">
-          <button type="button" class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="removeFallBlock()">－ 표본 삭제</button>
-          <button type="button" class="btn-add" id="fallAddBtn" onclick="addFallBlock()">＋ 표본 추가</button>
+          <button type="button" class="btn-add" style="background:#fff;border-color:var(--border);color:var(--sub)" onclick="removeFallBlock()">－ 표본주 삭제</button>
+          <button type="button" class="btn-add" id="fallAddBtn" onclick="addFallBlock()">＋ 표본주 추가</button>
         </span>
       </div>
       <div id="fallGradeGroups"></div>
@@ -434,7 +434,11 @@ function buildFallBlocks(saved){
         '<button type="button" class="seg-btn fallModeBtn'+(mode==='census'?' on':'')+'" onclick="setFallBlockMode(this,\'census\')">전수조사</button>'+
       '</div>'+
       '<div class="fallCensusWrap" style="display:'+(mode==='census'?'':'none')+'">'+
-        '<div class="field"><label>낙과수 (개)</label><input class="inp filled fallCntInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.cnt||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
+        '<div class="grade-block-head">'+
+          '<div class="field" style="flex:0 0 42%"><label>낙과수 (개)</label><input class="inp filled fallCntInput" type="text" inputmode="numeric" placeholder="0" value="'+(v.cnt||'')+'" oninput="onComma(this);liveUpdate();saveState()"></div>'+
+          '<div class="auto" id="fallRatio_'+i+'" style="flex-shrink:0;margin-left:5px;width:66px;height:40px;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
+          '<div class="auto" id="fallSum_'+i+'" style="flex-shrink:0;margin-left:5px;width:72px;height:40px;font-size:13.5px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--sub)">합계 0개</div>'+
+        '</div>'+
       '</div>'+
       '<div class="fallSampleWrap" style="display:'+(mode==='sample'?'':'none')+'">'+
         '<div class="grade-block-head" style="align-items:flex-end;margin-bottom:8px">'+
@@ -451,7 +455,11 @@ function buildFallBlocks(saved){
         '<div class="g5" style="margin-bottom:6px">'+
           sampArr.map(function(sv,k){ return '<div class="grade-cell"><label>표본'+(k+1)+'</label><input class="inp fallSampSlot" type="number" inputmode="numeric" value="'+(sv||'')+'" oninput="mark(this);liveUpdate();saveState()"></div>'; }).join('')+
         '</div>'+
-        '<div class="hint" style="margin-top:0">표본 평균 × 조사대상주수 = <b id="fallAutoCnt_'+i+'">0</b>개</div>'+
+        '<div class="grade-block-head" style="margin-bottom:0">'+
+          '<div class="hint" style="margin-top:0;flex:1">표본 평균 × 조사대상주수 = <b id="fallAutoCnt_'+i+'">0</b>개</div>'+
+          '<div class="auto" id="fallRatioS_'+i+'" style="flex-shrink:0;margin-left:5px;width:66px;height:34px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--blue)">0.00%</div>'+
+          '<div class="auto" id="fallSumS_'+i+'" style="flex-shrink:0;margin-left:5px;width:72px;height:34px;font-size:12.5px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--sub)">합계 0개</div>'+
+        '</div>'+
       '</div>'+
       '<div class="g5" style="margin-top:10px">'+
         gradeCell('정상','fg0',v.g0)+gradeCell('30%형','fg30',v.g30,'grade-30')+gradeCell('50%형','fg50',v.g50)+gradeCell('80%형','fg80',v.g80)+gradeCell('100%형','fg100',v.g100,'grade-100')+
@@ -571,25 +579,51 @@ function liveUpdate(){
     var sumEl=document.getElementById('attSum_'+b.dataset.idx);
     if(sumEl) sumEl.textContent='합계 '+fmt(g.g0+g.g30+g.g50+g.g80+g.g100)+'개';
   });
+  document.querySelectorAll('#fallGradeGroups .grade-block').forEach(function(b){
+    var g={ g0:parseFloat(b.querySelector('.fg0').value)||0, g30:parseFloat(b.querySelector('.fg30').value)||0, g50:parseFloat(b.querySelector('.fg50').value)||0,
+      g80:parseFloat(b.querySelector('.fg80').value)||0, g100:parseFloat(b.querySelector('.fg100').value)||0 };
+    var ratioTxt=ratioOf5(g).toFixed(2)+'%';
+    var sumTxt='합계 '+fmt(g.g0+g.g30+g.g50+g.g80+g.g100)+'개';
+    var idx=b.dataset.idx;
+    ['fallRatio_'+idx,'fallRatioS_'+idx].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=ratioTxt; });
+    ['fallSum_'+idx,'fallSumS_'+idx].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=sumTxt; });
+  });
   var box=document.getElementById('resultBox'), detail=document.getElementById('resultDetail');
-  var stats=[];
+  var attStats=[];
   if(attEnabled && R.attGroups.length){
     R.attGroups.forEach(function(g){
-      stats.push({label:esc(g.label)+' 피해구성비율', val:g.ratio.toFixed(2)+'%', color:'#FFD0D0'});
+      attStats.push({label:esc(g.label)+' 피해구성비율', val:g.ratio.toFixed(2)+'%', color:'#FFD0D0'});
     });
   }
+  var fallTotG=null;
   if(fallEnabled && R.fallGroups.length){
-    stats.push({label:'낙과인정피해과실수 합계', val:fmt(R.fallTotal)+' 개', color:'#fff'});
+    fallTotG={g0:0,g30:0,g50:0,g80:0,g100:0};
+    R.fallGroups.forEach(function(g){ fallTotG.g0+=g.g0; fallTotG.g30+=g.g30; fallTotG.g50+=g.g50; fallTotG.g80+=g.g80; fallTotG.g100+=g.g100; });
   }
-  if(stats.length){
+  if(attStats.length || fallTotG){
     var html='<div style="display:flex;flex-direction:column;gap:10px;width:100%">';
-    stats.forEach(function(s,idx){
+    attStats.forEach(function(s,idx){
       if(idx>0) html+='<div style="height:1px;background:rgba(255,255,255,0.18)"></div>';
       html+='<div style="text-align:center">'+
         '<div style="font-size:11.5px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:3px">'+s.label+'</div>'+
         '<div style="font-size:20px;font-weight:900;color:'+s.color+';letter-spacing:-0.02em;white-space:nowrap">'+s.val+'</div>'+
       '</div>';
     });
+    if(fallTotG){
+      if(attStats.length) html+='<div style="height:1px;background:rgba(255,255,255,0.18)"></div>';
+      var fallRatioTot=ratioOf5(fallTotG);
+      html+='<div style="display:flex;align-items:center">'+
+        '<div style="flex:1;text-align:center">'+
+          '<div style="font-size:11.5px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:3px">낙과피해구성비율</div>'+
+          '<div style="font-size:20px;font-weight:900;color:#FFD0D0;letter-spacing:-0.02em;white-space:nowrap">'+fallRatioTot.toFixed(2)+'%</div>'+
+        '</div>'+
+        '<div style="width:1px;height:40px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>'+
+        '<div style="flex:1;text-align:center">'+
+          '<div style="font-size:11.5px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:3px">낙과인정피해과실수</div>'+
+          '<div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.02em;white-space:nowrap">'+fmt(R.fallTotal)+' 개</div>'+
+        '</div>'+
+      '</div>';
+    }
     html+='</div>';
     detail.innerHTML=html;
     box.classList.remove('pending');
