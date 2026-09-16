@@ -571,8 +571,9 @@ function liveUpdate(){
   var box=document.getElementById('resultBox'), detail=document.getElementById('resultDetail');
   var stats=[];
   if(attEnabled && R.attGroups.length){
-    var avgRatio = R.attGroups.reduce(function(s,g){return s+g.ratio;},0) / R.attGroups.length;
-    stats.push({label:'착과피해구성비율'+(R.attGroups.length>1?' (평균)':''), val:avgRatio.toFixed(2)+'%', color:'#FFD0D0'});
+    R.attGroups.forEach(function(g){
+      stats.push({label:esc(g.label)+' 피해구성비율', val:g.ratio.toFixed(2)+'%', color:'#FFD0D0'});
+    });
   }
   if(fallEnabled && R.fallGroups.length){
     stats.push({label:'낙과인정피해과실수 합계', val:fmt(R.fallTotal)+' 개', color:'#fff'});
