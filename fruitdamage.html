@@ -795,11 +795,14 @@ function buildCapture(){
   }
   var cFall='';
   if(fallEnabled && L.fallGroups.length){
-    var tf=''; L.fallGroups.forEach(function(g){
+    var tf=''; var fTot={cnt:0,g0:0,g30:0,g50:0,g80:0,g100:0,sum:0,admit:0};
+    L.fallGroups.forEach(function(g){
       var sum=g.g0+g.g30+g.g50+g.g80+g.g100;
+      fTot.cnt+=g.cnt; fTot.g0+=g.g0; fTot.g30+=g.g30; fTot.g50+=g.g50; fTot.g80+=g.g80; fTot.g100+=g.g100; fTot.sum+=sum; fTot.admit+=g.admitCnt;
       tf+='<tr><td style="'+TD+'">'+(g.label?esc(g.label):'-')+'</td><td style="'+TD+'">'+fmt(g.cnt)+'</td><td style="'+TD+'">'+fmt(g.g0)+'</td><td style="'+TD+'">'+fmt(g.g30)+'</td><td style="'+TD+'">'+fmt(g.g50)+'</td><td style="'+TD+'">'+fmt(g.g80)+'</td><td style="'+TD+'">'+fmt(g.g100)+'</td><td style="'+TD+'">'+fmt(sum)+'</td><td style="'+TD+'">'+g.ratio.toFixed(2)+'%</td><td style="'+TF+'">'+fmt(g.admitCnt)+'</td></tr>';
     });
-    tf+='<tr><td colspan="9" style="'+TF+'">낙과인정피해과실수 합계</td><td style="'+TF+'">'+fmt(L.fallTotal)+'</td></tr>';
+    var fTotRatio=ratioOf5(fTot);
+    tf+='<tr><td style="'+TF+'">합계</td><td style="'+TF+'">'+fmt(fTot.cnt)+'</td><td style="'+TF+'">'+fmt(fTot.g0)+'</td><td style="'+TF+'">'+fmt(fTot.g30)+'</td><td style="'+TF+'">'+fmt(fTot.g50)+'</td><td style="'+TF+'">'+fmt(fTot.g80)+'</td><td style="'+TF+'">'+fmt(fTot.g100)+'</td><td style="'+TF+'">'+fmt(fTot.sum)+'</td><td style="'+TF+'">'+fTotRatio.toFixed(2)+'%</td><td style="'+TF+'">'+fmt(fTot.admit)+'</td></tr>';
     cFall=section('낙과피해조사',
       tbl('<colgroup><col style="width:14%"><col style="width:9%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:10%"><col style="width:14%"></colgroup>'+
         '<thead><tr><th style="'+TH+'">품종</th><th style="'+TH+'">낙과수</th><th style="'+TH+'">정상</th><th style="'+TH+'">30%형</th><th style="'+TH+'">50%형</th><th style="'+TH+'">80%형</th><th style="'+TH+'">100%형</th><th style="'+TH+'">합계</th><th style="'+TH+'">피해구성비율</th><th style="'+TH+'">인정피해과실수</th></tr></thead><tbody>'+tf+'</tbody>'));
