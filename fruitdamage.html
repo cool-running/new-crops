@@ -740,12 +740,17 @@ function buildCapture(){
   }
   function tbl(inner){ return '<table style="width:100%;border-collapse:collapse;table-layout:fixed">'+inner+'</table>'; }
 
-  var cAtt='';
+  var cAtt=''; var attTotRatio=0;
   if(attEnabled && L.attGroups.length){
-    var ta=''; L.attGroups.forEach(function(g){
+    var ta=''; var totG={g0:0,g30:0,g50:0,g80:0,g100:0};
+    L.attGroups.forEach(function(g){
       var sum=g.g0+g.g30+g.g50+g.g80+g.g100;
+      totG.g0+=g.g0; totG.g30+=g.g30; totG.g50+=g.g50; totG.g80+=g.g80; totG.g100+=g.g100;
       ta+='<tr><td style="'+TD+'">'+esc(g.label)+'</td><td style="'+TD+'">'+fmt(g.g0)+'</td><td style="'+TD+'">'+fmt(g.g30)+'</td><td style="'+TD+'">'+fmt(g.g50)+'</td><td style="'+TD+'">'+fmt(g.g80)+'</td><td style="'+TD+'">'+fmt(g.g100)+'</td><td style="'+TD+'">'+fmt(sum)+'</td><td style="'+TF+'">'+g.ratio.toFixed(2)+'%</td></tr>';
     });
+    var totSum=totG.g0+totG.g30+totG.g50+totG.g80+totG.g100;
+    attTotRatio=ratioOf5(totG);
+    ta+='<tr><td style="'+TF+'">합계</td><td style="'+TF+'">'+fmt(totG.g0)+'</td><td style="'+TF+'">'+fmt(totG.g30)+'</td><td style="'+TF+'">'+fmt(totG.g50)+'</td><td style="'+TF+'">'+fmt(totG.g80)+'</td><td style="'+TF+'">'+fmt(totG.g100)+'</td><td style="'+TF+'">'+fmt(totSum)+'</td><td style="'+TF+'">'+attTotRatio.toFixed(2)+'%</td></tr>';
     cAtt=section('착과피해조사',
       tbl('<colgroup><col style="width:20%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:20%"></colgroup>'+
         '<thead><tr><th style="'+TH+'">품종</th><th style="'+TH+'">정상</th><th style="'+TH+'">30%형</th><th style="'+TH+'">50%형</th><th style="'+TH+'">80%형</th><th style="'+TH+'">100%형</th><th style="'+TH+'">합계</th><th style="'+TH+'">피해구성비율</th></tr></thead><tbody>'+ta+'</tbody>'));
@@ -765,8 +770,7 @@ function buildCapture(){
   var TR='font-size:14px;padding:8px 4px;border:1px solid #cfd8e0;text-align:center;background:#fff;color:var(--blue);font-weight:800';
   var resultRows='';
   if(attEnabled && L.attGroups.length){
-    var avgRatio=L.attGroups.reduce(function(s,g){return s+g.ratio;},0)/L.attGroups.length;
-    resultRows+='<td style="'+TH+'">착과피해구성률</td><td style="'+TR+'">'+avgRatio.toFixed(2)+'%</td>';
+    resultRows+='<td style="'+TH+'">착과피해구성률</td><td style="'+TR+'">'+attTotRatio.toFixed(2)+'%</td>';
   }
   if(fallEnabled && L.fallGroups.length){
     resultRows+='<td style="'+TH+'">낙과인정피해과실수</td><td style="'+TR+'">'+fmt(L.fallTotal)+' 개</td>';
