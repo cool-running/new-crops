@@ -269,7 +269,7 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
     <div id="smp-wrap"></div>
     <div class="g2">
       <div class="autobar smp-sum" style="margin-top:0"><span>평균손해정도</span><b id="r-sonhae">-</b></div>
-      <div class="autobar smp-sum" style="margin-top:0"><span>전체합계개수</span><b id="sum-all">0</b></div>
+      <div class="autobar smp-sum" style="margin-top:0"><span>전체합계면적</span><b id="sum-all">0</b></div>
     </div>
     <div class="sample-btn-row" id="sample-btn-row" style="display:none">
       <button class="add-btn" onclick="addSample()">+ 이랑 추가</button>
@@ -542,7 +542,7 @@ function renderSamples(){
   st.samples.forEach((s,r)=>{
     h+='<div class="smp-row">';
     h+='<div class="smp-rhead"><span class="rname">'+(r+1)+'번 표본</span>'+
-       '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>개</span></div>';
+       '<span class="rsum">합계 <b id="rsum-'+r+'">'+rowTotal(s)+'</b>㎡</span></div>';
     h+='<div class="smp-grid">';
     CHIP_DEFS.forEach(c=>{
       const v=chipVal(s,c.key);
