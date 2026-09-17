@@ -388,9 +388,10 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #e0e0e0;table-layout:fixed">
           <colgroup>
-            <col style="width:11%"><col style="width:13%">
-            <col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%">
-            <col style="width:16%">
+            <col style="width:8%"><col style="width:9%">
+            <col style="width:6.7%"><col style="width:6.7%"><col style="width:6.7%"><col style="width:6.7%"><col style="width:6.7%">
+            <col style="width:6.7%"><col style="width:6.7%"><col style="width:6.7%"><col style="width:6.7%"><col style="width:6.7%">
+            <col style="width:14%">
           </colgroup>
           <thead id="cap-smp-head"></thead>
           <tbody id="cap-smp-body"></tbody>
@@ -441,7 +442,7 @@ function bindSelectAll(){
     el.addEventListener('focus',()=>{setTimeout(()=>{try{el.select();}catch(_){}},0);},{passive:true});
   });
 }
-const LEVELS=[0.2,0.4,0.6,0.8,1.0];
+const LEVELS=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0];
 const KEY='buckwheat_state', HKEY='buckwheat_history', BKEY='buckwheat_bigtext';
 
 let st={
@@ -459,7 +460,7 @@ function todayStr(){const d=new Date();const z=n=>(n<10?'0':'')+n;return d.getFu
 function persist(){ try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){} }
 function restore(){ try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(st,JSON.parse(r));}catch(e){} normalizeSamples(); }
 function normalizeSamples(){
-  // 예전 10단계 버전으로 저장된 데이터 호환: d 배열을 현재 LEVELS 길이(5)로 정리
+  // 이전 버전으로 저장된 데이터 호환: d 배열을 현재 LEVELS 길이(10)로 정리
   st.samples.forEach(s=>{
     if(!Array.isArray(s.d)) { s.d=Array(LEVELS.length).fill(''); return; }
     if(s.d.length>LEVELS.length) s.d=s.d.slice(0,LEVELS.length);
@@ -473,7 +474,7 @@ function sampleCount(a){a=num(a);if(a<=0)return 0;if(a>=15000)return 10;if(a>=70
 function minSamples(){return sampleCount(totalDmgAreaInput());}
 function ensureSamples(){
   const n=minSamples();
-  while(st.samples.length<n) st.samples.push({rang:'',normal:'',d:Array(5).fill(''),dead:''});
+  while(st.samples.length<n) st.samples.push({rang:'',normal:'',d:Array(10).fill(''),dead:''});
   return st.samples.length; // 초과분(사용자 추가)은 유지
 }
 /* 계산 — 메밀 전용 공식
@@ -513,8 +514,9 @@ function nujeok(){
 /* 표본 렌더 */
 const CHIP_DEFS=[
   {key:'normal',label:'정상'},
-  {key:'d0',label:'20%'},{key:'d1',label:'40%'},{key:'d2',label:'60%'},
-  {key:'d3',label:'80%'},{key:'d4',label:'100%'}
+  {key:'d0',label:'10%'},{key:'d1',label:'20%'},{key:'d2',label:'30%'},{key:'d3',label:'40%'},
+  {key:'d4',label:'50%'},{key:'d5',label:'60%'},{key:'d6',label:'70%'},{key:'d7',label:'80%'},
+  {key:'d8',label:'90%'},{key:'d9',label:'100%'}
 ];
 function chipVal(s,key){
   if(key==='normal') return s.normal;
@@ -573,7 +575,7 @@ function onCell(el){
 }
 function addSample(){
   if(st.samples.length>=20){ return; }
-  st.samples.push({rang:'',normal:'',d:Array(5).fill(''),dead:''});
+  st.samples.push({rang:'',normal:'',d:Array(10).fill(''),dead:''});
   renderSamples();persist();calc();
 }
 function removeSample(){
@@ -803,12 +805,13 @@ function fillCaptureTemplate(){
   $('cap-lodge-area').textContent=st.lodgeArea?fmtArea(st.lodgeArea)+' ㎡':'0 ㎡';
   $('cap-other-dmg-area').textContent=st.otherDmgArea?fmtArea(st.otherDmgArea)+' ㎡':'0 ㎡';
   $('cap-sample-count').textContent=st.samples.length||'-';
-  // 2. 손해정도 표본표 (가로 한줄: 정상·20~100·계)
+  // 2. 손해정도 표본표 (가로 한줄: 정상·10~100·계)
   { const soHead=sonhae(); if($('cap-sonhae')) $('cap-sonhae').textContent=soHead===null?'-':fmtPct(soHead); }
   const thS='padding:4px 0;background:#5B7E3F;color:#fff;border:0.5px solid #3f5a2b;font-size:9px';
   let hh='<tr><th style="'+thS+'">표본</th>'+
     '<th style="padding:4px 0;background:#5B7E3F;color:#d8ecc4;border:0.5px solid #3f5a2b;font-size:9px">정상</th>'+
-    '<th style="'+thS+'">20</th><th style="'+thS+'">40</th><th style="'+thS+'">60</th><th style="'+thS+'">80</th><th style="'+thS+'">100</th>'+
+    '<th style="'+thS+'">10</th><th style="'+thS+'">20</th><th style="'+thS+'">30</th><th style="'+thS+'">40</th><th style="'+thS+'">50</th>'+
+    '<th style="'+thS+'">60</th><th style="'+thS+'">70</th><th style="'+thS+'">80</th><th style="'+thS+'">90</th><th style="'+thS+'">100</th>'+
     '<th style="'+thS+'">계</th></tr>';
   $('cap-smp-head').innerHTML=hh;
   const cell='padding:4px 0;border:0.5px solid #e0e0e0;text-align:center;font-size:10px';
@@ -821,9 +824,9 @@ function fillCaptureTemplate(){
     s.d.forEach(v=>{ bb+='<td style="'+cell+'">'+dash(v)+'</td>'; });
     bb+='<td style="'+cell+';background:#eef3e7;font-weight:800">'+(row>0?row:'·')+'</td></tr>';
   });
-  if(!bb) bb='<tr><td colspan="8" style="padding:10px;text-align:center;font-size:10px">-</td></tr>';
-  // 합계행 (20~100 각 열별)
-  let colAll=[0,0,0,0,0],all=0,normalSum=0;
+  if(!bb) bb='<tr><td colspan="13" style="padding:10px;text-align:center;font-size:10px">-</td></tr>';
+  // 합계행 (10~100 각 열별)
+  let colAll=[0,0,0,0,0,0,0,0,0,0],all=0,normalSum=0;
   st.samples.forEach(s=>{ normalSum+=num(s.normal); let row=num(s.normal); s.d.forEach((v,k)=>{row+=num(v); colAll[k]+=num(v);}); all+=row; });
   if(st.samples.length){
     bb+='<tr style="background:#FAEEDA;color:#7a4a06;font-weight:800"><td style="'+cell+';border-color:#e9d4a8">계</td>';
