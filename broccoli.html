@@ -187,7 +187,7 @@ body.big-text .scell-badge{font-size:10px!important;top:4px!important}
 .btn-calc{border:2px solid var(--green);background:#fff;color:var(--green)}
 .btn-edit.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
 .btn-calc.active{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(91,126,63,0.35)}
-.locked input.inp,.locked select.inp,.locked table.smp input,.locked .prev-row input,.locked .datewrap,.locked .add-btn,.locked .del-sample-btn{pointer-events:none;opacity:0.72}
+.locked input.inp,.locked select.inp,.locked .ci,.locked .scell,.locked .prev-row input,.locked .datewrap,.locked .add-btn,.locked .del-sample-btn{pointer-events:none;opacity:0.72}
 
 .result{background:var(--org);border-radius:12px;padding:14px 12px;display:flex;align-items:center}
 .result.pending{opacity:0.75}
@@ -559,9 +559,9 @@ function sonhae(){
   if(t<=0)return null;return Math.round((w/t)*10000)/10000;
 }
 function nujeok(){
-  const ar=areaRate(),so=sonhae();
-  if(ar===null||so===null)return null;
-  return ar*so*(1-num(st.uninsRate)/100);
+  const co=coeff(),ar=areaRate(),so=sonhae();
+  if(co===null||ar===null||so===null)return null;
+  return co*ar*so*(1-num(st.uninsRate)/100);
 }
 
 /* 표본 렌더 */
@@ -794,12 +794,27 @@ function missingFields(){
   if(smpTotal<=0) miss.push('표본 조사');
   return miss;
 }
+function sampleCountErrors(){
+  const errs=[];
+  st.samples.forEach((s,i)=>{
+    const t=rowTotal(s);
+    if(t>0 && t!==10) errs.push((i+1)+'번 표본구간 ('+t+'개)');
+  });
+  return errs;
+}
 function setMode(m){
   if(m==='calc'){
     const miss=missingFields();
     if(miss.length){
       vibrate([30,40,60]);
       $('need-msg').innerHTML='다음 항목을 입력해 주세요:<br><b style="color:var(--org)">'+miss.join(' · ')+'</b>';
+      $('need-overlay').style.display='flex';
+      return; // 계산모드 진입 막음
+    }
+    const cntErrs=sampleCountErrors();
+    if(cntErrs.length){
+      vibrate([30,40,60]);
+      $('need-msg').innerHTML='입력이 안됩니다. 표본구간당 합계를 10개로 맞춰주세요:<br><b style="color:var(--org)">'+cntErrs.join(' · ')+'</b>';
       $('need-overlay').style.display='flex';
       return; // 계산모드 진입 막음
     }
