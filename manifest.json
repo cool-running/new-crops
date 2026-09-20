@@ -2,7 +2,7 @@
   "name": "피해율계산기 (DEV)",
   "short_name": "피해율DEV",
   "description": "손해평가 피해율계산기 개발버전",
-  "start_url": "./index.html",
+  "start_url": "./index-dev.html",
   "display": "standalone",
   "background_color": "#185FA5",
   "theme_color": "#185FA5",
