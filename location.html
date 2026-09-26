@@ -68,6 +68,16 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
 .btn-loc{background:var(--blue);color:#fff;}
 .btn-copy{background:var(--bg);color:var(--text);border:0.5px solid var(--border);}
 .btn-save{background:#FEE500;color:#3C1E1E;}
+.addr-list{display:none;position:fixed;top:calc(var(--top-h) + var(--search-h));left:0;right:0;max-height:55vh;overflow-y:auto;background:#fff;border-bottom:0.5px solid var(--border);box-shadow:0 6px 16px rgba(0,0,0,0.18);z-index:160;}
+.addr-list.show{display:block;}
+.addr-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg);font-size:12px;font-weight:700;color:var(--sub);border-bottom:0.5px solid var(--border);}
+.addr-close{border:none;background:none;font-size:18px;color:var(--sub);cursor:pointer;padding:0 4px;}
+.addr-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;border-bottom:0.5px solid var(--border);background:#fff;text-align:left;cursor:pointer;font-family:-apple-system,'Noto Sans KR',sans-serif;}
+.addr-item:active{background:var(--bg);}
+.addr-main{flex:1;min-width:0;}
+.addr-name{font-size:14px;font-weight:700;color:var(--text);word-break:keep-all;}
+.addr-road{font-size:12px;color:var(--sub);margin-top:2px;word-break:keep-all;}
+.addr-dist{font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;}
 .tap-hint{font-size:12px;color:var(--hint);text-align:center;padding:8px 0;line-height:1.7;}
 
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--card);border-top:0.5px solid rgba(0,0,0,0.08);box-shadow:0 -2px 12px rgba(0,0,0,0.06);display:flex;align-items:stretch;z-index:200;}
@@ -119,6 +129,8 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
     </div>
   </div>
 </div>
+
+<div class="addr-list" id="addrList"></div>
 
 <div class="toast" id="toast"></div>
 
@@ -177,6 +189,8 @@ kakao.maps.load(function(){
 
   // 지도 탭 → 주소 + 필지 경계 한 번에
   kakao.maps.event.addListener(map, 'click', function(e){
+    const _al=document.getElementById('addrList');
+    if(_al && _al.classList.contains('show')){ closeAddrList(); return; }
     onMapTap(e.latLng.getLat(), e.latLng.getLng());
   });
 
@@ -260,20 +274,78 @@ function reverseGeocode(lat,lng){
 /* ── 주소/지번 검색 ── */
 function searchAddress(){
   const q=document.getElementById('searchInput').value.trim();
+  const inp=document.getElementById('searchInput');
+  if(inp) inp.blur(); // 키보드 내리기
   if(!q){ showToast('주소나 지번을 입력해주세요'); return; }
+  closeAddrList();
   geocoder.addressSearch(q,(result,status)=>{
     if(status===kakao.maps.services.Status.OK && result.length){
-      const lat=parseFloat(result[0].y), lng=parseFloat(result[0].x);
-      const p=new kakao.maps.LatLng(lat,lng);
-      map.setCenter(p); map.setLevel(3);
-      onMapTap(lat,lng);
+      if(result.length===1){ goToAddr(result[0]); return; }
+      showAddrList(result);
     } else {
       showToast('❌ 주소를 찾을 수 없어요');
     }
+  },{size:30});
+}
+
+/* 동명 주소 목록 — 현재 위치(없으면 지도 중심)에서 가까운 순 */
+function showAddrList(result){
+  let bLat=curLat, bLng=curLng;
+  if(bLat==null||bLng==null){ const c=map.getCenter(); bLat=c.getLat(); bLng=c.getLng(); }
+  const distKm=r=>{
+    const R=6371, toR=Math.PI/180;
+    const dLat=(parseFloat(r.y)-bLat)*toR, dLng=(parseFloat(r.x)-bLng)*toR;
+    const a=Math.sin(dLat/2)**2+Math.cos(bLat*toR)*Math.cos(parseFloat(r.y)*toR)*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(a));
+  };
+  const list=result.map(r=>({r, d:distKm(r)})).sort((a,b)=>a.d-b.d);
+  const box=document.getElementById('addrList');
+  box.innerHTML='';
+  const head=document.createElement('div'); head.className='addr-head';
+  const ht=document.createElement('span'); ht.textContent='검색결과 '+list.length+'건 · 가까운 순';
+  const hc=document.createElement('button'); hc.className='addr-close'; hc.textContent='✕'; hc.onclick=closeAddrList;
+  head.appendChild(ht); head.appendChild(hc); box.appendChild(head);
+  list.forEach(({r,d})=>{
+    const it=document.createElement('button'); it.className='addr-item';
+    const main=document.createElement('div'); main.className='addr-main';
+    const nm=document.createElement('div'); nm.className='addr-name';
+    nm.textContent=(r.address&&r.address.address_name)||r.address_name;
+    main.appendChild(nm);
+    if(r.road_address&&r.road_address.address_name){
+      const rd=document.createElement('div'); rd.className='addr-road';
+      rd.textContent=r.road_address.address_name; main.appendChild(rd);
+    }
+    const ds=document.createElement('span'); ds.className='addr-dist';
+    ds.textContent=d<1?Math.round(d*1000)+'m':(d<100?d.toFixed(1):Math.round(d))+'km';
+    it.appendChild(main); it.appendChild(ds);
+    it.onclick=()=>{ closeAddrList(); goToAddr(r); };
+    box.appendChild(it);
   });
+  box.scrollTop=0;
+  box.classList.add('show');
+}
+function closeAddrList(){
+  const box=document.getElementById('addrList');
+  if(box){ box.classList.remove('show'); box.innerHTML=''; }
+}
+function goToAddr(r){
+  const lat=parseFloat(r.y), lng=parseFloat(r.x);
+  const p=new kakao.maps.LatLng(lat,lng);
+  map.setCenter(p); map.setLevel(3);
+  onMapTap(lat,lng);
 }
 const _searchInput=document.getElementById('searchInput');
-if(_searchInput) _searchInput.addEventListener('keydown',e=>{ if(e.key==='Enter') searchAddress(); });
+if(_searchInput){
+  _searchInput.setAttribute('enterkeyhint','search');
+  let _lastEnter=0;
+  const _onEnter=e=>{
+    e.preventDefault();
+    const now=Date.now(); if(now-_lastEnter<400) return; _lastEnter=now; // 중복 실행 방지
+    searchAddress();
+  };
+  _searchInput.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.keyCode===13) _onEnter(e); });
+  _searchInput.addEventListener('beforeinput',e=>{ if(e.inputType==='insertLineBreak') _onEnter(e); }); // Android 키보드 대응
+}
 
 /* ── 지도 탭 → 주소 + 필지 경계 한 번에 ── */
 function onMapTap(lat,lng){
