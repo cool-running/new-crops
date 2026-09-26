@@ -8,10 +8,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>면적</title>
 <link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-dev-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://dapi.kakao.com">
 <link rel="dns-prefetch" href="https://dapi.kakao.com">
 <link rel="preconnect" href="https://api.vworld.kr">
+<link rel="preconnect" href="https://farmmap.jinnykim61.workers.dev">
 <link rel="dns-prefetch" href="https://api.vworld.kr">
 <style>
 :root{--blue:#185FA5;--border:#D8D6CE;--bg:#F5F4F0;--card:#fff;--text:#1a1a1a;--sub:#666;--hint:#aaa;--nav-h:62px;--top-h:66px;--search-h:52px;--mode-h:52px;--panel-h:180px;}
@@ -93,7 +94,8 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
 </div>
 
 <div class="mode-row">
-  <button class="mbtn on" id="modeParcelBtn" onclick="setAreaMode('parcel')">🌾 자동측정</button>
+  <button class="mbtn on" id="modeParcelBtn" onclick="setAreaMode('parcel')">🗺️ 지적도</button>
+  <button class="mbtn" id="modeFarmBtn" onclick="setAreaMode('farmmap')">🌾 팜맵</button>
   <button class="mbtn" id="modeManualBtn" onclick="setAreaMode('manual')">✏️ 수동측정</button>
 </div>
 
@@ -127,7 +129,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
   <button class="nav-item" onclick="location.href='./cover_card.html'"><div class="nav-icon">📋</div><span>표지카드</span></button>
   <button class="nav-item" onclick="location.href='./location.html'"><div class="nav-icon">📍</div><span>위치</span></button>
   <button class="nav-item on"><div class="nav-icon">📐</div><span>면적측정</span></button>
-  <button class="nav-item" onclick="location.href='./index-dev.html'"><div class="nav-icon" style="padding:0;"><img src="./icon-dev-192.png" style="width:100%;height:100%;object-fit:contain;" alt=""></div><span>계산기</span></button>
+  <button class="nav-item" onclick="location.href='./index.html'"><div class="nav-icon" style="padding:0;"><img src="./icon-192.png" style="width:100%;height:100%;object-fit:contain;" alt=""></div><span>계산기</span></button>
   <button class="nav-item" onclick="location.href='./help.html'"><div class="nav-icon">💡</div><span>도움말</span></button>
 </nav>
 
@@ -146,7 +148,8 @@ if(typeof kakao==='undefined'){
 } else {
 
 let map=null, geocoder=null, myMarker=null;
-let mode='parcel'; // 'parcel' = 자동측정(탭 한 번), 'manual' = 수동측정(점 찍기)
+let mode='parcel'; // 'parcel' = 지적도 자동측정, 'farmmap' = 팜맵(실경작지) 자동측정, 'manual' = 수동측정(점 찍기)
+const FARMMAP_URL='https://farmmap.jinnykim61.workers.dev/'; // Cloudflare Worker 중계 (공공데이터포털 팜맵 좌표기반 상세조회)
 const VWORLD_KEY='11A78BAB-C75E-3C35-A0D1-172138B3A5EA';
 let points=[];          // [{lat,lng}]
 let vertexOverlays=[];  // CustomOverlay dots
@@ -165,8 +168,10 @@ kakao.maps.load(function(){
   map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
 
   kakao.maps.event.addListener(map, 'click', function(e){
-    if(mode==='manual') addPoint(e.latLng.getLat(), e.latLng.getLng());
-    else fetchParcelWhole(e.latLng.getLat(), e.latLng.getLng());
+    const la=e.latLng.getLat(), ln=e.latLng.getLng();
+    if(mode==='manual') addPoint(la, ln);
+    else if(mode==='farmmap') fetchFarmmap(la, ln);
+    else fetchParcelWhole(la, ln);
   });
 
   locateMe();
@@ -216,6 +221,8 @@ function searchAddress(){
       map.setCenter(p); map.setLevel(3);
       if(mode==='parcel'){
         fetchParcelWhole(lat,lng);
+      } else if(mode==='farmmap'){
+        fetchFarmmap(lat,lng);
       } else {
         showToast('🌾 이 위치에서 탭해서 점을 찍어주세요');
       }
@@ -264,14 +271,16 @@ function setAreaMode(m){
   if(mode===m) return;
   mode=m;
   document.getElementById('modeParcelBtn').classList.toggle('on', m==='parcel');
+  document.getElementById('modeFarmBtn').classList.toggle('on', m==='farmmap');
   document.getElementById('modeManualBtn').classList.toggle('on', m==='manual');
   document.getElementById('undoBtn').style.display = m==='manual' ? '' : 'none';
   clearAll();
 }
 
 function addrPlaceholderFor(m){
+  if(m==='farmmap') return '지도를 탭하면 팜맵(실경작지) 경계와 면적이 표시돼요';
   return m==='parcel'
-    ? '지도를 탭하면 면적과 주소가 표시돼요'
+    ? '지도를 탭하면 지적도 필지 면적과 주소가 표시돼요'
     : '핀을 선택하면서 면적을 측정할 수 있어요\n(3개 이상 찍으면 면적이 계산돼요)';
 }
 
@@ -317,6 +326,51 @@ function fetchParcelWhole(lat,lng){
     +`&geometry=true&attribute=false&crs=EPSG:4326`
     +`&geomFilter=POINT(${lng}%20${lat})&size=1&format=json&callback=${cb}`;
   document.head.appendChild(s);
+}
+
+/* ── 팜맵 모드: 탭한 지점을 포함하는 팜맵(농경지 전자지도) 필지 경계를 가져옴 ──
+   Worker가 EPSG:5179 경계를 위경도로 바꿔서 { ok, items:[{use,lnm,emd,year,img,rings}] } 로 돌려줌 */
+let _farmReqId=0;
+function pointInRing(lat,lng,ring){ // ring: [[lat,lng],...]
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const yi=ring[i][0], xi=ring[i][1], yj=ring[j][0], xj=ring[j][1];
+    if(((yi>lat)!==(yj>lat)) && (lng < (xj-xi)*(lat-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+async function fetchFarmmap(lat,lng){
+  const myReqId=++_farmReqId;
+  showToast('🌾 팜맵 조회 중...');
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),12000);
+  try{
+    const r=await fetch(`${FARMMAP_URL}?lat=${lat.toFixed(7)}&lng=${lng.toFixed(7)}`,{signal:ctrl.signal});
+    const d=await r.json();
+    clearTimeout(timer);
+    if(myReqId!==_farmReqId) return;
+    if(!d.ok){ showToast('🌾 팜맵 조회 실패'+(d.error?': '+d.error:'')); return; }
+    const it=(d.items||[]).find(x=>x.rings&&x.rings.length);
+    if(!it){ showToast('🌾 이 위치는 팜맵 농경지가 아니에요'); return; }
+    // 여러 조각이면 탭한 지점을 포함한 조각 → 없으면 가장 큰 조각
+    let ring=it.rings.find(rg=>pointInRing(lat,lng,rg));
+    if(!ring) ring=it.rings.slice().sort((a,b)=>b.length-a.length)[0];
+    let pts=ring.map(c=>({lat:c[0],lng:c[1]}));
+    const f=pts[0], l=pts[pts.length-1];
+    if(pts.length>3 && f.lat===l.lat && f.lng===l.lng) pts.pop(); // 닫는 중복점 제거
+    points=pts;
+    vertexOverlays.forEach(o=>o.setMap(null)); vertexOverlays=[];
+    if(segLabelOverlay){ segLabelOverlay.setMap(null); segLabelOverlay=null; }
+    redrawShape();
+    updateInfoPanel();
+    const yr=(it.year||'').slice(0,4);
+    const extra=['팜맵', it.use, yr&&(yr+'년'), it.img].filter(Boolean).join(' · ');
+    updateAddress(lat,lng,extra);
+    showToast(it.rings.length>1?'🌾 팜맵 면적 적용됨 (여러 조각 중 탭한 조각)':'🌾 팜맵 면적 적용됨');
+  }catch(e){
+    clearTimeout(timer);
+    if(myReqId===_farmReqId) showToast(e.name==='AbortError'?'🌾 팜맵 응답 지연 — 다시 탭해주세요':'🌾 팜맵 조회 실패(네트워크)');
+  }
 }
 
 function redrawShape(){
@@ -365,11 +419,13 @@ function updateInfoPanel(){
   document.getElementById('periVal').textContent=fmtNum(calcPerimeter(points),1)+'m';
 }
 
-function updateAddress(lat,lng){
+function updateAddress(lat,lng,extra){
+  const el=document.getElementById('addrVal');
+  if(extra) el.textContent='—\n'+extra;
   geocoder.coord2Address(lng,lat,(result,status)=>{
     if(status===kakao.maps.services.Status.OK){
       const jibun=result[0].address?result[0].address.address_name:'—';
-      document.getElementById('addrVal').textContent=jibun;
+      el.textContent = extra ? jibun+'\n'+extra : jibun;
     }
   });
 }
