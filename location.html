@@ -46,7 +46,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
 #map img{-webkit-touch-callout:none;-webkit-user-drag:none;user-drag:none;}
 
 /* 지도 위 내위치 버튼만 */
-.myloc-btn{position:fixed;right:14px;bottom:calc(var(--panel-h) + var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);width:44px;height:44px;border-radius:50%;background:#fff;border:0.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:150;}
+.myloc-btn{position:fixed;left:14px;bottom:calc(var(--panel-h) + var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);width:44px;height:44px;border-radius:50%;background:#fff;border:0.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:150;}
 .myloc-btn:active{opacity:.7;}
 /* 패널 내 맵 컨트롤 버튼 */
 .map-fbtn{height:32px;padding:0 12px;border-radius:16px;background:#f0f0f0;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,'Noto Sans KR',sans-serif;white-space:nowrap;color:var(--text);flex-shrink:0;}
@@ -168,7 +168,7 @@ kakao.maps.load(function(){
   });
   myMarker.setMap(map);
 
-  map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+  map.setZoomable(true); // 핀치 확대·축소
 
   // 위성 기본 ON (실제 항공사진이 기본으로 보이도록)
   isSat = true;
