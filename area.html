@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://dapi.kakao.com">
 <link rel="dns-prefetch" href="https://dapi.kakao.com">
 <link rel="preconnect" href="https://api.vworld.kr">
-<link rel="preconnect" href="https://farmmap.jinnykim61.workers.dev">
 <link rel="dns-prefetch" href="https://api.vworld.kr">
 <style>
 :root{--blue:#185FA5;--border:#D8D6CE;--bg:#F5F4F0;--card:#fff;--text:#1a1a1a;--sub:#666;--hint:#aaa;--nav-h:62px;--top-h:66px;--search-h:52px;--mode-h:52px;--panel-h:180px;}
@@ -50,7 +49,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
 #map img{-webkit-touch-callout:none;-webkit-user-drag:none;user-drag:none;}
 
 
-.myloc-btn{position:fixed;right:14px;bottom:calc(var(--panel-h) + var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);width:44px;height:44px;border-radius:50%;background:#fff;border:0.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:150;}
+.myloc-btn{position:fixed;left:14px;bottom:calc(var(--panel-h) + var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);width:44px;height:44px;border-radius:50%;background:#fff;border:0.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:150;}
 .myloc-btn:active{opacity:.7;}
 
 .panel{position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));height:var(--panel-h);background:#fff;border-top:0.5px solid var(--border);padding:12px 16px;z-index:50;overflow:hidden;}
@@ -73,6 +72,16 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
 .nav-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background .15s,transform .15s;}
 .nav-item.on .nav-icon{background:linear-gradient(135deg,#185FA5,#378ADD);box-shadow:0 3px 10px rgba(24,95,165,0.28);transform:translateY(-2px);}
 
+.addr-list{display:none;position:fixed;top:calc(var(--top-h) + var(--search-h));left:0;right:0;max-height:55vh;overflow-y:auto;background:#fff;border-bottom:0.5px solid var(--border);box-shadow:0 6px 16px rgba(0,0,0,0.18);z-index:160;}
+.addr-list.show{display:block;}
+.addr-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg);font-size:12px;font-weight:700;color:var(--sub);border-bottom:0.5px solid var(--border);}
+.addr-close{border:none;background:none;font-size:18px;color:var(--sub);cursor:pointer;padding:0 4px;}
+.addr-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;border-bottom:0.5px solid var(--border);background:#fff;text-align:left;cursor:pointer;font-family:-apple-system,'Noto Sans KR',sans-serif;}
+.addr-item:active{background:var(--bg);}
+.addr-main{flex:1;min-width:0;}
+.addr-name{font-size:14px;font-weight:700;color:var(--text);word-break:keep-all;}
+.addr-road{font-size:12px;color:var(--sub);margin-top:2px;word-break:keep-all;}
+.addr-dist{font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;}
 .toast{display:none;position:fixed;bottom:calc(var(--panel-h) + var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(20,20,30,0.92);color:#fff;font-size:13px;font-weight:600;font-family:-apple-system,'Noto Sans KR',sans-serif;padding:10px 20px;border-radius:20px;white-space:nowrap;z-index:999;}
 
 </style>
@@ -94,8 +103,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
 </div>
 
 <div class="mode-row">
-  <button class="mbtn on" id="modeParcelBtn" onclick="setAreaMode('parcel')">🗺️ 지적도</button>
-  <button class="mbtn" id="modeFarmBtn" onclick="setAreaMode('farmmap')">🌾 팜맵</button>
+  <button class="mbtn on" id="modeParcelBtn" onclick="setAreaMode('parcel')">🌾 자동측정</button>
   <button class="mbtn" id="modeManualBtn" onclick="setAreaMode('manual')">✏️ 수동측정</button>
 </div>
 
@@ -123,6 +131,8 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--text);font-
     <button class="pbtn pbtn-clear" onclick="clearAll()">🗑 초기화</button>
   </div>
 </div>
+<div class="addr-list" id="addrList"></div>
+
 <div class="toast" id="toast"></div>
 
 <nav class="bottom-nav">
@@ -148,8 +158,7 @@ if(typeof kakao==='undefined'){
 } else {
 
 let map=null, geocoder=null, myMarker=null;
-let mode='parcel'; // 'parcel' = 지적도 자동측정, 'farmmap' = 팜맵(실경작지) 자동측정, 'manual' = 수동측정(점 찍기)
-const FARMMAP_URL='https://farmmap.jinnykim61.workers.dev/'; // Cloudflare Worker 중계 (공공데이터포털 팜맵 좌표기반 상세조회)
+let mode='parcel'; // 'parcel' = 자동측정(탭 한 번), 'manual' = 수동측정(점 찍기)
 const VWORLD_KEY='11A78BAB-C75E-3C35-A0D1-172138B3A5EA';
 let points=[];          // [{lat,lng}]
 let vertexOverlays=[];  // CustomOverlay dots
@@ -165,13 +174,13 @@ kakao.maps.load(function(){
     tileAnimation: false
   });
   map.setMapTypeId(kakao.maps.MapTypeId.HYBRID);
-  map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+  map.setZoomable(true); // 핀치 확대·축소
 
   kakao.maps.event.addListener(map, 'click', function(e){
-    const la=e.latLng.getLat(), ln=e.latLng.getLng();
-    if(mode==='manual') addPoint(la, ln);
-    else if(mode==='farmmap') fetchFarmmap(la, ln);
-    else fetchParcelWhole(la, ln);
+    const _al=document.getElementById('addrList');
+    if(_al && _al.classList.contains('show')){ closeAddrList(); return; }
+    if(mode==='manual') addPoint(e.latLng.getLat(), e.latLng.getLng());
+    else fetchParcelWhole(e.latLng.getLat(), e.latLng.getLng());
   });
 
   locateMe();
@@ -212,24 +221,65 @@ function calcPerimeter(pts){
 
 /* ── 주소/지번 검색 ── */
 function searchAddress(){
-  const q=document.getElementById('searchInput').value.trim();
+  const inp=document.getElementById('searchInput');
+  const q=inp.value.trim();
+  inp.blur(); // 키보드 내리기
   if(!q){ showToast('주소나 지번을 입력해주세요'); return; }
+  closeAddrList();
   geocoder.addressSearch(q,(result,status)=>{
     if(status===kakao.maps.services.Status.OK && result.length){
-      const lat=parseFloat(result[0].y), lng=parseFloat(result[0].x);
-      const p=new kakao.maps.LatLng(lat,lng);
-      map.setCenter(p); map.setLevel(3);
-      if(mode==='parcel'){
-        fetchParcelWhole(lat,lng);
-      } else if(mode==='farmmap'){
-        fetchFarmmap(lat,lng);
-      } else {
-        showToast('🌾 이 위치에서 탭해서 점을 찍어주세요');
-      }
+      if(result.length===1){ goToAddr(result[0]); return; }
+      showAddrList(result);
     } else {
       showToast('❌ 주소를 찾을 수 없어요');
     }
+  },{size:30});
+}
+
+/* 동명 주소 목록 — 현재 위치(없으면 지도 중심)에서 가까운 순 */
+function showAddrList(result){
+  let bLat=curLat, bLng=curLng;
+  if(bLat==null||bLng==null){ const c=map.getCenter(); bLat=c.getLat(); bLng=c.getLng(); }
+  const distKm=r=>haversine({lat:bLat,lng:bLng},{lat:parseFloat(r.y),lng:parseFloat(r.x)})/1000;
+  const list=result.map(r=>({r, d:distKm(r)})).sort((a,b)=>a.d-b.d);
+  const box=document.getElementById('addrList');
+  box.innerHTML='';
+  const head=document.createElement('div'); head.className='addr-head';
+  const ht=document.createElement('span'); ht.textContent='검색결과 '+list.length+'건 · 가까운 순';
+  const hc=document.createElement('button'); hc.className='addr-close'; hc.textContent='✕'; hc.onclick=closeAddrList;
+  head.appendChild(ht); head.appendChild(hc); box.appendChild(head);
+  list.forEach(({r,d})=>{
+    const it=document.createElement('button'); it.className='addr-item';
+    const main=document.createElement('div'); main.className='addr-main';
+    const nm=document.createElement('div'); nm.className='addr-name';
+    nm.textContent=(r.address&&r.address.address_name)||r.address_name;
+    main.appendChild(nm);
+    if(r.road_address&&r.road_address.address_name){
+      const rd=document.createElement('div'); rd.className='addr-road';
+      rd.textContent=r.road_address.address_name; main.appendChild(rd);
+    }
+    const ds=document.createElement('span'); ds.className='addr-dist';
+    ds.textContent=d<1?Math.round(d*1000)+'m':(d<100?d.toFixed(1):Math.round(d))+'km';
+    it.appendChild(main); it.appendChild(ds);
+    it.onclick=()=>{ closeAddrList(); goToAddr(r); };
+    box.appendChild(it);
   });
+  box.scrollTop=0;
+  box.classList.add('show');
+}
+function closeAddrList(){
+  const box=document.getElementById('addrList');
+  if(box){ box.classList.remove('show'); box.innerHTML=''; }
+}
+function goToAddr(r){
+  const lat=parseFloat(r.y), lng=parseFloat(r.x);
+  const p=new kakao.maps.LatLng(lat,lng);
+  map.setCenter(p); map.setLevel(3);
+  if(mode==='parcel'){
+    fetchParcelWhole(lat,lng);
+  } else {
+    showToast('🌾 이 위치에서 탭해서 점을 찍어주세요');
+  }
 }
 
 /* ── 점 추가/삭제 ── */
@@ -271,16 +321,14 @@ function setAreaMode(m){
   if(mode===m) return;
   mode=m;
   document.getElementById('modeParcelBtn').classList.toggle('on', m==='parcel');
-  document.getElementById('modeFarmBtn').classList.toggle('on', m==='farmmap');
   document.getElementById('modeManualBtn').classList.toggle('on', m==='manual');
   document.getElementById('undoBtn').style.display = m==='manual' ? '' : 'none';
   clearAll();
 }
 
 function addrPlaceholderFor(m){
-  if(m==='farmmap') return '지도를 탭하면 팜맵(실경작지) 경계와 면적이 표시돼요';
   return m==='parcel'
-    ? '지도를 탭하면 지적도 필지 면적과 주소가 표시돼요'
+    ? '지도를 탭하면 면적과 주소가 표시돼요'
     : '핀을 선택하면서 면적을 측정할 수 있어요\n(3개 이상 찍으면 면적이 계산돼요)';
 }
 
@@ -326,51 +374,6 @@ function fetchParcelWhole(lat,lng){
     +`&geometry=true&attribute=false&crs=EPSG:4326`
     +`&geomFilter=POINT(${lng}%20${lat})&size=1&format=json&callback=${cb}`;
   document.head.appendChild(s);
-}
-
-/* ── 팜맵 모드: 탭한 지점을 포함하는 팜맵(농경지 전자지도) 필지 경계를 가져옴 ──
-   Worker가 EPSG:5179 경계를 위경도로 바꿔서 { ok, items:[{use,lnm,emd,year,img,rings}] } 로 돌려줌 */
-let _farmReqId=0;
-function pointInRing(lat,lng,ring){ // ring: [[lat,lng],...]
-  let inside=false;
-  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
-    const yi=ring[i][0], xi=ring[i][1], yj=ring[j][0], xj=ring[j][1];
-    if(((yi>lat)!==(yj>lat)) && (lng < (xj-xi)*(lat-yi)/(yj-yi)+xi)) inside=!inside;
-  }
-  return inside;
-}
-async function fetchFarmmap(lat,lng){
-  const myReqId=++_farmReqId;
-  showToast('🌾 팜맵 조회 중...');
-  const ctrl=new AbortController();
-  const timer=setTimeout(()=>ctrl.abort(),12000);
-  try{
-    const r=await fetch(`${FARMMAP_URL}?lat=${lat.toFixed(7)}&lng=${lng.toFixed(7)}`,{signal:ctrl.signal});
-    const d=await r.json();
-    clearTimeout(timer);
-    if(myReqId!==_farmReqId) return;
-    if(!d.ok){ showToast('🌾 팜맵 조회 실패'+(d.error?': '+d.error:'')); return; }
-    const it=(d.items||[]).find(x=>x.rings&&x.rings.length);
-    if(!it){ showToast('🌾 이 위치는 팜맵 농경지가 아니에요'); return; }
-    // 여러 조각이면 탭한 지점을 포함한 조각 → 없으면 가장 큰 조각
-    let ring=it.rings.find(rg=>pointInRing(lat,lng,rg));
-    if(!ring) ring=it.rings.slice().sort((a,b)=>b.length-a.length)[0];
-    let pts=ring.map(c=>({lat:c[0],lng:c[1]}));
-    const f=pts[0], l=pts[pts.length-1];
-    if(pts.length>3 && f.lat===l.lat && f.lng===l.lng) pts.pop(); // 닫는 중복점 제거
-    points=pts;
-    vertexOverlays.forEach(o=>o.setMap(null)); vertexOverlays=[];
-    if(segLabelOverlay){ segLabelOverlay.setMap(null); segLabelOverlay=null; }
-    redrawShape();
-    updateInfoPanel();
-    const yr=(it.year||'').slice(0,4);
-    const extra=['팜맵', it.use, yr&&(yr+'년'), it.img].filter(Boolean).join(' · ');
-    updateAddress(lat,lng,extra);
-    showToast(it.rings.length>1?'🌾 팜맵 면적 적용됨 (여러 조각 중 탭한 조각)':'🌾 팜맵 면적 적용됨');
-  }catch(e){
-    clearTimeout(timer);
-    if(myReqId===_farmReqId) showToast(e.name==='AbortError'?'🌾 팜맵 응답 지연 — 다시 탭해주세요':'🌾 팜맵 조회 실패(네트워크)');
-  }
 }
 
 function redrawShape(){
@@ -419,13 +422,11 @@ function updateInfoPanel(){
   document.getElementById('periVal').textContent=fmtNum(calcPerimeter(points),1)+'m';
 }
 
-function updateAddress(lat,lng,extra){
-  const el=document.getElementById('addrVal');
-  if(extra) el.textContent='—\n'+extra;
+function updateAddress(lat,lng){
   geocoder.coord2Address(lng,lat,(result,status)=>{
     if(status===kakao.maps.services.Status.OK){
       const jibun=result[0].address?result[0].address.address_name:'—';
-      el.textContent = extra ? jibun+'\n'+extra : jibun;
+      document.getElementById('addrVal').textContent=jibun;
     }
   });
 }
@@ -467,7 +468,17 @@ function showToast(msg){
 }
 
 const _searchInput=document.getElementById('searchInput');
-if(_searchInput) _searchInput.addEventListener('keydown',e=>{ if(e.key==='Enter') searchAddress(); });
+if(_searchInput){
+  _searchInput.setAttribute('enterkeyhint','search');
+  let _lastEnter=0;
+  const _onEnter=e=>{
+    e.preventDefault();
+    const now=Date.now(); if(now-_lastEnter<400) return; _lastEnter=now; // 중복 실행 방지
+    searchAddress();
+  };
+  _searchInput.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.keyCode===13) _onEnter(e); });
+  _searchInput.addEventListener('beforeinput',e=>{ if(e.inputType==='insertLineBreak') _onEnter(e); }); // Android 키보드 대응
+}
 
 } // end kakao-defined guard
 </script>
