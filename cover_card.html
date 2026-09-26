@@ -85,6 +85,7 @@ canvas{display:block;max-width:100%;max-height:100%;}
 }
 .input-field:focus{border-color:#E05A2B;background:rgba(255,255,255,0.15);}
 .input-field::placeholder{color:rgba(255,255,255,0.3);font-weight:400;font-size:13px;}
+textarea.input-field{height:auto;min-height:40px;max-height:112px;padding:8px 12px;line-height:1.35;resize:none;overflow-y:auto;display:block;}
 
 /* 번호 스텝퍼 */
 .seq-stepper{display:flex;align-items:center;gap:4px;height:40px;}
@@ -214,7 +215,7 @@ input[type=range]{flex:1;accent-color:#E05A2B;}
   <div class="input-bar" id="memoInputBar" style="display:none;">
     <div class="input-group">
       <label class="input-lbl">📝 메모 내용</label>
-      <input type="text" id="memoInput" class="input-field" placeholder="예) 농지분할 3-1" inputmode="text" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <textarea id="memoInput" class="input-field" rows="1" placeholder="예) 농지분할 3-1 (엔터 = 줄바꿈)" inputmode="text" enterkeyhint="enter" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
     </div>
   </div>
 
@@ -366,14 +367,17 @@ function getGrad(type){
 
 function wrapText(text, font, maxWidth){
   ctx.font=font;
-  const lines=[]; let line='';
-  const src=text||'';
-  for(const ch of src){
-    const test=line+ch;
-    if(ctx.measureText(test).width>maxWidth && line!==''){ lines.push(line); line=ch; }
-    else{ line=test; }
+  const lines=[];
+  const paras=String(text||'').replace(/\r\n?/g,'\n').split('\n');
+  for(const para of paras){
+    let line='';
+    for(const ch of para){
+      const test=line+ch;
+      if(ctx.measureText(test).width>maxWidth && line!==''){ lines.push(line); line=ch; }
+      else{ line=test; }
+    }
+    lines.push(line);
   }
-  lines.push(line);
   return lines;
 }
 
@@ -467,13 +471,20 @@ function setCardType(t){
   document.getElementById('modeRow').style.display = t==='number' ? '' : 'none';
   document.getElementById('numberInputBar').style.display = t==='number' ? '' : 'none';
   document.getElementById('memoInputBar').style.display = t==='memo' ? '' : 'none';
+  if(t==='memo') autoGrowMemo();
   draw();saveS();
   showMsg(t==='number'?'🔢 번호 카드로 전환':'📝 메모 카드로 전환');
 }
 document.getElementById('typeNumberBtn').addEventListener('click',()=>setCardType('number'));
 document.getElementById('typeMemoBtn').addEventListener('click',()=>setCardType('memo'));
+function autoGrowMemo(){
+  const el=document.getElementById('memoInput');
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight+3,112)+'px';
+}
 document.getElementById('memoInput').addEventListener('input',function(){
   memoText=this.value;
+  autoGrowMemo();
   draw();saveS();
 });
 
@@ -496,6 +507,8 @@ editOverlay.innerHTML=`<div style="background:#1e1e2e;border-radius:16px;padding
   <div id="editLabel" style="color:rgba(255,255,255,0.55);font-size:12px;font-weight:700;margin-bottom:8px;font-family:'Noto Sans KR',sans-serif;"></div>
   <input id="editInput" type="text" inputmode="text" autocomplete="off" spellcheck="false"
     style="width:100%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.25);border-radius:10px;color:#fff;font-size:22px;font-weight:700;font-family:'Noto Sans KR',sans-serif;padding:10px 14px;outline:none;-webkit-user-select:text;user-select:text;"/>
+  <textarea id="editMemo" rows="4" inputmode="text" enterkeyhint="enter" autocomplete="off" spellcheck="false"
+    style="display:none;width:100%;box-sizing:border-box;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.25);border-radius:10px;color:#fff;font-size:20px;font-weight:700;line-height:1.35;font-family:'Noto Sans KR',sans-serif;padding:10px 14px;outline:none;resize:none;-webkit-user-select:text;user-select:text;"></textarea>
   <div style="display:flex;gap:8px;margin-top:12px;">
     <button id="editCancel" style="flex:1;height:40px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:14px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">취소</button>
     <button id="editOk" style="flex:2;height:40px;border-radius:8px;border:none;background:#E05A2B;color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">확인</button>
@@ -504,13 +517,17 @@ document.body.appendChild(editOverlay);
 
 function openEdit(t){
   editTarget=t;editOverlay.style.display='flex';
-  const inp=document.getElementById('editInput');
+  const memoTa=document.getElementById('editMemo');
+  const isMemo=(t==='memo');
+  document.getElementById('editInput').style.display=isMemo?'none':'';
+  memoTa.style.display=isMemo?'block':'none';
+  const inp=isMemo?memoTa:document.getElementById('editInput');
   if(t==='date'){
     document.getElementById('editLabel').textContent='📅 날짜 입력';
     inp.value=dateText;inp.placeholder='예) 4월29일';inp.inputMode='text';
   }else if(t==='memo'){
     document.getElementById('editLabel').textContent='📝 메모 입력';
-    inp.value=memoText;inp.placeholder='예) 농지분할 3-1';inp.inputMode='text';
+    inp.value=memoText;inp.placeholder='예) 농지분할 3-1 (엔터 = 줄바꿈)';
   }else{
     document.getElementById('editLabel').textContent='🔢 번호 입력 ('+(mode==='field'?'1차 현장':'2차 조사서')+')';
     inp.value=currentNum();inp.placeholder='예) 3';inp.inputMode='numeric';
@@ -519,13 +536,14 @@ function openEdit(t){
 }
 function closeEdit(apply){
   if(apply){
-    const v=document.getElementById('editInput').value.trim();
+    const v=(editTarget==='memo'?document.getElementById('editMemo'):document.getElementById('editInput')).value.trim();
     if(editTarget==='date'){
       dateText=v||todayLabel();
       document.getElementById('dateInput').value=dateText;
     }else if(editTarget==='memo'){
       memoText=v;
       document.getElementById('memoInput').value=memoText;
+      autoGrowMemo();
     }else{
       const n=parseInt(v,10);
       setCurrentNum(isNaN(n)?1:n);
@@ -700,6 +718,7 @@ document.getElementById('saveBtn').addEventListener('click',()=>{
   document.getElementById('modeRow').style.display = cardType==='number' ? '' : 'none';
   document.getElementById('numberInputBar').style.display = cardType==='number' ? '' : 'none';
   document.getElementById('memoInputBar').style.display = cardType==='memo' ? '' : 'none';
+  if(cardType==='memo') setTimeout(autoGrowMemo,0);
   {
     const txtMatched = Array.from(document.getElementById('txtColorRow').querySelectorAll('.tc')).some(s=>s.dataset.c===txtColor);
     if(!txtMatched){
